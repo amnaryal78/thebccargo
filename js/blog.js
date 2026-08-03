@@ -102,7 +102,7 @@ async function loadBlogsFromApi() {
                     card.dataset.category = blog.category || "General";
                     card.innerHTML = `
                         <div class="blog-card-img">
-                            <img src="${blog.image_url || blog.image || "https://files.catbox.moe/lpf0lv.png"}" alt="${escapeHtml(blog.title)}" loading="lazy">
+                            <img src="${blog.image_url || blog.image || "https://files.catbox.moe/lpf0lv.png"}" alt="${escapeHtml(blog.title)}" loading="lazy" decoding="async" width="400" height="260">
                             <span class="blog-card-tag ${getTagClass(blog.category)}">${escapeHtml(blog.category || "General")}</span>
                         </div>
                         <div class="blog-card-body">
@@ -129,7 +129,7 @@ async function loadBlogsFromApi() {
                     item.className = "sidebar-recent-item";
                     item.dataset.id = slug;
                     item.innerHTML = `
-                        <img src="${blog.image_url || blog.image || "https://files.catbox.moe/lpf0lv.png"}" alt="" class="sidebar-recent-thumb" loading="lazy">
+                        <img src="${blog.image_url || blog.image || "https://files.catbox.moe/lpf0lv.png"}" alt="" class="sidebar-recent-thumb" loading="lazy" decoding="async" width="80" height="80">
                         <div>
                             <div class="sidebar-recent-text">${escapeHtml(blog.title)}</div>
                             <div class="sidebar-recent-date"><i class="fas fa-calendar"></i> ${escapeHtml(blog.publish_date || blog.date || "Recent")}</div>

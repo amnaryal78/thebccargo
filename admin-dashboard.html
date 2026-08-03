@@ -640,6 +640,9 @@
         <div class="nav-item" data-page="faqs" onclick="navigateTo('faqs')">
           <i class="fas fa-question-circle"></i> FAQs
         </div>
+        <div class="nav-item" data-page="offers" onclick="navigateTo('offers')">
+          <i class="fas fa-tags"></i> Special Offers
+        </div>
       </nav>
 
       <div class="sidebar-footer">
@@ -709,6 +712,13 @@
               </div>
               <div class="stat-label">FAQs Published</div>
               <div class="stat-value" id="statFaqs">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-icon gold"><i class="fas fa-tags"></i></div>
+              </div>
+              <div class="stat-label">Special Offers</div>
+              <div class="stat-value" id="statOffers">—</div>
             </div>
           </div>
         </div>
@@ -838,6 +848,42 @@
                 </thead>
                 <tbody id="faqsTableBody">
                   <tr><td colspan="4"><div class="empty-state"><i class="fas fa-question"></i><p>Loading FAQs...</p></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════ OFFERS PAGE ═══════ -->
+        <div class="page" id="page-offers">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fas fa-tags"></i> Special Offers / Promotions</div>
+              <div class="panel-actions">
+                <div class="search-box">
+                  <i class="fas fa-search"></i>
+                  <input type="text" placeholder="Search offers..." id="offerSearch" oninput="filterOffers()">
+                </div>
+                <button class="btn btn-primary" onclick="openOfferModal()">
+                  <i class="fas fa-plus"></i> New Offer
+                </button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Promo Code</th>
+                    <th>Valid Until</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="offersTableBody">
+                  <tr><td colspan="7"><div class="empty-state"><i class="fas fa-tags"></i><p>Loading offers...</p></div></td></tr>
                 </tbody>
               </table>
             </div>
@@ -1083,6 +1129,50 @@
       <div class="modal-body" id="leadDetailBody"></div>
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="closeModal('leadModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offer Modal -->
+  <div class="modal-overlay" id="offerModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="offerModalTitle">New Special Offer</div>
+        <button class="modal-close" onclick="closeModal('offerModal')"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="offerEditId">
+        <div class="form-group">
+          <label>Offer Title *</label>
+          <input type="text" id="oTitle" placeholder="e.g. Express Air Cargo Special 15% Off" required>
+        </div>
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea id="oDescription" placeholder="Detailed description of the offer..." rows="3" required></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Promo / Discount Code</label>
+            <input type="text" id="oDiscountCode" placeholder="e.g. EXPRESS15">
+          </div>
+          <div class="form-group">
+            <label>Valid Until (Expiry Date)</label>
+            <input type="date" id="oValidUntil">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="oIsActive">
+            <option value="1">Active (Published on site)</option>
+            <option value="0">Inactive (Hidden from site)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('offerModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveOffer()">
+          <i class="fas fa-save"></i> Save Offer
+        </button>
       </div>
     </div>
   </div>

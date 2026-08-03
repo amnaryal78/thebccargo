@@ -147,4 +147,16 @@ router.get('/faqs', (req, res) => {
   });
 });
 
+/**
+ * GET /api/public/offers
+ * Returns all active offers (is_active = 1).
+ */
+router.get('/offers', (req, res) => {
+  const db = req.app.get('db');
+  db.all('SELECT * FROM offers WHERE is_active = 1 ORDER BY id DESC', [], (err, rows) => {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    return res.json({ success: true, offers: rows || [] });
+  });
+});
+
 module.exports = router;

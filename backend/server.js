@@ -231,6 +231,14 @@ app.get('/api/articles', (req, res) => {
   });
 });
 
+// Active Offers Public Endpoint
+app.get('/api/offers', (req, res) => {
+  db.all(`SELECT * FROM offers WHERE is_active = 1 ORDER BY id DESC`, [], (err, rows) => {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    return res.json({ success: true, offers: rows || [] });
+  });
+});
+
 // ═════════════════════════════════════════════════════════════════
 // 3. SERVE STATIC ASSETS & CLEAN URL HANDLERS
 // ═════════════════════════════════════════════════════════════════
@@ -275,8 +283,16 @@ app.get(ADMIN_SECRET_PATH, (req, res) => res.sendFile(getHtmlPath('hq-access.htm
 // Admin dashboard route
 app.get('/admin-dashboard', (req, res) => res.sendFile(getHtmlPath('admin-dashboard.html')));
 
-// D. Serve static assets (CSS, JS, images, fonts) from project root
-app.use(express.static(ROOT_DIR));
+// D. Serve static assets (CSS, JS, images, fonts) from project root with optimized Cache-Control headers
+app.use(express.static(ROOT_DIR, {
+  maxAge: '1y',
+  setHeaders: (res, filePath) => {
+    const ext = path.extname(filePath).toLowerCase();
+    if (['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.avif', '.ico'].includes(ext)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+  }
+}));
 
 // E. Fallback route for SPA/Clean URLs
 app.get('*', (req, res) => {

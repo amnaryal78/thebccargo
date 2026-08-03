@@ -23,18 +23,22 @@ router.get("/stats", async (req, res) => {
     db.get("SELECT COUNT(*) AS count FROM inquiries", (err3, row3) => {
       stats.leads = row3 ? row3.count : 0;
 
-      db.get("SELECT COUNT(*) AS count FROM faqs", (err4, row4) => {
-        stats.faqs = row4 ? row4.count : 0;
+        db.get("SELECT COUNT(*) AS count FROM faqs", (err4, row4) => {
+          stats.faqs = row4 ? row4.count : 0;
 
-        db.get(
-          "SELECT COUNT(*) AS count FROM inquiries WHERE status = ?",
-          ["New"],
-          (err5, row5) => {
-            stats.newLeads = row5 ? row5.count : 0;
-            return res.json({ success: true, stats });
-          },
-        );
-      });
+          db.get("SELECT COUNT(*) AS count FROM offers", (err5, row5) => {
+            stats.offers = row5 ? row5.count : 0;
+
+            db.get(
+              "SELECT COUNT(*) AS count FROM inquiries WHERE status = ?",
+              ["New"],
+              (err6, row6) => {
+                stats.newLeads = row6 ? row6.count : 0;
+                return res.json({ success: true, stats });
+              },
+            );
+          });
+        });
     });
   });
 });
@@ -399,6 +403,81 @@ router.delete("/faqs/:id", (req, res) => {
         .status(404)
         .json({ success: false, message: "FAQ not found." });
     return res.json({ success: true, message: "FAQ deleted." });
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+// SPECIAL OFFERS CRUD
+// ═══════════════════════════════════════════════════════════
+
+// GET all offers (admin view)
+router.get("/offers", (req, res) => {
+  const db = req.app.get("db");
+  db.all("SELECT * FROM offers ORDER BY id DESC", [], (err, rows) => {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    return res.json({ success: true, offers: rows || [] });
+  });
+});
+
+// POST create new offer
+router.post("/offers", (req, res) => {
+  const db = req.app.get("db");
+  const { title, description, discount_code, valid_until, is_active } = req.body;
+
+  if (!title || !description) {
+    return res.status(400).json({ success: false, message: "Title and description are required." });
+  }
+
+  const activeVal = is_active === false || is_active === 0 || is_active === "0" ? 0 : 1;
+  const sql = `INSERT INTO offers (title, description, discount_code, valid_until, is_active) VALUES (?, ?, ?, ?, ?)`;
+
+  db.run(sql, [title, description, discount_code || "", valid_until || "", activeVal], function (err) {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    return res.json({ success: true, message: "Offer created successfully.", offer_id: this.lastID });
+  });
+});
+
+// PUT update offer
+router.put("/offers/:id", (req, res) => {
+  const db = req.app.get("db");
+  const { title, description, discount_code, valid_until, is_active } = req.body;
+
+  if (!title || !description) {
+    return res.status(400).json({ success: false, message: "Title and description are required." });
+  }
+
+  const activeVal = is_active === false || is_active === 0 || is_active === "0" ? 0 : 1;
+  const sql = `UPDATE offers SET title = ?, description = ?, discount_code = ?, valid_until = ?, is_active = ? WHERE id = ?`;
+
+  db.run(sql, [title, description, discount_code || "", valid_until || "", activeVal, req.params.id], function (err) {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    if (this.changes === 0) return res.status(404).json({ success: false, message: "Offer not found." });
+    return res.json({ success: true, message: "Offer updated successfully." });
+  });
+});
+
+// PATCH toggle offer active status
+router.patch("/offers/:id/toggle", (req, res) => {
+  const db = req.app.get("db");
+  db.get("SELECT is_active FROM offers WHERE id = ?", [req.params.id], (err, row) => {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    if (!row) return res.status(404).json({ success: false, message: "Offer not found." });
+
+    const newStatus = row.is_active ? 0 : 1;
+    db.run("UPDATE offers SET is_active = ? WHERE id = ?", [newStatus, req.params.id], function (err2) {
+      if (err2) return res.status(500).json({ success: false, message: err2.message });
+      return res.json({ success: true, message: `Offer ${newStatus ? "activated" : "deactivated"}.`, is_active: newStatus });
+    });
+  });
+});
+
+// DELETE offer
+router.delete("/offers/:id", (req, res) => {
+  const db = req.app.get("db");
+  db.run("DELETE FROM offers WHERE id = ?", [req.params.id], function (err) {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    if (this.changes === 0) return res.status(404).json({ success: false, message: "Offer not found." });
+    return res.json({ success: true, message: "Offer deleted successfully." });
   });
 });
 

@@ -112,6 +112,21 @@ db.serialize(() => {
     )
   `);
 
+  // ─────────────────────────────────────────────
+  // 7. Special Offers Table
+  // ─────────────────────────────────────────────
+  db.run(`
+    CREATE TABLE IF NOT EXISTS offers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+      discount_code TEXT,
+      valid_until DATE,
+      is_active BOOLEAN DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // ═══════════════════════════════════════════════════════════
   // Seed Default Admin Account
   // ═══════════════════════════════════════════════════════════
@@ -175,6 +190,37 @@ db.serialize(() => {
     defaultFaqs.forEach((f) => faqStmt.run(f.q, f.a, f.o));
     faqStmt.finalize();
     console.log("📋 Default FAQ entries seeded");
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // Seed Default Special Offers (only if table is empty)
+  // ═══════════════════════════════════════════════════════════
+  db.get(`SELECT COUNT(*) AS cnt FROM offers`, (err, row) => {
+    if (err || (row && row.cnt > 0)) return;
+
+    const defaultOffers = [
+      {
+        title: "Express Air Freight Promotion",
+        description: "Enjoy 15% off international express air cargo shipments to over 50 global destinations.",
+        discount_code: "EXPRESS15",
+        valid_until: "2026-10-31",
+        is_active: 1
+      },
+      {
+        title: "Bulk Warehousing Discount",
+        description: "Get 20% discount on long-term climate-controlled storage and logistics fulfillment.",
+        discount_code: "STORE20",
+        valid_until: "2026-12-31",
+        is_active: 1
+      }
+    ];
+
+    const offerStmt = db.prepare(
+      `INSERT INTO offers (title, description, discount_code, valid_until, is_active) VALUES (?, ?, ?, ?, ?)`
+    );
+    defaultOffers.forEach((o) => offerStmt.run(o.title, o.description, o.discount_code, o.valid_until, o.is_active));
+    offerStmt.finalize();
+    console.log("🎁 Default Special Offers seeded into database");
   });
 
   // ═══════════════════════════════════════════════════════════

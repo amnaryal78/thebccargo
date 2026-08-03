@@ -351,7 +351,7 @@ function initFlags() {
         items.forEach(flag => {
             const div = document.createElement("div");
             div.className = "flag-item";
-            div.innerHTML = `<img src="https://flagcdn.com/w40/${flag.code}.png" srcset="https://flagcdn.com/w80/${flag.code}.png 2x" alt="${flag.name} flag" class="flag-img" loading="lazy"> <span class="flag-name">${flag.name}</span>`;
+            div.innerHTML = `<img src="https://flagcdn.com/w40/${flag.code}.png" srcset="https://flagcdn.com/w80/${flag.code}.png 2x" alt="${flag.name} flag" class="flag-img" loading="lazy" decoding="async" width="40" height="25"> <span class="flag-name">${flag.name}</span>`;
             container.appendChild(div);
         });
     }
@@ -570,9 +570,10 @@ function openArticleModal(query) {
 
     // SEO-friendly URL PushState
     const targetSlug = article.slug || article.key || article.id;
-    const newUrl = '/blog?slug=' + encodeURIComponent(targetSlug);
-    if (window.location.search !== '?slug=' + targetSlug) {
-        window.history.pushState({ slug: targetSlug }, '', newUrl);
+    const currentPath = window.location.pathname;
+    const searchString = '?slug=' + encodeURIComponent(targetSlug);
+    if (window.location.search !== searchString) {
+        window.history.pushState({ slug: targetSlug }, '', currentPath + searchString);
     }
 }
 
@@ -593,7 +594,9 @@ function resolveUrlSlug() {
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('slug');
     if (slug) {
-        openArticleModal(slug);
+        setTimeout(() => {
+            openArticleModal(slug);
+        }, 150);
     }
 }
 
@@ -955,6 +958,67 @@ function initContactForm() {
     });
 }
 
+/* ── Special Offers Loader ── */
+async function initOffers() {
+    const container = document.getElementById("offersSection");
+    const grid = document.getElementById("offersGrid");
+    if (!container || !grid) return;
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/offers`);
+        if (!res.ok) {
+            container.style.display = "none";
+            return;
+        }
+        const data = await res.json();
+        const offers = data.offers || [];
+
+        if (offers.length === 0) {
+            container.style.display = "none";
+            return;
+        }
+
+        grid.innerHTML = offers.map(offer => {
+            const validUntilText = offer.valid_until ? `Valid until ${offer.valid_until}` : "Limited Time Offer";
+            const safeCode = offer.discount_code ? String(offer.discount_code).replace(/"/g, '&quot;') : '';
+            const promoBadge = offer.discount_code 
+                ? `<div class="promo-code-wrap" onclick="navigator.clipboard.writeText('${safeCode}'); alert('Discount code copied to clipboard!');" title="Click to copy code">
+                        <i class="fas fa-ticket-alt" style="color:var(--accent-gold);"></i>
+                        <span class="promo-code-text">${String(offer.discount_code).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</span>
+                        <i class="far fa-copy" style="font-size:0.75rem;color:var(--text-muted);"></i>
+                   </div>`
+                : '';
+            
+            const safeTitle = String(offer.title || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+            const safeDesc = String(offer.description || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+            const safeExpiry = String(validUntilText).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+            return `
+                <div class="offer-card" data-aos="fade-up">
+                    <div>
+                        <div class="offer-card-badge">
+                            <i class="fas fa-fire"></i> Special Promotion
+                        </div>
+                        <h3 class="offer-card-title">${safeTitle}</h3>
+                        <p class="offer-card-desc">${safeDesc}</p>
+                    </div>
+                    <div class="offer-card-footer">
+                        ${promoBadge}
+                        <div class="offer-expiry">
+                            <i class="far fa-clock"></i> ${safeExpiry}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+        container.style.display = "block";
+    } catch (err) {
+        console.warn("Could not load special offers:", err);
+        container.style.display = "none";
+    }
+}
+
 /* ── DOM Ready Initialization ── */
 document.addEventListener("DOMContentLoaded", () => {
     initTheme();
@@ -969,6 +1033,7 @@ document.addEventListener("DOMContentLoaded", () => {
     resolveUrlSlug();
     initAOSAndGSAP();
     initContactForm();
+    initOffers();
 
     // Security Modal Event Listeners + Focus Trap
     const secModal = document.getElementById("securityModal");
