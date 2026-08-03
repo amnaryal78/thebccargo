@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — The BC Cargo</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #1a56db;
+      --primary-light: #3b82f6;
+      --primary-dark: #1e40af;
+      --primary-glow: rgba(26, 86, 219, 0.2);
+      --accent-gold: #f5a623;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --accent-violet: #8b5cf6;
+      --bg-body: #060b1e;
+      --bg-sidebar: #0a0f2e;
+      --bg-main: #0c122c;
+      --bg-card: rgba(15, 22, 48, 0.9);
+      --bg-card-hover: rgba(20, 28, 58, 0.95);
+      --bg-input: rgba(255, 255, 255, 0.04);
+      --bg-input-focus: rgba(255, 255, 255, 0.07);
+      --text-primary: #f0f4ff;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.15);
+      --gradient-primary: linear-gradient(135deg, #1a56db, #06b6d4);
+      --gradient-gold: linear-gradient(135deg, #f5a623, #fbbf24);
+      --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+      --shadow-modal: 0 32px 64px rgba(0, 0, 0, 0.5);
+      --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --sidebar-width: 260px;
+      --header-height: 64px;
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html, body { height: 100%; font-family: var(--font-sans); background: var(--bg-body); color: var(--text-primary); overflow: hidden; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
+    input, textarea, select { font-family: inherit; }
+
+    /* ═══════ LAYOUT ═══════ */
+    .app { display: flex; height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: transform 0.3s var(--ease);
+    }
+
+    .sidebar-brand {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--gradient-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand-icon i { font-size: 1.1rem; color: #fff; }
+    .sidebar-brand-name { font-weight: 800; font-size: 1rem; letter-spacing: -0.01em; }
+    .sidebar-brand-sub { font-size: 0.7rem; color: var(--text-muted); }
+
+    .sidebar-nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+
+    .nav-section-title {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      padding: 0.75rem 0.75rem 0.35rem;
+      font-weight: 700;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.2s var(--ease);
+      cursor: pointer;
+      margin-bottom: 2px;
+      position: relative;
+    }
+
+    .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-primary); }
+    .nav-item.active { background: var(--primary-glow); color: var(--primary-light); font-weight: 600; }
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 25%;
+      height: 50%;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--primary-light);
+    }
+
+    .nav-item i { width: 20px; text-align: center; font-size: 0.95rem; }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent-rose);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .sidebar-footer-user {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.82rem;
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--gradient-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.8rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-weight: 700; color: var(--text-primary); font-size: 0.82rem; }
+    .user-role { color: var(--text-muted); font-size: 0.7rem; }
+
+    .btn-logout {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .btn-logout:hover { color: var(--accent-rose); }
+
+    /* Main content */
+    .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .main-header {
+      height: var(--header-height);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(6, 11, 30, 0.8);
+      backdrop-filter: blur(12px);
+      flex-shrink: 0;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 1rem; }
+    .header-title { font-size: 1.15rem; font-weight: 800; }
+    .header-subtitle { font-size: 0.78rem; color: var(--text-muted); }
+
+    .btn-hamburger {
+      display: none;
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      padding: 0.4rem;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    /* ═══════ PAGES ═══════ */
+    .page { display: none; animation: pageFadeIn 0.35s var(--ease); }
+    .page.active { display: block; }
+
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════ STATS CARDS ═══════ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      transition: transform 0.2s var(--ease), border-color 0.2s;
+    }
+
+    .stat-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
+
+    .stat-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .stat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+    }
+    .stat-icon.blue { background: rgba(26, 86, 219, 0.15); color: var(--primary-light); }
+    .stat-icon.emerald { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+    .stat-icon.gold { background: rgba(245, 166, 35, 0.15); color: var(--accent-gold); }
+    .stat-icon.cyan { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); }
+    .stat-icon.rose { background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); }
+
+    .stat-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+    .stat-value { font-size: 1.85rem; font-weight: 800; margin-top: 0.2rem; }
+
+    /* ═══════ DATA TABLE ═══════ */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .panel-title { font-size: 1rem; font-weight: 700; }
+
+    .panel-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+
+    .search-box {
+      position: relative;
+    }
+    .search-box input {
+      padding: 0.5rem 0.75rem 0.5rem 2.2rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 0.82rem;
+      outline: none;
+      width: 200px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-box input:focus { border-color: var(--primary-light); box-shadow: 0 0 0 2px var(--primary-glow); }
+    .search-box input::placeholder { color: var(--text-muted); }
+    .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s var(--ease);
+      white-space: nowrap;
+    }
+
+    .btn-primary { background: var(--gradient-primary); color: #fff; box-shadow: 0 2px 8px var(--primary-glow); }
+    .btn-primary:hover { box-shadow: 0 4px 16px var(--primary-glow); transform: translateY(-1px); }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+    .btn-outline:hover { border-color: var(--primary-light); color: var(--primary-light); }
+
+    .btn-danger { background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); }
+    .btn-danger:hover { background: rgba(244, 63, 94, 0.25); }
+
+    .btn-sm { padding: 0.35rem 0.65rem; font-size: 0.75rem; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    thead th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    tbody tr { transition: background 0.15s; }
+    tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-badge.pending { background: rgba(245, 166, 35, 0.12); color: #fbbf24; }
+    .status-badge.in-transit { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
+    .status-badge.delivered { background: rgba(16, 185, 129, 0.12); color: #34d399; }
+    .status-badge.customs { background: rgba(139, 92, 246, 0.12); color: #a78bfa; }
+    .status-badge.new { background: rgba(6, 182, 212, 0.12); color: #22d3ee; }
+    .status-badge.contacted { background: rgba(245, 166, 35, 0.12); color: #fbbf24; }
+    .status-badge.closed { background: rgba(100, 116, 139, 0.12); color: #94a3b8; }
+    .status-badge.draft { background: rgba(100, 116, 139, 0.12); color: #94a3b8; }
+    .status-badge.published { background: rgba(16, 185, 129, 0.12); color: #34d399; }
+
+    .actions-cell { display: flex; gap: 0.35rem; }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.3; }
+    .empty-state p { font-size: 0.88rem; }
+
+    /* ═══════ MODAL ═══════ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      animation: modalBgIn 0.2s;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    @keyframes modalBgIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal {
+      background: var(--bg-sidebar);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 600px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-modal);
+      animation: modalSlideIn 0.3s var(--ease);
+    }
+
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: translateY(16px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-title { font-size: 1.05rem; font-weight: 700; }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+    .modal-body { padding: 1.5rem; overflow-y: auto; flex: 1; }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* ═══════ FORM ELEMENTS ═══════ */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 2px var(--primary-glow);
+      background: var(--bg-input-focus);
+    }
+
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-group select { cursor: pointer; }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: var(--text-muted); }
+
+    /* Timeline editor */
+    .timeline-editor {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .timeline-event-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.5rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 6px;
+      margin-bottom: 0.4rem;
+      font-size: 0.8rem;
+    }
+
+    .timeline-event-item .event-date { color: var(--primary-light); font-weight: 600; min-width: 80px; }
+    .timeline-event-item .event-text { flex: 1; color: var(--text-secondary); }
+    .timeline-event-item .btn-remove-event { color: var(--accent-rose); font-size: 0.75rem; padding: 2px; }
+
+    .add-event-row { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+    .add-event-row input { flex: 1; padding: 0.4rem 0.6rem; font-size: 0.8rem; }
+
+    /* ═══════ TOAST ═══════ */
+    .toast-container {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: #fff;
+      min-width: 280px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      animation: toastIn 0.35s var(--ease);
+    }
+
+    .toast.success { background: linear-gradient(135deg, #059669, #10b981); }
+    .toast.error { background: linear-gradient(135deg, #dc2626, #f43f5e); }
+    .toast.info { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(40px); }
+    }
+
+    /* ═══════ MOBILE RESPONSIVE ═══════ */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+    }
+    .mobile-overlay.open { display: block; }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        z-index: 100;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .btn-hamburger { display: block; }
+      .main-content { padding: 1rem; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .modal { max-width: 95vw; }
+      .search-box input { width: 140px; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ═══════ SCROLLBAR ═══════ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+  </style>
+</head>
+<body>
+  <div class="toast-container" id="toastContainer"></div>
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon"><i class="fas fa-truck-fast"></i></div>
+        <div>
+          <div class="sidebar-brand-name">The BC Cargo</div>
+          <div class="sidebar-brand-sub">Admin Dashboard</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Main</div>
+        <div class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')">
+          <i class="fas fa-th-large"></i> Dashboard
+        </div>
+
+        <div class="nav-section-title">Management</div>
+        <div class="nav-item" data-page="shipments" onclick="navigateTo('shipments')">
+          <i class="fas fa-shipping-fast"></i> Shipments
+        </div>
+        <div class="nav-item" data-page="blogs" onclick="navigateTo('blogs')">
+          <i class="fas fa-newspaper"></i> Blog CMS
+        </div>
+        <div class="nav-item" data-page="leads" onclick="navigateTo('leads')">
+          <i class="fas fa-envelope-open-text"></i> Leads
+          <span class="nav-badge" id="leadsNavBadge" style="display:none;">0</span>
+        </div>
+        <div class="nav-item" data-page="faqs" onclick="navigateTo('faqs')">
+          <i class="fas fa-question-circle"></i> FAQs
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-footer-user">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <div class="user-info">
+            <div class="user-name" id="userName">Admin</div>
+            <div class="user-role">Administrator</div>
+          </div>
+          <button class="btn-logout" onclick="handleLogout()" title="Sign Out">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Area -->
+    <div class="main-area">
+      <header class="main-header">
+        <div class="header-left">
+          <button class="btn-hamburger" id="hamburgerBtn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div>
+            <div class="header-title" id="pageTitle">Dashboard</div>
+            <div class="header-subtitle" id="pageSubtitle">Overview of your logistics operations</div>
+          </div>
+        </div>
+      </header>
+
+      <div class="main-content">
+
+        <!-- ═══════ DASHBOARD PAGE ═══════ -->
+        <div class="page active" id="page-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-icon blue"><i class="fas fa-shipping-fast"></i></div>
+              </div>
+              <div class="stat-label">Total Shipments</div>
+              <div class="stat-value" id="statShipments">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-icon emerald"><i class="fas fa-newspaper"></i></div>
+              </div>
+              <div class="stat-label">Blog Articles</div>
+              <div class="stat-value" id="statBlogs">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-icon gold"><i class="fas fa-envelope-open-text"></i></div>
+              </div>
+              <div class="stat-label">Total Leads</div>
+              <div class="stat-value" id="statLeads">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-icon rose"><i class="fas fa-bell"></i></div>
+              </div>
+              <div class="stat-label">New Leads</div>
+              <div class="stat-value" id="statNewLeads">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-icon cyan"><i class="fas fa-question-circle"></i></div>
+              </div>
+              <div class="stat-label">FAQs Published</div>
+              <div class="stat-value" id="statFaqs">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════ SHIPMENTS PAGE ═══════ -->
+        <div class="page" id="page-shipments">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fas fa-shipping-fast"></i> Shipments</div>
+              <div class="panel-actions">
+                <div class="search-box">
+                  <i class="fas fa-search"></i>
+                  <input type="text" placeholder="Search shipments..." id="shipmentSearch" oninput="filterShipments()">
+                </div>
+                <button class="btn btn-primary" onclick="openShipmentModal()">
+                  <i class="fas fa-plus"></i> New Shipment
+                </button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tracking ID</th>
+                    <th>Sender</th>
+                    <th>Receiver</th>
+                    <th>Origin</th>
+                    <th>Destination</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="shipmentsTableBody">
+                  <tr><td colspan="8"><div class="empty-state"><i class="fas fa-box-open"></i><p>Loading shipments...</p></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════ BLOGS PAGE ═══════ -->
+        <div class="page" id="page-blogs">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fas fa-newspaper"></i> Blog Articles</div>
+              <div class="panel-actions">
+                <button class="btn btn-primary" onclick="openBlogModal()">
+                  <i class="fas fa-plus"></i> New Article
+                </button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Author</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="blogsTableBody">
+                  <tr><td colspan="6"><div class="empty-state"><i class="fas fa-file-alt"></i><p>Loading articles...</p></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════ LEADS PAGE ═══════ -->
+        <div class="page" id="page-leads">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fas fa-envelope-open-text"></i> Leads / Inquiries</div>
+              <div class="panel-actions">
+                <div class="search-box">
+                  <i class="fas fa-search"></i>
+                  <input type="text" placeholder="Search leads..." id="leadSearch" oninput="filterLeads()">
+                </div>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Service</th>
+                    <th>Message</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="leadsTableBody">
+                  <tr><td colspan="8"><div class="empty-state"><i class="fas fa-inbox"></i><p>Loading leads...</p></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════ FAQS PAGE ═══════ -->
+        <div class="page" id="page-faqs">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fas fa-question-circle"></i> FAQs</div>
+              <div class="panel-actions">
+                <button class="btn btn-primary" onclick="openFaqModal()">
+                  <i class="fas fa-plus"></i> New FAQ
+                </button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Question</th>
+                    <th>Answer</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="faqsTableBody">
+                  <tr><td colspan="4"><div class="empty-state"><i class="fas fa-question"></i><p>Loading FAQs...</p></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ MODALS ═══════ -->
+
+  <!-- Shipment Modal -->
+  <div class="modal-overlay" id="shipmentModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="shipmentModalTitle">New Shipment</div>
+        <button class="modal-close" onclick="closeModal('shipmentModal')"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="shipmentEditId">
+        <div class="form-row">
+          <div class="form-group">
+            <label>SN</label>
+            <input type="number" id="sSn" placeholder="e.g. 1">
+          </div>
+          <div class="form-group">
+            <label>Tracking ID *</label>
+            <input type="text" id="sTrackingId" placeholder="e.g. BC2204AT">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="sStatus">
+              <option value="Pending">Pending</option>
+              <option value="In Transit">In Transit</option>
+              <option value="Customs Clearance">Customs Clearance</option>
+              <option value="Delivered">Delivered</option>
+              <option value="On Hold">On Hold</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Sender Name</label>
+            <input type="text" id="sSenderName" placeholder="Sender name">
+          </div>
+          <div class="form-group">
+            <label>Sender Phone</label>
+            <input type="text" id="sSenderPhone" placeholder="Phone">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Sender Country (Origin)</label>
+            <input type="text" id="sSenderCountry" placeholder="e.g. Nepal">
+          </div>
+          <div class="form-group">
+            <label>Sender Address</label>
+            <input type="text" id="sSenderAddress" placeholder="Address">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Receiver Name</label>
+            <input type="text" id="sReceiverName" placeholder="Receiver name">
+          </div>
+          <div class="form-group">
+            <label>Receiver Phone</label>
+            <input type="text" id="sReceiverPhone" placeholder="Phone">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Receiver Country (Destination)</label>
+            <input type="text" id="sReceiverCountry" placeholder="e.g. Malaysia">
+          </div>
+          <div class="form-group">
+            <label>Receiver Address</label>
+            <input type="text" id="sReceiverAddress" placeholder="Address">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Goods</label>
+            <input type="text" id="sGoods" placeholder="e.g. Electronics">
+          </div>
+          <div class="form-group">
+            <label>Weight</label>
+            <input type="text" id="sWeight" placeholder="e.g. 5.4 kg">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price Per Kg (Rate)</label>
+            <input type="text" id="sPricePerKg" placeholder="e.g. 601/kg">
+          </div>
+          <div class="form-group">
+            <label>Total Amount</label>
+            <input type="text" id="sTotal" placeholder="e.g. 3245">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Service / Remark</label>
+            <input type="text" id="sService" placeholder="e.g. Express Air">
+          </div>
+          <div class="form-group">
+            <label>ETA</label>
+            <input type="date" id="sEta">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Shipping Date</label>
+          <input type="date" id="sShippingDate">
+        </div>
+
+        <!-- Timeline editor -->
+        <div class="form-group">
+          <label>Timeline Events</label>
+          <div class="timeline-editor">
+            <div id="timelineEventsList"></div>
+            <div class="add-event-row">
+              <input type="date" id="newEventDate" style="max-width:140px;">
+              <input type="text" id="newEventText" placeholder="Event description">
+              <button class="btn btn-sm btn-outline" onclick="addTimelineEvent()">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('shipmentModal')">Cancel</button>
+        <button class="btn btn-primary" id="shipmentSaveBtn" onclick="saveShipment()">
+          <i class="fas fa-save"></i> Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blog Modal -->
+  <div class="modal-overlay" id="blogModal">
+    <div class="modal" style="max-width:700px;">
+      <div class="modal-header">
+        <div class="modal-title" id="blogModalTitle">New Article</div>
+        <button class="modal-close" onclick="closeModal('blogModal')"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="blogEditId">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Title *</label>
+            <input type="text" id="bTitle" placeholder="Article title" oninput="autoSlug()">
+          </div>
+          <div class="form-group">
+            <label>Slug *</label>
+            <input type="text" id="bSlug" placeholder="auto-generated-slug">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Category</label>
+            <input type="text" id="bCategory" placeholder="e.g. Air Freight">
+          </div>
+          <div class="form-group">
+            <label>Read Time</label>
+            <input type="text" id="bReadTime" placeholder="e.g. 5 min">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Author Name</label>
+            <input type="text" id="bAuthorName" placeholder="BC Cargo Team" value="BC Cargo Team">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="bStatus">
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Image URL</label>
+          <input type="text" id="bImage" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label>Summary</label>
+          <textarea id="bSummary" rows="2" placeholder="Brief summary..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Content (HTML)</label>
+          <textarea id="bContent" rows="8" placeholder="<p>Your article content here...</p>"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('blogModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveBlog()">
+          <i class="fas fa-save"></i> Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ Modal -->
+  <div class="modal-overlay" id="faqModal">
+    <div class="modal" style="max-width:500px;">
+      <div class="modal-header">
+        <div class="modal-title" id="faqModalTitle">New FAQ</div>
+        <button class="modal-close" onclick="closeModal('faqModal')"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="faqEditId">
+        <div class="form-group">
+          <label>Question *</label>
+          <input type="text" id="fQuestion" placeholder="What is...?">
+        </div>
+        <div class="form-group">
+          <label>Answer *</label>
+          <textarea id="fAnswer" rows="4" placeholder="The answer is..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Display Order</label>
+          <input type="number" id="fOrder" value="0" min="0">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('faqModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveFaq()">
+          <i class="fas fa-save"></i> Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lead Detail Modal -->
+  <div class="modal-overlay" id="leadModal">
+    <div class="modal" style="max-width:500px;">
+      <div class="modal-header">
+        <div class="modal-title">Lead Details</div>
+        <button class="modal-close" onclick="closeModal('leadModal')"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body" id="leadDetailBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('leadModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/admin-dashboard.js" defer></script>
+</body>
+</html>

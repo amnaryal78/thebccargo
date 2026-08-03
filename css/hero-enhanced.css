@@ -1,0 +1,319 @@
+/* =============================================================
+   HERO ENHANCED v2 — Particle Trail Cursor · Jitter-Free Tilt
+   Stagger Animations · Magnetic Buttons · Responsive Pointers
+   ============================================================= */
+
+/* ─────────────────────────── CUSTOM CURSOR ────────────────────────── */
+
+/* Soft 5% glow dot — the actual cursor position indicator */
+.hero-cursor {
+    position: fixed;
+    top: 0; left: 0;
+    width: 8px; height: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    pointer-events: none !important;   /* NEVER intercept mouse events */
+    z-index: 99999;
+    transform: translate3d(-50%, -50%, 0);
+    will-change: transform;
+    transition: width .12s ease, height .12s ease, background .12s ease,
+                opacity .2s ease;
+}
+
+/* Outer soft-glow ring — 5% opacity per spec */
+.hero-cursor-ring {
+    position: fixed;
+    top: 0; left: 0;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    pointer-events: none !important;   /* NEVER intercept mouse events */
+    z-index: 99998;
+    transform: translate3d(-50%, -50%, 0);
+    will-change: transform;
+    /* 5% translucent glow fill + ultra-subtle border */
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transition: width  .28s cubic-bezier(0.16, 1, 0.3, 1),
+                height .28s cubic-bezier(0.16, 1, 0.3, 1),
+                background .25s ease,
+                border-color .25s ease,
+                opacity .25s ease;
+}
+
+/* Hover state — expand ring, gold tint */
+.hero-cursor.is-hovering {
+    width: 5px; height: 5px;
+    background: #f5a623;
+}
+.hero-cursor-ring.is-hovering {
+    width: 52px; height: 52px;
+    background: rgba(245, 166, 35, 0.06);
+    border-color: rgba(245, 166, 35, 0.35);
+}
+
+/* Click / press state */
+.hero-cursor.is-clicking {
+    width: 4px; height: 4px;
+    background: #f5a623;
+}
+.hero-cursor-ring.is-clicking {
+    width: 30px; height: 30px;
+    opacity: 0.5;
+}
+
+/* Text hover — change to text cursor feel */
+.hero-cursor.is-text {
+    width: 2px; height: 22px;
+    border-radius: 1px;
+    background: rgba(255,255,255,0.8);
+}
+.hero-cursor-ring.is-text {
+    opacity: 0.3;
+}
+
+/* ── TOUCH / MOBILE: completely disable custom cursor ── */
+@media (hover: none) and (pointer: coarse) {
+    .hero-cursor,
+    .hero-cursor-ring,
+    #heroTrailCanvas { display: none !important; }
+}
+
+/* ─────────────────────────── TRAIL PARTICLE CANVAS ───────────────── */
+
+/* Full-page canvas for mouse trail + background particles, sits on top
+   of hero content but strictly pointer-events:none so zero interference */
+#heroTrailCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none !important;
+    z-index: 99990;   /* above page content, below cursor dots */
+    opacity: 1;
+}
+
+/* Background ambient particle canvas — inside hero only */
+#heroParticleCanvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none !important;
+    z-index: 2;
+    opacity: 0.55;
+}
+
+/* ─────────────────────────── SLIDE STAGGER ────────────────────────── */
+
+@keyframes slideStagger {
+    from {
+        opacity: 0;
+        transform: translateY(28px);
+        filter: blur(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0px);
+    }
+}
+
+.hero-slide.active .slide-badge {
+    animation: slideStagger 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.04s;
+}
+.hero-slide.active .slide-title {
+    animation: slideStagger 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.17s;
+}
+.hero-slide.active .slide-desc {
+    animation: slideStagger 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.30s;
+}
+.hero-slide.active .slide-btns {
+    animation: slideStagger 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.43s;
+}
+.hero-slide:not(.active) .slide-badge,
+.hero-slide:not(.active) .slide-title,
+.hero-slide:not(.active) .slide-desc,
+.hero-slide:not(.active) .slide-btns {
+    opacity: 0 !important;
+    animation: none !important;
+}
+
+/* ─────────────────────────── BADGE SHIMMER ────────────────────────── */
+
+.slide-badge { position: relative; overflow: hidden; }
+.slide-badge::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
+    transform: translateX(-120%);
+    animation: shimmerBadge 2.8s ease-in-out infinite;
+    animation-delay: 1s;
+    pointer-events: none !important;
+}
+@keyframes shimmerBadge { to { transform: translateX(220%); } }
+
+/* ─────────────────────────── 3D TILT CARDS ────────────────────────── */
+
+/*
+  KEY JITTER FIX:
+  The tilt transform is applied to the card itself; child elements with
+  pointer-events enabled can cause rapid enter/leave cycles as transforms
+  shift them under the cursor. We:
+  1. Use overflow:hidden so sub-pixel edge doesn't re-trigger mouseleave.
+  2. Set a smooth-exit transition so a brief leave doesn't flicker.
+  3. The .tilt-glow overlay is pointer-events:none strictly.
+*/
+.tilt-card {
+    transform-style: preserve-3d;
+    will-change: transform;
+    /* Smooth exit — prevents snap-back jitter */
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.tilt-card:hover {
+    /* Fast follow on entry */
+    transition: transform 0.06s ease-out;
+}
+
+.tilt-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none !important;  /* critical: never captures mouse events */
+    opacity: 0;
+    background: radial-gradient(
+        circle at var(--gx, 50%) var(--gy, 50%),
+        rgba(26, 86, 219, 0.18) 0%,
+        transparent 65%
+    );
+    transition: opacity 0.32s ease;
+    z-index: 0;
+}
+.tilt-card:hover .tilt-glow,
+.tilt-card:focus-within .tilt-glow { opacity: 1; }
+
+/* ─────────────────────────── MAGNETIC BUTTONS ─────────────────────── */
+
+.btn-magnetic {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    will-change: transform;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.2s ease !important;
+}
+
+/*
+  Extended hit-area ghost — keeps the button "magnetic" even a few px
+  outside its visible bounds, preventing the mouse-leave snap-back
+  from triggering while still inside the visual element.
+  pointer-events:none so it never causes stacking/hover conflicts.
+*/
+.btn-magnetic::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    border-radius: inherit;
+    pointer-events: none !important;
+}
+
+/* ─────────────────────────── HERO CONTROLS SHIMMER ──────────────────  */
+
+@keyframes borderSpin { to { transform: rotate(360deg); } }
+
+.hero-arrow { position: relative; overflow: hidden; }
+.hero-arrow::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0%,
+        rgba(255,255,255,0.55) 25%,
+        transparent 55%
+    );
+    border-radius: inherit;
+    animation: borderSpin 2.5s linear infinite;
+    opacity: 0;
+    transition: opacity .28s ease;
+    pointer-events: none !important;
+}
+.hero-arrow:hover::before { opacity: 1; }
+
+/* ─────────────────────────── HERO BOTTOM FADE ──────────────────────── */
+
+.hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 110px;
+    background: linear-gradient(to top, var(--bg-primary), transparent);
+    z-index: 5;
+    pointer-events: none !important;
+}
+
+/* ─────────────────────────── POINTER & CURSOR CONSISTENCY ──────────── */
+
+/*
+  Guarantee pointer cursor on all interactive elements so the browser
+  native cursor and our custom cursor are always in sync.
+*/
+a, button,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+.btn, .nav-cta, .drawer-cta,
+.hero-arrow, .hero-dot,
+.service-card, .stat-card,
+.why-feature, .faq-question,
+.track-id-panel, .flag-item,
+.social-btn, .btn-icon-nav,
+.nav-hamburger, .drawer-close,
+label[for] {
+    cursor: pointer;
+}
+
+/* Non-interactive icon children — never capture events so the
+   parent button/link remains the sole event target (jitter fix). */
+button > i,
+a > i,
+.btn > i,
+.nav-cta > i,
+.btn-icon-nav > i,
+.hero-arrow > i,
+.social-btn > i,
+.drawer-cta > i {
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Selectable text areas */
+p, .slide-desc, .section-subtitle, .about-text, .faq-answer {
+    cursor: text;
+}
+
+/* Card position base for glow overlay */
+.stat-card, .service-card, .why-feature, .testimonial-card {
+    position: relative;
+    overflow: hidden;
+}
+
+/* ─────────────────────────── REDUCED MOTION ────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-slide.active .slide-badge,
+    .hero-slide.active .slide-title,
+    .hero-slide.active .slide-desc,
+    .hero-slide.active .slide-btns {
+        animation-duration: 0.01ms !important;
+    }
+    .slide-badge::after,
+    .hero-arrow::before { animation: none !important; }
+    #heroParticleCanvas,
+    #heroTrailCanvas { display: none !important; }
+    .hero-cursor,
+    .hero-cursor-ring { display: none !important; }
+    .tilt-card { transition: none !important; }
+}

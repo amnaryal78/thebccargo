@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Logistics News &amp; Insights | THE BC Cargo &amp; Courier</title>
+    <meta name="description"
+        content="Stay informed with international freight news, supply chain insights, air &amp; ocean logistics guides, and expert advice from THE BC Cargo &amp; Courier.">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="author" content="THE BC NETWORKS">
+    <meta name="theme-color" content="#0a0f2e">
+    <link rel="canonical" href="https://thebccargo.com/blog">
+
+    <!-- Favicon & App Icons -->
+    <link rel="icon" type="image/png" href="https://files.catbox.moe/eolcc7.png">
+    <link rel="apple-touch-icon" href="https://files.catbox.moe/eolcc7.png">
+
+    <!-- Open Graph Metadata -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="THE BC Cargo &amp; Courier">
+    <meta property="og:title" content="Logistics News &amp; Insights | THE BC Cargo &amp; Courier">
+    <meta property="og:description"
+        content="Stay informed with international freight news, supply chain insights, air &amp; ocean logistics guides, and expert advice from THE BC Cargo &amp; Courier.">
+    <meta property="og:url" content="https://thebccargo.com/blog">
+    <meta property="og:image" content="https://files.catbox.moe/eolcc7.png">
+    <meta property="og:image:alt" content="THE BC Cargo &amp; Courier Logo">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card Metadata -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@thebccargo">
+    <meta name="twitter:title" content="Logistics News &amp; Insights | THE BC Cargo &amp; Courier">
+    <meta name="twitter:description"
+        content="Stay informed with international freight news, supply chain insights, air &amp; ocean logistics guides, and expert advice from THE BC Cargo &amp; Courier.">
+    <meta name="twitter:image" content="https://files.catbox.moe/eolcc7.png">
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://thebccargo.com/blog#webpage",
+          "url": "https://thebccargo.com/blog",
+          "name": "Logistics News & Insights | THE BC Cargo & Courier",
+          "description": "Stay informed with international freight news, supply chain insights, air & ocean logistics guides, and expert advice from THE BC Cargo & Courier."
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://thebccargo.com/blog#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://thebccargo.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Blog",
+              "item": "https://thebccargo.com/blog"
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="preload" href="https://files.catbox.moe/eolcc7.png" as="image">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap&font-display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/hero-enhanced.css">
+    <style>
+        /* ═══════════════════════════════════════════════
+           BLOG PAGE — Scoped Styles & News Grid Compatibility
+           ═══════════════════════════════════════════════ */
+
+        /* Override any AOS opacity locks so cards are guaranteed 100% visible */
+        .blog-card, .news-card {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        /* ── Page hero / banner ── */
+        .blog-hero {
+            position: relative;
+            padding: 9rem 0 5rem;
+            background: var(--gradient-hero);
+            overflow: hidden;
+            text-align: center;
+        }
+        .blog-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 60% at 50% 0%, rgba(26,86,219,.35) 0%, transparent 70%),
+                url('https://files.catbox.moe/kv8fb3.jpeg') center/cover no-repeat;
+            opacity: .18;
+        }
+        .blog-hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 90px;
+            background: linear-gradient(to top, var(--bg-primary), transparent);
+            pointer-events: none;
+        }
+        .blog-hero-inner {
+            position: relative;
+            z-index: 2;
+        }
+        .blog-hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.15);
+            color: #93c5fd;
+            font-size: .78rem;
+            font-weight: 600;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            padding: .38rem .9rem;
+            border-radius: 99px;
+            margin-bottom: 1.2rem;
+        }
+        .blog-hero h1 {
+            font-size: clamp(2rem, 5vw, 3.4rem);
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.15;
+            margin: 0 0 1rem;
+        }
+        .blog-hero h1 span {
+            background: var(--gradient-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .blog-hero-sub {
+            color: rgba(255,255,255,.72);
+            font-size: 1.08rem;
+            max-width: 560px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        /* ── Search bar ── */
+        .blog-search-wrap {
+            display: flex;
+            align-items: center;
+            max-width: 440px;
+            margin: 0 auto;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 99px;
+            padding: .45rem .45rem .45rem 1.2rem;
+            backdrop-filter: blur(10px);
+            transition: border-color .25s, background .25s;
+        }
+        .blog-search-wrap:focus-within {
+            border-color: rgba(245,166,35,.5);
+            background: rgba(255,255,255,.12);
+        }
+        .blog-search-wrap input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: .92rem;
+            font-family: inherit;
+        }
+        .blog-search-wrap input::placeholder { color: rgba(255,255,255,.45); }
+        .blog-search-btn {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-gold);
+            border: none;
+            color: #1a1a1a;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .blog-search-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 4px 14px rgba(245,166,35,.45);
+        }
+
+        /* ── Category filter bar ── */
+        .blog-filter-bar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .blog-filter-inner {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            overflow-x: auto;
+            padding: .85rem 0;
+            scrollbar-width: none;
+        }
+        .blog-filter-inner::-webkit-scrollbar { display: none; }
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            white-space: nowrap;
+            padding: .42rem 1.05rem;
+            border-radius: 99px;
+            border: 1.5px solid var(--border-light);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s cubic-bezier(0.16,1,0.3,1);
+            font-family: inherit;
+        }
+        .filter-chip:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            background: rgba(26,86,219,.06);
+        }
+        .filter-chip.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(26,86,219,.28);
+        }
+        .filter-chip i { font-size: .75rem; }
+
+        /* ── Blog layout ── */
+        .blog-section {
+            padding: 4rem 0 5rem;
+        }
+        .blog-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2.5rem;
+            align-items: start;
+        }
+        @media (max-width: 960px) {
+            .blog-layout { grid-template-columns: 1fr; }
+            .blog-sidebar { display: none; }
+        }
+
+        /* ── Article grid (news-grid style) ── */
+        .blog-grid, .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.6rem;
+        }
+
+        /* ── Blog card ── */
+        .blog-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform .35s cubic-bezier(0.16,1,0.3,1),
+                        box-shadow .35s ease,
+                        border-color .25s ease;
+            cursor: pointer;
+        }
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 48px rgba(0,0,0,.14);
+            border-color: var(--accent-blue);
+        }
+        .blog-card-img {
+            position: relative;
+            overflow: hidden;
+            height: 200px;
+            flex-shrink: 0;
+        }
+        .blog-card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .6s cubic-bezier(0.16,1,0.3,1);
+            display: block;
+        }
+        .blog-card:hover .blog-card-img img { transform: scale(1.07); }
+        .blog-card-tag {
+            position: absolute;
+            top: .85rem;
+            left: .85rem;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            padding: .28rem .72rem;
+            border-radius: 99px;
+            background: #1a56db;
+            background: var(--gradient-blue, linear-gradient(135deg, #1a56db 0%, #06b6d4 100%));
+            color: #fff;
+            z-index: 2;
+        }
+        .blog-card-tag.gold   { background: var(--gradient-gold); color: #1a1a1a; }
+        .blog-card-tag.green  { background: linear-gradient(135deg,#10b981,#059669); }
+        .blog-card-tag.purple { background: linear-gradient(135deg,#8b5cf6,#7c3aed); }
+        .blog-card-tag.orange { background: linear-gradient(135deg,#f59e0b,#d97706); color: #1a1a1a; }
+        
+        .blog-card-body {
+            padding: 1.4rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .blog-card-title {
+            font-size: 1.02rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.45;
+            margin: 0 0 .75rem;
+            display: -webkit-box;
+            line-clamp: 2;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .blog-card-excerpt {
+            font-size: .85rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            margin: 0 0 1rem;
+            display: -webkit-box;
+            line-clamp: 3;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+        .blog-card-meta {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            font-size: .78rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+            padding-top: .9rem;
+            border-top: 1px solid var(--border-light);
+        }
+        .blog-card-meta i { font-size: .72rem; color: var(--accent-blue); }
+        .blog-card-read-more {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            margin-top: .85rem;
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            text-decoration: none;
+            transition: gap .2s ease;
+        }
+        .blog-card:hover .blog-card-read-more { gap: .65rem; }
+
+        /* Featured card (spans full width on desktop when viewing all articles) */
+        .blog-card.featured {
+            grid-column: 1 / -1;
+            flex-direction: row;
+        }
+        .blog-card.featured .blog-card-img {
+            width: 42%;
+            min-height: 280px;
+            align-self: stretch;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .blog-card.featured .blog-card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+        @media (max-width: 640px) {
+            .blog-card.featured { flex-direction: column; }
+            .blog-card.featured .blog-card-img { width: 100%; height: 200px; }
+        }
+        .blog-card.featured .blog-card-title {
+            font-size: 1.22rem;
+            line-clamp: 3;
+            -webkit-line-clamp: 3;
+        }
+        .blog-card.featured .blog-card-excerpt {
+            line-clamp: 4;
+            -webkit-line-clamp: 4;
+        }
+
+        /* ── Styled Empty State ── */
+        .no-articles-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-card);
+            border: 1px dashed var(--border-light);
+            border-radius: 20px;
+            display: none;
+        }
+        .no-articles-icon {
+            font-size: 3rem;
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+            opacity: 0.85;
+        }
+        .no-articles-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+        }
+        .no-articles-desc {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            max-width: 440px;
+            margin: 0 auto 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* ── Sidebar ── */
+        .blog-sidebar { display: flex; flex-direction: column; gap: 1.6rem; }
+        .sidebar-widget {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 1.4rem;
+        }
+        .sidebar-widget-title {
+            font-size: .88rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--text-secondary);
+            margin: 0 0 1.1rem;
+            padding-bottom: .7rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .sidebar-recent-item {
+            display: flex;
+            gap: .85rem;
+            align-items: flex-start;
+            padding: .7rem 0;
+            border-bottom: 1px solid var(--border-light);
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+        .sidebar-recent-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .sidebar-recent-item:hover { opacity: .75; }
+        .sidebar-recent-thumb {
+            width: 58px; height: 48px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .sidebar-recent-text {
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.4;
+            display: -webkit-box;
+            line-clamp: 2;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .sidebar-recent-date { font-size: .72rem; color: var(--text-muted); margin-top: .25rem; }
+        .sidebar-tag-cloud { display: flex; flex-wrap: wrap; gap: .5rem; }
+        .sidebar-tag {
+            font-size: .76rem;
+            font-weight: 600;
+            padding: .3rem .8rem;
+            border-radius: 99px;
+            border: 1.5px solid var(--border-light);
+            color: var(--text-secondary);
+            background: transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all .2s;
+        }
+        .sidebar-tag:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            background: rgba(26,86,219,.06);
+        }
+        .sidebar-stat { display: flex; flex-direction: column; gap: .65rem; }
+        .sidebar-stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: .84rem;
+        }
+        .sidebar-stat-label { color: var(--text-secondary); }
+        .sidebar-stat-val {
+            font-weight: 700;
+            color: var(--accent-blue);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ── Pagination ── */
+        .blog-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: .5rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            min-width: 40px;
+            height: 40px;
+            padding: 0 .9rem;
+            border-radius: 10px;
+            border: 1.5px solid var(--border-light);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: .88rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .4rem;
+            transition: all .2s cubic-bezier(0.16,1,0.3,1);
+            font-family: inherit;
+            text-decoration: none;
+        }
+        .page-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            background: rgba(26,86,219,.06);
+            transform: translateY(-1px);
+        }
+        .page-btn.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(26,86,219,.3);
+        }
+        .page-btn:disabled, .page-btn[aria-disabled="true"] {
+            opacity: .4;
+            pointer-events: none;
+        }
+
+        /* ── Newsletter inline ── */
+        .blog-newsletter {
+            background: var(--gradient-hero);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            margin: 3rem 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .blog-newsletter::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(26,86,219,.4) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .blog-newsletter-inner { position: relative; z-index: 1; }
+        .blog-newsletter h3 { font-size: 1.4rem; font-weight: 800; color: #fff; margin: 0 0 .5rem; }
+        .blog-newsletter p  { color: rgba(255,255,255,.7); font-size: .9rem; margin: 0 0 1.4rem; }
+        .blog-newsletter-form {
+            display: flex;
+            max-width: 400px;
+            margin: 0 auto;
+            gap: .5rem;
+        }
+        .blog-newsletter-form input {
+            flex: 1;
+            padding: .65rem 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.2);
+            background: rgba(255,255,255,.1);
+            color: #fff;
+            font-size: .88rem;
+            font-family: inherit;
+            outline: none;
+            backdrop-filter: blur(8px);
+        }
+        .blog-newsletter-form input::placeholder { color: rgba(255,255,255,.5); }
+        .blog-newsletter-form button {
+            padding: .65rem 1.3rem;
+            border-radius: 10px;
+            background: var(--gradient-gold);
+            border: none;
+            color: #1a1a1a;
+            font-weight: 700;
+            font-size: .88rem;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .blog-newsletter-form button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(245,166,35,.4);
+        }
+        @media (max-width: 480px) {
+            .blog-newsletter-form { flex-direction: column; }
+        }
+
+        /* ═══════════════════════════════════════════════
+           ARTICLE READER MODAL OVERLAY
+           ═══════════════════════════════════════════════ */
+        .article-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: rgba(6, 11, 30, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2.5rem 1rem;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .article-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .article-modal-container {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 24px;
+            max-width: 860px;
+            width: 100%;
+            margin: auto;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(30px) scale(0.96);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .article-modal-overlay.active .article-modal-container {
+            transform: translateY(0) scale(1);
+        }
+        .article-modal-close {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #fff;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.25s ease;
+        }
+        .article-modal-close:hover {
+            background: var(--accent-blue);
+            transform: rotate(90deg);
+        }
+        .article-modal-cover-wrap {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            overflow: hidden;
+        }
+        .article-modal-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .article-modal-cover-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, var(--bg-card) 0%, transparent 60%);
+        }
+        .article-modal-header {
+            padding: 1.5rem 2.5rem 1rem;
+            position: relative;
+        }
+        .article-modal-tag {
+            display: inline-block;
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            padding: .3rem .85rem;
+            border-radius: 99px;
+            background: var(--gradient-blue);
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+        .article-modal-title {
+            font-size: clamp(1.4rem, 3.2vw, 2.1rem);
+            font-weight: 800;
+            line-height: 1.3;
+            margin: 0 0 1.2rem;
+            color: var(--text-primary);
+        }
+        .article-modal-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1.2rem;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .article-modal-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        .article-modal-meta-item i {
+            color: var(--accent-blue);
+        }
+        .article-modal-author-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .article-modal-author-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--gradient-gold);
+            color: #1a1a1a;
+            font-weight: 800;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .article-modal-body {
+            padding: 1.5rem 2.5rem 2.5rem;
+            font-size: 1.02rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+        .article-modal-body h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 2rem 0 1rem;
+            color: var(--text-primary);
+        }
+        .article-modal-body p {
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+        }
+        .article-modal-body blockquote {
+            border-left: 4px solid var(--accent-blue);
+            background: rgba(26,86,219,0.06);
+            padding: 1.25rem 1.6rem;
+            border-radius: 0 14px 14px 0;
+            font-style: italic;
+            margin: 1.8rem 0;
+            color: var(--text-primary);
+        }
+        .article-modal-body .key-takeaways {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 1.6rem;
+            margin: 2rem 0;
+        }
+        .article-modal-body .key-takeaways h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0 0 0.8rem;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .article-modal-body .key-takeaways ul {
+            padding-left: 1.2rem;
+            margin: 0;
+        }
+        .article-modal-body .key-takeaways li {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+        .article-modal-cta {
+            background: var(--gradient-hero);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2.5rem;
+            color: #fff;
+        }
+        .article-modal-cta h4 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin: 0 0 0.5rem;
+        }
+        .article-modal-cta p {
+            color: rgba(255,255,255,0.75);
+            font-size: 0.9rem;
+            margin: 0 0 1.2rem;
+        }
+        @media (max-width: 640px) {
+            .article-modal-header { padding: 1.2rem 1.5rem 0.5rem; }
+            .article-modal-body { padding: 1rem 1.5rem 1.8rem; }
+            .article-modal-cover-wrap { height: 240px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Skip to Content Link -->
+    <a href="#main" class="skip-to-content">Skip to main content</a>
+
+    <!-- Mobile Drawer -->
+    <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+    <nav class="mobile-drawer" id="mobileDrawer" aria-label="Mobile navigation">
+        <div class="drawer-header">
+            <div class="drawer-brand">
+                <img src="https://files.catbox.moe/eolcc7.png" alt="BC Cargo">
+                <span class="drawer-brand-name">The BC Cargo</span>
+            </div>
+            <button class="drawer-close" id="drawerClose" aria-label="Close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="drawer-nav">
+            <a href="/"><i class="fas fa-home"></i> Home</a>
+            <a href="/blog" class="active" aria-current="page"><i class="fas fa-newspaper"></i> Blog</a>
+            <a href="/services"><i class="fas fa-cube"></i> Services</a>
+            <a href="/policy"><i class="fas fa-shield-alt"></i> Policy</a>
+            <a href="/about"><i class="fas fa-building"></i> About Us</a>
+            <a href="/careers"><i class="fas fa-briefcase"></i> Careers</a>
+            <a href="/contact"><i class="fas fa-envelope"></i> Contact</a>
+        </div>
+        <div class="drawer-footer">
+            <a href="/contact" class="drawer-cta"><i class="fas fa-paper-plane"></i> Get a Free Quote</a>
+            <div style="display:flex;gap:.75rem;justify-content:center;">
+                <a href="https://wa.me/9779855019485" target="_blank" rel="noopener" class="social-btn wa"
+                    aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                <a href="https://facebook.com/thebccargo" target="_blank" rel="noopener" class="social-btn fb"
+                    aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://instagram.com/thebccargo" target="_blank" rel="noopener" class="social-btn ig"
+                    aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Navbar -->
+    <header class="navbar" id="navbar">
+        <div class="navbar-container">
+            <!-- Part 1: Brand Pill -->
+            <div class="nav-pill nav-pill-brand">
+                <a href="/" class="nav-brand" aria-label="THE BC Cargo &amp; Courier home">
+                    <img src="https://files.catbox.moe/eolcc7.png" alt="THE BC Cargo &amp; Courier logo" class="nav-brand-logo" width="160" height="40">
+                    <span class="nav-brand-name">THE BC Cargo</span>
+                </a>
+            </div>
+
+            <!-- Part 2: Navigation Links Pill -->
+            <nav class="nav-pill nav-pill-links" aria-label="Main navigation">
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/blog" class="active" aria-current="page">Blog</a></li>
+                    <li><a href="/services">Services</a></li>
+                    <li><a href="/policy">Policy</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/careers">Careers</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </nav>
+
+            <!-- Part 3: Actions Pill -->
+            <div class="nav-pill nav-pill-actions">
+                <a href="https://maps.google.com/?q=The+BC+Cargo+Hetauda+Nepal" target="_blank" rel="noopener" class="nav-cta" aria-label="Open Google Maps Location"><i class="fas fa-map-marker-alt" aria-hidden="true"></i><span>Google Map</span></a>
+                <button class="btn-icon-nav" id="themeToggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon" id="themeIcon" aria-hidden="true"></i>
+                </button>
+                <button class="nav-hamburger" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileDrawer">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+
+        <!-- Page Hero -->
+        <section class="blog-hero">
+            <div class="container blog-hero-inner">
+                <div class="blog-hero-label"><i class="fas fa-newspaper"></i> Latest Updates</div>
+                <h1>Logistics News &amp; Insights – <span class="highlight">THE BC Cargo &amp; Courier</span></h1>
+                <p class="blog-hero-sub">Stay updated with the latest logistics trends, shipping news, and expert tips
+                    from BC Cargo.</p>
+                <div class="blog-search-wrap">
+                    <input type="search" id="blogSearch" placeholder="Search articles…" aria-label="Search blog">
+                    <button class="blog-search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category Filter Bar -->
+        <div class="blog-filter-bar" id="filterBar">
+            <div class="container">
+                <div class="blog-filter-inner" role="list" aria-label="Article categories">
+                    <button class="filter-chip active" data-filter="all" role="listitem">
+                        <i class="fas fa-th"></i> All Articles
+                    </button>
+                    <button class="filter-chip" data-filter="Air Freight" role="listitem">
+                        <i class="fas fa-plane"></i> Air Freight
+                    </button>
+                    <button class="filter-chip" data-filter="Ocean Freight" role="listitem">
+                        <i class="fas fa-ship"></i> Ocean Freight
+                    </button>
+                    <button class="filter-chip" data-filter="Warehousing" role="listitem">
+                        <i class="fas fa-warehouse"></i> Warehousing
+                    </button>
+                    <button class="filter-chip" data-filter="Industry" role="listitem">
+                        <i class="fas fa-industry"></i> Industry
+                    </button>
+                    <button class="filter-chip" data-filter="Customs" role="listitem">
+                        <i class="fas fa-file-invoice"></i> Customs
+                    </button>
+                    <button class="filter-chip" data-filter="Tips" role="listitem">
+                        <i class="fas fa-lightbulb"></i> Expert Tips
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blog Content -->
+        <section class="blog-section">
+            <div class="container">
+                <div class="blog-layout">
+
+                    <!-- Main Column -->
+                    <div>
+                        <!-- Article Grid -->
+                        <div class="blog-grid" id="blogGrid">
+
+                            <!-- Article 1 — Featured Grand Opening -->
+                            <article class="blog-card featured" data-id="opening-of-our-cargo-courier" data-slug="opening-of-our-cargo-courier" data-category="General">
+                                <div class="blog-card-img">
+                                    <img src="https://files.catbox.moe/lpf0lv.png" alt="Opening of Our Cargo &amp; Courier"
+                                        loading="lazy" decoding="async">
+                                    <span class="blog-card-tag">General</span>
+                                </div>
+                                <div class="blog-card-body">
+                                    <h2 class="blog-card-title">Opening of Our Cargo &amp; Courier</h2>
+                                    <p class="blog-card-excerpt">BC Cargo &amp; Courier Service is proud to announce its Grand Opening on Bhadra 1, 2083 (August 17, 2026). We are committed to providing fast, safe, and reliable domestic and international cargo, courier, express delivery, and door-to-door logistics services, connecting Nepal to the world.</p>
+                                    <div class="blog-card-meta">
+                                        <span><i class="fas fa-calendar"></i> August 17, 2026</span>
+                                        <span><i class="fas fa-tag"></i> General</span>
+                                    </div>
+                                    <span class="blog-card-read-more">Read Full Article <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </article>
+
+                            <!-- Article 2 -->
+                            <article class="blog-card" data-id="article-2" data-category="Warehousing">
+                                <div class="blog-card-img">
+                                    <img src="https://files.catbox.moe/4oqtfe.jpeg" alt="Warehouse" loading="lazy">
+                                    <span class="blog-card-tag gold">Warehousing</span>
+                                </div>
+                                <div class="blog-card-body">
+                                    <h2 class="blog-card-title">New Climate-Controlled Warehouse Opens in Kathmandu
+                                    </h2>
+                                    <p class="blog-card-excerpt">Our state-of-the-art 12,000 sq ft facility offers
+                                        temperature-sensitive storage, RFID inventory tracking, and 24/7 security for
+                                        pharmaceutical, electronics, and food-grade cargo.</p>
+                                    <div class="blog-card-meta">
+                                        <span><i class="fas fa-calendar"></i> May 28, 2025</span>
+                                    </div>
+                                    <span class="blog-card-read-more">Read Article <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </article>
+
+                            <!-- Article 3 -->
+                            <article class="blog-card" data-id="article-3" data-category="Industry">
+                                <div class="blog-card-img">
+                                    <img src="https://files.catbox.moe/bvlydd.jpeg" alt="Nepal logistics"
+                                        loading="lazy">
+                                    <span class="blog-card-tag green">Industry</span>
+                                </div>
+                                <div class="blog-card-body">
+                                    <h2 class="blog-card-title">How Nepal's Export Industry is Transforming with
+                                        Modern Logistics</h2>
+                                    <p class="blog-card-excerpt">From handcrafted goods to industrial machinery,
+                                        Nepal's export landscape is changing rapidly. Here's how tech-driven freight
+                                        solutions are empowering local businesses to reach global buyers.</p>
+                                    <div class="blog-card-meta">
+                                        <span><i class="fas fa-calendar"></i> May 15, 2025</span>
+                                    </div>
+                                    <span class="blog-card-read-more">Read Article <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </article>
+
+                            <!-- Article 4 -->
+                            <article class="blog-card" data-id="article-4" data-category="Customs">
+                                <div class="blog-card-img">
+                                    <img src="https://files.catbox.moe/kv8fb3.jpeg" alt="Customs clearance"
+                                        loading="lazy">
+                                    <span class="blog-card-tag purple">Customs</span>
+                                </div>
+                                <div class="blog-card-body">
+                                    <h2 class="blog-card-title">5 Common Customs Clearance Mistakes Nepal Importers
+                                        Make (And How to Avoid Them)</h2>
+                                    <p class="blog-card-excerpt">Incorrect HS codes, missing certificates of origin,
+                                        and incomplete invoices account for over 60% of customs delays. Our experts
+                                        break down the top mistakes and the simple fixes.</p>
+                                    <div class="blog-card-meta">
+                                        <span><i class="fas fa-calendar"></i> Apr 30, 2025</span>
+                                    </div>
+                                    <span class="blog-card-read-more">Read Article <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </article>
+
+                            <!-- Article 5 -->
+                            <article class="blog-card" data-id="article-5" data-category="Ocean Freight">
+                                <div class="blog-card-img">
+                                    <img src="https://files.catbox.moe/bvlydd.jpeg" alt="Ocean freight"
+                                        loading="lazy">
+                                    <span class="blog-card-tag">Ocean Freight</span>
+                                </div>
+                                <div class="blog-card-body">
+                                    <h2 class="blog-card-title">Understanding FCL vs LCL: Which Ocean Freight Option
+                                        Saves Your Business More?</h2>
+                                    <p class="blog-card-excerpt">Full Container Load or Less than Container Load?
+                                        Choosing the right mode depends on cargo volume, delivery urgency, and budget.
+                                        This guide helps you decide with real cost comparisons.</p>
+                                    <div class="blog-card-meta">
+                                        <span><i class="fas fa-calendar"></i> Apr 12, 2025</span>
+                                    </div>
+                                    <span class="blog-card-read-more">Read Article <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </article>
+
+                            <!-- Article 6 -->
+                            <article class="blog-card" data-id="article-6" data-category="Tips">
+                                <div class="blog-card-img">
+                                    <img src="https://files.catbox.moe/4oqtfe.jpeg" alt="Packaging tips"
+                                        loading="lazy">
+                                    <span class="blog-card-tag orange">Expert Tips</span>
+                                </div>
+                                <div class="blog-card-body">
+                                    <h2 class="blog-card-title">The Ultimate Cargo Packaging Guide: Protect Your
+                                        Shipment from China to Nepal</h2>
+                                    <p class="blog-card-excerpt">Proper packaging can reduce damage claims by up to
+                                        80%. From double-walled cartons to moisture barriers and shock-absorbent
+                                        inserts — here's what professional shippers use.</p>
+                                    <div class="blog-card-meta">
+                                        <span><i class="fas fa-calendar"></i> Mar 25, 2025</span>
+                                    </div>
+                                    <span class="blog-card-read-more">Read Article <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </article>
+
+                            <!-- Article 7 -->
+                            <article class="blog-card" data-id="article-7" data-category="Air Freight">
+                                <div class="blog-card-img">
+                                    <img src="https://files.catbox.moe/kv8fb3.jpeg" alt="Air Cargo Charter" loading="lazy">
+                                    <span class="blog-card-tag">Air Freight</span>
+                                </div>
+                                <div class="blog-card-body">
+                                    <h2 class="blog-card-title">Express Charter Solutions: Emergency Shipping for Time-Critical Projects</h2>
+                                    <p class="blog-card-excerpt">When standard commercial flights cannot accommodate oversized or urgent freight, air chartering provides dedicated aircraft capacity with zero delay.</p>
+                                    <div class="blog-card-meta">
+                                        <span><i class="fas fa-calendar"></i> Mar 10, 2025</span>
+                                    </div>
+                                    <span class="blog-card-read-more">Read Article <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </article>
+
+                            <!-- Article 8 -->
+                            <article class="blog-card" data-id="article-8" data-category="Ocean Freight">
+                                <div class="blog-card-img">
+                                    <img src="https://files.catbox.moe/bvlydd.jpeg" alt="Port Logistics" loading="lazy">
+                                    <span class="blog-card-tag">Ocean Freight</span>
+                                </div>
+                                <div class="blog-card-body">
+                                    <h2 class="blog-card-title">Navigating Port Congestion: Strategic Routes from China Ports to Nepal</h2>
+                                    <p class="blog-card-excerpt">Discover how multi-modal transit through Kolkata and Visakhapatnam ports helps bypass seasonal bottlenecking and optimizes transit time.</p>
+                                    <div class="blog-card-meta">
+                                        <span><i class="fas fa-calendar"></i> Feb 22, 2025</span>
+                                    </div>
+                                    <span class="blog-card-read-more">Read Article <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </article>
+
+                            <!-- Article 9 -->
+                            <article class="blog-card" data-id="article-9" data-category="Customs">
+                                <div class="blog-card-img">
+                                    <img src="https://files.catbox.moe/4oqtfe.jpeg" alt="Customs Documents" loading="lazy">
+                                    <span class="blog-card-tag purple">Customs</span>
+                                </div>
+                                <div class="blog-card-body">
+                                    <h2 class="blog-card-title">New Customs Documentation Requirements for Nepal Importers in 2025</h2>
+                                    <p class="blog-card-excerpt">A comprehensive checklist of updated customs declaration paperwork, EXIM code renewals, and VTS tracking compliance for commercial importers.</p>
+                                    <div class="blog-card-meta">
+                                        <span><i class="fas fa-calendar"></i> Feb 05, 2025</span>
+                                    </div>
+                                    <span class="blog-card-read-more">Read Article <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </article>
+
+                            <!-- Article 10 -->
+                            <article class="blog-card" data-id="article-10" data-category="Warehousing">
+                                <div class="blog-card-img">
+                                    <img src="https://files.catbox.moe/4oqtfe.jpeg" alt="RFID Storage" loading="lazy">
+                                    <span class="blog-card-tag gold">Warehousing</span>
+                                </div>
+                                <div class="blog-card-body">
+                                    <h2 class="blog-card-title">Smart Inventory Management: How RFID Tracking Prevents Stock Discrepancies</h2>
+                                    <p class="blog-card-excerpt">Automated warehouse scanning eliminates human error, provides real-time stock visibility, and accelerates order fulfillment times by 40%.</p>
+                                    <div class="blog-card-meta">
+                                        <span><i class="fas fa-calendar"></i> Jan 18, 2025</span>
+                                    </div>
+                                    <span class="blog-card-read-more">Read Article <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </article>
+
+                            <!-- Article 11 -->
+                            <article class="blog-card" data-id="article-11" data-category="Industry">
+                                <div class="blog-card-img">
+                                    <img src="https://files.catbox.moe/bvlydd.jpeg" alt="Green Logistics" loading="lazy">
+                                    <span class="blog-card-tag green">Industry</span>
+                                </div>
+                                <div class="blog-card-body">
+                                    <h2 class="blog-card-title">Sustainable Logistics: Green Supply Chains & Carbon Offsetting in South Asia</h2>
+                                    <p class="blog-card-excerpt">Exploring route optimization algorithms, eco-friendly fleet vehicles, and recyclable packaging standards driving sustainable freight solutions.</p>
+                                    <div class="blog-card-meta">
+                                        <span><i class="fas fa-calendar"></i> Jan 04, 2025</span>
+                                    </div>
+                                    <span class="blog-card-read-more">Read Article <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </article>
+
+                            <!-- Article 12 -->
+                            <article class="blog-card" data-id="article-12" data-category="Tips">
+                                <div class="blog-card-img">
+                                    <img src="https://files.catbox.moe/kv8fb3.jpeg" alt="Freight Negotiation" loading="lazy">
+                                    <span class="blog-card-tag orange">Expert Tips</span>
+                                </div>
+                                <div class="blog-card-body">
+                                    <h2 class="blog-card-title">Top 7 Freight Negotiation Strategies for Growing E-commerce Brands</h2>
+                                    <p class="blog-card-excerpt">Learn how consolidating shipments, leveraging off-peak schedules, and multi-year contract options help scale-ups secure wholesale shipping rates.</p>
+                                    <div class="blog-card-meta">
+                                        <span><i class="fas fa-calendar"></i> Dec 20, 2024</span>
+                                    </div>
+                                    <span class="blog-card-read-more">Read Article <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </article>
+
+                        </div><!-- /blog-grid -->
+
+                        <!-- Styled Empty State Container -->
+                        <div class="no-articles-state" id="noArticlesState">
+                            <div class="no-articles-icon"><i class="fas fa-search-minus"></i></div>
+                            <h3 class="no-articles-title">No Articles Found</h3>
+                            <p class="no-articles-desc">We couldn't find any articles matching your search query or selected category filter.</p>
+                            <button class="btn btn-primary" id="resetFilterBtn"><i class="fas fa-sync-alt"></i> View All Articles</button>
+                        </div>
+
+                        <!-- Pagination -->
+                        <nav class="blog-pagination" id="blogPagination" aria-label="Blog pagination">
+                            <button class="page-btn" aria-disabled="true" disabled>
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <button class="page-btn active" aria-current="page">1</button>
+                            <button class="page-btn">2</button>
+                            <button class="page-btn">3</button>
+                            <button class="page-btn">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </nav>
+
+                        <!-- Newsletter -->
+                        <div class="blog-newsletter">
+                            <div class="blog-newsletter-inner">
+                                <h3>Stay Ahead of Logistics Trends</h3>
+                                <p>Get expert shipping tips and industry news delivered to your inbox — no spam, ever.
+                                </p>
+                                <form class="blog-newsletter-form" id="nlForm" novalidate>
+                                    <input type="email" placeholder="Your email address" required
+                                        aria-label="Email address">
+                                    <button type="submit"><i class="fas fa-paper-plane"></i> Subscribe</button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div><!-- /main col -->
+
+                    <!-- Sidebar -->
+                    <aside class="blog-sidebar" aria-label="Blog sidebar">
+
+                        <!-- Recent Posts -->
+                        <div class="sidebar-widget">
+                            <h3 class="sidebar-widget-title">Recent Posts</h3>
+                            <div id="sidebarRecentList">
+                                <div class="sidebar-recent-item" data-id="article-1">
+                                    <img src="https://files.catbox.moe/kv8fb3.jpeg" alt=""
+                                        class="sidebar-recent-thumb" loading="lazy">
+                                    <div>
+                                        <div class="sidebar-recent-text">BC Cargo Expands Air Freight Routes to 15 New
+                                            Destinations</div>
+                                        <div class="sidebar-recent-date"><i class="fas fa-calendar"></i> Jun 10, 2025</div>
+                                    </div>
+                                </div>
+                                <div class="sidebar-recent-item" data-id="article-2">
+                                    <img src="https://files.catbox.moe/4oqtfe.jpeg" alt=""
+                                        class="sidebar-recent-thumb" loading="lazy">
+                                    <div>
+                                        <div class="sidebar-recent-text">New Climate-Controlled Warehouse Opens in
+                                            Kathmandu</div>
+                                        <div class="sidebar-recent-date"><i class="fas fa-calendar"></i> May 28, 2025</div>
+                                    </div>
+                                </div>
+                                <div class="sidebar-recent-item" data-id="article-4">
+                                    <img src="https://files.catbox.moe/kv8fb3.jpeg" alt=""
+                                        class="sidebar-recent-thumb" loading="lazy">
+                                    <div>
+                                        <div class="sidebar-recent-text">5 Common Customs Clearance Mistakes &amp; How to
+                                            Avoid Them</div>
+                                        <div class="sidebar-recent-date"><i class="fas fa-calendar"></i> Apr 30, 2025</div>
+                                    </div>
+                                </div>
+                                <div class="sidebar-recent-item" data-id="article-5">
+                                    <img src="https://files.catbox.moe/bvlydd.jpeg" alt=""
+                                        class="sidebar-recent-thumb" loading="lazy">
+                                    <div>
+                                        <div class="sidebar-recent-text">FCL vs LCL: Which Ocean Freight Option Saves
+                                            More?</div>
+                                        <div class="sidebar-recent-date"><i class="fas fa-calendar"></i> Apr 12, 2025</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="sidebar-widget">
+                            <h3 class="sidebar-widget-title">By The Numbers</h3>
+                            <div class="sidebar-stat">
+                                <div class="sidebar-stat-row">
+                                    <span class="sidebar-stat-label">Articles Published</span>
+                                    <span class="sidebar-stat-val" id="statArticlesPublished">6</span>
+                                </div>
+                                <div class="sidebar-stat-row">
+                                    <span class="sidebar-stat-label">Monthly Readers</span>
+                                    <span class="sidebar-stat-val" id="statMonthlyReaders">8,400+</span>
+                                </div>
+                                <div class="sidebar-stat-row">
+                                    <span class="sidebar-stat-label">Countries Covered</span>
+                                    <span class="sidebar-stat-val" id="statCountriesCovered">120+</span>
+                                </div>
+                                <div class="sidebar-stat-row">
+                                    <span class="sidebar-stat-label">Expert Authors</span>
+                                    <span class="sidebar-stat-val" id="statExpertAuthors">3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="sidebar-widget">
+                            <h3 class="sidebar-widget-title">Popular Tags</h3>
+                            <div class="sidebar-tag-cloud">
+                                <span class="sidebar-tag" data-filter="Air Freight">Air Freight</span>
+                                <span class="sidebar-tag" data-filter="Ocean Freight">Ocean Freight</span>
+                                <span class="sidebar-tag" data-filter="Warehousing">Warehousing</span>
+                                <span class="sidebar-tag" data-filter="Customs">Customs</span>
+                                <span class="sidebar-tag" data-filter="Industry">Nepal Imports</span>
+                                <span class="sidebar-tag" data-filter="Tips">Packaging</span>
+                                <span class="sidebar-tag" data-filter="Ocean Freight">FCL / LCL</span>
+                                <span class="sidebar-tag" data-filter="Tips">Logistics Tips</span>
+                                <span class="sidebar-tag" data-filter="Industry">Supply Chain</span>
+                            </div>
+                        </div>
+
+                        <!-- CTA widget -->
+                        <div class="sidebar-widget" style="background: var(--gradient-hero); border-color: transparent;">
+                            <div style="position:relative;z-index:1;text-align:center;">
+                                <i class="fas fa-paper-plane"
+                                    style="font-size:2rem;color:#f5a623;margin-bottom:.75rem;display:block;"></i>
+                                <div style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:.5rem;">Ready to
+                                    Ship?</div>
+                                <p style="font-size:.82rem;color:rgba(255,255,255,.7);margin:0 0 1.1rem;">Get a
+                                    personalised freight quote in under 2 minutes.</p>
+                                <a href="/contact" class="btn btn-primary"
+                                    style="width:100%;justify-content:center;">Get Free Quote</a>
+                            </div>
+                        </div>
+
+                    </aside>
+                </div><!-- /blog-layout -->
+            </div>
+        </section>
+
+    <!-- Article Detail Modal (Wider & Taller editorial zoom modal) -->
+    <div class="modal-overlay" id="articleModal" role="dialog" aria-modal="true" aria-labelledby="modalArticleTitle">
+        <div class="modal-card" style="max-width: 920px; width: 95%; max-height: 90vh; text-align: left; position: relative; padding: 0; overflow: hidden; border-radius: 24px; display: flex; flex-direction: column;">
+            <button class="drawer-close" id="closeArticleModal" style="position: absolute; top: 1.2rem; right: 1.2rem; z-index: 10; background: rgba(0,0,0,0.65); color: #fff; border: 1px solid rgba(255,255,255,0.25); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" aria-label="Close article"><i class="fas fa-times" aria-hidden="true"></i></button>
+
+            <div style="position: relative; height: 320px; width: 100%; flex-shrink: 0; overflow: hidden; background: var(--bg-tertiary);">
+                <img src="https://files.catbox.moe/lpf0lv.png" alt="Opening of Our Cargo &amp; Courier" id="modalArticleCover" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;" loading="lazy" decoding="async">
+                <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,15,46,0.95) 0%, rgba(10,15,46,0.2) 60%, transparent 100%);"></div>
+                <span class="hero-brand-badge" id="modalArticleCategory" style="position: absolute; bottom: 1.5rem; left: 2rem; font-size: 0.78rem;">Category</span>
+            </div>
+
+            <div style="padding: 1.75rem 2.25rem 2.25rem; overflow-y: auto; flex: 1;">
+                <h2 id="modalArticleTitle" style="font-size: clamp(1.4rem, 3.5vw, 1.85rem); font-weight: 800; color: var(--text-primary); margin: 0 0 1.2rem; line-height: 1.3;">Article Title</h2>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; padding-bottom: 1.2rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-light);">
+                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                        <div id="modalArticleAuthorAvatar" class="team-avatar" style="margin: 0; width: 46px; height: 46px; font-size: 1.1rem;">AS</div>
+                        <div>
+                            <div id="modalArticleAuthorName" style="font-weight: 700; font-size: 0.98rem; color: var(--text-primary);">Anil Shrestha</div>
+                            <div id="modalArticleAuthorRole" style="font-size: 0.82rem; color: var(--text-muted);">Logistics Specialist</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1.25rem; font-size: 0.85rem; color: var(--text-muted);">
+                        <span><i class="fas fa-calendar" style="color: var(--accent-blue);" aria-hidden="true"></i> <span id="modalArticleDate">June 10, 2025</span></span>
+                    </div>
+                </div>
+
+                <div id="modalArticleBody" style="font-size: 1rem; line-height: 1.8; color: var(--text-secondary);">
+                    <!-- Dynamic article HTML -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer wave -->
+    <div style="background:var(--bg-secondary);line-height:0;">
+        <svg viewBox="0 0 1440 40" preserveAspectRatio="none" style="display:block;width:100%;height:40px;"
+            aria-hidden="true">
+            <path d="M0,20 C240,40 480,0 720,18 C960,36 1200,6 1440,20 L1440,40 L0,40 Z" fill="#0a0f2e" />
+        </svg>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-main">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-brand-col">
+                        <div class="footer-brand-logo"><img src="https://files.catbox.moe/eolcc7.png"
+                                alt="BC Cargo"><span class="footer-brand-logo-name">The BC Cargo</span></div>
+                        <p class="footer-desc">Your trusted partner for international logistics, connecting businesses
+                            to global markets with speed and reliability.</p>
+                        <div class="footer-social">
+                            <a href="https://facebook.com/thebccargo" target="_blank" rel="noopener"
+                                class="social-btn fb" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://instagram.com/thebccargo" target="_blank" rel="noopener"
+                                class="social-btn ig" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="https://youtube.com/@thebccargo" target="_blank" rel="noopener"
+                                class="social-btn yt" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                            <a href="https://wa.me/9779855019485" target="_blank" rel="noopener"
+                                class="social-btn wa" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="footer-col-title">Quick Links</h4>
+                        <ul class="footer-links">
+                            <li><a href="/">Home</a></li>
+                            <li><a href="/blog">Blog</a></li>
+                            <li><a href="/services">Services</a></li>
+                            <li><a href="/policy">Policy</a></li>
+                            <li><a href="/about">About Us</a></li>
+                            <li><a href="/careers">Careers</a></li>
+                            <li><a href="/contact">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="footer-col-title">Services</h4>
+                        <ul class="footer-links">
+                            <li><a href="/services">Ocean Freight</a></li>
+                            <li><a href="/services">Air Freight</a></li>
+                            <li><a href="/services">Land Transport</a></li>
+                            <li><a href="/services">Warehousing</a></li>
+                            <li><a href="/services">Customs Clearance</a></li>
+                            <li><a href="/services">Packaging</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="footer-col-title">Get in Touch</h4>
+                        <div class="footer-contact-list">
+                            <div class="footer-contact-item">
+                                <div class="footer-contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                <div class="footer-contact-text">School Road, Hetauda 44107, Nepal</div>
+                            </div>
+                            <div class="footer-contact-item">
+                                <div class="footer-contact-icon"><i class="fab fa-whatsapp"></i></div>
+                                <div class="footer-contact-text">+977-9855019485</div>
+                            </div>
+                            <div class="footer-contact-item">
+                                <div class="footer-contact-icon"><i class="fab fa-whatsapp"></i></div>
+                                <div class="footer-contact-text">+977-9866685815</div>
+                            </div>
+                            <div class="footer-contact-item">
+                                <div class="footer-contact-icon"><i class="fas fa-envelope"></i></div>
+                                <div class="footer-contact-text">info@bccargo.com</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="footer-bottom">
+                <div class="footer-bottom-left">&copy; 2026 BC Cargo. All rights reserved. Part of <a
+                        href="https://www.facebook.com/thebcnetworks" target="_blank" rel="noopener">The BC
+                        Networks</a>.<br>Designed &amp; Developed by <a href="https://www.amanaryal.com"
+                        target="_blank" rel="noopener">Aman Aryal</a></div>
+                <div class="footer-bottom-right"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a
+                        href="#">Cookie Policy</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="whatsapp-fab">
+        <a href="https://wa.me/9779855019485" target="_blank" rel="noopener" class="whatsapp-btn"
+            aria-label="Chat on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+    </div>
+    <button class="back-top" id="backTop" aria-label="Back to top"><i class="fas fa-chevron-up"></i></button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/main.js" defer></script>
+    <script src="/js/hero-enhanced.js" defer></script>
+    <script src="/js/blog.js" defer></script>
+</body>
+
+</html>

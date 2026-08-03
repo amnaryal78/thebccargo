@@ -1,0 +1,78 @@
+================================================================================
+                    BC CARGO WEB APP - PROJECT SUMMARY & CHANGE LOG
+================================================================================
+
+PROJECT NAME: BC Cargo - Premium Global Logistics & Cargo Solutions
+LOCATION: d:\!thebccargo\.cargo projects\thebccargo_web\thebccargo - Agent
+DATE GENERATED: July 28, 2026
+
+--------------------------------------------------------------------------------
+1. EXECUTIVE OVERVIEW
+--------------------------------------------------------------------------------
+This project involved refactoring, enhancing, and debugging the BC Cargo web application.
+The application connects Nepalese freight operations to global markets with real-time 
+cargo tracking, interactive logistics services, partner showcases, blog, admin 
+management, and security-verified tracking lookup.
+
+--------------------------------------------------------------------------------
+2. BACKEND INFRASTRUCTURE & SECURITY REFACTORING
+--------------------------------------------------------------------------------
+- Database & Express Architecture:
+  * Express server backend located in `backend/server.js` using SQLite database `backend/database/db.js`.
+  * Public APIs created for shipment tracking, FAQs retrieval, and inquiry lead submissions.
+
+- Two-Step Security Tracking Verification:
+  * Implemented public lookup API `/api/public/shipment/:id` to check shipment existence without exposing personal info.
+  * Implemented security modal requiring sender or receiver phone number verification via `/api/track` before revealing sensitive cargo timelines and contact details.
+  * Integrated static mock shipment dataset (`BC2204AT`, `BC3301MK`) inside `js/main.js` with phone verification fallback for offline capability.
+
+- Codebase Cleanup & UX Security:
+  * Completely removed restrictive user anti-patterns (such as right-click blocking and keyboard shortcut restriction scripts) to ensure standard browser functionality.
+
+--------------------------------------------------------------------------------
+3. FRONTEND ARCHITECTURE & DESIGN SYSTEM PRESERVATION
+--------------------------------------------------------------------------------
+- Styling & CSS Tokens:
+  * Preserved full color token system (`--primary`, `--secondary`, `--accent-gold`, `--bg-dark`, etc.) in `css/home.css`.
+  * Maintained high-quality typography (Plus Jakarta Sans, Inter) and glassmorphism UI components.
+
+- Navigation & Deep-Linking:
+  * Aligned tracking buttons across all subpages (`services.html`, `about.html`, `contact.html`, `blog.html`, `policy.html`) to deep-link directly to `index.html#tracking`.
+  * Mobile drawer & glassmorphism navbar state management synchronized across desktop and mobile views.
+
+--------------------------------------------------------------------------------
+4. SECTION RESTORATION & ANIMATION DIAGNOSTICS
+--------------------------------------------------------------------------------
+- Section Display Fix:
+  * Identified root cause of invisible homepage sections (`why-section`, `network-section`, `testimonials-section`, `news-section`).
+  * Diagnosis: Elements inside these sections used `data-aos` attributes, which defaults to `opacity: 0` in CSS. The AOS library was missing from `index.html`, leaving elements permanently hidden.
+  * Resolution: Integrated AOS CSS and JS library links into `index.html` and added a resilient `IntersectionObserver` fallback in `js/main.js` (`initAOSAndGSAP()`) to guarantee visibility even if external CDNs are slow or offline.
+
+- Global Network Flag Marquee:
+  * Restored dynamic country flag list rendering via `initFlags()`.
+  * Added CSS `@keyframes flagsMarquee` and `@keyframes flagsMarqueeReverse` in `css/home.css` for smooth infinite horizontal scrolling of flag badges.
+
+- Partners & FAQ Restorations:
+  * Restored logistics partners marquee (`initPartners()`) and interactive expandable FAQ accordion (`initFAQ()`).
+
+--------------------------------------------------------------------------------
+5. SUMMARY OF KEY UPDATED FILES
+--------------------------------------------------------------------------------
+1. `index.html`:
+   - Configured homepage sections (`why-section`, `network-section`, `testimonials-section`, `news-section`).
+   - Added AOS CSS and JS library CDN tags.
+   - Connected security verification modal and hero slider components.
+
+2. `css/home.css`:
+   - Maintained design tokens, themes (dark/light), hero styles, tracking panel, and modals.
+   - Added missing marquee animation keyframes for `.flags-track` and `.flags-track-reverse`.
+
+3. `js/main.js`:
+   - Core application logic for theme switcher, mobile navigation, tracking handler, phone modal verification, flags builder, partner marquee builder, FAQ renderer, back-to-top FAB, and contact form handling.
+   - Enhanced `initAOSAndGSAP()` with an `IntersectionObserver` fallback.
+
+4. `backend/server.js`:
+   - Express server handling API routing, security checks, and database queries.
+
+--------------------------------------------------------------------------------
+================================================================================

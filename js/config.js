@@ -1,0 +1,1 @@
+window.API_BASE_URL=window.API_BASE_URL||("localhost"===window.location.hostname||"127.0.0.1"===window.location.hostname?window.location.origin:"https://thebccargo.onrender.com");

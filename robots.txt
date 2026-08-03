@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /bc-mgmt-x9k2p7
+Disallow: /admin-dashboard
+Disallow: /hq-access.html
+
+Sitemap: https://thebccargo.com/sitemap.xml
