@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET, verifyAdmin } = require('../middleware/auth');
 
+const { loginLimiter } = require('../middleware/rateLimiter');
+
 const router = express.Router();
 
 /**
@@ -10,7 +12,7 @@ const router = express.Router();
  * Validates username/password against the admins table.
  * On success, sets an HttpOnly JWT cookie (24h expiry).
  */
-router.post('/login', (req, res) => {
+router.post('/login', loginLimiter, (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {

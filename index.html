@@ -479,18 +479,67 @@
             </div>
         </section>
 
-        <!-- FAQ -->
-        <section class="faq-section" aria-label="Frequently Asked Questions">
+        <!-- FAQ Section -->
+        <section class="faq-section" id="faq" aria-label="Frequently Asked Questions">
             <div class="container">
-                <div class="section-header center">
+                <div class="section-header center" style="margin-bottom:3rem;">
                     <div class="section-label" data-aos><i class="fas fa-question-circle" aria-hidden="true"></i> FAQ
                     </div>
                     <h2 class="section-title" data-aos data-delay="100">Common <span
                             class="gradient-text">Questions</span></h2>
+                    <p class="section-subtitle" data-aos data-delay="200" style="margin:0 auto;">Everything you need to know about shipping with BC Cargo.</p>
                 </div>
-                <div class="faq-wrap" id="faqWrap"></div>
+                <div class="faq-layout">
+                    <!-- Sidebar Contact Card -->
+                    <div class="faq-sidebar" data-aos="fade-right">
+                        <div class="faq-sidebar-card">
+                            <div class="faq-live-status-pill">
+                                <span class="live-dot-pulse"></span>
+                                <span>Support Team Online • 24/7</span>
+                            </div>
+                            <h3 class="faq-sidebar-title">Can't find your answer?</h3>
+                            <p class="faq-sidebar-desc">Our logistics experts are available 24/7 to answer your shipping questions and provide instant freight quotes.</p>
+                            <div class="faq-contact-btns">
+                                <a href="https://wa.me/9779855019485" target="_blank" rel="noopener" class="faq-contact-btn wa">
+                                    <i class="fab fa-whatsapp" aria-hidden="true"></i>
+                                    <div>
+                                        <div style="font-size:0.8rem;font-weight:700;">WhatsApp Us</div>
+                                        <div style="font-size:0.72rem;opacity:0.7;">+977-9855019485</div>
+                                    </div>
+                                </a>
+                                <a href="tel:+9779855019485" class="faq-contact-btn call">
+                                    <i class="fas fa-phone" aria-hidden="true"></i>
+                                    <div>
+                                        <div style="font-size:0.8rem;font-weight:700;">Call Us</div>
+                                        <div style="font-size:0.72rem;opacity:0.7;">+977-9855019485</div>
+                                    </div>
+                                </a>
+                                <a href="/contact" class="faq-contact-btn">
+                                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                                    <div>
+                                        <div style="font-size:0.8rem;font-weight:700;">Send a Message</div>
+                                        <div style="font-size:0.72rem;opacity:0.7;">info@thebccargo.com</div>
+                                    </div>
+                                </a>
+                                <a href="/become-partner" class="faq-contact-btn partner">
+                                    <i class="fas fa-handshake" aria-hidden="true" style="color:var(--accent-gold, #f5a623);"></i>
+                                    <div>
+                                        <div style="font-size:0.8rem;font-weight:700;">Be international partner</div>
+                                        <div style="font-size:0.72rem;opacity:0.75;">Join our global network</div>
+                                    </div>
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FAQ Accordion -->
+                    <div data-aos="fade-left">
+                        <div class="faq-wrap" id="faqWrap"></div>
+                    </div>
+                </div>
             </div>
         </section>
+
 
         <!-- News -->
         <section class="news-section" aria-label="Latest News and Insights">
@@ -669,10 +718,12 @@
                         aria-hidden="true"></i> Cancel</button>
             </div>
         </div>
+    </div>
+
     <!-- Article Detail Modal (Wider & Taller editorial zoom modal) -->
     <div class="modal-overlay" id="articleModal" role="dialog" aria-modal="true" aria-labelledby="modalArticleTitle">
         <div class="modal-card" style="max-width: 920px; width: 95%; max-height: 90vh; text-align: left; position: relative; padding: 0; overflow: hidden; border-radius: 24px; display: flex; flex-direction: column;">
-            <button class="drawer-close" id="closeArticleModal" style="position: absolute; top: 1.2rem; right: 1.2rem; z-index: 10; background: rgba(0,0,0,0.65); color: #fff; border: 1px solid rgba(255,255,255,0.25); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" aria-label="Close article"><i class="fas fa-times" aria-hidden="true"></i></button>
+            <button class="drawer-close" id="closeArticleModal" onclick="closeArticleModal()" style="position: absolute; top: 1.2rem; right: 1.2rem; z-index: 10; background: rgba(0,0,0,0.65); color: #fff; border: 1px solid rgba(255,255,255,0.25); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" aria-label="Close article"><i class="fas fa-times" aria-hidden="true"></i></button>
 
             <div style="position: relative; height: 320px; width: 100%; flex-shrink: 0; overflow: hidden; background: var(--bg-tertiary);">
                 <img src="https://files.catbox.moe/lpf0lv.png" alt="Opening of Our Cargo &amp; Courier" id="modalArticleCover" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;" loading="eager" decoding="async">
@@ -700,6 +751,115 @@
                     <!-- Dynamic article HTML -->
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Profile Detail Modal (Team Member Bio Zoom) -->
+    <div class="modal-overlay" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="modalTeamName">
+        <div class="modal-card" style="max-width: 580px; text-align: left; position: relative;">
+            <button class="drawer-close" id="closeProfileModal" onclick="closeTeamModal()" style="position: absolute; top: 1rem; right: 1rem;" aria-label="Close profile"><i class="fas fa-times"></i></button>
+            <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.25rem;">
+                <div class="team-avatar" id="modalTeamAvatar" style="margin: 0; width: 70px; height: 70px; font-size: 1.6rem;">MP</div>
+                <div>
+                    <h3 class="modal-title" id="modalTeamName" style="margin: 0; text-align: left; font-size: 1.35rem;">Mohan Parajuli</h3>
+                    <span class="hero-brand-badge" id="modalTeamRole" style="font-size: 0.72rem; margin-top: 0.35rem; display: inline-block;">Managing Director / Leadership</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-blue); margin-bottom: 0.35rem;">Overview &amp; Bio</h4>
+                <p class="modal-desc" id="modalTeamBio" style="text-align: left; margin: 0; line-height: 1.6; color: var(--text-secondary);">Leading strategic growth, international trade partnerships, and core logistics expansion.</p>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-gold); margin-bottom: 0.35rem;">Qualifications</h4>
+                <p id="modalTeamQualifications" style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">MBA in International Supply Chain Management, 15+ years experience.</p>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+                <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-cyan); margin-bottom: 0.35rem;">Key Responsibilities</h4>
+                <p id="modalTeamResponsibilities" style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Global logistics strategy, trade compliance, carrier partnerships, executive oversight.</p>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; padding-top: 1rem; border-top: 1px solid var(--border-light);">
+                <a href="mailto:info@bccargo.com" id="modalTeamEmail" class="btn btn-outline-primary btn-sm"><i class="fas fa-envelope"></i> <span id="modalTeamEmailText">info@bccargo.com</span></a>
+                <a href="tel:+9779855019485" id="modalTeamPhone" class="btn btn-primary btn-sm"><i class="fas fa-phone-alt"></i> <span id="modalTeamPhoneText">+977-9855019485</span></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- International Partner Modal -->
+    <div class="modal-overlay" id="partnerModal" role="dialog" aria-modal="true" aria-labelledby="partnerModalTitle">
+        <div class="modal-card partner-modal-card">
+            <button class="drawer-close" id="closePartnerModal" onclick="closePartnerModal()" aria-label="Close modal"><i class="fas fa-times" aria-hidden="true"></i></button>
+
+            <div class="partner-modal-header">
+                <div class="modal-icon-wrap" style="background:rgba(245,166,35,0.15);color:#f5a623;"><i class="fas fa-handshake" aria-hidden="true"></i></div>
+                <h3 class="modal-title" id="partnerModalTitle">Become an International Partner</h3>
+                <p class="modal-desc">Join The BC Cargo global freight network. Expand your logistics reach with our cross-border logistics infrastructure.</p>
+            </div>
+
+            <form id="partnerForm" class="partner-form" novalidate>
+                <div class="partner-form-grid">
+                    <div class="modal-input-group full-width">
+                        <label class="modal-input-label" for="partnerCompany">🏢 Company Name <span class="required-star">*</span></label>
+                        <input type="text" id="partnerCompany" class="modal-input" placeholder="e.g. Global Freight Logistics Ltd." required autocomplete="organization">
+                    </div>
+
+                    <div class="modal-input-group full-width">
+                        <label class="modal-input-label" for="partnerCountry">🌍 Country <span class="required-star">*</span></label>
+                        <select id="partnerCountry" class="modal-input modal-select" required>
+                            <option value="" disabled selected>Select your country...</option>
+                            <option value="United States">United States</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="India">India</option>
+                            <option value="China">China</option>
+                            <option value="United Arab Emirates">United Arab Emirates</option>
+                            <option value="Germany">Germany</option>
+                            <option value="Japan">Japan</option>
+                            <option value="Singapore">Singapore</option>
+                            <option value="Australia">Australia</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Nepal">Nepal</option>
+                            <option value="Other">Other Country</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-input-group">
+                        <label class="modal-input-label" for="partnerFirstName">👤 First Name <span class="required-star">*</span></label>
+                        <input type="text" id="partnerFirstName" class="modal-input" placeholder="e.g. John" required autocomplete="given-name">
+                    </div>
+
+                    <div class="modal-input-group">
+                        <label class="modal-input-label" for="partnerLastName">👤 Last Name <span class="required-star">*</span></label>
+                        <input type="text" id="partnerLastName" class="modal-input" placeholder="e.g. Smith" required autocomplete="family-name">
+                    </div>
+
+                    <div class="modal-input-group">
+                        <label class="modal-input-label" for="partnerEmail">✉️ Email Address <span class="required-star">*</span></label>
+                        <input type="email" id="partnerEmail" class="modal-input" placeholder="john@company.com" required autocomplete="email">
+                    </div>
+
+                    <div class="modal-input-group">
+                        <label class="modal-input-label" for="partnerPhone">📞 Phone Number <span class="required-star">*</span></label>
+                        <input type="tel" id="partnerPhone" class="modal-input" placeholder="+1 (555) 000-0000" required autocomplete="tel">
+                    </div>
+
+                    <div class="modal-input-group full-width">
+                        <label class="modal-input-label" for="partnerDetails">📝 Additional Details</label>
+                        <textarea id="partnerDetails" class="modal-input modal-textarea" rows="3" placeholder="Tell us about your services, trade routes, or partnership goals..."></textarea>
+                    </div>
+                </div>
+
+                <div id="partnerStatusMessage" class="partner-status-msg" aria-live="polite"></div>
+
+                <div class="modal-actions" style="margin-top:1.25rem;">
+                    <button type="submit" class="btn btn-primary" id="submitPartnerBtn" style="width:100%;justify-content:center;padding:0.9rem 1.5rem;">
+                        <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                        <span>Submit Application</span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 

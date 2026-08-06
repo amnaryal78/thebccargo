@@ -1,6 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'bc_cargo_jwt_secret_key_2026_change_me';
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️ [SECURITY WARNING] JWT_SECRET is not explicitly set in process.env. Using fallback secret for development.');
+}
 
 /**
  * verifyAdmin Middleware

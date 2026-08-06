@@ -38,20 +38,38 @@ db.serialize(() => {
   `);
 
   // ─────────────────────────────────────────────
-  // 2. Inquiries (Leads) Table
+  // 3. Partner Applications Table
   // ─────────────────────────────────────────────
   db.run(`
-    CREATE TABLE IF NOT EXISTS inquiries (
+    CREATE TABLE IF NOT EXISTS partner_applications (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      full_name TEXT NOT NULL,
+      company_name TEXT NOT NULL,
+      country TEXT NOT NULL,
+      first_name TEXT NOT NULL,
+      last_name TEXT NOT NULL,
       email TEXT NOT NULL,
       phone TEXT NOT NULL,
-      service TEXT,
-      message TEXT NOT NULL,
-      status TEXT DEFAULT 'New',
+      details TEXT,
+      status TEXT DEFAULT 'Pending',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS partners (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      company_name TEXT NOT NULL,
+      country TEXT NOT NULL,
+      first_name TEXT NOT NULL,
+      last_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      details TEXT,
+      status TEXT DEFAULT 'Pending',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
 
   // ─────────────────────────────────────────────
   // 4. Articles (Blog CMS) Table
@@ -126,6 +144,45 @@ db.serialize(() => {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Seed default offers if empty
+  db.get("SELECT COUNT(*) AS count FROM offers", [], (err, row) => {
+    if (!err && row && row.count === 0) {
+      const defaultOffers = [
+        {
+          title: "15% Off Air Express Courier",
+          description: "Get 15% off international air express courier shipments over 20 kg. Valid for all Asian & European trade corridors.",
+          discount_code: "BCAIR15",
+          valid_until: "2026-12-31",
+          is_active: 1
+        },
+        {
+          title: "Free Warehouse Storage (14 Days)",
+          description: "Enjoy 14 days complimentary climate-controlled storage in our Kathmandu fulfillment hub for ocean FCL shipments.",
+          discount_code: "FREE14FREE",
+          valid_until: "2026-12-31",
+          is_active: 1
+        },
+        {
+          title: "10% Customs Clearance Discount",
+          description: "Save 10% on customs brokerage fees for cross-border land freight arriving via Birgunj or Tatopani ports.",
+          discount_code: "NEPAL10",
+          valid_until: "2026-12-31",
+          is_active: 1
+        }
+      ];
+
+      const offerStmt = db.prepare(`
+        INSERT INTO offers (title, description, discount_code, valid_until, is_active)
+        VALUES (?, ?, ?, ?, ?)
+      `);
+      defaultOffers.forEach(o => {
+        offerStmt.run(o.title, o.description, o.discount_code, o.valid_until, o.is_active);
+      });
+      offerStmt.finalize();
+      console.log("🎁 Default special offers seeded into database");
+    }
+  });
 
   // ═══════════════════════════════════════════════════════════
   // Seed Default Admin Account

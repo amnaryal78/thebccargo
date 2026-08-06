@@ -56,8 +56,10 @@ async function handlePublicTracking(req, res) {
   }
 }
 
-router.get('/shipment/:tracking_id', handlePublicTracking);
-router.get('/track/:trackingId', handlePublicTracking);
+const { trackingLimiter } = require('../middleware/rateLimiter');
+
+router.get('/shipment/:tracking_id', trackingLimiter, handlePublicTracking);
+router.get('/track/:trackingId', trackingLimiter, handlePublicTracking);
 
 /**
  * GET /api/public/blogs
@@ -147,16 +149,89 @@ router.get('/faqs', (req, res) => {
   });
 });
 
+const { partnerApplyLimiter } = require('../middleware/rateLimiter');
+
 /**
- * GET /api/public/offers
- * Returns all active offers (is_active = 1).
+ * Helper to sanitize string input against XSS attacks
  */
-router.get('/offers', (req, res) => {
+function sanitizeInput(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/<[^>]*>?/gm, '').trim();
+}
+
+/**
+ * Partner application handler function.
+ * Enforces rate limiting, XSS sanitization, field validation, and parameterized SQL queries.
+ */
+function handlePartnerApplicationSubmission(req, res) {
   const db = req.app.get('db');
-  db.all('SELECT * FROM offers WHERE is_active = 1 ORDER BY id DESC', [], (err, rows) => {
-    if (err) return res.status(500).json({ success: false, message: err.message });
-    return res.json({ success: true, offers: rows || [] });
-  });
-});
+
+  const companyName = sanitizeInput(req.body.company_name);
+  const country = sanitizeInput(req.body.country);
+  const firstName = sanitizeInput(req.body.first_name);
+  const lastName = sanitizeInput(req.body.last_name);
+  const email = sanitizeInput(req.body.email);
+  const phone = sanitizeInput(req.body.phone);
+  const details = sanitizeInput(req.body.details || '');
+
+  // Field validation
+  if (!companyName || !country || !firstName || !lastName || !email || !phone) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation error: Company name, country, first name, last name, email, and phone number are required.'
+    });
+  }
+
+  // Strict email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation error: Please provide a valid email address.'
+    });
+  }
+
+  // String length validation bounds
+  if (companyName.length > 150 || firstName.length > 80 || lastName.length > 80 || email.length > 120 || phone.length > 40 || details.length > 3000) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation error: Input data exceeds maximum allowed character length.'
+    });
+  }
+
+  // Parameterized SQLite query (prevents SQL injection) into partner_applications and partners
+  db.run(
+    `INSERT INTO partner_applications (company_name, country, first_name, last_name, email, phone, details) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [companyName, country, firstName, lastName, email, phone, details],
+    function (err) {
+      if (err) {
+        console.error('Partner application DB error:', err.message);
+        return res.status(500).json({
+          success: false,
+          message: 'Server error saving application. Please try again later.'
+        });
+      }
+
+      const appId = this.lastID;
+
+      // Sync into partners alias table for backwards compatibility
+      db.run(
+        `INSERT INTO partners (company_name, country, first_name, last_name, email, phone, details) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [companyName, country, firstName, lastName, email, phone, details],
+        () => {}
+      );
+
+      return res.status(201).json({
+        success: true,
+        message: 'Thank you! Your international partnership application has been submitted successfully. Our global network team will contact you within 24–48 hours.',
+        application_id: appId
+      });
+    }
+  );
+}
+
+router.post('/partner-apply', partnerApplyLimiter, handlePartnerApplicationSubmission);
+router.post('/partner-application', partnerApplyLimiter, handlePartnerApplicationSubmission);
 
 module.exports = router;
+

@@ -80,28 +80,55 @@ async function callPost(action, body = {}) {
   }
 }
 
-/**
- * READ ALL SHIPMENTS FROM GOOGLE SHEETS
- */
-async function getAllShipments() {
-  validateConfig();
-  const json = await callGet('read');
-  if (json && Array.isArray(json.shipments)) {
-    return json.shipments;
-  }
-  return [];
+const CACHE_TTL_MS = 60 * 1000; // 60 seconds TTL
+const cache = {
+  allShipments: null,
+  allShipmentsExpiry: 0,
+  singleShipments: new Map()
+};
+
+function clearCache() {
+  cache.allShipments = null;
+  cache.allShipmentsExpiry = 0;
+  cache.singleShipments.clear();
 }
 
 /**
- * OPTIMIZED SINGLE SHIPMENT LOOKUP BY TRACKING ID
+ * READ ALL SHIPMENTS FROM GOOGLE SHEETS (Cached)
+ */
+async function getAllShipments() {
+  validateConfig();
+  const now = Date.now();
+  if (cache.allShipments && cache.allShipmentsExpiry > now) {
+    return cache.allShipments;
+  }
+
+  const json = await callGet('read');
+  if (json && Array.isArray(json.shipments)) {
+    cache.allShipments = json.shipments;
+    cache.allShipmentsExpiry = now + CACHE_TTL_MS;
+    return json.shipments;
+  }
+  return cache.allShipments || [];
+}
+
+/**
+ * OPTIMIZED SINGLE SHIPMENT LOOKUP BY TRACKING ID (Cached)
  */
 async function getShipmentById(trackingId) {
   validateConfig();
   if (!trackingId) return null;
   const targetId = trackingId.toString().trim().toUpperCase();
+  const now = Date.now();
+
+  const cached = cache.singleShipments.get(targetId);
+  if (cached && cached.expiry > now) {
+    return cached.data;
+  }
 
   const json = await callGet('get', { id: targetId });
   if (json && json.success && json.shipment) {
+    cache.singleShipments.set(targetId, { data: json.shipment, expiry: now + CACHE_TTL_MS });
     return json.shipment;
   }
   return null;
@@ -115,7 +142,9 @@ async function createShipment(data) {
   if (!data || !data.tracking_id) {
     return { success: false, message: 'tracking_id is required.' };
   }
-  return await callPost('create', { shipment: data });
+  const result = await callPost('create', { shipment: data });
+  if (result.success) clearCache();
+  return result;
 }
 
 /**
@@ -126,7 +155,9 @@ async function updateShipment(trackingId, data) {
   if (!trackingId) {
     return { success: false, message: 'tracking_id is required.' };
   }
-  return await callPost('update', { tracking_id: trackingId.toString().trim().toUpperCase(), shipment: data });
+  const result = await callPost('update', { tracking_id: trackingId.toString().trim().toUpperCase(), shipment: data });
+  if (result.success) clearCache();
+  return result;
 }
 
 /**
@@ -137,7 +168,9 @@ async function deleteShipment(trackingId) {
   if (!trackingId) {
     return { success: false, message: 'tracking_id is required.' };
   }
-  return await callPost('delete', { tracking_id: trackingId.toString().trim().toUpperCase() });
+  const result = await callPost('delete', { tracking_id: trackingId.toString().trim().toUpperCase() });
+  if (result.success) clearCache();
+  return result;
 }
 
 module.exports = {
@@ -146,5 +179,7 @@ module.exports = {
   getShipmentById,
   createShipment,
   updateShipment,
-  deleteShipment
+  deleteShipment,
+  clearCache
 };
+
