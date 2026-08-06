@@ -47,5 +47,9 @@ Desktop.ini
 *.njsproj
 *.sln
 
-# Antigravity & Agent Caches / Scratch
-.antigravity/scratch/
+# Antigravity & Agent Caches / Internal Configs
+.antigravity/
+.agents/
+.gemini/
+.geminiignore
+
