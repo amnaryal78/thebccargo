@@ -38,8 +38,80 @@ db.serialize(() => {
   `);
 
   // ─────────────────────────────────────────────
-  // 3. Partner Applications Table
+  // 2. Contact Messages Table
   // ─────────────────────────────────────────────
+  db.run(`
+    CREATE TABLE IF NOT EXISTS contact_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      full_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      service TEXT,
+      message TEXT NOT NULL,
+      status TEXT DEFAULT 'New',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS inquiries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      full_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      service TEXT,
+      message TEXT NOT NULL,
+      status TEXT DEFAULT 'New',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // ─────────────────────────────────────────────
+  // 3. Career Applications Table
+  // ─────────────────────────────────────────────
+  db.run(`
+    CREATE TABLE IF NOT EXISTS career_applications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      full_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      position TEXT NOT NULL,
+      experience TEXT,
+      cover_letter TEXT,
+      resume_url TEXT,
+      status TEXT DEFAULT 'New',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // ─────────────────────────────────────────────
+  // 4. Partner Requests Table
+  // ─────────────────────────────────────────────
+  db.run(`
+    CREATE TABLE IF NOT EXISTS partner_requests (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      company_name TEXT NOT NULL,
+      country TEXT NOT NULL,
+      first_name TEXT NOT NULL,
+      last_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      details TEXT,
+      status TEXT DEFAULT 'Pending',
+      is_read INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Ensure is_read columns exist on existing databases
+  ['contact_messages', 'inquiries', 'career_applications', 'partner_requests', 'partner_applications'].forEach(tbl => {
+    db.run(`ALTER TABLE ${tbl} ADD COLUMN is_read INTEGER DEFAULT 0`, (err) => {
+      if (err && !err.message.includes('duplicate column')) {
+        // ignore duplicate column error on restarts
+      }
+    });
+  });
+
   db.run(`
     CREATE TABLE IF NOT EXISTS partner_applications (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -293,9 +365,9 @@ db.serialize(() => {
         category: "General",
         date: "2026-08-17",
         read_time: "",
-        author_name: "Mohan Parajuli",
-        author_role: "Managing Director",
-        author_avatar: "MP",
+        author_name: "Ramesh Aryal",
+        author_role: "Operations & Supply Chain Director",
+        author_avatar: "RA",
         image: "https://files.catbox.moe/lpf0lv.png",
         summary: "BC Cargo & Courier Service is proud to announce its Grand Opening on Bhadra 1, 2083 (August 17, 2026). We are committed to providing fast, safe, and reliable domestic and international cargo, courier, express delivery, and door-to-door logistics services, connecting Nepal to the world.",
         content_html: "<h2>Grand Opening of BC Cargo & Courier Service</h2><p>We are excited to announce the official Grand Opening of <strong>BC Cargo & Courier Service</strong> on <strong>Bhadra 1, 2083 (August 17, 2026)</strong>. This marks the beginning of a new journey dedicated to providing reliable, secure, and efficient logistics solutions for individuals and businesses across Nepal and beyond.</p><p>Our mission is simple: <strong>Connecting Nepal to the World.</strong> Whether you need to send parcels within the country or ship internationally, BC Cargo is committed to delivering your packages safely and on time.</p><h3>Our Services</h3><ul><li>Domestic Cargo Services</li><li>International Courier</li><li>Express Delivery</li><li>Door-to-Door Delivery</li></ul><h3>Why Choose BC Cargo?</h3><ul><li>Fast and reliable delivery</li><li>Safe handling of shipments</li><li>Competitive pricing</li><li>Professional customer support</li><li>Nationwide and international coverage</li></ul><p>We sincerely thank everyone who has supported us throughout this journey. We look forward to serving our valued customers with excellence and building lasting relationships based on trust and reliability.</p><p>Join us as we celebrate this exciting milestone and experience a new standard in cargo and courier services.</p><p><strong>BC Cargo & Courier Service</strong><br>Connecting Nepal to the World.</p>",
@@ -310,7 +382,7 @@ db.serialize(() => {
         author_name: "Anil Shrestha",
         author_role: "Logistics Specialist",
         author_avatar: "AS",
-        image: "https://files.catbox.moe/kv8fb3.jpeg",
+        image: "https://files.catbox.moe/zmwxbk.png",
         summary: "Our latest expansion connects Nepal's exporters to 15 key logistics hubs with guaranteed capacity and express customs clearance.",
         content_html: "<p>THE BC Cargo & Courier is excited to announce a major expansion of our express air freight network. With direct carrier allocations connecting Tribhuvan International Airport (KTM) to key global hubs in Dubai, Singapore, Frankfurt, Tokyo, and New York, businesses can now experience unprecedented shipping speed and reliability.</p><h3>Key Benefits of the Expanded Corridors:</h3><ul><li>Daily express departures for urgent document and parcel dispatches</li><li>Temperature-controlled cargo hold for sensitive pharmaceuticals, electronics, and perishable goods</li><li>Integrated pre-arrival customs clearance at international destination hubs</li></ul>",
         status: "published"
@@ -324,7 +396,7 @@ db.serialize(() => {
         author_name: "Ramesh Aryal",
         author_role: "Operations Director",
         author_avatar: "RA",
-        image: "https://files.catbox.moe/4oqtfe.jpeg",
+        image: "https://files.catbox.moe/o30o80.png",
         summary: "State-of-the-art 25,000 sq ft climate-controlled warehousing facility equipped with real-time RFID tracking and 24/7 surveillance.",
         content_html: "<p>To support growing cross-border trade in South Asia, THE BC Cargo has officially commissioned a modern 25,000 sq ft logistics and fulfillment center in Kathmandu.</p><h3>Facility Capabilities & Tech:</h3><ul><li>Precision temperature-controlled zones (-20°C to +25°C) for pharmaceuticals and high-tech items</li><li>Real-time Warehouse Management System (WMS) integration</li><li>24/7 HD CCTV monitoring and biometric security control</li></ul>",
         status: "published"
@@ -335,10 +407,10 @@ db.serialize(() => {
         category: "Industry",
         date: "2025-05-15",
         read_time: "5 min read",
-        author_name: "Mohan Parajuli",
-        author_role: "Managing Director",
-        author_avatar: "MP",
-        image: "https://files.catbox.moe/bvlydd.jpeg",
+        author_name: "Ramesh Aryal",
+        author_role: "Operations & Supply Chain Director",
+        author_avatar: "RA",
+        image: "https://files.catbox.moe/7j5mnn.png",
         summary: "From handcrafted goods to tea and textiles, discover how digital freight forwarding is expanding global market access for Nepalese exporters.",
         content_html: "<p>Nepal's freight forwarding and international courier sector is undergoing a profound digital transformation. High-altitude supply chain engineering, streamlined border customs procedures, and multimodal transport integration are opening new doors for local enterprises.</p>",
         status: "published"
@@ -366,7 +438,7 @@ db.serialize(() => {
         author_name: "Anil Shrestha",
         author_role: "Logistics Specialist",
         author_avatar: "AS",
-        image: "https://files.catbox.moe/bvlydd.jpeg",
+        image: "https://files.catbox.moe/7j5mnn.png",
         summary: "Full Container Load or Less than Container Load? Compare cost parameters, transit times, and packaging requirements for sea freight.",
         content_html: "<p>Selecting between Full Container Load (FCL) and Less than Container Load (LCL) is a key strategic decision for importers and exporters shipping sea cargo to Nepal via Kolkata or Visakhapatnam ports.</p>",
         status: "published"
@@ -380,7 +452,7 @@ db.serialize(() => {
         author_name: "Ramesh Aryal",
         author_role: "Operations Director",
         author_avatar: "RA",
-        image: "https://files.catbox.moe/4oqtfe.jpeg",
+        image: "https://files.catbox.moe/o30o80.png",
         summary: "Proper packaging reduces damage claims by up to 80%. Learn best practices for double-walled cartons, moisture barriers, and shock absorbents.",
         content_html: "<p>Long-distance intermodal transit exposes cargo to shock, vibration, humidity, and compression forces. Implementing industrial packaging standards ensures your goods arrive in pristine condition.</p>",
         status: "published"

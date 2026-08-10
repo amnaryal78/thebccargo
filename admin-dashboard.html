@@ -131,6 +131,104 @@
 
     .nav-item i { width: 20px; text-align: center; font-size: 0.95rem; }
 
+    
+    /* Expandable Accordion Menu Styling */
+    .nav-item-wrapper {
+      margin-bottom: 2px;
+    }
+
+    .nav-accordion-toggle {
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: left;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.2s var(--ease);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .nav-accordion-toggle:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+
+    .nav-accordion-toggle.expanded,
+    .nav-accordion-toggle.active {
+      color: var(--primary-light);
+      font-weight: 600;
+    }
+
+    .chevron-icon {
+      margin-left: auto;
+      font-size: 0.75rem;
+      transition: transform 0.3s var(--ease);
+    }
+
+    .nav-accordion-toggle.expanded .chevron-icon,
+    .nav-accordion-toggle.active .chevron-icon {
+      transform: rotate(180deg);
+    }
+
+    .nav-sub-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.35s var(--ease), opacity 0.3s var(--ease), margin 0.3s var(--ease);
+    }
+
+    .nav-sub-menu.expanded,
+    .nav-sub-menu.active {
+      max-height: 220px;
+      opacity: 1;
+      margin-top: 2px;
+      margin-bottom: 4px;
+    }
+
+    .nav-sub-item {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.55rem 0.85rem 0.55rem 2.2rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.2s var(--ease);
+      margin-bottom: 2px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .nav-sub-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+
+    .nav-sub-item.active {
+      background: var(--primary-glow);
+      color: var(--primary-light);
+      font-weight: 600;
+    }
+
+    .nav-sub-item i {
+      width: 16px;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+
+
     .nav-badge {
       margin-left: auto;
       background: var(--accent-rose);
@@ -240,6 +338,131 @@
     }
 
     .stat-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
+
+    .stat-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .stat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+    }
+    .stat-icon.blue { background: rgba(26, 86, 219, 0.15); color: var(--primary-light); }
+    .stat-icon.emerald { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+    .stat-icon.gold { background: rgba(245, 166, 35, 0.15); color: var(--accent-gold); }
+    .stat-icon.cyan { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); }
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent-rose);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .sidebar-footer-user {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.82rem;
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--gradient-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.8rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-weight: 700; color: var(--text-primary); font-size: 0.82rem; }
+    .user-role { color: var(--text-muted); font-size: 0.7rem; }
+
+    .btn-logout {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .btn-logout:hover { color: var(--accent-rose); }
+
+    /* Main content */
+    .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .main-header {
+      height: var(--header-height);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(6, 11, 30, 0.8);
+      backdrop-filter: blur(12px);
+      flex-shrink: 0;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 1rem; }
+    .header-title { font-size: 1.15rem; font-weight: 800; }
+    .header-subtitle { font-size: 0.78rem; color: var(--text-muted); }
+
+    .btn-hamburger {
+      display: none;
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      padding: 0.4rem;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    /* ═══════ PAGES ═══════ */
+    .page { display: none; animation: pageFadeIn 0.35s var(--ease); }
+    .page.active { display: block; }
+
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════ STATS CARDS ═══════ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: transform 0.2s var(--ease), border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover { transform: translateY(-2px); border-color: var(--primary-light); box-shadow: 0 4px 16px rgba(26, 86, 219, 0.15); }
 
     .stat-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
     .stat-icon {
@@ -376,6 +599,7 @@
     .status-badge.new { background: rgba(6, 182, 212, 0.12); color: #22d3ee; }
     .status-badge.contacted { background: rgba(245, 166, 35, 0.12); color: #fbbf24; }
     .status-badge.closed { background: rgba(100, 116, 139, 0.12); color: #94a3b8; }
+    .status-badge.paused { background: rgba(239, 68, 68, 0.15); color: #f87171; }
     .status-badge.draft { background: rgba(100, 116, 139, 0.12); color: #94a3b8; }
     .status-badge.published { background: rgba(16, 185, 129, 0.12); color: #34d399; }
 
@@ -393,7 +617,7 @@
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(6, 11, 30, 0.85);
       backdrop-filter: blur(8px);
       z-index: 500;
       display: none;
@@ -408,7 +632,7 @@
     @keyframes modalBgIn { from { opacity: 0; } to { opacity: 1; } }
 
     .modal {
-      background: var(--bg-sidebar);
+      background: #060b1e;
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
       width: 100%;
@@ -416,7 +640,7 @@
       max-height: 85vh;
       display: flex;
       flex-direction: column;
-      box-shadow: var(--shadow-modal);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
       animation: modalSlideIn 0.3s var(--ease);
     }
 
@@ -633,9 +857,33 @@
         <div class="nav-item" data-page="blogs" onclick="navigateTo('blogs')">
           <i class="fas fa-newspaper"></i> Blog CMS
         </div>
-        <div class="nav-item" data-page="leads" onclick="navigateTo('leads')">
-          <i class="fas fa-envelope-open-text"></i> Leads
-          <span class="nav-badge" id="leadsNavBadge" style="display:none;">0</span>
+        <div class="nav-item-wrapper" style="margin-bottom:4px;">
+          <div class="nav-item nav-accordion-toggle" id="leadsAccordionToggle" data-page="submissions" onclick="toggleLeadsFolder(event)" style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;">
+            <i class="fas fa-inbox"></i>
+            <span>Leads & Submissions</span>
+            <span class="nav-badge" id="leadsNavBadge" style="display:none;margin-left:auto;margin-right:0.4rem;">0</span>
+            <i class="fas fa-chevron-down chevron-icon" id="leadsChevron" style="font-size:0.75rem;transition:transform 0.3s ease;margin-left:auto;"></i>
+          </div>
+          <ul class="nav-sub-menu" id="leadsSubMenu" style="list-style:none;padding:0;margin:0;max-height:0;overflow:hidden;opacity:0;transition:all 0.35s ease;">
+            <li style="margin-top:2px;">
+              <a href="javascript:void(0)" class="nav-sub-item" id="subnav-contact" data-subtab="contact" onclick="navigateToSubmissionTab('contact')" style="display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.85rem 0.55rem 2.2rem;border-radius:6px;font-size:0.82rem;color:var(--text-secondary);text-decoration:none;">
+                <i class="fas fa-envelope" style="width:16px;text-align:center;"></i> Contact Messages
+                <span class="nav-badge" id="contactNavBadge" style="display:none;background:var(--accent-cyan);margin-left:auto;">0</span>
+              </a>
+            </li>
+            <li style="margin-top:2px;">
+              <a href="javascript:void(0)" class="nav-sub-item" id="subnav-careers" data-subtab="careers" onclick="navigateToSubmissionTab('careers')" style="display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.85rem 0.55rem 2.2rem;border-radius:6px;font-size:0.82rem;color:var(--text-secondary);text-decoration:none;">
+                <i class="fas fa-user-tie" style="width:16px;text-align:center;"></i> Career Applications
+                <span class="nav-badge" id="careersNavBadge" style="display:none;background:var(--accent-violet);margin-left:auto;">0</span>
+              </a>
+            </li>
+            <li style="margin-top:2px;">
+              <a href="javascript:void(0)" class="nav-sub-item" id="subnav-partner" data-subtab="partner" onclick="navigateToSubmissionTab('partner')" style="display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.85rem 0.55rem 2.2rem;border-radius:6px;font-size:0.82rem;color:var(--text-secondary);text-decoration:none;">
+                <i class="fas fa-handshake" style="width:16px;text-align:center;"></i> Partner Requests
+                <span class="nav-badge" id="partnerNavBadge" style="display:none;background:var(--accent-gold);margin-left:auto;">0</span>
+              </a>
+            </li>
+          </ul>
         </div>
         <div class="nav-item" data-page="faqs" onclick="navigateTo('faqs')">
           <i class="fas fa-question-circle"></i> FAQs
@@ -678,42 +926,42 @@
         <!-- ═══════ DASHBOARD PAGE ═══════ -->
         <div class="page active" id="page-dashboard">
           <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card" onclick="navigateTo('shipments')">
               <div class="stat-card-header">
                 <div class="stat-icon blue"><i class="fas fa-shipping-fast"></i></div>
               </div>
               <div class="stat-label">Total Shipments</div>
               <div class="stat-value" id="statShipments">—</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="navigateTo('blogs')">
               <div class="stat-card-header">
                 <div class="stat-icon emerald"><i class="fas fa-newspaper"></i></div>
               </div>
               <div class="stat-label">Blog Articles</div>
               <div class="stat-value" id="statBlogs">—</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="navigateTo('submissions')">
               <div class="stat-card-header">
                 <div class="stat-icon gold"><i class="fas fa-envelope-open-text"></i></div>
               </div>
               <div class="stat-label">Total Leads</div>
               <div class="stat-value" id="statLeads">—</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="navigateToSubmissionTab('contact')">
               <div class="stat-card-header">
                 <div class="stat-icon rose"><i class="fas fa-bell"></i></div>
               </div>
               <div class="stat-label">New Leads</div>
               <div class="stat-value" id="statNewLeads">—</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="navigateTo('faqs')">
               <div class="stat-card-header">
                 <div class="stat-icon cyan"><i class="fas fa-question-circle"></i></div>
               </div>
               <div class="stat-label">FAQs Published</div>
               <div class="stat-value" id="statFaqs">—</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="navigateTo('offers')">
               <div class="stat-card-header">
                 <div class="stat-icon gold"><i class="fas fa-tags"></i></div>
               </div>
@@ -792,38 +1040,117 @@
         </div>
 
         <!-- ═══════ LEADS PAGE ═══════ -->
-        <div class="page" id="page-leads">
+                <!-- ═══════ FORM SUBMISSIONS / LEADS PAGE ═══════ -->
+        <div class="page" id="page-submissions">
           <div class="panel">
-            <div class="panel-header">
-              <div class="panel-title"><i class="fas fa-envelope-open-text"></i> Leads / Inquiries</div>
-              <div class="panel-actions">
+            <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
+              <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div class="panel-title" style="margin:0;"><i class="fas fa-inbox" style="color:var(--primary-light);"></i> Leads &amp; Form Submissions</div>
+              </div>
+              <div class="panel-actions" style="display:flex;align-items:center;gap:0.75rem;">
                 <div class="search-box">
                   <i class="fas fa-search"></i>
-                  <input type="text" placeholder="Search leads..." id="leadSearch" oninput="filterLeads()">
+                  <input type="text" placeholder="Search submissions..." id="submissionSearch" oninput="filterSubmissions()">
                 </div>
               </div>
             </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Service</th>
-                    <th>Message</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="leadsTableBody">
-                  <tr><td colspan="8"><div class="empty-state"><i class="fas fa-inbox"></i><p>Loading leads...</p></div></td></tr>
-                </tbody>
-              </table>
+
+            <!-- Subtab Navigation Buttons -->
+            <div class="subtab-nav" style="display:flex;gap:0.5rem;margin-bottom:1.25rem;border-bottom:1px solid var(--border-color);padding-bottom:0.75rem;">
+              <button class="btn btn-outline active" id="subtabContactBtn" onclick="switchSubmissionTab('contact')" style="border-radius:8px;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;">
+                <i class="fas fa-envelope"></i> Contact Messages
+                <span class="badge" id="badgeContactCount" style="background:var(--accent-cyan);color:#fff;font-size:0.7rem;padding:2px 6px;border-radius:10px;">0</span>
+                <span class="badge" id="badgeContactUnread" style="display:none;background:var(--accent-rose);color:#fff;font-size:0.7rem;padding:2px 6px;border-radius:10px;">0 NEW</span>
+              </button>
+              <button class="btn btn-outline" id="subtabCareersBtn" onclick="switchSubmissionTab('careers')" style="border-radius:8px;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;">
+                <i class="fas fa-user-tie"></i> Career Applications
+                <span class="badge" id="badgeCareersCount" style="background:var(--accent-violet);color:#fff;font-size:0.7rem;padding:2px 6px;border-radius:10px;">0</span>
+                <span class="badge" id="badgeCareersUnread" style="display:none;background:var(--accent-rose);color:#fff;font-size:0.7rem;padding:2px 6px;border-radius:10px;">0 NEW</span>
+              </button>
+              <button class="btn btn-outline" id="subtabPartnerBtn" onclick="switchSubmissionTab('partner')" style="border-radius:8px;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;">
+                <i class="fas fa-handshake"></i> Partner Requests
+                <span class="badge" id="badgePartnerCount" style="background:var(--accent-gold);color:#fff;font-size:0.7rem;padding:2px 6px;border-radius:10px;">0</span>
+                <span class="badge" id="badgePartnerUnread" style="display:none;background:var(--accent-rose);color:#fff;font-size:0.7rem;padding:2px 6px;border-radius:10px;">0 NEW</span>
+              </button>
             </div>
+
+            <!-- SUBTAB 1: CONTACT MESSAGES -->
+            <div class="subtab-content" id="subtab-contact">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Full Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Service</th>
+                      <th>Message</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="contactTableBody">
+                    <tr><td colspan="9"><div class="empty-state"><i class="fas fa-inbox"></i><p>Loading contact messages...</p></div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- SUBTAB 2: CAREER APPLICATIONS -->
+            <div class="subtab-content" id="subtab-careers" style="display:none;">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Applicant Name</th>
+                      <th>Position</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Experience</th>
+                      <th>Cover Note</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="careersTableBody">
+                    <tr><td colspan="10"><div class="empty-state"><i class="fas fa-briefcase"></i><p>Loading career applications...</p></div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- SUBTAB 3: PARTNER REQUESTS -->
+            <div class="subtab-content" id="subtab-partner" style="display:none;">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Company Name</th>
+                      <th>Country</th>
+                      <th>Contact Person</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Details</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="partnerTableBody">
+                    <tr><td colspan="10"><div class="empty-state"><i class="fas fa-handshake"></i><p>Loading partner requests...</p></div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </div>
         </div>
+        <div class="page" id="page-leads" style="display:none;"></div>
 
         <!-- ═══════ FAQS PAGE ═══════ -->
         <div class="page" id="page-faqs">
@@ -1174,6 +1501,54 @@
           <i class="fas fa-save"></i> Save Offer
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Submission Detail Modal -->
+  <div class="modal-overlay" id="submissionDetailModal">
+    <div class="modal" style="max-width:600px;">
+      <div class="modal-header">
+        <div class="modal-title" id="submissionModalTitle"><i class="fas fa-file-alt"></i> Submission Details</div>
+        <button class="modal-close" onclick="closeModal('submissionDetailModal')"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body" id="submissionModalBody" style="line-height:1.6;">
+        <!-- Dynamic Content -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('submissionDetailModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Direct Email Reply Modal -->
+  <div class="modal-overlay" id="emailReplyModal">
+    <div class="modal" style="max-width:620px;">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-paper-plane" style="color:var(--primary-light);"></i> Reply via Email</div>
+        <button class="modal-close" onclick="closeModal('emailReplyModal')"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="emailReplyForm" onsubmit="sendReplyEmailSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.8rem;font-weight:700;margin-bottom:0.35rem;color:var(--text-muted);">TO RECIPIENT</label>
+            <input type="email" id="replyToEmail" class="form-input" style="width:100%;padding:0.75rem;border-radius:8px;background:var(--bg-secondary);border:1px solid var(--border-color);color:var(--text-primary);" readonly required>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.8rem;font-weight:700;margin-bottom:0.35rem;color:var(--text-muted);">SUBJECT</label>
+            <input type="text" id="replySubject" class="form-input" style="width:100%;padding:0.75rem;border-radius:8px;background:var(--bg-secondary);border:1px solid var(--border-color);color:var(--text-primary);" required>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.8rem;font-weight:700;margin-bottom:0.35rem;color:var(--text-muted);">MESSAGE BODY</label>
+            <textarea id="replyMessageBody" rows="6" class="form-textarea" style="width:100%;padding:0.75rem;border-radius:8px;background:var(--bg-secondary);border:1px solid var(--border-color);color:var(--text-primary);font-family:inherit;line-height:1.5;" placeholder="Type your response to the customer here..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:0.75rem;">
+          <button type="button" class="btn btn-outline" onclick="closeModal('emailReplyModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSendReplySubmit">
+            <i class="fas fa-paper-plane"></i> Send Email Reply
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

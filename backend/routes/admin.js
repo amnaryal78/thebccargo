@@ -20,25 +20,44 @@ router.get("/stats", async (req, res) => {
   db.get("SELECT COUNT(*) AS count FROM articles", (err2, row2) => {
     stats.blogs = row2 ? row2.count : 0;
 
-    db.get("SELECT COUNT(*) AS count FROM inquiries", (err3, row3) => {
-      stats.leads = row3 ? row3.count : 0;
+    db.get("SELECT COUNT(*) AS c1 FROM contact_messages", (err3a, row3a) => {
+      const c1 = row3a ? row3a.c1 : 0;
+      db.get("SELECT COUNT(*) AS c2 FROM career_applications", (err3b, row3b) => {
+        const c2 = row3b ? row3b.c2 : 0;
+        db.get("SELECT COUNT(*) AS c3 FROM partner_requests", (err3c, row3c) => {
+          const c3 = row3c ? row3c.c3 : 0;
+          stats.leads = c1 + c2 + c3;
 
-        db.get("SELECT COUNT(*) AS count FROM faqs", (err4, row4) => {
-          stats.faqs = row4 ? row4.count : 0;
+          db.get("SELECT COUNT(*) AS count FROM faqs", (err4, row4) => {
+            stats.faqs = row4 ? row4.count : 0;
 
-          db.get("SELECT COUNT(*) AS count FROM offers", (err5, row5) => {
-            stats.offers = row5 ? row5.count : 0;
+            db.get("SELECT COUNT(*) AS count FROM offers", (err5, row5) => {
+              stats.offers = row5 ? row5.count : 0;
 
-            db.get(
-              "SELECT COUNT(*) AS count FROM inquiries WHERE status = ?",
-              ["New"],
-              (err6, row6) => {
-                stats.newLeads = row6 ? row6.count : 0;
-                return res.json({ success: true, stats });
-              },
-            );
+              db.get(
+                "SELECT COUNT(*) AS u1 FROM contact_messages WHERE is_read = 0 OR is_read IS NULL",
+                (err6a, r6a) => {
+                  const u1 = r6a ? r6a.u1 : 0;
+                  db.get(
+                    "SELECT COUNT(*) AS u2 FROM career_applications WHERE is_read = 0 OR is_read IS NULL",
+                    (err6b, r6b) => {
+                      const u2 = r6b ? r6b.u2 : 0;
+                      db.get(
+                        "SELECT COUNT(*) AS u3 FROM partner_requests WHERE is_read = 0 OR is_read IS NULL",
+                        (err6c, r6c) => {
+                          const u3 = r6c ? r6c.u3 : 0;
+                          stats.newLeads = u1 + u2 + u3;
+                          return res.json({ success: true, stats });
+                        }
+                      );
+                    }
+                  );
+                }
+              );
+            });
           });
         });
+      });
     });
   });
 });
@@ -479,6 +498,178 @@ router.delete("/offers/:id", (req, res) => {
     if (this.changes === 0) return res.status(404).json({ success: false, message: "Offer not found." });
     return res.json({ success: true, message: "Offer deleted successfully." });
   });
+});
+
+// ═══════════════════════════════════════════════════════════
+// FORM SUBMISSIONS ADMIN CRUD (Contact, Careers, Partner)
+// ═══════════════════════════════════════════════════════════
+
+// A. Contact Messages
+router.get("/contact-messages", (req, res) => {
+  const db = req.app.get("db");
+  db.all("SELECT * FROM contact_messages ORDER BY id DESC", [], (err, rows) => {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    return res.json({ success: true, messages: rows || [] });
+  });
+});
+
+router.put("/contact-messages/:id", (req, res) => {
+  const db = req.app.get("db");
+  const { status } = req.body;
+  db.run("UPDATE contact_messages SET status = ?, is_read = 1 WHERE id = ?", [status || 'Contacted', req.params.id], function (err) {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    db.run("UPDATE inquiries SET status = ?, is_read = 1 WHERE id = ?", [status || 'Contacted', req.params.id], () => {});
+    return res.json({ success: true, message: "Contact message status updated." });
+  });
+});
+
+router.delete("/contact-messages/:id", (req, res) => {
+  const db = req.app.get("db");
+  db.run("DELETE FROM contact_messages WHERE id = ?", [req.params.id], function (err) {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    db.run("DELETE FROM inquiries WHERE id = ?", [req.params.id], () => {});
+    return res.json({ success: true, message: "Contact message deleted." });
+  });
+});
+
+// B. Career Applications
+router.get("/career-applications", (req, res) => {
+  const db = req.app.get("db");
+  db.all("SELECT * FROM career_applications ORDER BY id DESC", [], (err, rows) => {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    return res.json({ success: true, applications: rows || [] });
+  });
+});
+
+router.put("/career-applications/:id", (req, res) => {
+  const db = req.app.get("db");
+  const { status } = req.body;
+  db.run("UPDATE career_applications SET status = ?, is_read = 1 WHERE id = ?", [status || 'Reviewed', req.params.id], function (err) {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    return res.json({ success: true, message: "Career application status updated." });
+  });
+});
+
+router.delete("/career-applications/:id", (req, res) => {
+  const db = req.app.get("db");
+  db.run("DELETE FROM career_applications WHERE id = ?", [req.params.id], function (err) {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    return res.json({ success: true, message: "Career application deleted." });
+  });
+});
+
+// C. Partner Requests
+router.get("/partner-requests", (req, res) => {
+  const db = req.app.get("db");
+  db.all("SELECT * FROM partner_requests ORDER BY id DESC", [], (err, rows) => {
+    if (err) {
+      db.all("SELECT * FROM partner_applications ORDER BY id DESC", [], (err2, rows2) => {
+        if (err2) return res.status(500).json({ success: false, message: err2.message });
+        return res.json({ success: true, requests: rows2 || [] });
+      });
+      return;
+    }
+    return res.json({ success: true, requests: rows || [] });
+  });
+});
+
+router.put("/partner-requests/:id", (req, res) => {
+  const db = req.app.get("db");
+  const { status } = req.body;
+  db.run("UPDATE partner_requests SET status = ?, is_read = 1 WHERE id = ?", [status || 'Approved', req.params.id], function (err) {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    db.run("UPDATE partner_applications SET status = ?, is_read = 1 WHERE id = ?", [status || 'Approved', req.params.id], () => {});
+    db.run("UPDATE partners SET status = ?, is_read = 1 WHERE id = ?", [status || 'Approved', req.params.id], () => {});
+    return res.json({ success: true, message: "Partner request status updated." });
+  });
+});
+
+router.delete("/partner-requests/:id", (req, res) => {
+  const db = req.app.get("db");
+  db.run("DELETE FROM partner_requests WHERE id = ?", [req.params.id], function (err) {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    db.run("DELETE FROM partner_applications WHERE id = ?", [req.params.id], () => {});
+    db.run("DELETE FROM partners WHERE id = ?", [req.params.id], () => {});
+    return res.json({ success: true, message: "Partner request deleted." });
+  });
+});
+
+// D. Mark Lead as Read Handlers
+router.put("/contact-messages/:id/read", (req, res) => {
+  const db = req.app.get("db");
+  db.run("UPDATE contact_messages SET is_read = 1 WHERE id = ?", [req.params.id], function (err) {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    db.run("UPDATE inquiries SET is_read = 1 WHERE id = ?", [req.params.id], () => {});
+    return res.json({ success: true, message: "Contact message marked as read." });
+  });
+});
+
+router.put("/career-applications/:id/read", (req, res) => {
+  const db = req.app.get("db");
+  db.run("UPDATE career_applications SET is_read = 1 WHERE id = ?", [req.params.id], function (err) {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    return res.json({ success: true, message: "Career application marked as read." });
+  });
+});
+
+router.put("/partner-requests/:id/read", (req, res) => {
+  const db = req.app.get("db");
+  db.run("UPDATE partner_requests SET is_read = 1 WHERE id = ?", [req.params.id], function (err) {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+    db.run("UPDATE partner_applications SET is_read = 1 WHERE id = ?", [req.params.id], () => {});
+    return res.json({ success: true, message: "Partner request marked as read." });
+  });
+});
+
+// E. Unread Count Endpoint
+router.get("/unread-count", (req, res) => {
+  const db = req.app.get("db");
+  db.get("SELECT COUNT(*) AS count FROM contact_messages WHERE is_read = 0 OR is_read IS NULL", [], (err1, row1) => {
+    const contactUnread = row1 ? row1.count : 0;
+    db.get("SELECT COUNT(*) AS count FROM career_applications WHERE is_read = 0 OR is_read IS NULL", [], (err2, row2) => {
+      const careerUnread = row2 ? row2.count : 0;
+      db.get("SELECT COUNT(*) AS count FROM partner_requests WHERE is_read = 0 OR is_read IS NULL", [], (err3, row3) => {
+        const partnerUnread = row3 ? row3.count : 0;
+        const totalUnread = contactUnread + careerUnread + partnerUnread;
+        return res.json({
+          success: true,
+          unreadCount: totalUnread,
+          contactUnread,
+          careerUnread,
+          partnerUnread
+        });
+      });
+    });
+  });
+});
+
+// F. Direct Email Reply Route
+const { sendReplyEmail } = require("../services/mailer");
+
+router.post("/send-reply", async (req, res) => {
+  const { to_email, recipient_name, subject, message_body } = req.body;
+
+  if (!to_email || !message_body) {
+    return res.status(400).json({ success: false, message: "Recipient email and message body are required." });
+  }
+
+  try {
+    const result = await sendReplyEmail({
+      toEmail: to_email,
+      recipientName: recipient_name || 'Customer',
+      subject: subject || 'Response from THE BC Cargo & Courier',
+      messageBody: message_body
+    });
+
+    return res.json({
+      success: true,
+      message: result.message || `Reply email successfully sent to ${to_email}.`,
+      simulated: result.simulated || false
+    });
+  } catch (err) {
+    console.error("Admin send-reply error:", err);
+    return res.status(500).json({ success: false, message: "Failed to send email reply: " + err.message });
+  }
 });
 
 module.exports = router;

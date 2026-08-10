@@ -340,7 +340,13 @@ input {
 }
 
 .nav-pill-brand {
+    display: flex;
+    align-items: center;
     padding: .45rem 1.25rem;
+    white-space: nowrap;
+    width: max-content;
+    max-width: 100%;
+    flex-shrink: 0;
 }
 
 .nav-pill-links {
@@ -356,6 +362,8 @@ input {
     display: flex;
     align-items: center;
     gap: .75rem;
+    white-space: nowrap;
+    width: 100%;
     flex-shrink: 0;
 }
 
@@ -365,6 +373,7 @@ input {
     object-fit: contain;
     border-radius: var(--radius-md);
     transition: transform .25s var(--ease-spring);
+    flex-shrink: 0;
 }
 
 .nav-brand:hover .nav-brand-logo {
@@ -2111,21 +2120,33 @@ input {
 .partner-item {
     display: flex;
     align-items: center;
-    gap: .5rem;
-    opacity: .65;
-    transition: opacity .2s, transform .2s;
+    gap: .6rem;
+    opacity: .75;
+    transition: all .25s ease;
     white-space: nowrap;
-    padding: .4rem .8rem;
+    padding: .5rem 1rem;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    user-select: none;
 }
 
 .partner-item:hover {
     opacity: 1;
-    transform: translateY(-2px);
+    transform: translateY(-3px) scale(1.05);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(26, 86, 219, 0.35);
+    box-shadow: 0 6px 20px rgba(26, 86, 219, 0.2);
 }
 
 .partner-item i {
     font-size: 1.3rem;
     color: var(--primary);
+    transition: transform .25s ease;
+}
+
+.partner-item:hover i {
+    transform: scale(1.15);
 }
 
 .partner-item span {
@@ -2705,7 +2726,7 @@ input {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(4, 10, 30, 0.75);
+    background: rgba(11, 25, 44, 0.75);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     z-index: 999999;
@@ -2716,29 +2737,36 @@ input {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity .3s ease, visibility .3s ease;
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s ease;
+    will-change: opacity, visibility;
 }
 
 .modal-overlay.open,
 .modal-overlay.active {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    display: flex !important;
 }
 
 .modal-card {
-    background: var(--bg-card);
-    border-radius: var(--radius-2xl);
+    background: #0B192C;
+    border-radius: var(--radius-2xl, 20px);
     padding: clamp(1.5rem, 4vw, 2.5rem);
-    width: min(440px, 100%);
-    border: 1px solid var(--border-light);
-    box-shadow: var(--shadow-xl);
-    transform: scale(.95) translateY(16px);
-    transition: transform .35s var(--ease-spring);
+    width: min(560px, 92vw);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(245, 166, 35, 0.2);
+    transform: scale(0.92) translateY(18px);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    will-change: transform, opacity;
+    color: #FFFFFF;
 }
 
-.modal-overlay.open .modal-card {
-    transform: scale(1) translateY(0);
+.modal-overlay.open .modal-card,
+.modal-overlay.active .modal-card {
+    transform: scale(1) translateY(0) !important;
+    opacity: 1 !important;
 }
 
 .modal-icon-wrap {
@@ -3386,16 +3414,33 @@ select:focus,
     color: var(--primary);
 }
 
-/* Layout Grid */
+/* Layout Flexbox */
 .faq-layout {
-    display: grid;
-    grid-template-columns: 1fr 1.65fr;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
     gap: clamp(1.75rem, 3.5vw, 3.5rem);
-    align-items: start;
+    width: 100%;
+}
+.faq-sidebar {
+    width: 36%;
+    flex-shrink: 0;
+}
+.faq-layout > div:last-child,
+.faq-layout > [data-aos="fade-left"] {
+    width: 60%;
+    flex-grow: 1;
 }
 @media (max-width: 900px) {
     .faq-layout {
-        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .faq-sidebar,
+    .faq-layout > div:last-child,
+    .faq-layout > [data-aos="fade-left"] {
+        width: 100%;
     }
 }
 

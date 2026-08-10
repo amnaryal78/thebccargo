@@ -105,16 +105,13 @@
     <!-- Performance Preloads & Styles -->
     <link rel="manifest" href="/site.webmanifest">
     <link rel="preload" href="https://files.catbox.moe/eolcc7.png" as="image">
-    <link rel="preload" href="https://files.catbox.moe/bvlydd.jpeg" as="image">
+    <link rel="preload" href="https://files.catbox.moe/7j5mnn.png" as="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap&font-display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
-    <link rel="stylesheet" href="/css/home.css">
-    <link rel="stylesheet" href="/css/hero-enhanced.css">
+    <link rel="stylesheet" href="/css/chunks/main-styles-7k3p.css">
 </head>
 
 <body>
@@ -230,15 +227,15 @@
             <!-- Background Image Slider (visual only) -->
             <div class="hero-slider" id="heroSlider" aria-hidden="true">
                 <div class="hero-slide active" id="slide-0">
-                    <div class="slide-bg" style="background-image:url('https://files.catbox.moe/bvlydd.jpeg');"></div>
+                    <div class="slide-bg" style="background-image:url('https://files.catbox.moe/7j5mnn.png');"></div>
                     <div class="slide-overlay"></div>
                 </div>
                 <div class="hero-slide" id="slide-1">
-                    <div class="slide-bg" style="background-image:url('https://files.catbox.moe/kv8fb3.jpeg');"></div>
+                    <div class="slide-bg" style="background-image:url('https://files.catbox.moe/zmwxbk.png');"></div>
                     <div class="slide-overlay"></div>
                 </div>
                 <div class="hero-slide" id="slide-2">
-                    <div class="slide-bg" style="background-image:url('https://files.catbox.moe/4oqtfe.jpeg');"></div>
+                    <div class="slide-bg" style="background-image:url('https://files.catbox.moe/o30o80.png');"></div>
                     <div class="slide-overlay"></div>
                 </div>
             </div>
@@ -321,15 +318,54 @@
             </div>
         </section>
 
-        <!-- Special Offers Section (Dynamic from Database) -->
-        <section class="offers-section section" id="offersSection" style="display: none;" aria-label="Special Offers">
+        <!-- Special Offers Section -->
+        <section class="offers-section section" id="offersSection" aria-label="Special Offers">
             <div class="container">
                 <div class="offers-header text-center" data-aos="fade-up">
                     <span class="section-label"><i class="fas fa-tags" aria-hidden="true"></i> Exclusive Promotions</span>
                     <h2 class="section-title">Special <span class="gradient-text">Offers</span></h2>
                     <p class="section-subtitle">Take advantage of our current discounts and limited-time cargo deals.</p>
                 </div>
-                <div class="offers-grid" id="offersGrid"></div>
+                <div class="offers-grid" id="offersGrid">
+                    <div class="offer-card" data-aos="fade-up">
+                        <div>
+                            <div class="offer-card-badge">
+                                <i class="fas fa-fire" aria-hidden="true"></i> Special Promotion
+                            </div>
+                            <h3 class="offer-card-title">Express Air Freight Promotion</h3>
+                            <p class="offer-card-desc">Enjoy 15% off international express air cargo shipments to over 50 global destinations.</p>
+                        </div>
+                        <div class="offer-card-footer">
+                            <div class="promo-code-wrap" onclick="navigator.clipboard.writeText('EXPRESS15'); alert('Discount code copied to clipboard!');" title="Click to copy code">
+                                <i class="fas fa-ticket-alt" style="color:var(--accent-gold);" aria-hidden="true"></i>
+                                <span class="promo-code-text">EXPRESS15</span>
+                                <i class="far fa-copy" style="font-size:0.75rem;color:var(--text-muted);" aria-hidden="true"></i>
+                            </div>
+                            <div class="offer-expiry">
+                                <i class="far fa-clock" aria-hidden="true"></i> Valid until 2026-10-31
+                            </div>
+                        </div>
+                    </div>
+                    <div class="offer-card" data-aos="fade-up">
+                        <div>
+                            <div class="offer-card-badge">
+                                <i class="fas fa-fire" aria-hidden="true"></i> Special Promotion
+                            </div>
+                            <h3 class="offer-card-title">Bulk Warehousing Discount</h3>
+                            <p class="offer-card-desc">Get 20% discount on long-term climate-controlled storage and logistics fulfillment.</p>
+                        </div>
+                        <div class="offer-card-footer">
+                            <div class="promo-code-wrap" onclick="navigator.clipboard.writeText('STORE20'); alert('Discount code copied to clipboard!');" title="Click to copy code">
+                                <i class="fas fa-ticket-alt" style="color:var(--accent-gold);" aria-hidden="true"></i>
+                                <span class="promo-code-text">STORE20</span>
+                                <i class="far fa-copy" style="font-size:0.75rem;color:var(--text-muted);" aria-hidden="true"></i>
+                            </div>
+                            <div class="offer-expiry">
+                                <i class="far fa-clock" aria-hidden="true"></i> Valid until 2026-12-31
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -338,7 +374,7 @@
             <div class="container">
                 <div class="why-grid">
                     <div class="why-visual" data-aos="fade-right">
-                        <img src="https://files.catbox.moe/bvlydd.jpeg"
+                        <img src="https://files.catbox.moe/7j5mnn.png"
                             alt="THE BC Cargo &amp; Courier cargo transport service" loading="lazy" decoding="async"
                             width="600" height="400">
                         <div class="why-visual-overlay"></div>
@@ -436,8 +472,7 @@
                                 class="fas fa-star" aria-hidden="true"></i><i class="fas fa-star"
                                 aria-hidden="true"></i><i class="fas fa-star" aria-hidden="true"></i><i
                                 class="fas fa-star" aria-hidden="true"></i></div>
-                        <p class="testimonial-text">"BC Cargo has been handling our cargo and courier dispatches for 2
-                            years now. Real-time tracking keeps us updated and delivery is always on time."</p>
+                        <p class="testimonial-text">"I recently visited The BC Cargo &amp; Courier office near Buddha Chowk. The office is conveniently located on School Road, and the local community was very helpful in guiding me to the exact location. I met with their manager, discussed my requirements, and booked my shipment from Nepal to Korea. The overall experience was smooth, professional, and reassuring."</p>
                         <div class="testimonial-author">
                             <div class="testimonial-avatar">RK</div>
                             <div>
@@ -450,8 +485,7 @@
                                 class="fas fa-star" aria-hidden="true"></i><i class="fas fa-star"
                                 aria-hidden="true"></i><i class="fas fa-star" aria-hidden="true"></i><i
                                 class="fas fa-star" aria-hidden="true"></i></div>
-                        <p class="testimonial-text">"We have been using BC Cargo for the past 2 years. Their customs
-                            clearance expertise and fast delivery make shipping hassle-free."</p>
+                        <p class="testimonial-text">"I visited The BC Cargo &amp; Courier just two days ago. Although they have recently started their cargo and courier services, I was impressed by how clean, organized, and well-managed the office was. The staff were professional and helpful throughout the process, and I confidently placed an order to ship a 5 kg package."</p>
                         <div class="testimonial-author">
                             <div class="testimonial-avatar" style="background:var(--gradient-gold);">PS</div>
                             <div>
@@ -465,8 +499,7 @@
                                 aria-hidden="true"></i><i class="fas fa-star" aria-hidden="true"></i><i
                                 class="fas fa-star" aria-hidden="true"></i>
                         </div>
-                        <p class="testimonial-text">"Reliable courier and air freight solutions. We have trusted BC
-                            Cargo for our urgent shipments over the last 2 years with a great experience."</p>
+                        <p class="testimonial-text">"I first discovered The BC Cargo &amp; Courier through a Facebook advertisement. After visiting their website and researching their services, I felt even more confident about choosing them. Their IT and digital systems appear well-organized and professionally managed. When I booked my shipment, I received both a physical and digital bill, including a bill number that can be used to track the shipment. This level of documentation and transparency gave me greater confidence in their service."</p>
                         <div class="testimonial-author">
                             <div class="testimonial-avatar" style="background:linear-gradient(135deg,#10b981,#06b6d4);">
                                 AM</div>
@@ -557,7 +590,7 @@
                 </div>
                 <div class="news-grid">
                     <div class="news-card" data-slug="air-freight-expansion-2025" onclick="openArticleModal('air-freight-expansion-2025')" data-aos data-delay="0" style="cursor:pointer;display:block;">
-                        <div class="news-img"><img src="https://files.catbox.moe/kv8fb3.jpeg"
+                        <div class="news-img"><img src="https://files.catbox.moe/zmwxbk.png"
                                 alt="BC Cargo express air freight shipping service" loading="lazy" decoding="async"
                                 width="400" height="260"></div>
                         <div class="news-body"><span class="news-tag">Air Freight</span>
@@ -565,17 +598,9 @@
                             <div class="news-meta"><i class="fas fa-calendar" aria-hidden="true"></i> June 10, 2025</div>
                         </div>
                     </div>
-                    <div class="news-card" data-slug="storage-logistics-hub-kathmandu" onclick="openArticleModal('storage-logistics-hub-kathmandu')" data-aos data-delay="150" style="cursor:pointer;display:block;">
-                        <div class="news-img"><img src="https://files.catbox.moe/4oqtfe.jpeg"
-                                alt="BC Cargo climate-controlled storage facility" loading="lazy" decoding="async"
-                                width="400" height="260"></div>
-                        <div class="news-body"><span class="news-tag">Warehousing</span>
-                            <h3 class="news-title">New Storage &amp; Logistics Hub Opens in Kathmandu</h3>
-                            <div class="news-meta"><i class="fas fa-calendar" aria-hidden="true"></i> May 28, 2025</div>
-                        </div>
-                    </div>
+
                     <div class="news-card" data-slug="nepal-cargo-courier-advancements" onclick="openArticleModal('nepal-cargo-courier-advancements')" data-aos data-delay="300" style="cursor:pointer;display:block;">
-                        <div class="news-img"><img src="https://files.catbox.moe/bvlydd.jpeg"
+                        <div class="news-img"><img src="https://files.catbox.moe/7j5mnn.png"
                                 alt="Nepal international export and logistics transport" loading="lazy" decoding="async"
                                 width="400" height="260"></div>
                         <div class="news-body"><span class="news-tag">Industry</span>
@@ -652,7 +677,7 @@
                             <div class="footer-contact-item">
                                 <div class="footer-contact-icon"><i class="fas fa-map-marker-alt"
                                         aria-hidden="true"></i></div>
-                                <div class="footer-contact-text">School Road, Hetauda 44107, Nepal</div>
+                                <div class="footer-contact-text">School Road, Hetauda -4, Nepal</div>
                             </div>
                             <div class="footer-contact-item">
                                 <div class="footer-contact-icon"><i class="fab fa-whatsapp" aria-hidden="true"></i>
@@ -759,30 +784,30 @@
         <div class="modal-card" style="max-width: 580px; text-align: left; position: relative;">
             <button class="drawer-close" id="closeProfileModal" onclick="closeTeamModal()" style="position: absolute; top: 1rem; right: 1rem;" aria-label="Close profile"><i class="fas fa-times"></i></button>
             <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.25rem;">
-                <div class="team-avatar" id="modalTeamAvatar" style="margin: 0; width: 70px; height: 70px; font-size: 1.6rem;">MP</div>
+                <div class="team-avatar" id="modalTeamAvatar" style="margin: 0; width: 70px; height: 70px; font-size: 1.6rem; background: var(--gradient-gold); color: #1a1a1a;">RA</div>
                 <div>
-                    <h3 class="modal-title" id="modalTeamName" style="margin: 0; text-align: left; font-size: 1.35rem;">Mohan Parajuli</h3>
-                    <span class="hero-brand-badge" id="modalTeamRole" style="font-size: 0.72rem; margin-top: 0.35rem; display: inline-block;">Managing Director / Leadership</span>
+                    <h3 class="modal-title" id="modalTeamName" style="margin: 0; text-align: left; font-size: 1.35rem;">Ramesh Aryal</h3>
+                    <span class="hero-brand-badge" id="modalTeamRole" style="font-size: 0.72rem; margin-top: 0.35rem; display: inline-block;">Operations &amp; Supply Chain Director</span>
                 </div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-blue); margin-bottom: 0.35rem;">Overview &amp; Bio</h4>
-                <p class="modal-desc" id="modalTeamBio" style="text-align: left; margin: 0; line-height: 1.6; color: var(--text-secondary);">Leading strategic growth, international trade partnerships, and core logistics expansion.</p>
+                <p class="modal-desc" id="modalTeamBio" style="text-align: left; margin: 0; line-height: 1.6; color: var(--text-secondary);">Managing air &amp; ocean cargo dispatches, warehouse fulfillment, and real-time shipment monitoring.</p>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-gold); margin-bottom: 0.35rem;">Qualifications</h4>
-                <p id="modalTeamQualifications" style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">MBA in International Supply Chain Management, 15+ years experience.</p>
+                <p id="modalTeamQualifications" style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">B.Sc. Logistics &amp; Operations, Certified Customs Broker.</p>
             </div>
 
             <div style="margin-bottom: 1.25rem;">
                 <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-cyan); margin-bottom: 0.35rem;">Key Responsibilities</h4>
-                <p id="modalTeamResponsibilities" style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Global logistics strategy, trade compliance, carrier partnerships, executive oversight.</p>
+                <p id="modalTeamResponsibilities" style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Daily air and sea cargo operations, fleet management, warehouse operations, and shipment route optimization.</p>
             </div>
 
             <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; padding-top: 1rem; border-top: 1px solid var(--border-light);">
-                <a href="mailto:info@bccargo.com" id="modalTeamEmail" class="btn btn-outline-primary btn-sm"><i class="fas fa-envelope"></i> <span id="modalTeamEmailText">info@bccargo.com</span></a>
+                <a href="mailto:info@thebccargo.com" id="modalTeamEmail" class="btn btn-outline-primary btn-sm"><i class="fas fa-envelope"></i> <span id="modalTeamEmailText">info@thebccargo.com</span></a>
                 <a href="tel:+9779855019485" id="modalTeamPhone" class="btn btn-primary btn-sm"><i class="fas fa-phone-alt"></i> <span id="modalTeamPhoneText">+977-9855019485</span></a>
             </div>
         </div>
@@ -847,7 +872,7 @@
 
                     <div class="modal-input-group full-width">
                         <label class="modal-input-label" for="partnerDetails">📝 Additional Details</label>
-                        <textarea id="partnerDetails" class="modal-input modal-textarea" rows="3" placeholder="Tell us about your services, trade routes, or partnership goals..."></textarea>
+                        <textarea id="partnerDetails" class="modal-input modal-textarea" rows="3" maxlength="200" placeholder="Tell us about your services, trade routes, or partnership goals... (max 200 chars)"></textarea>
                     </div>
                 </div>
 
@@ -860,6 +885,50 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- International Partner Info Overlay Modal -->
+    <div class="modal-overlay" id="partnerDetailModal" role="dialog" aria-modal="true" aria-labelledby="partnerInfoName">
+        <div class="modal-card partner-info-card" style="max-width: 580px; padding: 2rem;">
+            <button class="drawer-close" id="closePartnerDetailModal" onclick="closePartnerDetailModal()" aria-label="Close modal"><i class="fas fa-times" aria-hidden="true"></i></button>
+
+            <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-light, rgba(255,255,255,0.1));">
+                <div id="partnerInfoIconWrap" style="width: 65px; height: 65px; border-radius: 16px; background: rgba(26, 86, 219, 0.15); border: 1px solid rgba(26, 86, 219, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: var(--accent-blue, #1a56db); flex-shrink: 0;">
+                    <i id="partnerInfoIcon" class="fas fa-shipping-fast" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <h3 class="modal-title" id="partnerInfoName" style="margin: 0; text-align: left; font-size: 1.4rem; font-weight: 800; color: var(--text-primary, #fff);">DHL Express</h3>
+                    <span class="hero-brand-badge" id="partnerInfoCategory" style="font-size: 0.72rem; margin-top: 0.4rem; display: inline-block; background: rgba(26, 86, 219, 0.2); color: var(--accent-blue, #3b82f6); border: 1px solid rgba(26, 86, 219, 0.3); padding: 3px 10px; border-radius: 20px;">Global Express Courier &amp; Air Freight</span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.07); padding: 0.85rem; border-radius: 12px;">
+                <div>
+                    <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted, #888); font-weight: 700; display: block;">📍 Headquarters</span>
+                    <span id="partnerInfoHq" style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary, #fff);">Bonn, Germany</span>
+                </div>
+                <div>
+                    <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted, #888); font-weight: 700; display: block;">🌐 Global Coverage</span>
+                    <span id="partnerInfoCoverage" style="font-size: 0.88rem; font-weight: 700; color: var(--accent-cyan, #06b6d4);">220+ Countries</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+                <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent-blue, #3b82f6); margin-bottom: 0.4rem; font-weight: 700;">Partnership Overview</h4>
+                <p id="modalPartnerDesc" style="text-align: left; margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary, #ccc);"></p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent-gold, #f5a623); margin-bottom: 0.4rem; font-weight: 700;">Key Capabilities &amp; Services</h4>
+                <ul id="modalPartnerServices" style="list-style: none; padding: 0; margin: 0; display: grid; gap: 0.4rem;">
+                </ul>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid var(--border-light, rgba(255,255,255,0.1));">
+                <button class="btn btn-outline-primary btn-sm" onclick="closePartnerDetailModal()">Close</button>
+                <a href="#contact" onclick="closePartnerDetailModal()" class="btn btn-primary btn-sm"><i class="fas fa-paper-plane" aria-hidden="true"></i> Book Freight via Partner</a>
+            </div>
         </div>
     </div>
 

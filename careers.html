@@ -119,10 +119,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap&font-display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
-    <link rel="stylesheet" href="/css/home.css">
-    <link rel="stylesheet" href="/css/hero-enhanced.css">
+    <link rel="stylesheet" href="/css/chunks/main-styles-7k3p.css">
 
     <style>
         /* ── Careers Hero ── */
@@ -139,7 +136,7 @@
             inset: 0;
             background:
                 radial-gradient(ellipse 70% 60% at 50% 0%, rgba(26,86,219,.35) 0%, transparent 70%),
-                url('https://files.catbox.moe/bvlydd.jpeg') center/cover no-repeat;
+                url('https://files.catbox.moe/7j5mnn.png') center/cover no-repeat;
             opacity: .18;
         }
         .careers-hero::after {
@@ -861,7 +858,7 @@
                         <button class="btn btn-primary" onclick="openApplyModal('General Application')">
                             <i class="fas fa-file-alt" aria-hidden="true"></i> Submit General Resume
                         </button>
-                        <a href="mailto:info@bccargo.com" class="btn btn-secondary" style="background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.25);">
+                        <a href="mailto:info@thebccargo.com" class="btn btn-secondary" style="background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.25);">
                             <i class="fas fa-envelope" aria-hidden="true"></i> Email HR Team
                         </a>
                     </div>
@@ -916,7 +913,7 @@
 
                 <div class="form-group">
                     <label class="form-label" for="applicantNote">Cover Note / Key Qualifications</label>
-                    <textarea class="form-textarea" id="applicantNote" placeholder="Briefly describe your background, certifications, or driving record..."></textarea>
+                    <textarea class="form-textarea" id="applicantNote" maxlength="200" placeholder="Briefly describe your background, certifications, or driving record... (max 200 chars)"></textarea>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-apply" style="margin-top:.5rem;">
@@ -983,7 +980,7 @@
                         <div class="footer-contact-list">
                             <div class="footer-contact-item">
                                 <div class="footer-contact-icon"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></div>
-                                <div class="footer-contact-text">School Road, Hetauda 44107, Nepal</div>
+                                <div class="footer-contact-text">School Road, Hetauda -4, Nepal</div>
                             </div>
                             <div class="footer-contact-item">
                                 <div class="footer-contact-icon"><i class="fab fa-whatsapp" aria-hidden="true"></i></div>
@@ -995,7 +992,7 @@
                             </div>
                             <div class="footer-contact-item">
                                 <div class="footer-contact-icon"><i class="fas fa-envelope" aria-hidden="true"></i></div>
-                                <div class="footer-contact-text">info@bccargo.com</div>
+                                <div class="footer-contact-text">info@thebccargo.com</div>
                             </div>
                         </div>
                     </div>
@@ -1060,13 +1057,62 @@
             modal.setAttribute('aria-hidden', 'true');
         }
 
-        function handleFormSubmit(e) {
+        async function handleFormSubmit(e) {
             e.preventDefault();
-            document.getElementById('careersApplyForm').style.display = 'none';
-            document.getElementById('modalSuccessAlert').style.display = 'block';
-            setTimeout(() => {
-                closeApplyModal();
-            }, 3000);
+            const form = document.getElementById('careersApplyForm');
+            const submitBtn = form.querySelector('[type="submit"]');
+            const successAlert = document.getElementById('modalSuccessAlert');
+            const position = document.getElementById('formJobTitle')?.value || document.getElementById('modalPositionTitle')?.textContent || 'General Application';
+            const name = document.getElementById('applicantName')?.value.trim();
+            const email = document.getElementById('applicantEmail')?.value.trim();
+            const phone = document.getElementById('applicantPhone')?.value.trim();
+            const experience = document.getElementById('applicantExp')?.value;
+            const note = document.getElementById('applicantNote')?.value.trim();
+
+            if (!name || !email || !phone) {
+                alert('Please fill in all required fields (Full Name, Email, Phone Number).');
+                return;
+            }
+
+            const btnOriginalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting Application...';
+
+            try {
+                const apiBase = (typeof API_BASE_URL !== 'undefined' && API_BASE_URL) ? API_BASE_URL : window.location.origin;
+                const response = await fetch(`${apiBase}/api/public/careers`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        full_name: name,
+                        email: email,
+                        phone: phone,
+                        position: position,
+                        experience: experience,
+                        cover_letter: note
+                    })
+                });
+
+                const resData = await response.json().catch(() => ({}));
+
+                if (response.ok && resData.success) {
+                    form.style.display = 'none';
+                    successAlert.textContent = '✅ ' + (resData.message || 'Thank you! Your application has been submitted successfully.');
+                    successAlert.style.display = 'block';
+                    form.reset();
+                    setTimeout(() => {
+                        closeApplyModal();
+                    }, 3000);
+                } else {
+                    alert('❌ Submission failed: ' + (resData.message || 'Server error. Please try again.'));
+                }
+            } catch (err) {
+                console.error('Career application submission error:', err);
+                alert('❌ Network error. Please check your internet connection and try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = btnOriginalText;
+            }
         }
     </script>
 </body>

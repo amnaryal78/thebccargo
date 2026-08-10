@@ -77,10 +77,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap&font-display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
-    <link rel="stylesheet" href="/css/home.css">
-    <link rel="stylesheet" href="/css/hero-enhanced.css">
+    <link rel="stylesheet" href="/css/chunks/main-styles-7k3p.css">
     <style>
         .policy-hero {
             position: relative;
@@ -95,7 +92,7 @@
             inset: 0;
             background:
                 radial-gradient(ellipse 70% 60% at 50% 0%, rgba(26,86,219,.35) 0%, transparent 70%),
-                url('https://files.catbox.moe/4oqtfe.jpeg') center/cover no-repeat;
+                url('https://files.catbox.moe/o30o80.png') center/cover no-repeat;
             opacity: .18;
         }
         .policy-hero::after {
@@ -282,38 +279,120 @@
 
                 <!-- Navigation Tabs -->
                 <div class="policy-nav-tabs">
-                    <button class="policy-tab-btn active" data-target="sec-privacy">
-                        <i class="fas fa-user-shield" aria-hidden="true"></i> Privacy Policy
-                    </button>
-                    <button class="policy-tab-btn" data-target="sec-terms">
-                        <i class="fas fa-balance-scale" aria-hidden="true"></i> Terms of Service
-                    </button>
-                    <button class="policy-tab-btn" data-target="sec-cookies">
-                        <i class="fas fa-cookie-bite" aria-hidden="true"></i> Cookie Policy
+                    <button class="policy-tab-btn active" data-target="sec-shipping">
+                        <i class="fas fa-truck" aria-hidden="true"></i> Shipping &amp; Delivery Policies
                     </button>
                     <button class="policy-tab-btn" data-target="sec-liability">
-                        <i class="fas fa-box" aria-hidden="true"></i> Cargo Claims &amp; Liability
+                        <i class="fas fa-shield-alt" aria-hidden="true"></i> Cargo Insurance &amp; Liability
+                    </button>
+                    <button class="policy-tab-btn" data-target="sec-privacy">
+                        <i class="fas fa-user-shield" aria-hidden="true"></i> Privacy &amp; Data Collection
+                    </button>
+                    <button class="policy-tab-btn" data-target="sec-refunds">
+                        <i class="fas fa-undo-alt" aria-hidden="true"></i> Refunds &amp; Cancellations
                     </button>
                 </div>
 
                 <!-- Policy Text Container -->
                 <div class="policy-card">
 
-                    <!-- Section: Privacy Policy -->
-                    <div id="sec-privacy" class="policy-block">
-                        <h2>Privacy Policy</h2>
-                        <p>At THE BC Cargo &amp; Courier (part of <strong>THE BC NETWORKS</strong>), protecting your privacy and business telemetry is a fundamental operational principle. This Privacy Policy details how we collect, process, and safeguard data when you use our website, cargo portal, or freight services.</p>
+                    <!-- 1. Shipping & Delivery Policies -->
+                    <div id="sec-shipping" class="policy-block">
+                        <h2>1. Shipping &amp; Delivery Policies</h2>
+                        <p>THE BC Cargo &amp; Courier operates a global freight forwarding network connecting Nepal to over 120 destinations worldwide across Air Freight, Ocean Freight (FCL/LCL), Land Transport, and Express Courier corridors.</p>
 
-                        <h3>1. Information We Collect</h3>
-                        <p>We collect essential operational data required for logistics booking and customs declarations:</p>
+                        <h3>1.1 Transit Timelines &amp; Schedules</h3>
+                        <p>Estimated Time of Arrival (ETA) dates provided during quote issuance or tracking inquiries are estimated ranges subject to carrier scheduling, weather conditions, and border customs clearances:</p>
                         <ul>
-                            <li><strong>Identity &amp; Contact Details:</strong> Full name, company affiliation, email address, telephone/WhatsApp contact details.</li>
-                            <li><strong>Shipment Telemetry:</strong> Origin/destination addresses, cargo weight, commercial invoices, and customs paperwork.</li>
-                            <li><strong>Digital Telemetry:</strong> IP address, device telemetry, browser type, and cookie preferences for client portal authentication.</li>
+                            <li><strong>Express Air Freight:</strong> 3 to 7 business days from warehouse dispatch to destination airport or door delivery.</li>
+                            <li><strong>Ocean Freight (FCL/LCL):</strong> 15 to 35 business days depending on transit port routing (via Kolkata, Visakhapatnam, Singapore, or Dubai hubs).</li>
+                            <li><strong>Cross-Border Land Freight:</strong> 3 to 10 business days across regional transit hubs in South Asia.</li>
                         </ul>
 
-                        <h3>2. How We Use Data</h3>
-                        <p>Your data is exclusively processed to perform shipping contracts, provide live tracking updates, process payments, and fulfill statutory customs obligations. We never sell your personal or shipping information to third-party advertisers.</p>
+                        <h3>1.2 Documentation Requirements</h3>
+                        <p>Shippers are strictly responsible for providing complete, legally compliant export/import documentation prior to cargo dispatch. Required documents include valid commercial invoices, detailed packing lists, Certificates of Origin (SAFTA/CO), HS Code classifications, and relevant export licenses. Delays resulting from missing or inaccurate documents remain the responsibility of the sender.</p>
+
+                        <h3>1.3 Customs Clearance &amp; Tariff Responsibilities</h3>
+                        <p>Unless explicitly contracted as DDP (Delivered Duty Paid), all import tariffs, customs duties, local VAT/GST taxes, port demurrage, and customs inspection fees assessed by destination authorities are the exclusive responsibility of the recipient/consignee.</p>
+
+                        <h3>1.4 Door Delivery &amp; Verification Protocol</h3>
+                        <p>For door-to-door courier dispatches, delivery requires a signature or valid OTP/phone verification from the authorized recipient. If a delivery attempt fails due to recipient absence or invalid contact details, re-consignment fees or storage charges may apply.</p>
+                    </div>
+
+                    <!-- 2. Cargo Insurance & Liability -->
+                    <div id="sec-liability" class="policy-block" style="display: none;">
+                        <h2>2. Cargo Insurance &amp; Liability</h2>
+                        <p>Protecting client shipments against loss, damage, or delay during multimodal international transit is a top priority for THE BC Cargo &amp; Courier.</p>
+
+                        <h3>2.1 Cargo Insurance Coverage Options</h3>
+                        <p>We strongly advise all commercial shippers to purchase Comprehensive All-Risk Cargo Insurance. Comprehensive insurance covers declared invoice value plus freight costs against transit damage, theft, marine loss, or physical impact from origin facility to final destination.</p>
+
+                        <h3>2.2 Standard Carrier Liability Limitations</h3>
+                        <p>In the absence of declared value and purchased insurance, carrier liability for lost or damaged goods is strictly capped under international transportation conventions (such as Warsaw Convention, Montreal Convention, and Hague-Visby Rules):</p>
+                        <ul>
+                            <li><strong>Air Cargo / Courier:</strong> Capped at $20.00 USD per kilogram of affected gross weight.</li>
+                            <li><strong>Ocean Cargo:</strong> Capped at $500.00 USD per package or customary freight unit.</li>
+                        </ul>
+
+                        <h3>2.3 Force Majeure &amp; Liability Exclusions</h3>
+                        <p>THE BC Cargo &amp; Courier shall not be held liable for loss, damage, or delay arising from events beyond operational control, including:</p>
+                        <ul>
+                            <li>Acts of God, extreme weather phenomena, storms, floods, or earthquakes.</li>
+                            <li>Armed conflict, civil strikes, quarantine restrictions, or government border closures.</li>
+                            <li>Inadequate, fragile, or defective packaging prepared directly by the shipper.</li>
+                            <li>Seizure or delay of contraband, prohibited items, or un-declared hazardous cargo by customs officials.</li>
+                        </ul>
+
+                        <h3>2.4 Claim Filing Process &amp; Time Limits</h3>
+                        <p>Notice of physical cargo damage or partial loss must be submitted in writing within <strong>7 business days</strong> of delivery. Claims for non-delivery or lost cargo must be filed within <strong>30 days</strong> of dispatch date accompanied by original tracking number, photos, commercial invoice, and inspection reports.</p>
+                    </div>
+
+                    <!-- 3. Privacy & Data Collection -->
+                    <div id="sec-privacy" class="policy-block" style="display: none;">
+                        <h2>3. Privacy &amp; Data Collection</h2>
+                        <p>At THE BC Cargo &amp; Courier (part of <strong>THE BC NETWORKS</strong>), protecting customer privacy and operational telemetry is a fundamental governance principle.</p>
+
+                        <h3>3.1 Personal &amp; Business Information Collected</h3>
+                        <p>We collect essential operational data strictly required to execute freight contracts, provide live tracking updates, and meet statutory customs filings:</p>
+                        <ul>
+                            <li><strong>Identity &amp; Contact Information:</strong> Full name, business entity name, phone number, WhatsApp contact, email address, and billing address.</li>
+                            <li><strong>Shipment &amp; Customs Data:</strong> Consignee name, destination address, commercial invoice data, HS codes, and passport/PAN tax identification numbers.</li>
+                            <li><strong>Digital Telemetry:</strong> IP address, device type, browser information, and session authentication tokens used on our digital portal.</li>
+                        </ul>
+
+                        <h3>3.2 Purpose &amp; Usage of Information</h3>
+                        <p>Collected data is processed strictly for: booking cargo space, issuing bills of lading, sending real-time tracking alerts via SMS/WhatsApp, verifying recipient identity, processing payments, and complying with anti-money laundering (AML) and international trade compliance laws. We <strong>never sell, lease, or trade customer data</strong> to third-party marketing companies.</p>
+
+                        <h3>3.3 Data Retention &amp; Security Measures</h3>
+                        <p>We maintain industry-standard SSL/TLS encryption, firewall protection, and restricted database access controls. Transaction and customs records are retained for statutory periods mandated by Nepalese and international trade authorities (minimum 5 years) before secure deletion.</p>
+
+                        <h3>3.4 Cookie Policy &amp; Session Tracking</h3>
+                        <p>Our website utilizes necessary functional cookies for theme preferences, security access control, and user portal authentication (`admin_entry_granted`, session JWT tokens). Users may adjust browser settings to disable non-essential cookies at any time.</p>
+                    </div>
+
+                    <!-- 4. Refunds & Cancellations -->
+                    <div id="sec-refunds" class="policy-block" style="display: none;">
+                        <h2>4. Refunds &amp; Cancellations</h2>
+                        <p>Our Refund and Cancellation policy outlines the terms and processing rules for cancelled shipments, freight quotes, and billing adjustments.</p>
+
+                        <h3>4.1 Booking Cancellations</h3>
+                        <p>Clients may cancel a shipment booking subject to the following timeline conditions:</p>
+                        <ul>
+                            <li><strong>Prior to Warehouse Pickup / Cargo Acceptance:</strong> 100% full refund of prepaid freight charges, minus standard bank/payment gateway processing fees.</li>
+                            <li><strong>After Warehouse Pickup / Pre-Dispatch Allocation:</strong> Refund of freight charges minus local pickup charges, handling fees, and carrier cancellation penalties.</li>
+                            <li><strong>After Cargo Dispatch / In-Transit:</strong> No cancellation or freight refund can be issued once cargo has departed on aircraft, vessel, or transit fleet.</li>
+                        </ul>
+
+                        <h3>4.2 Non-Refundable Charges</h3>
+                        <p>The following fee categories are non-refundable once services have commenced:</p>
+                        <ul>
+                            <li>Customs clearance documentation and broker filing fees.</li>
+                            <li>Government taxes, VAT, duties, and official port inspection charges already disbursed.</li>
+                            <li>Export crating, customized packaging, and temperature-controlled storage fees already incurred.</li>
+                        </ul>
+
+                        <h3>4.3 Refund Method &amp; Processing Timeline</h3>
+                        <p>All approved refunds are credited via the original payment channel (Bank Transfer, eSewa, Khalti, or Corporate Account Credit) within <strong>5 to 7 business days</strong> following formal review and approval by our finance department.</p>
                     </div>
 
                 </div>
@@ -380,7 +459,7 @@
                         <div class="footer-contact-list">
                             <div class="footer-contact-item">
                                 <div class="footer-contact-icon"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></div>
-                                <div class="footer-contact-text">School Road, Hetauda 44107, Nepal</div>
+                                <div class="footer-contact-text">School Road, Hetauda -4, Nepal</div>
                             </div>
                             <div class="footer-contact-item">
                                 <div class="footer-contact-icon"><i class="fab fa-whatsapp" aria-hidden="true"></i></div>
@@ -421,6 +500,28 @@
     <script src="/js/config.js"></script>
     <script src="/js/main.js" defer></script>
     <script src="/js/hero-enhanced.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('.policy-tab-btn');
+            const blocks = document.querySelectorAll('.policy-block');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    const targetId = this.getAttribute('data-target');
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+
+                    blocks.forEach(block => {
+                        if (block.id === targetId) {
+                            block.style.display = 'block';
+                        } else {
+                            block.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

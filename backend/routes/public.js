@@ -77,8 +77,8 @@ router.get('/blogs', (req, res) => {
         title: row.title,
         slug: row.slug,
         category: row.category,
-        image_url: row.image || row.image_url || 'https://files.catbox.moe/kv8fb3.jpeg',
-        image: row.image || row.image_url || 'https://files.catbox.moe/kv8fb3.jpeg',
+        image_url: row.image || row.image_url || 'https://files.catbox.moe/zmwxbk.png',
+        image: row.image || row.image_url || 'https://files.catbox.moe/zmwxbk.png',
         read_time: row.read_time || '3 min read',
         publish_date: row.date || row.publish_date || row.created_at || 'Recent',
         date: row.date || row.publish_date || row.created_at || 'Recent',
@@ -150,18 +150,151 @@ router.get('/faqs', (req, res) => {
 });
 
 const { partnerApplyLimiter } = require('../middleware/rateLimiter');
+const { sendNotificationEmail } = require('../services/mailer');
 
 /**
  * Helper to sanitize string input against XSS attacks
  */
-function sanitizeInput(str) {
+function sanitizeInput(str, maxLen = 200) {
   if (typeof str !== 'string') return '';
-  return str.replace(/<[^>]*>?/gm, '').trim();
+  const cleaned = str.replace(/<[^>]*>?/gm, '').trim();
+  return maxLen ? cleaned.substring(0, maxLen) : cleaned;
 }
 
 /**
- * Partner application handler function.
- * Enforces rate limiting, XSS sanitization, field validation, and parameterized SQL queries.
+ * 1. Contact Form Submission Handler
+ */
+async function handleContactSubmission(req, res) {
+  const db = req.app.get('db');
+  const fullName = sanitizeInput(req.body.full_name || req.body.name);
+  const email = sanitizeInput(req.body.email);
+  const phone = sanitizeInput(req.body.phone);
+  const service = sanitizeInput(req.body.service || 'General Inquiry');
+  const message = sanitizeInput(req.body.message || req.body.details || req.body.comments);
+
+  if (!fullName || !email || !phone || !message) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation error: Full name, email address, phone number, and message are required.'
+    });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation error: Please provide a valid email address.'
+    });
+  }
+
+  // Save to contact_messages and inquiries
+  db.run(
+    `INSERT INTO contact_messages (full_name, email, phone, service, message) VALUES (?, ?, ?, ?, ?)`,
+    [fullName, email, phone, service, message],
+    function (err) {
+      if (err) {
+        console.error('Contact DB insert error:', err.message);
+        return res.status(500).json({ success: false, message: 'Database error saving contact message.' });
+      }
+
+      const msgId = this.lastID;
+
+      // Sync into inquiries alias table
+      db.run(
+        `INSERT INTO inquiries (full_name, email, phone, service, message) VALUES (?, ?, ?, ?, ?)`,
+        [fullName, email, phone, service, message],
+        () => {}
+      );
+
+      // Trigger Nodemailer email notification
+      sendNotificationEmail({
+        subject: `[BC Cargo Contact] Inquiry from ${fullName}`,
+        title: 'Contact Form Message',
+        fields: {
+          'Full Name': fullName,
+          'Email Address': email,
+          'Phone / WhatsApp': phone,
+          'Service Needed': service,
+          'Message Details': message,
+          'Submitted At': new Date().toLocaleString()
+        }
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: 'Thank you! Your contact message has been submitted successfully. Our team will get back to you shortly.',
+        contact_id: msgId
+      });
+    }
+  );
+}
+
+/**
+ * 2. Career Application Submission Handler
+ */
+async function handleCareerSubmission(req, res) {
+  const db = req.app.get('db');
+  const fullName = sanitizeInput(req.body.full_name || req.body.name);
+  const email = sanitizeInput(req.body.email);
+  const phone = sanitizeInput(req.body.phone);
+  const position = sanitizeInput(req.body.position || req.body.job_title || 'General Application');
+  const experience = sanitizeInput(req.body.experience || req.body.exp || 'Not specified');
+  const coverLetter = sanitizeInput(req.body.cover_letter || req.body.note || req.body.details || '');
+  const resumeUrl = sanitizeInput(req.body.resume_url || '');
+
+  if (!fullName || !email || !phone || !position) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation error: Full name, email, phone number, and position title are required.'
+    });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation error: Please provide a valid email address.'
+    });
+  }
+
+  db.run(
+    `INSERT INTO career_applications (full_name, email, phone, position, experience, cover_letter, resume_url) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [fullName, email, phone, position, experience, coverLetter, resumeUrl],
+    function (err) {
+      if (err) {
+        console.error('Career DB insert error:', err.message);
+        return res.status(500).json({ success: false, message: 'Database error saving job application.' });
+      }
+
+      const appId = this.lastID;
+
+      // Trigger Nodemailer email notification
+      sendNotificationEmail({
+        subject: `[BC Cargo Careers] Application for ${position} - ${fullName}`,
+        title: 'Career Application',
+        fields: {
+          'Applicant Name': fullName,
+          'Email Address': email,
+          'Phone Number': phone,
+          'Position Applied': position,
+          'Experience Level': experience,
+          'Cover Note / Details': coverLetter,
+          'Resume Link': resumeUrl || 'Not attached',
+          'Submitted At': new Date().toLocaleString()
+        }
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: 'Thank you! Your career application has been submitted successfully. Our HR team will review your profile.',
+        application_id: appId
+      });
+    }
+  );
+}
+
+/**
+ * 3. Partner Request Submission Handler
  */
 function handlePartnerApplicationSubmission(req, res) {
   const db = req.app.get('db');
@@ -174,7 +307,6 @@ function handlePartnerApplicationSubmission(req, res) {
   const phone = sanitizeInput(req.body.phone);
   const details = sanitizeInput(req.body.details || '');
 
-  // Field validation
   if (!companyName || !country || !firstName || !lastName || !email || !phone) {
     return res.status(400).json({
       success: false,
@@ -182,7 +314,6 @@ function handlePartnerApplicationSubmission(req, res) {
     });
   }
 
-  // Strict email format validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({
@@ -191,21 +322,12 @@ function handlePartnerApplicationSubmission(req, res) {
     });
   }
 
-  // String length validation bounds
-  if (companyName.length > 150 || firstName.length > 80 || lastName.length > 80 || email.length > 120 || phone.length > 40 || details.length > 3000) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validation error: Input data exceeds maximum allowed character length.'
-    });
-  }
-
-  // Parameterized SQLite query (prevents SQL injection) into partner_applications and partners
   db.run(
-    `INSERT INTO partner_applications (company_name, country, first_name, last_name, email, phone, details) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO partner_requests (company_name, country, first_name, last_name, email, phone, details) VALUES (?, ?, ?, ?, ?, ?, ?)`,
     [companyName, country, firstName, lastName, email, phone, details],
     function (err) {
       if (err) {
-        console.error('Partner application DB error:', err.message);
+        console.error('Partner DB insert error:', err.message);
         return res.status(500).json({
           success: false,
           message: 'Server error saving application. Please try again later.'
@@ -214,24 +336,50 @@ function handlePartnerApplicationSubmission(req, res) {
 
       const appId = this.lastID;
 
-      // Sync into partners alias table for backwards compatibility
+      // Sync into partner_applications and partners tables
+      db.run(
+        `INSERT INTO partner_applications (company_name, country, first_name, last_name, email, phone, details) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [companyName, country, firstName, lastName, email, phone, details],
+        () => {}
+      );
       db.run(
         `INSERT INTO partners (company_name, country, first_name, last_name, email, phone, details) VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [companyName, country, firstName, lastName, email, phone, details],
         () => {}
       );
 
+      // Trigger Nodemailer email notification
+      sendNotificationEmail({
+        subject: `[BC Cargo Partner] New Partner Request from ${companyName} (${country})`,
+        title: 'Partner Application',
+        fields: {
+          'Company Name': companyName,
+          'Operating Country': country,
+          'Contact Name': `${firstName} ${lastName}`,
+          'Email Address': email,
+          'Phone Number': phone,
+          'Alliance Details': details,
+          'Submitted At': new Date().toLocaleString()
+        }
+      });
+
       return res.status(201).json({
         success: true,
-        message: 'Thank you! Your international partnership application has been submitted successfully. Our global network team will contact you within 24–48 hours.',
+        message: 'Thank you! Your international partnership request has been submitted successfully. Our global network team will contact you within 24–48 hours.',
         application_id: appId
       });
     }
   );
 }
 
+// Router Endpoint Bindings
+router.post('/contact', handleContactSubmission);
+router.post('/inquire', handleContactSubmission);
+router.post('/careers', handleCareerSubmission);
+router.post('/career-apply', handleCareerSubmission);
 router.post('/partner-apply', partnerApplyLimiter, handlePartnerApplicationSubmission);
 router.post('/partner-application', partnerApplyLimiter, handlePartnerApplicationSubmission);
+router.post('/partner-request', partnerApplyLimiter, handlePartnerApplicationSubmission);
 
 module.exports = router;
 
