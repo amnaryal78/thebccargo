@@ -680,8 +680,32 @@ function findArticle(e) {
 
 function openArticleModal(e) {
   const t = findArticle(e);
-  const slug = t ? t.slug || t.key || t.id : e;
-  window.location.href = `/blog/${slug}`;
+  const modal = document.getElementById("articleModal");
+  if (modal) {
+    const titleEl = document.getElementById("modalArticleTitle");
+    const coverEl = document.getElementById("modalArticleCover");
+    const catEl = document.getElementById("modalArticleCategory");
+    const authorAvatarEl = document.getElementById("modalArticleAuthorAvatar");
+    const authorNameEl = document.getElementById("modalArticleAuthorName");
+    const authorRoleEl = document.getElementById("modalArticleAuthorRole");
+    const dateEl = document.getElementById("modalArticleDate");
+    const bodyEl = document.getElementById("modalArticleBody");
+
+    if (titleEl) titleEl.textContent = t?.title || e;
+    if (coverEl) coverEl.src = t?.image || "https://files.catbox.moe/lpf0lv.png";
+    if (catEl) catEl.textContent = t?.category || "General";
+    if (authorAvatarEl) authorAvatarEl.textContent = t?.author?.avatar || "BC";
+    if (authorNameEl) authorNameEl.textContent = t?.author?.name || "BC Cargo Team";
+    if (authorRoleEl) authorRoleEl.textContent = t?.author?.role || "Logistics Specialist";
+    if (dateEl) dateEl.textContent = t?.date || "Recent";
+    if (bodyEl) bodyEl.innerHTML = t?.contentHtml || t?.summary || "";
+
+    modal.classList.add("active", "open");
+    document.body.classList.add("no-scroll");
+  } else {
+    const slug = t ? t.slug || t.key || t.id : e;
+    window.location.href = `/blog/${slug}`;
+  }
 }
 
 function closeArticleModal() {
@@ -696,6 +720,68 @@ function resolveUrlSlug() {
     setTimeout(() => {
       openArticleModal(e);
     }, 150);
+}
+
+// ═══════════════════════════════════════════════════════════
+// Tracking UI State Machine helpers
+// ═══════════════════════════════════════════════════════════
+function setTrackingState(state) {
+  const card = document.querySelector(".tracking-card");
+  if (!card) return;
+  card.classList.remove("has-result", "is-searching", "has-error");
+  if (state === "searching") {
+    card.classList.add("is-searching");
+  } else if (state === "success") {
+    card.classList.add("has-result");
+  } else if (state === "error") {
+    card.classList.add("has-error");
+  }
+}
+
+let originalTrackBtnHtml = "";
+function setTrackingLoading(isLoading) {
+  const btn = document.getElementById("trackBtn");
+  if (!btn) return;
+  if (isLoading) {
+    originalTrackBtnHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> <span>Checking shipment...</span>';
+    btn.disabled = true;
+  } else {
+    if (originalTrackBtnHtml) {
+      btn.innerHTML = originalTrackBtnHtml;
+    } else {
+      btn.innerHTML = '<i class="fas fa-search" aria-hidden="true"></i> <span>Track Now</span>';
+    }
+    btn.disabled = false;
+  }
+}
+
+function clearTrackingResult() {
+  const resultEl = document.getElementById("trackingResult");
+  const inputEl = document.getElementById("trackingInput");
+  if (resultEl) {
+    resultEl.innerHTML = "";
+    resultEl.style.display = "none";
+  }
+  if (inputEl) {
+    inputEl.value = "";
+    setTimeout(() => inputEl.focus(), 50);
+  }
+  setTrackingState("idle");
+}
+
+function scrollIntoViewIfNeeded(el) {
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const isVisible = (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
+  if (!isVisible) {
+    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
 }
 
 function showSecurityModal(e) {
@@ -743,38 +829,88 @@ async function verifyPhoneNumber() {
     n = document.getElementById("verifyBtn");
   if (!e || !t) return;
   const a = e.value.trim().replace(/[\s\-\+\(\)]/g, "");
-  if (!a) return (t.textContent = "❌ Please enter sender or receiver phone number."), t.classList.add("show"), void e.focus();
-  if (!pendingTrackingId) return (t.textContent = "❌ No tracking ID specified."), void t.classList.add("show");
-  const i = n ? n.innerHTML : "";
-  n && ((n.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...'), (n.disabled = !0));
-  try {
-    const e = await fetch(`${API_BASE_URL}/api/track`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tracking_id: pendingTrackingId, phone: a })
-      }),
-      n = await e.json().catch(() => ({}));
-    if (e.ok && n.success && n.shipment) return hideSecurityModal(), void displayTrackingResult(n.shipment, pendingTrackingId);
-    if (n.message) return (t.textContent = `❌ ${n.message}`), void t.classList.add("show");
-  } catch (e) {
-    console.warn("API Verification error:", e);
-  } finally {
-    n && ((n.innerHTML = i), (n.disabled = !1));
+  if (!a) {
+    t.innerHTML = '<i class="fas fa-times-circle" aria-hidden="true"></i> Please enter sender or receiver phone number.';
+    t.classList.add("show");
+    e.focus();
+    return;
   }
-  (t.textContent = "❌ Phone number does not match sender or receiver record."), t.classList.add("show"), e.focus();
+  if (!pendingTrackingId) {
+    t.innerHTML = '<i class="fas fa-times-circle" aria-hidden="true"></i> No tracking ID specified.';
+    t.classList.add("show");
+    return;
+  }
+  
+  const verifyBtnOriginal = n ? n.innerHTML : "";
+  if (n) {
+    n.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Verifying...';
+    n.disabled = true;
+  }
+  t.classList.remove("show");
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/track`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tracking_id: pendingTrackingId, phone: a })
+    });
+    const data = await response.json().catch(() => ({}));
+    
+    if (response.ok && data.success && data.shipment) {
+      hideSecurityModal();
+      displayTrackingResult(data.shipment, pendingTrackingId);
+      return;
+    }
+    
+    if (data.message) {
+      t.innerHTML = `<i class="fas fa-times-circle" aria-hidden="true"></i> ${data.message}`;
+    } else {
+      t.innerHTML = `<i class="fas fa-times-circle" aria-hidden="true"></i> Phone number does not match record.`;
+    }
+    t.classList.add("show");
+    e.focus();
+  } catch (err) {
+    console.warn("API Verification error:", err);
+    t.innerHTML = `<i class="fas fa-times-circle" aria-hidden="true"></i> Error connecting to server.`;
+    t.classList.add("show");
+  } finally {
+    if (n) {
+      n.innerHTML = verifyBtnOriginal;
+      n.disabled = false;
+    }
+  }
 }
 
-function showTrackingError(e) {
-  const t = document.getElementById("trackingResult");
-  t &&
-    ((t.innerHTML = `
-        <div class="track-result-card" role="alert" style="border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.05);padding:1.5rem;text-align:center;color:#ef4444;border-radius:12px;">
-            <i class="fas fa-exclamation-triangle" style="font-size:2rem;margin-bottom:0.5rem;" aria-hidden="true"></i>
-            <h4 style="margin:0.3rem 0;font-size:1.1rem;color:#ef4444;">${e}</h4>
-        </div>
-    `),
-    (t.style.display = "block"),
-    t.scrollIntoView({ behavior: "smooth", block: "nearest" }));
+function showTrackingError(msg, type = "error") {
+  const resultEl = document.getElementById("trackingResult");
+  if (!resultEl) return;
+  
+  let title = "Error";
+  let icon = "fas fa-exclamation-triangle";
+  let errorClass = "track-server-error";
+
+  if (type === "not-found") {
+    title = "Shipment Not Found";
+    icon = "fas fa-search";
+    errorClass = "track-not-found";
+  } else if (type === "validation") {
+    title = "Validation Error";
+    icon = "fas fa-info-circle";
+    errorClass = "track-validation-error";
+  }
+
+  resultEl.innerHTML = `
+    <div class="track-error ${errorClass}" role="alert">
+      <div class="track-error-icon"><i class="${icon}" aria-hidden="true"></i></div>
+      <div class="track-error-text">
+        <h4>${title}</h4>
+        <p>${msg}</p>
+      </div>
+    </div>
+  `;
+  resultEl.style.display = "block";
+  setTrackingState("error");
+  scrollIntoViewIfNeeded(resultEl);
 }
 
 async function handleTracking(e) {
@@ -782,27 +918,37 @@ async function handleTracking(e) {
   const t = document.getElementById("trackingInput");
   if (!t) return !1;
   const n = t.value.trim().toUpperCase();
-  if (!n) return showTrackingError("Please enter a tracking number."), t.focus(), !1;
+  if (!n) {
+    showTrackingError("Please enter a tracking number.", "validation");
+    t.focus();
+    return !1;
+  }
+  
   const a = document.getElementById("trackingResult");
-  a && ((a.innerHTML = ""), (a.style.display = "none"));
+  if (a) {
+    a.innerHTML = "";
+    a.style.display = "none";
+  }
+  
+  setTrackingLoading(true);
+  setTrackingState("searching");
+  
   try {
-    const e = await fetch(`${API_BASE_URL}/api/public/shipment/${encodeURIComponent(n)}`),
-      t = await e.json().catch(() => ({}));
-    if (e.ok && t.success && t.shipment) return showSecurityModal(n), !1;
-    a &&
-      ((a.innerHTML = `
-                <div class="track-result-card" style="border: 1px solid rgba(239,68,68,0.3); background: rgba(239,68,68,0.05); padding: 1.5rem; text-align: center; color: #ef4444; border-radius: 12px;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                    <h4 style="margin: 0.3rem 0; font-size: 1.1rem; color: #ef4444;">Shipment Not Found</h4>
-                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted, #888);">${
-                      t.message || `No record found for tracking number "${n}". Please verify your ID.`
-                    }</p>
-                </div>
-            `),
-      (a.style.display = "block"),
-      a.scrollIntoView({ behavior: "smooth", block: "nearest" }));
-  } catch (e) {
-    console.warn("Public API inquiry error:", e), showTrackingError("Unable to connect to the tracking server. Please try again later.");
+    const response = await fetch(`${API_BASE_URL}/api/public/shipment/${encodeURIComponent(n)}`);
+    const data = await response.json().catch(() => ({}));
+    if (response.ok && data.success && data.shipment) {
+      setTrackingLoading(false);
+      showSecurityModal(n);
+      return !1;
+    }
+    
+    const errMsg = data.message || `No record found for tracking number "${n}". Please verify your ID.`;
+    showTrackingError(errMsg, "not-found");
+  } catch (err) {
+    console.warn("Public API inquiry error:", err);
+    showTrackingError("Unable to connect to the tracking server. Please try again later.", "error");
+  } finally {
+    setTrackingLoading(false);
   }
   return !1;
 }
@@ -820,7 +966,7 @@ function displayTrackingResult(e, t) {
     d = e.service || "Standard Freight",
     m = "delivered" === l.toLowerCase(),
     u = m ? "delivered" : "in-transit",
-    g = m ? "✅ Delivered" : "📦 " + l;
+    g = m ? "Delivered" : l;
 
   let p = [];
   if (Array.isArray(e.timeline) && e.timeline.length > 0) p = e.timeline;
@@ -830,74 +976,80 @@ function displayTrackingResult(e, t) {
     } catch (e) {}
 
   let f = "";
-  (f =
-    p && p.length > 0
-      ? p
-          .map(
-            (e) => `
-            <div class="timeline-item">
-                <div class="timeline-dot ${e.done ? "done" : e.current ? "current" : ""}"><i class="${
-              e.done ? "fas fa-check" : e.current ? "fas fa-plane" : "fas fa-clock"
-            }"></i></div>
-                <div class="timeline-content">
-                    <div class="timeline-event">${e.event}</div>
-                    <div class="timeline-location">📍 ${e.location} (${e.date || ""})</div>
-                </div>
-            </div>
-        `
-          )
-          .join("")
-      : `
-            <div class="timeline-item">
-                <div class="timeline-dot done"><i class="fas fa-check"></i></div>
-                <div class="timeline-content">
-                    <div class="timeline-event">In Our Warehouse</div>
-                    <div class="timeline-location">📍 Origin Facility (${i})</div>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-dot ${m ? "done" : "current"}"><i class="fas fa-plane"></i></div>
-                <div class="timeline-content">
-                    <div class="timeline-event">${m ? "Customs Cleared" : "In Transit"}</div>
-                    <div class="timeline-location">📍 Logistics Hub (${d})</div>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-dot ${m ? "done" : ""}"><i class="fas fa-flag-checkered"></i></div>
-                <div class="timeline-content">
-                    <div class="timeline-event">${m ? "Delivered" : "Expected Delivery"}</div>
-                    <div class="timeline-location">📍 Destination (${r})</div>
-                </div>
-            </div>
-        `),
-    (n.innerHTML = `
-        <div class="track-result-card">
-            <div class="track-result-header">
-                <span class="track-id-badge">🔍 T_ID: ${t}</span>
-                <span class="track-status-badge ${u}">${g}</span>
-            </div>
-            <div class="track-result-body">
-                <div class="track-info-grid">
-                    <div class="track-info-item"><label>Sender</label><span>${a}</span></div>
-                    <div class="track-info-item"><label>Receiver</label><span>${o}</span></div>
-                    <div class="track-info-item"><label>Origin</label><span>${i}</span></div>
-                    <div class="track-info-item"><label>Destination</label><span>${r}</span></div>
-                    <div class="track-info-item"><label>Weight</label><span>${s}</span></div>
-                    <div class="track-info-item"><label>Bill Date</label><span>${c}</span></div>
-                </div>
-                <div class="track-timeline">
-                    ${f}
-                </div>
-                <div style="margin-top: 1rem; display:flex; gap: 0.5rem;">
-                    <button class="btn btn-primary" onclick="window.print()" style="min-height: 38px; padding: 0.4rem 1rem; font-size: 0.78rem;">
-                        <i class="fas fa-print"></i> Print Details
-                    </button>
-                </div>
+  if (p && p.length > 0) {
+    f = p
+      .map(
+        (item) => `
+        <div class="timeline-item">
+            <div class="timeline-dot ${item.done ? "done" : item.current ? "current" : ""}"><i class="${
+          item.done ? "fas fa-check" : item.current ? "fas fa-plane" : "fas fa-clock"
+        }"></i></div>
+            <div class="timeline-content">
+                <div class="timeline-event">${item.event}</div>
+                <div class="timeline-location">📍 ${item.location} (${item.date || ""})</div>
             </div>
         </div>
-    `),
-    (n.style.display = "block"),
-    n.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      `
+      )
+      .join("");
+  } else {
+    f = `
+      <div class="timeline-item">
+          <div class="timeline-dot done"><i class="fas fa-check"></i></div>
+          <div class="timeline-content">
+              <div class="timeline-event">In Our Warehouse</div>
+              <div class="timeline-location">📍 Origin Facility (${i})</div>
+          </div>
+      </div>
+      <div class="timeline-item">
+          <div class="timeline-dot ${m ? "done" : "current"}"><i class="fas fa-plane"></i></div>
+          <div class="timeline-content">
+              <div class="timeline-event">${m ? "Customs Cleared" : "In Transit"}</div>
+              <div class="timeline-location">📍 Logistics Hub (${d})</div>
+          </div>
+      </div>
+      <div class="timeline-item">
+          <div class="timeline-dot ${m ? "done" : ""}"><i class="fas fa-flag-checkered"></i></div>
+          <div class="timeline-content">
+              <div class="timeline-event">${m ? "Delivered" : "Expected Delivery"}</div>
+              <div class="timeline-location">📍 Destination (${r})</div>
+          </div>
+      </div>
+    `;
+  }
+
+  n.innerHTML = `
+    <div class="track-result-card">
+        <div class="track-result-header">
+            <span class="track-id-badge"><i class="fas fa-barcode" aria-hidden="true"></i> ${t}</span>
+            <span class="track-status-badge ${u}">${g}</span>
+        </div>
+        <div class="track-result-body">
+            <div class="track-info-grid">
+                <div class="track-info-item"><label>Sender</label><span>${a}</span></div>
+                <div class="track-info-item"><label>Receiver</label><span>${o}</span></div>
+                <div class="track-info-item"><label>Origin</label><span>${i}</span></div>
+                <div class="track-info-item"><label>Destination</label><span>${r}</span></div>
+                <div class="track-info-item"><label>Weight</label><span>${s}</span></div>
+                <div class="track-info-item"><label>Bill Date</label><span>${c}</span></div>
+            </div>
+            <div class="track-timeline">
+                ${f}
+            </div>
+            <div style="margin-top: 1.5rem; display:flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" id="btnPrintTrackingDetails">
+                    <i class="fas fa-print" aria-hidden="true"></i> Print Details
+                </button>
+                <button class="btn btn-outline-primary" id="btnTrackAnother">
+                    <i class="fas fa-search-plus" aria-hidden="true"></i> Track Another Shipment
+                </button>
+            </div>
+        </div>
+    </div>
+  `;
+  n.style.display = "block";
+  setTrackingState("success");
+  scrollIntoViewIfNeeded(n);
 }
 
 function initAOSAndGSAP() {
@@ -1005,7 +1157,7 @@ async function initOffers() {
               const t = e.valid_until ? `Valid until ${e.valid_until}` : "Limited Time Offer",
                 n = e.discount_code ? String(e.discount_code).replace(/"/g, "&quot;") : "",
                 a = e.discount_code
-                  ? `<div class="promo-code-wrap" onclick="navigator.clipboard.writeText('${n}'); alert('Discount code copied to clipboard!');" title="Click to copy code">
+                  ? `<div class="promo-code-wrap" data-code="${n}" title="Click to copy code">
                         <i class="fas fa-ticket-alt" style="color:var(--accent-gold);"></i>
                         <span class="promo-code-text">${String(e.discount_code)
                           .replace(/&/g, "&amp;")
@@ -1144,7 +1296,42 @@ document.addEventListener("DOMContentLoaded", () => {
   resolveUrlSlug();
   initAOSAndGSAP();
   initContactForm();
-  initOffers();
+  document.querySelectorAll(".tracking-form, #heroTrackingForm").forEach((form) => {
+    form.addEventListener("submit", handleTracking);
+  });
+  document.addEventListener("click", (evt) => {
+    const promoWrap = evt.target.closest(".promo-code-wrap");
+    if (promoWrap) {
+      const code = promoWrap.getAttribute("data-code") || promoWrap.querySelector(".promo-code-text")?.textContent?.trim();
+      if (code) {
+        navigator.clipboard.writeText(code);
+        alert(`Discount code '${code}' copied to clipboard!`);
+      }
+    }
+
+    const newsCard = evt.target.closest(".news-card[data-slug]");
+    if (newsCard) {
+      const slug = newsCard.getAttribute("data-slug");
+      if (slug) openArticleModal(slug);
+    }
+
+    const teamCard = evt.target.closest(".team-card[data-team-id]");
+    if (teamCard) {
+      const id = teamCard.getAttribute("data-team-id");
+      if (id) openTeamModal(id);
+    }
+
+    const printBtn = evt.target.closest("#btnPrintTrackingDetails");
+    if (printBtn) {
+      window.print();
+    }
+
+    const trackAnotherBtn = evt.target.closest("#btnTrackAnother");
+    if (trackAnotherBtn) {
+      evt.preventDefault();
+      clearTrackingResult();
+    }
+  });
 
   const e = document.getElementById("securityModal");
   e && trapFocus(e),
@@ -1164,6 +1351,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("profileModal")?.addEventListener("click", function (e) {
       (e.target === this || e.target.classList.contains("modal-overlay")) && closeTeamModal();
     }),
+    document.getElementById("closePartnerDetailModal")?.addEventListener("click", closePartnerDetailModal),
+    document.getElementById("btnPartnerDetailClose")?.addEventListener("click", closePartnerDetailModal),
+    document.getElementById("btnPartnerDetailBook")?.addEventListener("click", closePartnerDetailModal),
     document.getElementById("partnerDetailModal")?.addEventListener("click", function (e) {
       (e.target === this || e.target.classList.contains("modal-overlay")) && closePartnerDetailModal();
     }),

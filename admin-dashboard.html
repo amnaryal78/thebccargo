@@ -846,19 +846,19 @@
 
       <nav class="sidebar-nav">
         <div class="nav-section-title">Main</div>
-        <div class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')">
+        <div class="nav-item active" data-page="dashboard">
           <i class="fas fa-th-large"></i> Dashboard
         </div>
 
         <div class="nav-section-title">Management</div>
-        <div class="nav-item" data-page="shipments" onclick="navigateTo('shipments')">
+        <div class="nav-item" data-page="shipments">
           <i class="fas fa-shipping-fast"></i> Shipments
         </div>
-        <div class="nav-item" data-page="blogs" onclick="navigateTo('blogs')">
+        <div class="nav-item" data-page="blogs">
           <i class="fas fa-newspaper"></i> Blog CMS
         </div>
         <div class="nav-item-wrapper" style="margin-bottom:4px;">
-          <div class="nav-item nav-accordion-toggle" id="leadsAccordionToggle" data-page="submissions" onclick="toggleLeadsFolder(event)" style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;">
+          <div class="nav-item nav-accordion-toggle" id="leadsAccordionToggle" data-page="submissions" style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;">
             <i class="fas fa-inbox"></i>
             <span>Leads & Submissions</span>
             <span class="nav-badge" id="leadsNavBadge" style="display:none;margin-left:auto;margin-right:0.4rem;">0</span>
@@ -866,29 +866,29 @@
           </div>
           <ul class="nav-sub-menu" id="leadsSubMenu" style="list-style:none;padding:0;margin:0;max-height:0;overflow:hidden;opacity:0;transition:all 0.35s ease;">
             <li style="margin-top:2px;">
-              <a href="javascript:void(0)" class="nav-sub-item" id="subnav-contact" data-subtab="contact" onclick="navigateToSubmissionTab('contact')" style="display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.85rem 0.55rem 2.2rem;border-radius:6px;font-size:0.82rem;color:var(--text-secondary);text-decoration:none;">
+              <a href="#" class="nav-sub-item" id="subnav-contact" data-subtab="contact" style="display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.85rem 0.55rem 2.2rem;border-radius:6px;font-size:0.82rem;color:var(--text-secondary);text-decoration:none;">
                 <i class="fas fa-envelope" style="width:16px;text-align:center;"></i> Contact Messages
                 <span class="nav-badge" id="contactNavBadge" style="display:none;background:var(--accent-cyan);margin-left:auto;">0</span>
               </a>
             </li>
             <li style="margin-top:2px;">
-              <a href="javascript:void(0)" class="nav-sub-item" id="subnav-careers" data-subtab="careers" onclick="navigateToSubmissionTab('careers')" style="display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.85rem 0.55rem 2.2rem;border-radius:6px;font-size:0.82rem;color:var(--text-secondary);text-decoration:none;">
+              <a href="#" class="nav-sub-item" id="subnav-careers" data-subtab="careers" style="display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.85rem 0.55rem 2.2rem;border-radius:6px;font-size:0.82rem;color:var(--text-secondary);text-decoration:none;">
                 <i class="fas fa-user-tie" style="width:16px;text-align:center;"></i> Career Applications
                 <span class="nav-badge" id="careersNavBadge" style="display:none;background:var(--accent-violet);margin-left:auto;">0</span>
               </a>
             </li>
             <li style="margin-top:2px;">
-              <a href="javascript:void(0)" class="nav-sub-item" id="subnav-partner" data-subtab="partner" onclick="navigateToSubmissionTab('partner')" style="display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.85rem 0.55rem 2.2rem;border-radius:6px;font-size:0.82rem;color:var(--text-secondary);text-decoration:none;">
+              <a href="#" class="nav-sub-item" id="subnav-partner" data-subtab="partner" style="display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.85rem 0.55rem 2.2rem;border-radius:6px;font-size:0.82rem;color:var(--text-secondary);text-decoration:none;">
                 <i class="fas fa-handshake" style="width:16px;text-align:center;"></i> Partner Requests
                 <span class="nav-badge" id="partnerNavBadge" style="display:none;background:var(--accent-gold);margin-left:auto;">0</span>
               </a>
             </li>
           </ul>
         </div>
-        <div class="nav-item" data-page="faqs" onclick="navigateTo('faqs')">
+        <div class="nav-item" data-page="faqs">
           <i class="fas fa-question-circle"></i> FAQs
         </div>
-        <div class="nav-item" data-page="offers" onclick="navigateTo('offers')">
+        <div class="nav-item" data-page="offers">
           <i class="fas fa-tags"></i> Special Offers
         </div>
       </nav>
@@ -900,7 +900,7 @@
             <div class="user-name" id="userName">Admin</div>
             <div class="user-role">Administrator</div>
           </div>
-          <button class="btn-logout" onclick="handleLogout()" title="Sign Out">
+          <button class="btn-logout" id="btnLogout" title="Sign Out">
             <i class="fas fa-sign-out-alt"></i>
           </button>
         </div>
@@ -911,7 +911,7 @@
     <div class="main-area">
       <header class="main-header">
         <div class="header-left">
-          <button class="btn-hamburger" id="hamburgerBtn" onclick="toggleSidebar()">
+          <button class="btn-hamburger" id="hamburgerBtn">
             <i class="fas fa-bars"></i>
           </button>
           <div>
@@ -926,42 +926,42 @@
         <!-- ═══════ DASHBOARD PAGE ═══════ -->
         <div class="page active" id="page-dashboard">
           <div class="stats-grid">
-            <div class="stat-card" onclick="navigateTo('shipments')">
+            <div class="stat-card" data-page="shipments">
               <div class="stat-card-header">
                 <div class="stat-icon blue"><i class="fas fa-shipping-fast"></i></div>
               </div>
               <div class="stat-label">Total Shipments</div>
               <div class="stat-value" id="statShipments">—</div>
             </div>
-            <div class="stat-card" onclick="navigateTo('blogs')">
+            <div class="stat-card" data-page="blogs">
               <div class="stat-card-header">
                 <div class="stat-icon emerald"><i class="fas fa-newspaper"></i></div>
               </div>
               <div class="stat-label">Blog Articles</div>
               <div class="stat-value" id="statBlogs">—</div>
             </div>
-            <div class="stat-card" onclick="navigateTo('submissions')">
+            <div class="stat-card" data-page="submissions">
               <div class="stat-card-header">
                 <div class="stat-icon gold"><i class="fas fa-envelope-open-text"></i></div>
               </div>
               <div class="stat-label">Total Leads</div>
               <div class="stat-value" id="statLeads">—</div>
             </div>
-            <div class="stat-card" onclick="navigateToSubmissionTab('contact')">
+            <div class="stat-card" data-subtab="contact">
               <div class="stat-card-header">
                 <div class="stat-icon rose"><i class="fas fa-bell"></i></div>
               </div>
               <div class="stat-label">New Leads</div>
               <div class="stat-value" id="statNewLeads">—</div>
             </div>
-            <div class="stat-card" onclick="navigateTo('faqs')">
+            <div class="stat-card" data-page="faqs">
               <div class="stat-card-header">
                 <div class="stat-icon cyan"><i class="fas fa-question-circle"></i></div>
               </div>
               <div class="stat-label">FAQs Published</div>
               <div class="stat-value" id="statFaqs">—</div>
             </div>
-            <div class="stat-card" onclick="navigateTo('offers')">
+            <div class="stat-card" data-page="offers">
               <div class="stat-card-header">
                 <div class="stat-icon gold"><i class="fas fa-tags"></i></div>
               </div>
@@ -979,9 +979,9 @@
               <div class="panel-actions">
                 <div class="search-box">
                   <i class="fas fa-search"></i>
-                  <input type="text" placeholder="Search shipments..." id="shipmentSearch" oninput="filterShipments()">
+                  <input type="text" placeholder="Search shipments..." id="shipmentSearch">
                 </div>
-                <button class="btn btn-primary" onclick="openShipmentModal()">
+                <button class="btn btn-primary" id="btnNewShipment" data-action="open-shipment-modal">
                   <i class="fas fa-plus"></i> New Shipment
                 </button>
               </div>
@@ -1014,7 +1014,7 @@
             <div class="panel-header">
               <div class="panel-title"><i class="fas fa-newspaper"></i> Blog Articles</div>
               <div class="panel-actions">
-                <button class="btn btn-primary" onclick="openBlogModal()">
+                <button class="btn btn-primary" id="btnNewBlog" data-action="open-blog-modal">
                   <i class="fas fa-plus"></i> New Article
                 </button>
               </div>
@@ -1050,24 +1050,24 @@
               <div class="panel-actions" style="display:flex;align-items:center;gap:0.75rem;">
                 <div class="search-box">
                   <i class="fas fa-search"></i>
-                  <input type="text" placeholder="Search submissions..." id="submissionSearch" oninput="filterSubmissions()">
+                  <input type="text" placeholder="Search submissions..." id="submissionSearch">
                 </div>
               </div>
             </div>
 
             <!-- Subtab Navigation Buttons -->
             <div class="subtab-nav" style="display:flex;gap:0.5rem;margin-bottom:1.25rem;border-bottom:1px solid var(--border-color);padding-bottom:0.75rem;">
-              <button class="btn btn-outline active" id="subtabContactBtn" onclick="switchSubmissionTab('contact')" style="border-radius:8px;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;">
+              <button class="btn btn-outline active" id="subtabContactBtn" data-subtab="contact" style="border-radius:8px;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;">
                 <i class="fas fa-envelope"></i> Contact Messages
                 <span class="badge" id="badgeContactCount" style="background:var(--accent-cyan);color:#fff;font-size:0.7rem;padding:2px 6px;border-radius:10px;">0</span>
                 <span class="badge" id="badgeContactUnread" style="display:none;background:var(--accent-rose);color:#fff;font-size:0.7rem;padding:2px 6px;border-radius:10px;">0 NEW</span>
               </button>
-              <button class="btn btn-outline" id="subtabCareersBtn" onclick="switchSubmissionTab('careers')" style="border-radius:8px;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;">
+              <button class="btn btn-outline" id="subtabCareersBtn" data-subtab="careers" style="border-radius:8px;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;">
                 <i class="fas fa-user-tie"></i> Career Applications
                 <span class="badge" id="badgeCareersCount" style="background:var(--accent-violet);color:#fff;font-size:0.7rem;padding:2px 6px;border-radius:10px;">0</span>
                 <span class="badge" id="badgeCareersUnread" style="display:none;background:var(--accent-rose);color:#fff;font-size:0.7rem;padding:2px 6px;border-radius:10px;">0 NEW</span>
               </button>
-              <button class="btn btn-outline" id="subtabPartnerBtn" onclick="switchSubmissionTab('partner')" style="border-radius:8px;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;">
+              <button class="btn btn-outline" id="subtabPartnerBtn" data-subtab="partner" style="border-radius:8px;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;">
                 <i class="fas fa-handshake"></i> Partner Requests
                 <span class="badge" id="badgePartnerCount" style="background:var(--accent-gold);color:#fff;font-size:0.7rem;padding:2px 6px;border-radius:10px;">0</span>
                 <span class="badge" id="badgePartnerUnread" style="display:none;background:var(--accent-rose);color:#fff;font-size:0.7rem;padding:2px 6px;border-radius:10px;">0 NEW</span>
@@ -1158,7 +1158,7 @@
             <div class="panel-header">
               <div class="panel-title"><i class="fas fa-question-circle"></i> FAQs</div>
               <div class="panel-actions">
-                <button class="btn btn-primary" onclick="openFaqModal()">
+                <button class="btn btn-primary" id="btnNewFaq" data-action="open-faq-modal">
                   <i class="fas fa-plus"></i> New FAQ
                 </button>
               </div>
@@ -1189,9 +1189,9 @@
               <div class="panel-actions">
                 <div class="search-box">
                   <i class="fas fa-search"></i>
-                  <input type="text" placeholder="Search offers..." id="offerSearch" oninput="filterOffers()">
+                  <input type="text" placeholder="Search offers..." id="offerSearch">
                 </div>
-                <button class="btn btn-primary" onclick="openOfferModal()">
+                <button class="btn btn-primary" id="btnNewOffer" data-action="open-offer-modal">
                   <i class="fas fa-plus"></i> New Offer
                 </button>
               </div>
@@ -1228,7 +1228,7 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title" id="shipmentModalTitle">New Shipment</div>
-        <button class="modal-close" onclick="closeModal('shipmentModal')"><i class="fas fa-times"></i></button>
+        <button class="modal-close" data-close-modal="shipmentModal"><i class="fas fa-times"></i></button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="shipmentEditId">
@@ -1335,7 +1335,7 @@
             <div class="add-event-row">
               <input type="date" id="newEventDate" style="max-width:140px;">
               <input type="text" id="newEventText" placeholder="Event description">
-              <button class="btn btn-sm btn-outline" onclick="addTimelineEvent()">
+              <button class="btn btn-sm btn-outline" id="btnAddTimelineEvent" type="button">
                 <i class="fas fa-plus"></i>
               </button>
             </div>
@@ -1343,8 +1343,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeModal('shipmentModal')">Cancel</button>
-        <button class="btn btn-primary" id="shipmentSaveBtn" onclick="saveShipment()">
+        <button class="btn btn-outline" data-close-modal="shipmentModal">Cancel</button>
+        <button class="btn btn-primary" id="shipmentSaveBtn">
           <i class="fas fa-save"></i> Save
         </button>
       </div>
@@ -1356,14 +1356,14 @@
     <div class="modal" style="max-width:700px;">
       <div class="modal-header">
         <div class="modal-title" id="blogModalTitle">New Article</div>
-        <button class="modal-close" onclick="closeModal('blogModal')"><i class="fas fa-times"></i></button>
+        <button class="modal-close" data-close-modal="blogModal"><i class="fas fa-times"></i></button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="blogEditId">
         <div class="form-row">
           <div class="form-group">
             <label>Title *</label>
-            <input type="text" id="bTitle" placeholder="Article title" oninput="autoSlug()">
+            <input type="text" id="bTitle" placeholder="Article title">
           </div>
           <div class="form-group">
             <label>Slug *</label>
@@ -1407,8 +1407,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeModal('blogModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="saveBlog()">
+        <button class="btn btn-outline" data-close-modal="blogModal">Cancel</button>
+        <button class="btn btn-primary" id="blogSaveBtn">
           <i class="fas fa-save"></i> Save
         </button>
       </div>
@@ -1420,7 +1420,7 @@
     <div class="modal" style="max-width:500px;">
       <div class="modal-header">
         <div class="modal-title" id="faqModalTitle">New FAQ</div>
-        <button class="modal-close" onclick="closeModal('faqModal')"><i class="fas fa-times"></i></button>
+        <button class="modal-close" data-close-modal="faqModal"><i class="fas fa-times"></i></button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="faqEditId">
@@ -1438,8 +1438,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeModal('faqModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="saveFaq()">
+        <button class="btn btn-outline" data-close-modal="faqModal">Cancel</button>
+        <button class="btn btn-primary" id="faqSaveBtn">
           <i class="fas fa-save"></i> Save
         </button>
       </div>
@@ -1451,11 +1451,11 @@
     <div class="modal" style="max-width:500px;">
       <div class="modal-header">
         <div class="modal-title">Lead Details</div>
-        <button class="modal-close" onclick="closeModal('leadModal')"><i class="fas fa-times"></i></button>
+        <button class="modal-close" data-close-modal="leadModal"><i class="fas fa-times"></i></button>
       </div>
       <div class="modal-body" id="leadDetailBody"></div>
       <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeModal('leadModal')">Close</button>
+        <button class="btn btn-outline" data-close-modal="leadModal">Close</button>
       </div>
     </div>
   </div>
@@ -1465,7 +1465,7 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title" id="offerModalTitle">New Special Offer</div>
-        <button class="modal-close" onclick="closeModal('offerModal')"><i class="fas fa-times"></i></button>
+        <button class="modal-close" data-close-modal="offerModal"><i class="fas fa-times"></i></button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="offerEditId">
@@ -1496,8 +1496,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeModal('offerModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="saveOffer()">
+        <button class="btn btn-outline" data-close-modal="offerModal">Cancel</button>
+        <button class="btn btn-primary" id="offerSaveBtn">
           <i class="fas fa-save"></i> Save Offer
         </button>
       </div>
@@ -1509,13 +1509,13 @@
     <div class="modal" style="max-width:600px;">
       <div class="modal-header">
         <div class="modal-title" id="submissionModalTitle"><i class="fas fa-file-alt"></i> Submission Details</div>
-        <button class="modal-close" onclick="closeModal('submissionDetailModal')"><i class="fas fa-times"></i></button>
+        <button class="modal-close" data-close-modal="submissionDetailModal"><i class="fas fa-times"></i></button>
       </div>
       <div class="modal-body" id="submissionModalBody" style="line-height:1.6;">
         <!-- Dynamic Content -->
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeModal('submissionDetailModal')">Close</button>
+        <button class="btn btn-outline" data-close-modal="submissionDetailModal">Close</button>
       </div>
     </div>
   </div>
@@ -1525,9 +1525,9 @@
     <div class="modal" style="max-width:620px;">
       <div class="modal-header">
         <div class="modal-title"><i class="fas fa-paper-plane" style="color:var(--primary-light);"></i> Reply via Email</div>
-        <button class="modal-close" onclick="closeModal('emailReplyModal')"><i class="fas fa-times"></i></button>
+        <button class="modal-close" data-close-modal="emailReplyModal"><i class="fas fa-times"></i></button>
       </div>
-      <form id="emailReplyForm" onsubmit="sendReplyEmailSubmit(event)">
+      <form id="emailReplyForm">
         <div class="modal-body">
           <div class="form-group" style="margin-bottom:1rem;">
             <label style="display:block;font-size:0.8rem;font-weight:700;margin-bottom:0.35rem;color:var(--text-muted);">TO RECIPIENT</label>
@@ -1543,7 +1543,7 @@
           </div>
         </div>
         <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:0.75rem;">
-          <button type="button" class="btn btn-outline" onclick="closeModal('emailReplyModal')">Cancel</button>
+          <button type="button" class="btn btn-outline" data-close-modal="emailReplyModal">Cancel</button>
           <button type="submit" class="btn btn-primary" id="btnSendReplySubmit">
             <i class="fas fa-paper-plane"></i> Send Email Reply
           </button>

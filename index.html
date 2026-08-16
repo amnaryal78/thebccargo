@@ -278,16 +278,16 @@
                             <div class="section-label"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Real-Time Tracking</div>
                             <h2 class="section-title">Track Your <span class="gradient-text">Shipment</span></h2>
                             <p>Enter your tracking number for instant real-time updates on your cargo.</p>
-                            <form class="tracking-form" onsubmit="return handleTracking(event)">
+                            <form class="tracking-form" id="heroTrackingForm">
                                 <div class="tracking-input-wrap">
                                     <input type="text" id="trackingInput" class="tracking-input"
                                         placeholder="e.g. BC2204AT" required aria-label="Tracking number"
                                         autocomplete="off" spellcheck="false">
-                                    <i class="fas fa-barcode" aria-hidden="true"
-                                        style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;"></i>
+                                    <i class="fas fa-barcode" aria-hidden="true"></i>
                                 </div>
-                                <button type="submit" class="btn btn-primary" id="trackBtn"
-                                    style="padding:.85rem 1.4rem;"><i class="fas fa-search" aria-hidden="true"></i> <span>Track Now</span></button>
+                                <button type="submit" class="btn btn-primary" id="trackBtn">
+                                    <i class="fas fa-search" aria-hidden="true"></i> <span>Track Now</span>
+                                </button>
                             </form>
                         </div>
                         <div class="tracking-right">
@@ -336,7 +336,7 @@
                             <p class="offer-card-desc">Enjoy 15% off international express air cargo shipments to over 50 global destinations.</p>
                         </div>
                         <div class="offer-card-footer">
-                            <div class="promo-code-wrap" onclick="navigator.clipboard.writeText('EXPRESS15'); alert('Discount code copied to clipboard!');" title="Click to copy code">
+                            <div class="promo-code-wrap" data-code="EXPRESS15" title="Click to copy code">
                                 <i class="fas fa-ticket-alt" style="color:var(--accent-gold);" aria-hidden="true"></i>
                                 <span class="promo-code-text">EXPRESS15</span>
                                 <i class="far fa-copy" style="font-size:0.75rem;color:var(--text-muted);" aria-hidden="true"></i>
@@ -355,7 +355,7 @@
                             <p class="offer-card-desc">Get 20% discount on long-term climate-controlled storage and logistics fulfillment.</p>
                         </div>
                         <div class="offer-card-footer">
-                            <div class="promo-code-wrap" onclick="navigator.clipboard.writeText('STORE20'); alert('Discount code copied to clipboard!');" title="Click to copy code">
+                            <div class="promo-code-wrap" data-code="STORE20" title="Click to copy code">
                                 <i class="fas fa-ticket-alt" style="color:var(--accent-gold);" aria-hidden="true"></i>
                                 <span class="promo-code-text">STORE20</span>
                                 <i class="far fa-copy" style="font-size:0.75rem;color:var(--text-muted);" aria-hidden="true"></i>
@@ -589,7 +589,7 @@
                             class="fas fa-arrow-right" aria-hidden="true"></i></a>
                 </div>
                 <div class="news-grid">
-                    <div class="news-card" data-slug="air-freight-expansion-2025" onclick="openArticleModal('air-freight-expansion-2025')" data-aos data-delay="0" style="cursor:pointer;display:block;">
+                    <div class="news-card" data-slug="air-freight-expansion-2025" data-aos data-delay="0" style="cursor:pointer;display:block;">
                         <div class="news-img"><img src="https://files.catbox.moe/zmwxbk.png"
                                 alt="BC Cargo express air freight shipping service" loading="lazy" decoding="async"
                                 width="400" height="260"></div>
@@ -599,7 +599,7 @@
                         </div>
                     </div>
 
-                    <div class="news-card" data-slug="nepal-cargo-courier-advancements" onclick="openArticleModal('nepal-cargo-courier-advancements')" data-aos data-delay="300" style="cursor:pointer;display:block;">
+                    <div class="news-card" data-slug="nepal-cargo-courier-advancements" data-aos data-delay="300" style="cursor:pointer;display:block;">
                         <div class="news-img"><img src="https://files.catbox.moe/7j5mnn.png"
                                 alt="Nepal international export and logistics transport" loading="lazy" decoding="async"
                                 width="400" height="260"></div>
@@ -748,7 +748,7 @@
     <!-- Article Detail Modal (Wider & Taller editorial zoom modal) -->
     <div class="modal-overlay" id="articleModal" role="dialog" aria-modal="true" aria-labelledby="modalArticleTitle">
         <div class="modal-card" style="max-width: 920px; width: 95%; max-height: 90vh; text-align: left; position: relative; padding: 0; overflow: hidden; border-radius: 24px; display: flex; flex-direction: column;">
-            <button class="drawer-close" id="closeArticleModal" onclick="closeArticleModal()" style="position: absolute; top: 1.2rem; right: 1.2rem; z-index: 10; background: rgba(0,0,0,0.65); color: #fff; border: 1px solid rgba(255,255,255,0.25); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" aria-label="Close article"><i class="fas fa-times" aria-hidden="true"></i></button>
+            <button class="drawer-close" id="closeArticleModal" style="position: absolute; top: 1.2rem; right: 1.2rem; z-index: 10; background: rgba(0,0,0,0.65); color: #fff; border: 1px solid rgba(255,255,255,0.25); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" aria-label="Close article"><i class="fas fa-times" aria-hidden="true"></i></button>
 
             <div style="position: relative; height: 320px; width: 100%; flex-shrink: 0; overflow: hidden; background: var(--bg-tertiary);">
                 <img src="https://files.catbox.moe/lpf0lv.png" alt="Opening of Our Cargo &amp; Courier" id="modalArticleCover" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;" loading="eager" decoding="async">
@@ -782,7 +782,7 @@
     <!-- Profile Detail Modal (Team Member Bio Zoom) -->
     <div class="modal-overlay" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="modalTeamName">
         <div class="modal-card" style="max-width: 580px; text-align: left; position: relative;">
-            <button class="drawer-close" id="closeProfileModal" onclick="closeTeamModal()" style="position: absolute; top: 1rem; right: 1rem;" aria-label="Close profile"><i class="fas fa-times"></i></button>
+            <button class="drawer-close" id="closeProfileModal" style="position: absolute; top: 1rem; right: 1rem;" aria-label="Close profile"><i class="fas fa-times"></i></button>
             <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.25rem;">
                 <div class="team-avatar" id="modalTeamAvatar" style="margin: 0; width: 70px; height: 70px; font-size: 1.6rem; background: var(--gradient-gold); color: #1a1a1a;">RA</div>
                 <div>
@@ -816,7 +816,7 @@
     <!-- International Partner Modal -->
     <div class="modal-overlay" id="partnerModal" role="dialog" aria-modal="true" aria-labelledby="partnerModalTitle">
         <div class="modal-card partner-modal-card">
-            <button class="drawer-close" id="closePartnerModal" onclick="closePartnerModal()" aria-label="Close modal"><i class="fas fa-times" aria-hidden="true"></i></button>
+            <button class="drawer-close" id="closePartnerModal" aria-label="Close modal"><i class="fas fa-times" aria-hidden="true"></i></button>
 
             <div class="partner-modal-header">
                 <div class="modal-icon-wrap" style="background:rgba(245,166,35,0.15);color:#f5a623;"><i class="fas fa-handshake" aria-hidden="true"></i></div>
@@ -891,7 +891,7 @@
     <!-- International Partner Info Overlay Modal -->
     <div class="modal-overlay" id="partnerDetailModal" role="dialog" aria-modal="true" aria-labelledby="partnerInfoName">
         <div class="modal-card partner-info-card" style="max-width: 580px; padding: 2rem;">
-            <button class="drawer-close" id="closePartnerDetailModal" onclick="closePartnerDetailModal()" aria-label="Close modal"><i class="fas fa-times" aria-hidden="true"></i></button>
+            <button class="drawer-close" id="closePartnerDetailModal" aria-label="Close modal"><i class="fas fa-times" aria-hidden="true"></i></button>
 
             <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-light, rgba(255,255,255,0.1));">
                 <div id="partnerInfoIconWrap" style="width: 65px; height: 65px; border-radius: 16px; background: rgba(26, 86, 219, 0.15); border: 1px solid rgba(26, 86, 219, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: var(--accent-blue, #1a56db); flex-shrink: 0;">
@@ -926,8 +926,8 @@
             </div>
 
             <div style="display: flex; gap: 0.75rem; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid var(--border-light, rgba(255,255,255,0.1));">
-                <button class="btn btn-outline-primary btn-sm" onclick="closePartnerDetailModal()">Close</button>
-                <a href="#contact" onclick="closePartnerDetailModal()" class="btn btn-primary btn-sm"><i class="fas fa-paper-plane" aria-hidden="true"></i> Book Freight via Partner</a>
+                <button class="btn btn-outline-primary btn-sm" id="btnPartnerDetailClose">Close</button>
+                <a href="#contact" id="btnPartnerDetailBook" class="btn btn-primary btn-sm"><i class="fas fa-paper-plane" aria-hidden="true"></i> Book Freight via Partner</a>
             </div>
         </div>
     </div>

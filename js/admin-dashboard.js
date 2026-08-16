@@ -441,9 +441,13 @@ body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; line-height:
 </head>
 <body>
 <div class='no-print'>
-  <button class='btn-print' onclick='window.print()'>🖨️ Print Bill</button>
-  <button class='btn-close' onclick='window.close()'>✕ Close</button>
+  <button class='btn-print' id='btnPrintBillWindow'>🖨️ Print Bill</button>
+  <button class='btn-close' id='btnCloseBillWindow'>✕ Close</button>
 </div>
+<script>
+  document.getElementById('btnPrintBillWindow').addEventListener('click', function() { window.print(); });
+  document.getElementById('btnCloseBillWindow').addEventListener('click', function() { window.close(); });
+</script>
 <div class='bill-container'>
   <div class='header'>
     <div class='company-name'>The BC <span>Cargo</span></div>
@@ -590,10 +594,10 @@ function renderShipments(list) {
       <td><span class="status-badge ${getStatusClass(item.status)}">${escapeHtml(item.status)}</span></td>
       <td>${escapeHtml(item.shipping_date || "—")}</td>
       <td class="actions-cell">
-        <button class="btn btn-sm btn-outline" onclick="printShipmentBill('${escapeHtml(item.tracking_id)}')" title="Print Bill"><i class="fas fa-print"></i></button>
-        <button class="btn btn-sm btn-outline" onclick="editShipment('${escapeHtml(item.tracking_id)}')" title="Edit"><i class="fas fa-pen"></i></button>
-        <button class="btn btn-sm ${isPaused ? "btn-primary" : "btn-outline"}" onclick="togglePauseShipment('${escapeHtml(item.tracking_id)}')" title="${isPaused ? "Resume Shipment" : "Pause Shipment"}"><i class="fas ${isPaused ? "fa-play" : "fa-pause"}"></i></button>
-        <button class="btn btn-sm btn-danger" onclick="deleteShipment('${escapeHtml(item.tracking_id)}')" title="Delete"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-sm btn-outline" data-action="print-shipment" data-id="${escapeHtml(item.tracking_id)}" title="Print Bill"><i class="fas fa-print"></i></button>
+        <button class="btn btn-sm btn-outline" data-action="edit-shipment" data-id="${escapeHtml(item.tracking_id)}" title="Edit"><i class="fas fa-pen"></i></button>
+        <button class="btn btn-sm ${isPaused ? "btn-primary" : "btn-outline"}" data-action="toggle-pause-shipment" data-id="${escapeHtml(item.tracking_id)}" title="${isPaused ? "Resume Shipment" : "Pause Shipment"}"><i class="fas ${isPaused ? "fa-play" : "fa-pause"}"></i></button>
+        <button class="btn btn-sm btn-danger" data-action="delete-shipment" data-id="${escapeHtml(item.tracking_id)}" title="Delete"><i class="fas fa-trash"></i></button>
       </td>
     </tr>
   `;
@@ -702,7 +706,7 @@ function renderTimelineEvents() {
     <div class="timeline-event-item">
       <span class="event-date">${escapeHtml(e.date || "")}</span>
       <span class="event-text">${escapeHtml(e.event || "")}</span>
-      <button class="btn-remove-event" onclick="removeTimelineEvent(${idx})"><i class="fas fa-times"></i></button>
+      <button class="btn-remove-event" data-action="remove-timeline-event" data-idx="${idx}"><i class="fas fa-times"></i></button>
     </div>
   `
       )
@@ -819,8 +823,8 @@ function renderBlogs(list) {
       <td>${escapeHtml(b.date || "—")}</td>
       <td><span class="status-badge ${getStatusClass(b.status || "published")}">${escapeHtml(b.status || "published")}</span></td>
       <td class="actions-cell">
-        <button class="btn btn-sm btn-outline" onclick="editBlog(${b.id})" title="Edit"><i class="fas fa-pen"></i></button>
-        <button class="btn btn-sm btn-danger" onclick="deleteBlog(${b.id})" title="Delete"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-sm btn-outline" data-action="edit-blog" data-id="${b.id}" title="Edit"><i class="fas fa-pen"></i></button>
+        <button class="btn btn-sm btn-danger" data-action="delete-blog" data-id="${b.id}" title="Delete"><i class="fas fa-trash"></i></button>
       </td>
     </tr>
   `
@@ -930,8 +934,8 @@ function renderFaqs(list) {
       <td><strong>${escapeHtml(truncate(f.question, 60))}</strong></td>
       <td>${escapeHtml(truncate(f.answer, 60))}</td>
       <td class="actions-cell">
-        <button class="btn btn-sm btn-outline" onclick="editFaq(${f.id})" title="Edit"><i class="fas fa-pen"></i></button>
-        <button class="btn btn-sm btn-danger" onclick="deleteFaq(${f.id})" title="Delete"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-sm btn-outline" data-action="edit-faq" data-id="${f.id}" title="Edit"><i class="fas fa-pen"></i></button>
+        <button class="btn btn-sm btn-danger" data-action="delete-faq" data-id="${f.id}" title="Delete"><i class="fas fa-trash"></i></button>
       </td>
     </tr>
   `
@@ -1025,11 +1029,11 @@ function renderOffers(list) {
         <td>${escapeHtml(o.valid_until || "No Expiry")}</td>
         <td>${statusBadge}</td>
         <td class="actions-cell">
-          <button class="btn btn-sm ${active ? "btn-outline" : "btn-primary"}" onclick="toggleOfferStatus(${o.id})" title="${active ? "Deactivate" : "Activate"}">
+          <button class="btn btn-sm ${active ? "btn-outline" : "btn-primary"}" data-action="toggle-offer-status" data-id="${o.id}" title="${active ? "Deactivate" : "Activate"}">
             <i class="fas fa-${active ? "pause" : "play"}"></i>
           </button>
-          <button class="btn btn-sm btn-outline" onclick="editOffer(${o.id})" title="Edit"><i class="fas fa-pen"></i></button>
-          <button class="btn btn-sm btn-danger" onclick="deleteOffer(${o.id})" title="Delete"><i class="fas fa-trash"></i></button>
+          <button class="btn btn-sm btn-outline" data-action="edit-offer" data-id="${o.id}" title="Edit"><i class="fas fa-pen"></i></button>
+          <button class="btn btn-sm btn-danger" data-action="delete-offer" data-id="${o.id}" title="Delete"><i class="fas fa-trash"></i></button>
         </td>
       </tr>
     `;
@@ -1351,7 +1355,7 @@ function renderContactMessages(list) {
       <td><span class="status-badge" style="background:rgba(6,182,212,0.15);color:#06b6d4;">${service}</span></td>
       <td>${msg}</td>
       <td>
-        <select onchange="updateContactStatus(${item.id}, this.value)" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);padding:0.2rem 0.4rem;font-size:0.75rem;cursor:pointer;">
+        <select data-action="update-contact-status" data-id="${item.id}" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);padding:0.2rem 0.4rem;font-size:0.75rem;cursor:pointer;">
           <option value="New" ${item.status === "New" ? "selected" : ""}>New</option>
           <option value="Contacted" ${item.status === "Contacted" ? "selected" : ""}>Contacted</option>
           <option value="Closed" ${item.status === "Closed" ? "selected" : ""}>Closed</option>
@@ -1359,8 +1363,8 @@ function renderContactMessages(list) {
       </td>
       <td>${date}</td>
       <td class="actions-cell">
-        <button class="btn btn-sm btn-outline" onclick="viewSubmissionDetail('contact', ${item.id})" title="View Details & Mark Read"><i class="fas fa-eye"></i></button> 
-        <button class="btn btn-sm btn-danger" onclick="deleteContactMessage(${item.id})" title="Delete"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-sm btn-outline" data-action="view-submission-detail" data-type="contact" data-id="${item.id}" title="View Details & Mark Read"><i class="fas fa-eye"></i></button> 
+        <button class="btn btn-sm btn-danger" data-action="delete-contact-message" data-id="${item.id}" title="Delete"><i class="fas fa-trash"></i></button>
       </td>
     </tr>`;
     })
@@ -1397,7 +1401,7 @@ function renderCareerApplications(list) {
       <td>${exp}</td>
       <td>${note}</td>
       <td>
-        <select onchange="updateCareerStatus(${item.id}, this.value)" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);padding:0.2rem 0.4rem;font-size:0.75rem;cursor:pointer;">
+        <select data-action="update-career-status" data-id="${item.id}" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);padding:0.2rem 0.4rem;font-size:0.75rem;cursor:pointer;">
           <option value="New" ${item.status === "New" ? "selected" : ""}>New</option>
           <option value="Reviewed" ${item.status === "Reviewed" ? "selected" : ""}>Reviewed</option>
           <option value="Shortlisted" ${item.status === "Shortlisted" ? "selected" : ""}>Shortlisted</option>
@@ -1406,8 +1410,8 @@ function renderCareerApplications(list) {
       </td>
       <td>${date}</td>
       <td class="actions-cell">
-        <button class="btn btn-sm btn-outline" onclick="viewSubmissionDetail('career', ${item.id})" title="View Details & Mark Read"><i class="fas fa-eye"></i></button> 
-        <button class="btn btn-sm btn-danger" onclick="deleteCareerApplication(${item.id})" title="Delete"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-sm btn-outline" data-action="view-submission-detail" data-type="career" data-id="${item.id}" title="View Details & Mark Read"><i class="fas fa-eye"></i></button> 
+        <button class="btn btn-sm btn-danger" data-action="delete-career-application" data-id="${item.id}" title="Delete"><i class="fas fa-trash"></i></button>
       </td>
     </tr>`;
     })
@@ -1446,7 +1450,7 @@ function renderPartnerRequests(list) {
       <td>${phone}</td>
       <td>${details}</td>
       <td>
-        <select onchange="updatePartnerStatus(${item.id}, this.value)" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);padding:0.2rem 0.4rem;font-size:0.75rem;cursor:pointer;">
+        <select data-action="update-partner-status" data-id="${item.id}" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);padding:0.2rem 0.4rem;font-size:0.75rem;cursor:pointer;">
           <option value="Pending" ${item.status === "Pending" ? "selected" : ""}>Pending</option>
           <option value="Contacted" ${item.status === "Contacted" ? "selected" : ""}>Contacted</option>
           <option value="Approved" ${item.status === "Approved" ? "selected" : ""}>Approved</option>
@@ -1455,8 +1459,8 @@ function renderPartnerRequests(list) {
       </td>
       <td>${date}</td>
       <td class="actions-cell">
-        <button class="btn btn-sm btn-outline" onclick="viewSubmissionDetail('partner', ${item.id})" title="View Details & Mark Read"><i class="fas fa-eye"></i></button> 
-        <button class="btn btn-sm btn-danger" onclick="deletePartnerRequest(${item.id})" title="Delete"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-sm btn-outline" data-action="view-submission-detail" data-type="partner" data-id="${item.id}" title="View Details & Mark Read"><i class="fas fa-eye"></i></button> 
+        <button class="btn btn-sm btn-danger" data-action="delete-partner-request" data-id="${item.id}" title="Delete"><i class="fas fa-trash"></i></button>
       </td>
     </tr>`;
     })
@@ -1585,7 +1589,7 @@ function viewSubmissionDetail(type, id) {
   }
 
   html += `<div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border-color);display:flex;justify-content:flex-end;">
-    <button class="btn btn-primary" onclick="openReplyComposer('${escapeHtml(targetEmail)}', '${escapeHtml(targetName)}', '${escapeHtml(defaultSubject)}')"><i class="fas fa-reply"></i> Reply via Email</button>
+    <button class="btn btn-primary" data-action="open-reply-composer" data-email="${escapeHtml(targetEmail)}" data-name="${escapeHtml(targetName)}" data-subject="${escapeHtml(defaultSubject)}"><i class="fas fa-reply"></i> Reply via Email</button>
   </div>`;
 
   const modalTitleEl = document.getElementById("submissionModalTitle");
@@ -1745,6 +1749,91 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("mobileOverlay")?.classList.remove("open");
   });
 
+  document.getElementById("hamburgerBtn")?.addEventListener("click", toggleSidebar);
+  document.getElementById("btnLogout")?.addEventListener("click", handleLogout);
+
+  document.getElementById("btnNewShipment")?.addEventListener("click", () => openShipmentModal());
+  document.getElementById("btnNewBlog")?.addEventListener("click", () => openBlogModal());
+  document.getElementById("btnNewFaq")?.addEventListener("click", () => openFaqModal());
+  document.getElementById("btnNewOffer")?.addEventListener("click", () => openOfferModal());
+
+  document.getElementById("shipmentSaveBtn")?.addEventListener("click", saveShipment);
+  document.getElementById("blogSaveBtn")?.addEventListener("click", saveBlog);
+  document.getElementById("faqSaveBtn")?.addEventListener("click", saveFaq);
+  document.getElementById("offerSaveBtn")?.addEventListener("click", saveOffer);
+  document.getElementById("btnAddTimelineEvent")?.addEventListener("click", addTimelineEvent);
+
+  document.getElementById("shipmentSearch")?.addEventListener("input", filterShipments);
+  document.getElementById("submissionSearch")?.addEventListener("input", filterSubmissions);
+  document.getElementById("offerSearch")?.addEventListener("input", filterOffers);
+  document.getElementById("bTitle")?.addEventListener("input", autoSlug);
+
+  document.getElementById("emailReplyForm")?.addEventListener("submit", sendReplyEmailSubmit);
+
+  document.addEventListener("click", (evt) => {
+    const closeBtn = evt.target.closest("[data-close-modal]");
+    if (closeBtn) {
+      const modalId = closeBtn.getAttribute("data-close-modal");
+      if (modalId) closeModal(modalId);
+      return;
+    }
+
+    const statCard = evt.target.closest(".stat-card[data-page], .stat-card[data-subtab]");
+    if (statCard) {
+      const page = statCard.getAttribute("data-page");
+      const subtab = statCard.getAttribute("data-subtab");
+      if (subtab) navigateToSubmissionTab(subtab);
+      else if (page) navigateTo(page);
+      return;
+    }
+
+    const actionEl = evt.target.closest("[data-action]");
+    if (actionEl) {
+      const action = actionEl.getAttribute("data-action");
+      const id = actionEl.getAttribute("data-id");
+      if (action === "print-shipment") printShipmentBill(id);
+      else if (action === "edit-shipment") editShipment(id);
+      else if (action === "toggle-pause-shipment") togglePauseShipment(id);
+      else if (action === "delete-shipment") deleteShipment(id);
+      else if (action === "remove-timeline-event") {
+        const idx = actionEl.getAttribute("data-idx");
+        removeTimelineEvent(parseInt(idx, 10));
+      }
+      else if (action === "edit-blog") editBlog(id);
+      else if (action === "delete-blog") deleteBlog(id);
+      else if (action === "edit-faq") editFaq(id);
+      else if (action === "delete-faq") deleteFaq(id);
+      else if (action === "toggle-offer-status") toggleOfferStatus(id);
+      else if (action === "edit-offer") editOffer(id);
+      else if (action === "delete-offer") deleteOffer(id);
+      else if (action === "view-submission-detail") {
+        const type = actionEl.getAttribute("data-type");
+        viewSubmissionDetail(type, id);
+      }
+      else if (action === "delete-contact-message") deleteContactMessage(id);
+      else if (action === "delete-career-application") deleteCareerApplication(id);
+      else if (action === "delete-partner-request") deletePartnerRequest(id);
+      else if (action === "open-reply-composer") {
+        const email = actionEl.getAttribute("data-email");
+        const name = actionEl.getAttribute("data-name");
+        const subject = actionEl.getAttribute("data-subject");
+        openReplyComposer(email, name, subject);
+      }
+    }
+  });
+
+  document.addEventListener("change", (evt) => {
+    const actionEl = evt.target.closest("[data-action]");
+    if (actionEl) {
+      const action = actionEl.getAttribute("data-action");
+      const id = actionEl.getAttribute("data-id");
+      const val = actionEl.value;
+      if (action === "update-contact-status") updateContactStatus(id, val);
+      else if (action === "update-career-status") updateCareerStatus(id, val);
+      else if (action === "update-partner-status") updatePartnerStatus(id, val);
+    }
+  });
+
   document.querySelectorAll(".modal-overlay").forEach((el) => {
     el.addEventListener("click", (evt) => {
       if (evt.target === el) el.classList.remove("open");
@@ -1762,3 +1851,48 @@ document.addEventListener("DOMContentLoaded", async () => {
   initSidebarNavigation();
   handleHashNavigation();
 });
+
+// Window Exports for global actions & compatibility
+window.navigateTo = navigateTo;
+window.navigateToSubmissionTab = navigateToSubmissionTab;
+window.switchSubmissionTab = switchSubmissionTab;
+window.toggleLeadsFolder = toggleLeadsFolder;
+window.openShipmentModal = openShipmentModal;
+window.editShipment = editShipment;
+window.deleteShipment = deleteShipment;
+window.togglePauseShipment = togglePauseShipment;
+window.printShipmentBill = printShipmentBill;
+window.saveShipment = saveShipment;
+window.addTimelineEvent = addTimelineEvent;
+window.removeTimelineEvent = removeTimelineEvent;
+window.openBlogModal = openBlogModal;
+window.editBlog = editBlog;
+window.deleteBlog = deleteBlog;
+window.saveBlog = saveBlog;
+window.autoSlug = autoSlug;
+window.openFaqModal = openFaqModal;
+window.editFaq = editFaq;
+window.deleteFaq = deleteFaq;
+window.saveFaq = saveFaq;
+window.openOfferModal = openOfferModal;
+window.editOffer = editOffer;
+window.deleteOffer = deleteOffer;
+window.saveOffer = saveOffer;
+window.toggleOfferStatus = toggleOfferStatus;
+window.viewSubmissionDetail = viewSubmissionDetail;
+window.updateContactStatus = updateContactStatus;
+window.deleteContactMessage = deleteContactMessage;
+window.updateCareerStatus = updateCareerStatus;
+window.deleteCareerApplication = deleteCareerApplication;
+window.updatePartnerStatus = updatePartnerStatus;
+window.deletePartnerRequest = deletePartnerRequest;
+window.openReplyComposer = openReplyComposer;
+window.sendReplyEmailSubmit = sendReplyEmailSubmit;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.handleLogout = handleLogout;
+window.toggleSidebar = toggleSidebar;
+window.filterShipments = filterShipments;
+window.filterSubmissions = filterSubmissions;
+window.filterOffers = filterOffers;
+

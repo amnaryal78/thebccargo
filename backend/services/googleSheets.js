@@ -1,5 +1,5 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 const GOOGLE_WEBAPP_URL = process.env.GOOGLE_SHEETS_WEBAPP_URL || '';
 
@@ -103,13 +103,18 @@ async function getAllShipments() {
     return cache.allShipments;
   }
 
+  if (!GOOGLE_WEBAPP_URL) {
+    throw new Error('Google Sheets WebApp URL is not configured.');
+  }
+
   const json = await callGet('read');
-  if (json && Array.isArray(json.shipments)) {
+  if (json && json.success && Array.isArray(json.shipments)) {
     cache.allShipments = json.shipments;
     cache.allShipmentsExpiry = now + CACHE_TTL_MS;
     return json.shipments;
   }
-  return cache.allShipments || [];
+  const errMsg = json ? (json.message || 'Unknown Google Sheets error') : 'No response from Google Sheets';
+  throw new Error(`Google Sheets integration error: ${errMsg}`);
 }
 
 /**
@@ -126,12 +131,25 @@ async function getShipmentById(trackingId) {
     return cached.data;
   }
 
-  const json = await callGet('get', { id: targetId });
-  if (json && json.success && json.shipment) {
-    cache.singleShipments.set(targetId, { data: json.shipment, expiry: now + CACHE_TTL_MS });
-    return json.shipment;
+  if (!GOOGLE_WEBAPP_URL) {
+    throw new Error('Google Sheets WebApp URL is not configured.');
   }
-  return null;
+
+  const json = await callGet('get', { id: targetId });
+  if (json) {
+    if (json.success) {
+      if (json.shipment) {
+        cache.singleShipments.set(targetId, { data: json.shipment, expiry: now + CACHE_TTL_MS });
+        return json.shipment;
+      }
+      return null;
+    }
+    if (json.status === 404 || (json.message && json.message.toLowerCase().includes('not found'))) {
+      return null;
+    }
+  }
+  const errMsg = json ? (json.message || 'Unknown Google Sheets error') : 'No response from Google Sheets';
+  throw new Error(`Google Sheets integration error: ${errMsg}`);
 }
 
 /**

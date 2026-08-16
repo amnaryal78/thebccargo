@@ -1079,10 +1079,15 @@ input {
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 24px;
-    padding: 1.25rem 1.75rem;
+    padding: 1.5rem 2rem;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
     position: relative;
-    overflow: hidden;
+    overflow: visible; /* Prevent clipping connector lines or dots */
+    transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s ease;
+}
+
+.tracking-card.has-result {
+    max-width: 900px;
 }
 
 .tracking-card::before {
@@ -1103,11 +1108,13 @@ input {
     align-items: center;
 }
 
-/* Override section-title & label colors inside the dark card */
 .tracking-card .section-label {
     background: rgba(26, 86, 219, 0.25);
     border-color: rgba(26, 86, 219, 0.4);
     color: #93c5fd;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
 }
 
 .tracking-card .section-title {
@@ -1125,44 +1132,70 @@ input {
 .tracking-form {
     display: flex;
     gap: .75rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: center;
 }
 
 .tracking-input-wrap {
     position: relative;
     flex: 1;
-    min-width: 180px;
+}
+
+.tracking-input-wrap i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.45);
+    pointer-events: none;
+    font-size: 0.95rem;
 }
 
 .tracking-input {
     width: 100%;
-    padding: .85rem 1rem .85rem 2.5rem;
+    padding: .85rem 1rem .85rem 2.75rem;
     border-radius: var(--radius-full);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.15);
     background: rgba(255, 255, 255, 0.08);
     color: #ffffff;
-    font-size: .88rem;
-    font-weight: 600;
-    letter-spacing: .04em;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.98rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
     transition: all .25s var(--ease-smooth);
     outline: none;
 }
 
 .tracking-input:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-glow);
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.45);
     background: rgba(255, 255, 255, 0.12);
 }
 
 .tracking-input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.45);
+    font-family: var(--font-sans);
+    font-weight: 500;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.tracking-form .btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .tracking-right {
     display: flex;
     flex-direction: column;
     gap: .75rem;
-    padding-left: 1.5rem;
+    padding-left: 2rem;
     border-left: 1px solid rgba(255, 255, 255, 0.15);
 }
 
@@ -1186,42 +1219,21 @@ input {
 }
 
 #trackingResult {
-    margin-top: 1.25rem;
+    margin-top: 0;
 }
 
-/* Tracking card responsive */
-@media (max-width: 768px) {
-    .tracking-card-inner {
-        grid-template-columns: 1fr;
-    }
-    .tracking-right {
-        display: none !important;
-    }
+#trackingResult:not(:empty) {
+    margin-top: 1.5rem;
 }
 
-@media (max-width: 575px) {
-    .tracking-card {
-        padding: 1.5rem 1.25rem;
-        border-radius: 18px;
-    }
-    .tracking-form {
-        flex-direction: column;
-        gap: .6rem;
-    }
-    .tracking-form .btn {
-        width: 100%;
-        justify-content: center;
-    }
-    .tracking-input-wrap {
-        min-width: 0;
-    }
-}
-
+/* Success Result Dashboard card */
 .track-result-card {
-    border-radius: var(--radius-xl);
-    border: 1.5px solid var(--border-light);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     overflow: hidden;
-    animation: slideDown .4s var(--ease-spring);
+    background: #0B192C;
+    animation: slideDown .4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
 }
 
 @keyframes slideDown {
@@ -1229,105 +1241,116 @@ input {
         opacity: 0;
         transform: translateY(-16px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .track-result-card,
+    .track-error,
+    .modal-card,
+    .modal-overlay {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
 .track-result-header {
     background: var(--gradient-primary);
-    padding: 1rem 1.5rem;
+    padding: 1.25rem 1.75rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: .75rem;
+    gap: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .track-id-badge {
-    font-family: var(--font-sans);
-    font-size: 1rem;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: .04em;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: .05em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .track-status-badge {
-    padding: .2rem .9rem;
+    padding: .3rem 1rem;
     border-radius: var(--radius-full);
-    font-size: .7rem;
-    font-weight: 700;
-    letter-spacing: .04em;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .05em;
     text-transform: uppercase;
+    display: inline-block;
 }
 
 .track-status-badge.in-transit {
-    background: rgba(251, 191, 36, 0.2);
+    background: rgba(251, 191, 36, 0.18);
     color: #fbbf24;
-    border: 1px solid rgba(251, 191, 36, 0.35);
+    border: 1px solid rgba(251, 191, 36, 0.3);
 }
 
 .track-status-badge.delivered {
-    background: rgba(16, 185, 129, 0.2);
+    background: rgba(16, 185, 129, 0.18);
     color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.35);
+    border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .track-status-badge.pending {
-    background: rgba(156, 163, 175, 0.2);
+    background: rgba(156, 163, 175, 0.18);
     color: #9ca3af;
-    border: 1px solid rgba(156, 163, 175, 0.35);
+    border: 1px solid rgba(156, 163, 175, 0.3);
 }
 
 .track-result-body {
-    background: var(--bg-card);
-    padding: 1.5rem;
+    padding: 1.75rem;
 }
 
 .track-info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.25rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.track-info-item {
+    min-width: 0;
 }
 
 .track-info-item label {
-    font-size: .68rem;
-    color: var(--text-muted);
-    font-weight: 600;
+    font-size: .72rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .06em;
     display: block;
-    margin-bottom: .15rem;
+    margin-bottom: .25rem;
 }
 
 .track-info-item span {
-    font-size: .85rem;
+    font-size: 0.9rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #ffffff;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .track-timeline {
-    border-top: 1px solid var(--border-light);
-    padding-top: 1rem;
-}
-
-.track-timeline-title {
-    font-size: .75rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    margin-bottom: .75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding-top: 1.25rem;
+    margin-top: 0.5rem;
 }
 
 .timeline-item {
     display: flex;
-    gap: 1rem;
+    gap: 1.25rem;
     position: relative;
-    padding-bottom: .75rem;
+    padding-bottom: 1.5rem;
 }
 
 .timeline-item:last-child {
@@ -1337,11 +1360,11 @@ input {
 .timeline-item::before {
     content: '';
     position: absolute;
-    left: 15px;
-    top: 28px;
+    left: 14px;
+    top: 30px;
     bottom: 0;
     width: 2px;
-    background: var(--border-light);
+    background: rgba(255, 255, 255, 0.12);
 }
 
 .timeline-item:last-child::before {
@@ -1352,84 +1375,130 @@ input {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: var(--bg-tertiary);
-    border: 2px solid var(--border-medium);
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: .65rem;
-    color: var(--text-muted);
+    font-size: .75rem;
+    color: rgba(255, 255, 255, 0.4);
     flex-shrink: 0;
     position: relative;
-    z-index: 1;
+    z-index: 2;
+    transition: all 0.3s ease;
 }
 
 .timeline-dot.done {
     background: var(--gradient-primary);
     border-color: transparent;
-    color: #fff;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(26, 86, 219, 0.4);
 }
 
 .timeline-dot.current {
     background: var(--gradient-gold);
     border-color: transparent;
-    color: #fff;
+    color: #000000;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+    font-weight: bold;
 }
 
 .timeline-content {
     flex: 1;
+    min-width: 0;
 }
 
 .timeline-event {
-    font-size: .83rem;
+    font-size: .88rem;
     font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 1px;
+    color: #ffffff;
+    margin-bottom: 2px;
 }
 
 .timeline-location {
-    font-size: .74rem;
-    color: var(--text-muted);
+    font-size: .78rem;
+    color: rgba(255, 255, 255, 0.6);
 }
 
-.timeline-date {
-    font-size: .68rem;
-    color: var(--text-light);
-    margin-top: 1px;
-}
-
+/* Tracking error blocks */
 .track-error {
-    padding: 1rem 1.25rem;
-    background: rgba(239, 68, 68, 0.04);
-    border: 1.5px solid rgba(239, 68, 68, 0.15);
-    border-radius: var(--radius-xl);
+    padding: 1.25rem 1.5rem;
+    background: rgba(239, 68, 68, 0.07);
+    border: 1.5px solid rgba(239, 68, 68, 0.35);
+    border-radius: 16px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 1rem;
+    margin-top: 1rem;
+    animation: slideDown .3s ease-out;
 }
 
 .track-error-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(239, 68, 68, 0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 1.5rem;
     color: #ef4444;
-    font-size: .9rem;
     flex-shrink: 0;
+    margin-top: 0.1rem;
 }
 
 .track-error-text h4 {
-    font-size: .85rem;
+    margin: 0 0 0.25rem 0;
+    font-size: 0.95rem;
     font-weight: 700;
-    color: #ef4444;
+    color: #f87171;
 }
 
 .track-error-text p {
-    font-size: .76rem;
-    color: var(--text-muted);
+    margin: 0;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.5;
+}
+
+/* Tracking card responsive breakpoints */
+@media (max-width: 992px) {
+    .track-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .tracking-card-inner {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .tracking-right {
+        display: none !important;
+    }
+}
+
+@media (max-width: 575px) {
+    .tracking-card {
+        padding: 1.25rem 1.25rem;
+        border-radius: 18px;
+    }
+    .tracking-form {
+        flex-direction: column;
+        align-items: stretch;
+        gap: .75rem;
+    }
+    .tracking-input-wrap {
+        min-width: 0;
+    }
+    .tracking-form .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .track-result-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.25rem 1.25rem;
+        gap: 0.5rem;
+    }
+    .track-info-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
 }
 
 /* Stats */

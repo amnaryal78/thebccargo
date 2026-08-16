@@ -740,10 +740,10 @@
                 </div>
 
                 <div class="dept-filter-bar">
-                    <button class="filter-pill active" onclick="filterJobs('all', event)">All Positions</button>
-                    <button class="filter-pill" onclick="filterJobs('fleet', event)">Drivers &amp; Fleet</button>
-                    <button class="filter-pill" onclick="filterJobs('operations', event)">Operations &amp; Dispatch</button>
-                    <button class="filter-pill" onclick="filterJobs('warehouse', event)">Supply Chain &amp; Warehouse</button>
+                    <button class="filter-pill active" data-dept="all">All Positions</button>
+                    <button class="filter-pill" data-dept="fleet">Drivers &amp; Fleet</button>
+                    <button class="filter-pill" data-dept="operations">Operations &amp; Dispatch</button>
+                    <button class="filter-pill" data-dept="warehouse">Supply Chain &amp; Warehouse</button>
                 </div>
 
                 <div class="jobs-grid" id="jobsGrid">
@@ -767,7 +767,7 @@
                                 <span class="job-tag">Safety Bonus</span>
                             </div>
                         </div>
-                        <button class="btn btn-primary btn-apply" onclick="openApplyModal('CDL Heavy Freight Truck Driver')">
+                        <button class="btn btn-primary btn-apply" data-job-title="CDL Heavy Freight Truck Driver">
                             <i class="fas fa-paper-plane" aria-hidden="true"></i> Apply Now
                         </button>
                     </div>
@@ -791,7 +791,7 @@
                                 <span class="job-tag">Shift Flexibility</span>
                             </div>
                         </div>
-                        <button class="btn btn-primary btn-apply" onclick="openApplyModal('Fleet Operations & Dispatch Controller')">
+                        <button class="btn btn-primary btn-apply" data-job-title="Fleet Operations &amp; Dispatch Controller">
                             <i class="fas fa-paper-plane" aria-hidden="true"></i> Apply Now
                         </button>
                     </div>
@@ -815,7 +815,7 @@
                                 <span class="job-tag">Bilingual</span>
                             </div>
                         </div>
-                        <button class="btn btn-primary btn-apply" onclick="openApplyModal('International Logistics & Customs Coordinator')">
+                        <button class="btn btn-primary btn-apply" data-job-title="International Logistics &amp; Customs Coordinator">
                             <i class="fas fa-paper-plane" aria-hidden="true"></i> Apply Now
                         </button>
                     </div>
@@ -839,7 +839,7 @@
                                 <span class="job-tag">Safety Certified</span>
                             </div>
                         </div>
-                        <button class="btn btn-primary btn-apply" onclick="openApplyModal('Warehouse & Cargo Handling Specialist')">
+                        <button class="btn btn-primary btn-apply" data-job-title="Warehouse &amp; Cargo Handling Specialist">
                             <i class="fas fa-paper-plane" aria-hidden="true"></i> Apply Now
                         </button>
                     </div>
@@ -855,7 +855,7 @@
                     <h2 class="cta-title">Don't See the Perfect Fit Right Now?</h2>
                     <p class="cta-desc">We are always expanding our network and looking for passionate talent. Submit a general application or send your resume directly to our recruiting team.</p>
                     <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-                        <button class="btn btn-primary" onclick="openApplyModal('General Application')">
+                        <button class="btn btn-primary" data-open-apply="true" data-job-title="General Application">
                             <i class="fas fa-file-alt" aria-hidden="true"></i> Submit General Resume
                         </button>
                         <a href="mailto:info@thebccargo.com" class="btn btn-secondary" style="background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.25);">
@@ -871,7 +871,7 @@
     <!-- Application Modal -->
     <div class="apply-modal-backdrop" id="applyModal" aria-hidden="true">
         <div class="apply-modal" role="dialog" aria-labelledby="modalPositionTitle">
-            <button class="modal-close-btn" onclick="closeApplyModal()" aria-label="Close modal">
+            <button class="modal-close-btn" aria-label="Close modal">
                 <i class="fas fa-times" aria-hidden="true"></i>
             </button>
             <div class="modal-header">
@@ -883,7 +883,7 @@
                 <i class="fas fa-check-circle" aria-hidden="true"></i> Thank you! Your application has been submitted successfully. Our HR team will review your profile and reach out shortly.
             </div>
 
-            <form id="careersApplyForm" onsubmit="handleFormSubmit(event)">
+            <form id="careersApplyForm">
                 <input type="hidden" id="formJobTitle" name="job_title" value="">
                 
                 <div class="form-group">

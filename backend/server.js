@@ -13,6 +13,7 @@ const { verifyAdmin } = require('./middleware/auth');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const publicRoutes = require('./routes/public');
+const googleSheets = require('./services/googleSheets');
 
 const app = express();
 
@@ -174,23 +175,29 @@ app.use('/api', publicRoutes);
 app.use('/api/admin', verifyAdmin, adminRoutes);
 
 // Health Check Endpoint
-app.get('/api/health', (req, res) => {
-  db.get("SELECT COUNT(*) AS shipment_count FROM shipments", (err, row) => {
-    if (err) {
-      return res.status(500).json({ success: false, status: 'Database Error', error: err.message });
-    }
+app.get('/api/health', async (req, res) => {
+  try {
+    const shipments = await googleSheets.getAllShipments();
     return res.json({
       success: true,
       status: 'Backend & SQLite Database Operational',
+      sheets_status: 'Google Sheets Connection Active',
       gateway: 'Secured via Link Authorization Middleware',
-      total_records: row ? row.shipment_count : 0,
+      total_records: shipments ? shipments.length : 0,
       timestamp: new Date().toISOString()
     });
-  });
+  } catch (err) {
+    console.error("Health check error querying Google Sheets:", err);
+    return res.status(500).json({
+      success: false,
+      status: 'Database/Integration Error',
+      error: 'Failed to connect to Google Sheets: ' + err.message
+    });
+  }
 });
 
 // Secure Tracking Endpoint
-app.post('/api/track', (req, res) => {
+app.post('/api/track', async (req, res) => {
   const { tracking_id, phone } = req.body;
   if (!tracking_id || !phone) {
     return res.status(400).json({ success: false, message: 'Tracking ID and phone number are required.' });
@@ -199,10 +206,11 @@ app.post('/api/track', (req, res) => {
   const targetId = tracking_id.toString().trim().toUpperCase();
   const enteredPhone = phone.toString().replace(/[\s\-\(\)\+]/g, '');
 
-  const sql = `SELECT * FROM shipments WHERE UPPER(tracking_id) = ?`;
-  db.get(sql, [targetId], (err, shipment) => {
-    if (err) return res.status(500).json({ success: false, message: 'Internal database error.' });
-    if (!shipment) return res.status(404).json({ success: false, message: `Shipment ID "${tracking_id}" not found.` });
+  try {
+    const shipment = await googleSheets.getShipmentById(targetId);
+    if (!shipment) {
+      return res.status(404).json({ success: false, message: `Shipment ID "${targetId}" not found.` });
+    }
 
     const cleanSender = (shipment.sender_phone || '').replace(/[\s\-\(\)\+]/g, '');
     const cleanReceiver = (shipment.receiver_phone || '').replace(/[\s\-\(\)\+]/g, '');
@@ -222,20 +230,35 @@ app.post('/api/track', (req, res) => {
       success: true,
       shipment: {
         tracking_id: shipment.tracking_id,
+        sn: shipment.sn,
         sender_name: shipment.sender_name,
         sender_country: shipment.sender_country,
         sender_address: shipment.sender_address,
         receiver_name: shipment.receiver_name,
         receiver_country: shipment.receiver_country,
         receiver_address: shipment.receiver_address,
+        goods: shipment.goods,
         weight: shipment.weight,
         total: shipment.total,
         status: shipment.status,
         shipping_date: shipment.shipping_date,
-        remark: shipment.remark
+        remark: shipment.remark,
+        origin: shipment.origin,
+        destination: shipment.destination,
+        pieces: shipment.pieces,
+        service: shipment.service,
+        eta: shipment.eta,
+        timeline: shipment.timeline,
+        timeline_json: shipment.timeline_json
       }
     });
-  });
+  } catch (err) {
+    console.error("Google Sheets tracking query failure:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch shipment data. Please try again later."
+    });
+  }
 });
 
 // Freight Inquiry Endpoint
