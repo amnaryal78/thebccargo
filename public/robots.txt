@@ -1,0 +1,17 @@
+# BC Cargo & Courier - Robots Policy
+User-agent: *
+Allow: /
+Allow: /track
+Allow: /book
+Allow: /services
+Allow: /rates
+Allow: /blogs
+Allow: /about
+Allow: /contact
+Allow: /policies
+Allow: /careers
+
+Disallow: /admin/
+Disallow: /admin/*
+
+Sitemap: https://thebccargo.com/sitemap.xml

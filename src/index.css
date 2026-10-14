@@ -1,0 +1,329 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-heading: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --color-brand-blue: #0B5ED7;
+  --color-brand-blue-hover: #084298;
+  --color-brand-blue-light: #EAF3FF;
+  --color-brand-navy: #071A33;
+  --color-brand-navy-deep: #040E1C;
+  --color-brand-navy-surface: #0B2445;
+  --color-brand-yellow: #D97706;
+}
+
+:root {
+  --bg-page: #F7F9FC;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #FFFFFF;
+  --bg-subtle: #F1F5F9;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --border-subtle: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --accent-blue: #0B5ED7;
+  --accent-yellow: #D97706; /* Dark golden yellow for light mode high contrast */
+  --status-success: #10B981;
+
+  /* Global Interaction Tokens (Dark Yellow Accent for Light Mode) */
+  --motion-fast: 150ms;
+  --motion-normal: 240ms;
+  --motion-smooth: 340ms;
+  --ease-out-apple: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-subtle: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  --interaction-border-hover: rgba(217, 119, 6, 0.75);
+  --interaction-bg-hover: rgba(217, 119, 6, 0.08);
+  --interaction-ring: rgba(217, 119, 6, 0.35);
+  --interaction-glow: rgba(217, 119, 6, 0.16);
+  --interaction-shadow-hover: 0 10px 25px -8px rgba(217, 119, 6, 0.25), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+}
+
+html.dark {
+  --bg-page: #071A33;
+  --bg-surface: #0B2445;
+  --bg-surface-elevated: #0F2D54;
+  --bg-subtle: #061528;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --accent-blue: #2F80ED;
+  --accent-yellow: #F5C84C; /* Bright vibrant yellow for dark mode */
+  --status-success: #10B981;
+
+  /* Global Dark Mode Interaction Tokens (Bright Yellow Accent Hover) */
+  --interaction-border-hover: rgba(245, 200, 76, 0.75);
+  --interaction-bg-hover: rgba(245, 200, 76, 0.12);
+  --interaction-ring: rgba(245, 200, 76, 0.45);
+  --interaction-glow: rgba(245, 200, 76, 0.18);
+  --interaction-shadow-hover: 0 14px 35px -10px rgba(0, 0, 0, 0.6), 0 0 20px rgba(245, 200, 76, 0.2);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    letter-spacing: -0.011em;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94A3B8;
+  border-radius: 3px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748B;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-awb, #printable-awb * {
+    visibility: visible;
+  }
+  #printable-awb {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}
+
+/* ==================================================================== */
+/* GLOBAL INTERACTION DESIGN SYSTEM                                     */
+/* Precision, calm, responsive technology & logistics brand polish       */
+/* ==================================================================== */
+
+/* 1. Theme-Aware Text Selection */
+::selection {
+  background-color: rgba(11, 94, 215, 0.22);
+  color: inherit;
+}
+
+.dark ::selection {
+  background-color: rgba(47, 128, 237, 0.35);
+  color: #ffffff;
+}
+
+/* 2. Global Accessible Keyboard Focus Rings */
+:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+  transition: outline-offset var(--motion-fast) var(--ease-out-apple);
+}
+
+/* 3. Interactive Cards (Subtle Lift, Border Highlight, Shadow Depth) */
+.interactive-card {
+  position: relative;
+  transition: transform var(--motion-normal) var(--ease-out-apple),
+              box-shadow var(--motion-normal) var(--ease-out-apple),
+              border-color var(--motion-normal) ease,
+              background-color var(--motion-normal) ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .interactive-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--interaction-shadow-hover);
+    border-color: var(--interaction-border-hover);
+  }
+  
+  .interactive-card:active {
+    transform: translateY(-1px) scale(0.995);
+    transition-duration: var(--motion-fast);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .interactive-card:active {
+    transform: scale(0.99);
+    transition-duration: var(--motion-fast);
+  }
+}
+
+/* 4. Interactive Buttons (Tactile Hover & Press Compression) */
+.interactive-btn {
+  transition: transform var(--motion-fast) var(--ease-out-apple),
+              box-shadow var(--motion-fast) var(--ease-out-apple),
+              background-color var(--motion-fast) ease,
+              border-color var(--motion-fast) ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .interactive-btn:hover {
+    transform: translateY(-1px);
+  }
+  
+  .interactive-btn:active {
+    transform: scale(0.985);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .interactive-btn:active {
+    transform: scale(0.98);
+  }
+}
+
+/* 5. Interactive Links (Animated Underline Expansion) */
+.interactive-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  transition: color var(--motion-fast) ease;
+}
+
+.interactive-link::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 1.5px;
+  background-color: currentColor;
+  opacity: 0.85;
+  transition: width var(--motion-normal) var(--ease-out-apple);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .interactive-link:hover::after {
+    width: 100%;
+  }
+}
+
+/* 6. Interactive Table Rows */
+.interactive-row {
+  transition: background-color var(--motion-fast) ease,
+              border-color var(--motion-fast) ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .interactive-row:hover {
+    background-color: var(--interaction-bg-hover);
+  }
+}
+
+/* 7. Subtle Radial Pointer Glow (Material Light Across Surfaces) */
+.interactive-radial-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.interactive-radial-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    480px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    var(--interaction-glow),
+    transparent 65%
+  );
+  transition: opacity var(--motion-normal) ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .interactive-radial-glow:hover::before {
+    opacity: 1;
+  }
+}
+
+/* 8. Marquee Animation for Partners & Logistics Corridors */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* 9. Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .interactive-card:hover,
+  .interactive-btn:hover,
+  .interactive-card:active,
+  .interactive-btn:active {
+    transform: none !important;
+  }
+
+  .interactive-link::after {
+    transition: none !important;
+  }
+
+  .interactive-radial-glow::before {
+    display: none !important;
+  }
+
+  .animate-marquee {
+    animation: none !important;
+  }
+}

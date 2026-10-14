@@ -1,0 +1,40 @@
+{
+  "name": "the-bc-cargo-production",
+  "version": "1.0.0",
+  "description": "The BC Cargo & Courier - Production Web Application & Standalone Server",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node node_modules/vite/bin/vite.js --port=3000 --host=0.0.0.0",
+    "build": "node node_modules/vite/bin/vite.js build",
+    "start": "node server.js",
+    "preview": "node node_modules/vite/bin/vite.js preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.0",
+    "dotted-map": "^3.1.0",
+    "framer-motion": "^13.4.1",
+    "lucide-react": "^0.546.0",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "react-router-dom": "^7.18.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "dotenv": "^17.2.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.8.0",
+    "vite": "^8.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
