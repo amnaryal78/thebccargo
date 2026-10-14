@@ -1,5 +1,4 @@
-import { test, describe } from 'node:test';
-import assert from 'node:assert';
+import { test, describe, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,36 +10,36 @@ const projectRoot = path.resolve(__dirname, '..');
 describe('Security & Secrets Hygiene Auditing', () => {
   test('verifies .env.example contains zero real secrets', () => {
     const envExamplePath = path.join(projectRoot, '.env.example');
-    assert.ok(fs.existsSync(envExamplePath), '.env.example must exist');
+    expect(fs.existsSync(envExamplePath)).toBe(true);
     const content = fs.readFileSync(envExamplePath, 'utf8');
 
     // Forbidden patterns that look like real keys
-    assert.strictEqual(content.includes('sk-or-v1-'), false, 'Must not contain real OpenRouter key');
-    assert.strictEqual(content.includes('eyJhbGci'), false, 'Must not contain real Supabase JWT');
-    assert.strictEqual(content.includes('AQ.Ab8RN'), false, 'Must not contain real Gemini key');
+    expect(content.includes('sk-or-v1-')).toBe(false);
+    expect(content.includes('eyJhbGci')).toBe(false);
+    expect(content.includes('AQ.Ab8RN')).toBe(false);
   });
 
   test('verifies server.js does not contain hardcoded API keys', () => {
     const serverPath = path.join(projectRoot, 'server.js');
-    assert.ok(fs.existsSync(serverPath), 'server.js must exist');
+    expect(fs.existsSync(serverPath)).toBe(true);
     const content = fs.readFileSync(serverPath, 'utf8');
 
-    assert.strictEqual(content.includes('sk-or-v1-'), false, 'server.js must not contain hardcoded OpenRouter key');
+    expect(content.includes('sk-or-v1-')).toBe(false);
   });
 
   test('verifies aiBlogFixerService does not contain client-side secrets', () => {
     const fixerPath = path.join(projectRoot, 'src', 'services', 'aiBlogFixerService.ts');
-    assert.ok(fs.existsSync(fixerPath), 'aiBlogFixerService.ts must exist');
+    expect(fs.existsSync(fixerPath)).toBe(true);
     const content = fs.readFileSync(fixerPath, 'utf8');
 
-    assert.strictEqual(content.includes('sk-or-v1-'), false, 'aiBlogFixerService.ts must not contain hardcoded API key');
+    expect(content.includes('sk-or-v1-')).toBe(false);
   });
 
   test('verifies bc-cargo-chat Edge Function does not contain hardcoded keys', () => {
     const fnPath = path.join(projectRoot, 'supabase', 'functions', 'bc-cargo-chat', 'index.ts');
-    assert.ok(fs.existsSync(fnPath), 'bc-cargo-chat/index.ts must exist');
+    expect(fs.existsSync(fnPath)).toBe(true);
     const content = fs.readFileSync(fnPath, 'utf8');
 
-    assert.strictEqual(content.includes('sk-or-v1-'), false, 'Edge Function must not contain hardcoded key');
+    expect(content.includes('sk-or-v1-')).toBe(false);
   });
 });

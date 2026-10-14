@@ -1,32 +1,31 @@
-import { test, describe } from 'node:test';
-import assert from 'node:assert';
+import { test, describe, expect } from 'vitest';
 import { calculateVolumetricWeight, getChargeableWeight } from '../src/services/ratesService.ts';
 
 describe('Rates Calculation Engine', () => {
   test('calculates volumetric weight with air standard divisor (5000)', () => {
     // 50cm x 40cm x 30cm / 5000 = 60,000 / 5000 = 12 kg
     const volWeight = calculateVolumetricWeight(50, 40, 30, 'air');
-    assert.strictEqual(volWeight, 12);
+    expect(volWeight).toBe(12);
   });
 
   test('calculates volumetric weight with overland standard divisor (6000)', () => {
     // 60cm x 50cm x 40cm / 6000 = 120,000 / 6000 = 20 kg
     const volWeight = calculateVolumetricWeight(60, 50, 40, 'overland');
-    assert.strictEqual(volWeight, 20);
+    expect(volWeight).toBe(20);
   });
 
   test('handles zero or missing dimensions gracefully', () => {
-    assert.strictEqual(calculateVolumetricWeight(0, 40, 30, 'air'), 0);
-    assert.strictEqual(calculateVolumetricWeight(50, 0, 30, 'air'), 0);
-    assert.strictEqual(calculateVolumetricWeight(50, 40, 0, 'air'), 0);
+    expect(calculateVolumetricWeight(0, 40, 30, 'air')).toBe(0);
+    expect(calculateVolumetricWeight(50, 0, 30, 'air')).toBe(0);
+    expect(calculateVolumetricWeight(50, 40, 0, 'air')).toBe(0);
   });
 
   test('determines chargeable weight as max of gross and volumetric weight', () => {
     // Gross is higher
-    assert.strictEqual(getChargeableWeight(15, 12), 15);
+    expect(getChargeableWeight(15, 12)).toBe(15);
     // Volumetric is higher
-    assert.strictEqual(getChargeableWeight(10, 18.5), 18.5);
+    expect(getChargeableWeight(10, 18.5)).toBe(18.5);
     // Equal
-    assert.strictEqual(getChargeableWeight(25, 25), 25);
+    expect(getChargeableWeight(25, 25)).toBe(25);
   });
 });

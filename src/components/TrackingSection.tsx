@@ -20,7 +20,7 @@ import { Shipment, Milestone } from '../types';
 import { fetchPublicTracking } from '../services/trackingService';
 
 interface TrackingSectionProps {
-  shipment: Shipment;
+  shipment: Shipment | null;
   allShipments: Shipment[];
   onSelectShipment: (trackingNumber: string) => void;
   onOpenPrintAwb: (shipment: Shipment) => void;
@@ -32,14 +32,16 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
   onSelectShipment,
   onOpenPrintAwb
 }) => {
-  const [searchCode, setSearchCode] = useState(shipment.trackingNumber || 'BC-90214-HKG');
+  const [searchCode, setSearchCode] = useState(shipment?.trackingNumber || '');
   const [currentShipment, setCurrentShipment] = useState<Shipment | null>(shipment);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setCurrentShipment(shipment);
-    setSearchCode(shipment.trackingNumber);
+    if (shipment?.trackingNumber) {
+      setSearchCode(shipment.trackingNumber);
+    }
     setErrorMessage(null);
   }, [shipment]);
 
@@ -149,27 +151,29 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
           </form>
 
           {/* Quick Demo Selector Chips */}
-          <div className="flex items-center gap-2 overflow-x-auto pt-1 text-xs text-slate-500 dark:text-slate-400 font-mono">
-            <span className="uppercase text-[10px] text-slate-400 shrink-0">Sample Tracking Numbers:</span>
-            {allShipments.map((s) => (
-              <button
-                key={s.trackingNumber}
-                onClick={() => {
-                  setSearchCode(s.trackingNumber);
-                  setCurrentShipment(s);
-                  onSelectShipment(s.trackingNumber);
-                  setErrorMessage(null);
-                }}
-                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors shrink-0 cursor-pointer border ${
-                  currentShipment?.trackingNumber === s.trackingNumber
-                    ? 'bg-[#0B5ED7] text-white border-[#0B5ED7] font-semibold'
-                    : 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200'
-                }`}
-              >
-                {s.trackingNumber}
-              </button>
-            ))}
-          </div>
+          {allShipments.length > 0 && (
+            <div className="flex items-center gap-2 overflow-x-auto pt-1 text-xs text-slate-500 dark:text-slate-400 font-mono">
+              <span className="uppercase text-[10px] text-slate-400 shrink-0">Recent Shipments:</span>
+              {allShipments.map((s) => (
+                <button
+                  key={s.trackingNumber}
+                  onClick={() => {
+                    setSearchCode(s.trackingNumber);
+                    setCurrentShipment(s);
+                    onSelectShipment(s.trackingNumber);
+                    setErrorMessage(null);
+                  }}
+                  className={`px-2.5 py-1 rounded-md text-[11px] transition-colors shrink-0 cursor-pointer border ${
+                    currentShipment?.trackingNumber === s.trackingNumber
+                      ? 'bg-[#0B5ED7] text-white border-[#0B5ED7] font-semibold'
+                      : 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  {s.trackingNumber}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Error / Not Found State */}

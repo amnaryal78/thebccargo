@@ -4,7 +4,6 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { HashRedirect } from './router/HashRedirect';
-import { INITIAL_SHIPMENTS } from './data/initialData';
 import { Shipment, ServiceMode } from './types';
 import { Header } from './components/Header';
 import { LandingPage } from './components/LandingPage';
@@ -15,7 +14,6 @@ import { Footer } from './components/Footer';
 import { PrintableAwbModal } from './components/PrintableAwbModal';
 import { CustomCursor } from './components/CustomCursor';
 import { MapPin } from 'lucide-react';
-import { secureDataStorage } from './lib/secureStorage';
 
 // Code-Split Lazy Loaded Page Components for Core Web Vitals Optimization
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
@@ -43,20 +41,12 @@ function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [shipments, setShipments] = useState<Shipment[]>(() => {
-    return secureDataStorage.getItem<Shipment[]>('bc_cargo_shipments', INITIAL_SHIPMENTS);
-  });
-
-  const [activeTrackingNumber, setActiveTrackingNumber] = useState<string>('BC-90214-HKG');
+  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [activeTrackingNumber, setActiveTrackingNumber] = useState<string>('');
   const [printableShipment, setPrintableShipment] = useState<Shipment | null>(null);
 
-  // Sync shipments state to encrypted local storage
-  useEffect(() => {
-    secureDataStorage.setItem('bc_cargo_shipments', shipments);
-  }, [shipments]);
-
   // Find active shipment object for tracking
-  const activeShipment = shipments.find(s => s.trackingNumber === activeTrackingNumber) || shipments[0] || INITIAL_SHIPMENTS[0];
+  const activeShipment = shipments.find(s => s.trackingNumber === activeTrackingNumber) || null;
 
   const getActiveSectionFromPath = (): string => {
     const path = location.pathname.substring(1).toLowerCase();
@@ -115,7 +105,7 @@ function AppContent() {
                 <LandingPage
                   onNavigate={handleNavigate}
                   onSearchTrack={handleQuickTrack}
-                  activeShipment={activeShipment}
+                  activeShipment={activeShipment || undefined}
                 />
               }
             />

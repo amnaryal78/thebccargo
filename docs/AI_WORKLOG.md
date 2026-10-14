@@ -4,6 +4,26 @@ Purpose: durable, low-token project memory for coding-agent sessions. Keep entri
 
 ## Latest Entry
 
+### 2026-10-14 — Phase 0: Baseline & Cleanup Completed
+- **Request / acceptance:** Establish a known-good, buildable, tested starting point; migrate tests to Vitest; configure ESLint and Prettier; purge demo shipments and mock MFA; scaffold ARCHITECTURE §2 folders; audit 11 admin tabs.
+- **Evidence / root cause:**
+  - Resolved `node --test` `ERR_MODULE_NOT_FOUND` by migrating test framework to Vitest 5.
+  - Resolved `tsc --noEmit` errors in tests by adding `"node"` to `tsconfig.json` `types`.
+  - Resolved Windows path ampersand splitting `.bin\*.cmd` scripts by standardizing `package.json` scripts to `node node_modules/...`.
+  - Removed demo `INITIAL_SHIPMENTS` seeding from `App.tsx` and protected `TrackingSection.tsx`.
+  - Removed mock MFA secret (`JBSWY3DPEHPK3PXP`) and bypass verification (`123456`) in `authService.ts`.
+  - Added backend requirement hard-fail screen in `ProtectedRoute.tsx`.
+  - Verified 11 admin tabs: 4 tabs (`inquiries`, `national-rates`, `international-rates`, `careers`) confirmed missing JSX render branches.
+- **Changed:** `package.json`, `tsconfig.json`, `vitest.config.ts`, `eslint.config.js`, `.prettierrc`, `tests/rates.test.ts`, `tests/security.test.ts`, `tests/tracking.test.ts`, `src/App.tsx`, `src/components/TrackingSection.tsx`, `src/services/authService.ts`, `src/components/ProtectedRoute.tsx`, `docs/phases/phase-0-report.md`, `docs/AI_WORKLOG.md`, scaffolded `src/features/*` and `src/app/`, `src/design/`, `src/server/`.
+- **Checks:**
+  - `npm run typecheck` — PASS (0 errors).
+  - `npm test` — PASS (3 files, 12 tests passed).
+  - `npm run build` — PASS (Vite bundled in 859ms).
+  - `npm run lint -- --quiet` — PASS (0 errors).
+- **Manual test:** Ran complete build and test pipeline end-to-end; verified all 12 tests green.
+- **Deployment / rollback:** Local git commit for Phase 0.
+- **Next step / open risk:** Await user "continue" to proceed to Phase 1 (Design System & Tokens).
+
 ### 2026-10-12 — Initial Production Project Audit
 - **Request / acceptance:** Establish baseline architecture, test results, security review, and risk roadmap for The BC Cargo & Courier.
 - **Evidence / root cause:**

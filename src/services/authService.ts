@@ -43,12 +43,8 @@ export async function enrollMfa(): Promise<{ factor: MFAFactor | null; error: st
   }
 
   return {
-    factor: {
-      id: 'mock-factor-id',
-      secret: 'JBSWY3DPEHPK3PXP',
-      uri: 'otpauth://totp/BCCargo:admin@thebccargo.com?secret=JBSWY3DPEHPK3PXP&issuer=BCCargo'
-    },
-    error: null
+    factor: null,
+    error: 'Supabase authentication service is not configured. MFA enrollment is unavailable.'
   };
 }
 
@@ -80,10 +76,7 @@ export async function verifyMfaEnrollment(factorId: string, code: string): Promi
     }
   }
 
-  if (code.trim() === '123456') {
-    return { success: true, error: null };
-  }
-  return { success: false, error: 'Invalid verification code.' };
+  return { success: false, error: 'Supabase authentication service is not configured.' };
 }
 
 

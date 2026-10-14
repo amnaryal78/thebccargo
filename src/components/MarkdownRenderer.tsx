@@ -18,7 +18,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
     const inlineRegex = /(\*\*[^*]+\*\*|__[^_]+__|(?<!\*)\*[^*]+\*(?!\*)|(?<!_)_[^_]+_(?!_)|`[^`]+`|\[[^\]]+\]\([^)]+\))/g;
     const parts = text.split(inlineRegex);
 
-    for (let part of parts) {
+    for (const part of parts) {
       if (!part) continue;
 
       if ((part.startsWith('**') && part.endsWith('**')) || (part.startsWith('__') && part.endsWith('__'))) {

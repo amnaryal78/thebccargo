@@ -434,7 +434,7 @@ export const AdminDashboardPage: React.FC = () => {
   };
 
   const handleToggleBlogFeatured = async (blog: BlogPost) => {
-    let currentFeatured = blogs
+    const currentFeatured = blogs
       .filter(b => b.featuredOnHomepage && b.id !== blog.id)
       .map(b => ({ id: b.id, order: b.homepageOrder || 1 }));
 
@@ -451,7 +451,7 @@ export const AdminDashboardPage: React.FC = () => {
   };
 
   const handleAssignHomepageSlot = async (slotNumber: number, selectedBlogId: string) => {
-    let currentFeatured = blogs
+    const currentFeatured = blogs
       .filter(b => b.featuredOnHomepage)
       .sort((a, b) => (a.homepageOrder || 99) - (b.homepageOrder || 99));
 
