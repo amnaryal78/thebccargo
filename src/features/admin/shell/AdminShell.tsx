@@ -9,7 +9,6 @@ import {
   FileText,
   Briefcase,
   Users,
-  Settings,
   Activity,
   LogOut,
   ShieldCheck,
@@ -49,7 +48,6 @@ const navItems: NavItem[] = [
   { to: '/admin/blogs', label: 'Blogs & AI Fixer', icon: FileText },
   { to: '/admin/careers', label: 'Careers & Applicants', icon: Briefcase, kinds: ['job_application'] },
   { to: '/admin/users', label: 'Users & Roles', icon: Users },
-  { to: '/admin/settings', label: 'Settings', icon: Settings },
   { to: '/admin/audit', label: 'Audit Logs', icon: Activity },
 ];
 
@@ -123,7 +121,7 @@ const AdminShellInner: React.FC = () => {
             <BcLogo size="md" variant="mark-only" />
             <div className="flex flex-col">
               <span className="font-heading font-black text-xs uppercase tracking-widest text-white">Admin Desk</span>
-              <span className="text-[10px] font-mono text-[#F2B705] tracking-tight">Ops &amp; Telematics</span>
+              <span className="text-[10px] font-mono text-[#F2B705] tracking-tight">Operations</span>
             </div>
           </div>
           <div className="hidden md:block"><NotificationBell /></div>
