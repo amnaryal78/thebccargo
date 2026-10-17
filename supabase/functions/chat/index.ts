@@ -83,13 +83,13 @@ interface ChatAction {
 const WHATSAPP_ACTION: ChatAction = {
   label: 'WhatsApp',
   type: 'whatsapp',
-  payload: '9779855068307',
+  payload: '9779855019485',
 };
 
 const CALL_ACTION: ChatAction = {
   label: 'Call',
   type: 'call',
-  payload: '+9779855068307',
+  payload: '+9779855019485',
 };
 
 const PRICE_ACTION: ChatAction = {
@@ -98,7 +98,7 @@ const PRICE_ACTION: ChatAction = {
   payload: 'rates',
 };
 
-const FALLBACK_MESSAGE = 'I only help with cargo, shipping, and BC Cargo services. For other inquiries, please message our team on WhatsApp at +977 9855068307 or call 057-520000.';
+const FALLBACK_MESSAGE = 'I only help with cargo, shipping, and BC Cargo services. For other inquiries, please message our team on WhatsApp at +977 9855019485 or call 057-591816.';
 
 function getDeterministicReply(cleanQuery: string): { reply: string; actions: ChatAction[]; isFallback?: boolean } | null {
   const lower = cleanQuery.toLowerCase();
@@ -159,7 +159,7 @@ function getDeterministicReply(cleanQuery: string): { reply: string; actions: Ch
   // 6. Contact / Location
   if (lower.includes('contact') || lower.includes('phone') || lower.includes('number') || lower.includes('email') || lower.includes('address') || lower.includes('hetauda') || lower.includes('office') || lower.includes('सम्पर्क')) {
     return {
-      reply: 'The BC Cargo Central HQ is at Kantirajpath, Hetauda-4, Nepal. Phone: +977-9855068307 / 057-520000. Email: thebcargo@gmail.com. WhatsApp: +977 9855068307.',
+      reply: 'The BC Cargo Central HQ is at School Road -4, Hetauda, Nepal. Phone: 057-591816 / 9855019485. Email: thebccargo@gmail.com. WhatsApp: +977 9855019485.',
       actions: [WHATSAPP_ACTION, CALL_ACTION],
     };
   }
@@ -188,7 +188,7 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           error: 'Rate limit exceeded. Please wait a moment before sending more messages.',
-          reply: 'Too many messages sent. Please wait a minute or message us directly on WhatsApp at +977 9855068307.',
+          reply: 'Too many messages sent. Please wait a minute or message us directly on WhatsApp at +977 9855019485.',
           actions: [WHATSAPP_ACTION]
         }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -250,7 +250,7 @@ const handler = async (req: Request): Promise<Response> => {
     if (openRouterKey) {
       const systemPrompt = `You are "BC Cargo AI", the digital customer service assistant for The BC Cargo & Courier (Govt License #B-409).
 Company Details:
-- Central HQ: Kantirajpath, Hetauda-4, Nepal. Phone: +977-9855068307 / 057-520000. WhatsApp: +977-9855068307. Email: thebcargo@gmail.com.
+- Central HQ: School Road -4, Hetauda, Nepal. Phone: 057-591816 / 9855019485. WhatsApp: +977-9855019485. Email: thebccargo@gmail.com.
 - Hours: Sun–Fri 9:00 AM – 6:00 PM NPT.
 
 Strict Rules:
@@ -259,8 +259,8 @@ Strict Rules:
 3. Pickup is ONLY within Nepal (doorstep pickup anywhere in Nepal). We do not pick up from outside Nepal. Delivery is worldwide to 190+ countries.
 4. Meat is ONLY accepted for Europe, UK, and Hong Kong. Prohibited everywhere else.
 5. Prices come ONLY from the live rates function. NEVER guess or invent a price. If user asks for prices, refer them to the Rate Estimator or WhatsApp.
-6. Booking and tracking need a human: tell the user to contact our human staff on WhatsApp (+977 9855068307).
-7. If you do not know the answer, tell the user to message on WhatsApp (+977 9855068307).
+6. Booking and tracking need a human: tell the user to contact our human staff on WhatsApp (+977 9855019485).
+7. If you do not know the answer, tell the user to message on WhatsApp (+977 9855019485).
 8. Answer in the same language the user asks (Nepali, English, etc.).`;
 
       const reqModel = settings?.model || 'google/gemma-4-26b-a4b-it:free';

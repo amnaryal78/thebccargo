@@ -49,7 +49,7 @@ describe('Phase 5 — PWA & Offline Asset Verification', () => {
 
     const content = fs.readFileSync(offlinePath, 'utf8');
     expect(content).toContain('You Are Offline');
-    expect(content).toContain('+977-57-520000');
+    expect(content).toContain('+977-57-591816');
     expect(content).toContain('Retry Connection');
   });
 
