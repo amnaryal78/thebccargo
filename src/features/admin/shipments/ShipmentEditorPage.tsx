@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { AlertTriangle, ArrowLeft, Calculator, Check, CircleDot, FileText, Landmark, Loader2, MapPin, Minus, Package, Plus, Printer, Save, Scale, Send, Trash2, X } from 'lucide-react';
+import { AnimatePresence, motion, MotionConfig } from 'framer-motion';
+import { AlertTriangle, ArrowLeft, Calculator, Check, CircleAlert, CircleDot, FileText, Landmark, Lightbulb, Loader2, Lock, MapPin, Minus, Package, Pencil, Plus, Printer, Save, Scale, Send, ShieldCheck, Trash2, Wrench, X } from 'lucide-react';
 import { Spotlight } from '../../../components/ui/spotlight';
 import { adminDataService } from '../services/adminDataService';
 import { getRolePermissions } from '../types';
@@ -25,10 +26,13 @@ import {
   type BillDraft,
   type BoxDraft,
   type LiquidKind,
+  type MeatItem,
+  liquidName,
   type Party,
 } from './billing/model';
 import { buildBoxSheetsHtml, buildCustomerBillHtml, openPrintWindow, type BillSnapshot } from './billing/print';
 import { fromShipmentRow, toShipmentRow } from './billing/persist';
+import { boxItemCount, collectIssues, type Issue } from './billing/issues';
 
 const STATUSES = [
   ['pending', 'Pending'],
@@ -91,17 +95,79 @@ function withDial(phone: string, prevCountry: string, nextCountry: string): stri
   return phone;
 }
 
-const Num: React.FC<{ value: number | null; onChange: (n: number | null) => void; step?: string; ariaLabel?: string; className?: string; placeholder?: string; id?: string }> = ({
-  id,
-  value,
-  onChange,
-  step = 'any',
-  ariaLabel,
-  className = '',
-  placeholder,
-}) => (
+/** Everything a field needs to show a problem and fix it: shared by the party forms, boxes and charges. */
+interface FieldCtx {
+  /** The issue for a key, once the field was touched or a save was tried (warnings show at once). */
+  issue: (key: string) => Issue | undefined;
+  touch: (key: string) => void;
+  fix: (key: string) => void;
+}
+
+const bad = (ctx: FieldCtx, key: string) => (ctx.issue(key)?.level === 'error' ? 'border-red-600! focus:ring-red-200!' : '');
+const aria = (ctx: FieldCtx, key: string) => ({
+  'aria-invalid': ctx.issue(key)?.level === 'error' ? (true as const) : undefined,
+  'aria-describedby': ctx.issue(key) ? `${key}-msg` : undefined,
+  onBlur: () => ctx.touch(key),
+});
+
+/** One problem message with its one-click fix. Slides in so a new error is noticed. */
+const FieldMsg: React.FC<{ ctx: FieldCtx; k: string }> = ({ ctx, k }) => {
+  const issue = ctx.issue(k);
+  return (
+    <AnimatePresence initial={false}>
+      {issue && (
+        <motion.div
+          key={issue.message}
+          id={`${k}-msg`}
+          role={issue.level === 'error' ? 'alert' : 'status'}
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.16 }}
+          className={`mt-1.5 flex flex-wrap items-start gap-x-2 gap-y-1 text-xs font-semibold ${issue.level === 'error' ? 'text-red-700' : 'text-amber-900'}`}
+        >
+          <span className="inline-flex items-start gap-1.5 min-w-0">
+            {issue.level === 'error' ? <CircleAlert className="w-3.5 h-3.5 mt-px shrink-0" aria-hidden="true" /> : <AlertTriangle className="w-3.5 h-3.5 mt-px shrink-0" aria-hidden="true" />}
+            <span className="min-w-0 break-words">{issue.message}</span>
+          </span>
+          {issue.fix && (
+            <button type="button" onClick={() => ctx.fix(k)} className="inline-flex items-center gap-1 rounded-lg bg-[#002147] text-white px-2 py-1 text-xs font-bold cursor-pointer transition-colors hover:bg-[#123562] hover:text-[#F2B705] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F2B705]/70">
+              <Wrench className="w-3 h-3" aria-hidden="true" /> {issue.fix.label}
+            </button>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+/** Small count pill. Pops when the number changes so adding or removing an item is visible. */
+const Count: React.FC<{ n: number; label: string }> = ({ n, label }) => (
+  <motion.span
+    key={n}
+    initial={{ scale: 1.35 }}
+    animate={{ scale: 1 }}
+    transition={{ type: 'spring', stiffness: 500, damping: 18 }}
+    aria-label={`${n} ${label}`}
+    className={`inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full text-xs font-bold ${n ? 'bg-[#002147] text-[#F2B705]' : 'bg-slate-100 text-slate-600'}`}
+  >
+    {n}
+  </motion.span>
+);
+
+const Num: React.FC<{
+  value: number | null;
+  onChange: (n: number | null) => void;
+  step?: string;
+  ariaLabel?: string;
+  className?: string;
+  placeholder?: string;
+  id?: string;
+  ctx?: FieldCtx;
+  k?: string;
+}> = ({ id, value, onChange, step = 'any', ariaLabel, className = '', placeholder, ctx, k }) => (
   <input
-    id={id}
+    id={id ?? k}
     type="number"
     inputMode="decimal"
     min="0"
@@ -110,7 +176,8 @@ const Num: React.FC<{ value: number | null; onChange: (n: number | null) => void
     placeholder={placeholder}
     value={value === null ? '' : value}
     onChange={(e) => onChange(e.target.value === '' ? null : Number(e.target.value))}
-    className={`${inp} ${className}`}
+    className={`${inp} ${ctx && k ? bad(ctx, k) : ''} ${className}`}
+    {...(ctx && k ? aria(ctx, k) : {})}
   />
 );
 
@@ -119,15 +186,17 @@ const PartyForm: React.FC<{
   party: Party;
   onChange: (p: Party) => void;
   lockCountryNote?: string;
-  idp: string;
+  idp: 'sender' | 'receiver';
   required: boolean;
-}> = ({ title, party, onChange, lockCountryNote, idp, required }) => (
+  ctx: FieldCtx;
+}> = ({ title, party, onChange, lockCountryNote, idp, required, ctx }) => (
   <fieldset className={`${card} space-y-4`}>
     <legend className="sr-only">{title}</legend>
-    <SectionHead icon={idp === 'sender' ? Send : MapPin} title={title} hint={idp === 'sender' ? 'Who is handing the parcel over.' : 'Who receives it, and where it goes.'} />
+    <SectionHead icon={idp === 'sender' ? Send : MapPin} title={title} hint={idp === 'sender' ? '📤 Who is handing the parcel over.' : '📥 Who receives it, and where it goes.'} />
     <div>
       <label htmlFor={`${idp}-name`} className={lbl}>Full name{required && <Req />}</label>
-      <input id={`${idp}-name`} value={party.name} onChange={(e) => onChange({ ...party, name: e.target.value })} className={inp} autoComplete="off" />
+      <input id={`${idp}-name`} value={party.name} onChange={(e) => onChange({ ...party, name: e.target.value })} className={`${inp} ${bad(ctx, `${idp}-name`)}`} autoComplete="off" placeholder={idp === 'sender' ? 'e.g. Sita Sharma' : 'e.g. John Smith'} {...aria(ctx, `${idp}-name`)} />
+      <FieldMsg ctx={ctx} k={`${idp}-name`} />
     </div>
     <div>
       <label htmlFor={`${idp}-country`} className={lbl}>Country{required && <Req />}</label>
@@ -135,69 +204,160 @@ const PartyForm: React.FC<{
         id={`${idp}-country`}
         value={party.country}
         onChange={(e) => onChange({ ...party, country: e.target.value, phone: withDial(party.phone, party.country, e.target.value) })}
-        className={inp}
+        className={`${inp} ${bad(ctx, `${idp}-country`)}`}
+        {...aria(ctx, `${idp}-country`)}
       >
         <option value="">Choose a country</option>
         {COUNTRIES.map((c) => (
           <option key={c.iso2} value={c.name}>{c.name}</option>
         ))}
       </select>
+      <FieldMsg ctx={ctx} k={`${idp}-country`} />
       {lockCountryNote && <p className="text-xs text-slate-600 mt-1.5">{lockCountryNote}</p>}
     </div>
     <div>
-      <label htmlFor={`${idp}-phone`} className={lbl}>Phone{required && <Req />}</label>
-      <input id={`${idp}-phone`} type="tel" inputMode="tel" value={party.phone} onChange={(e) => onChange({ ...party, phone: e.target.value })} className={inp} autoComplete="off" placeholder={dialOf(party.country) ? `${dialOf(party.country)} …` : ''} />
-      {dialOf(party.country) && <p className="text-xs text-slate-600 mt-1">Country code {dialOf(party.country)} is added for you.</p>}
+      <label htmlFor={`${idp}-phone`} className={lbl}>Phone{required && idp === 'receiver' && <Req />}</label>
+      <input id={`${idp}-phone`} type="tel" inputMode="tel" autoComplete="off" value={party.phone} onChange={(e) => onChange({ ...party, phone: e.target.value })} className={`${inp} ${bad(ctx, `${idp}-phone`)}`} placeholder={dialOf(party.country) ? `${dialOf(party.country)} 98XXXXXXXX` : 'Choose the country first'} {...aria(ctx, `${idp}-phone`)} />
+      <FieldMsg ctx={ctx} k={`${idp}-phone`} />
+      {!ctx.issue(`${idp}-phone`) && dialOf(party.country) && <p className="text-xs text-slate-600 mt-1.5">Country code {dialOf(party.country)} is added for you.</p>}
     </div>
     <div>
-      <label htmlFor={`${idp}-address`} className={lbl}>Address{required && <Req />}</label>
-      <textarea id={`${idp}-address`} rows={2} value={party.address} onChange={(e) => onChange({ ...party, address: e.target.value })} className={`${inp} py-2 resize-y`} />
+      <label htmlFor={`${idp}-address`} className={lbl}>Address{required && idp === 'receiver' && <Req />}</label>
+      <textarea id={`${idp}-address`} rows={2} value={party.address} onChange={(e) => onChange({ ...party, address: e.target.value })} className={`${inp} py-2 resize-y ${bad(ctx, `${idp}-address`)}`} placeholder="House no., street, city, postcode" {...aria(ctx, `${idp}-address`)} />
+      <FieldMsg ctx={ctx} k={`${idp}-address`} />
     </div>
     <div>
       <label htmlFor={`${idp}-email`} className={lbl}>Email (optional)</label>
-      <input id={`${idp}-email`} type="email" inputMode="email" autoComplete="off" value={party.email} onChange={(e) => onChange({ ...party, email: e.target.value })} className={inp} />
+      <input id={`${idp}-email`} type="email" inputMode="email" autoComplete="off" value={party.email} onChange={(e) => onChange({ ...party, email: e.target.value })} className={`${inp} ${bad(ctx, `${idp}-email`)}`} placeholder="name@gmail.com" {...aria(ctx, `${idp}-email`)} />
+      <FieldMsg ctx={ctx} k={`${idp}-email`} />
     </div>
   </fieldset>
 );
 
-/** Small row with inputs + remove; used for every saved item so everything stays editable. */
-const RowShell: React.FC<{ onRemove: () => void; children: React.ReactNode; what: string; cols?: string }> = ({ onRemove, children, what, cols = 'sm:grid-cols-[minmax(0,1fr)_110px_90px_44px]' }) => (
-  <li className={`grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_44px] ${cols} gap-2 items-center py-2 border-b border-slate-100 last:border-b-0`}>
-    {children}
-    <button type="button" onClick={onRemove} aria-label={`Remove ${what}`} className="col-start-3 row-start-1 sm:col-start-auto sm:row-start-auto min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl text-red-700 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F2B705]/70 cursor-pointer">
-      <Trash2 className="w-4 h-4" aria-hidden="true" />
-    </button>
-  </li>
-);
+/**
+ * One saved item. Shows as a tidy summary with a pencil; the pencil opens the same inputs the add row
+ * uses so it can be corrected later. Trash removes it.
+ */
+const ItemRow: React.FC<{
+  emoji: string;
+  title: string;
+  detail: string;
+  what: string;
+  editing: boolean;
+  onEdit: () => void;
+  onDone: () => void;
+  onRemove: () => void;
+  cols: string;
+  children: React.ReactNode;
+}> = ({ emoji, title, detail, what, editing, onEdit, onDone, onRemove, cols, children }) => {
+  const iconBtn = 'min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F2B705]/70';
+  return (
+    <motion.li layout="position" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: 12 }} transition={{ duration: 0.18 }} className="py-2 border-b border-slate-100 last:border-b-0">
+      {editing ? (
+        <div className={`grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_92px] ${cols} gap-2 items-center rounded-xl bg-[#FFF6D8]/60 p-2`}>
+          {children}
+          <div className="col-start-3 row-start-1 sm:col-start-auto sm:row-start-auto flex gap-1 justify-end">
+            <button type="button" onClick={onDone} aria-label={`Done editing ${what}`} title="Done" className={`${iconBtn} bg-[#002147] text-[#F2B705] hover:bg-[#123562]`}><Check className="w-4 h-4" aria-hidden="true" /></button>
+            <button type="button" onClick={onRemove} aria-label={`Remove ${what}`} title="Remove" className={`${iconBtn} text-red-700 hover:bg-red-50`}><Trash2 className="w-4 h-4" aria-hidden="true" /></button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-3">
+          <span className="shrink-0 w-9 h-9 rounded-xl bg-[#EEF3F9] inline-flex items-center justify-center text-lg" aria-hidden="true">{emoji}</span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-slate-900 truncate">{title}</p>
+            <p className="text-xs text-slate-600 truncate">{detail}</p>
+          </div>
+          <button type="button" onClick={onEdit} aria-label={`Edit ${what}`} title="Edit" className={`${iconBtn} text-[#002147] hover:bg-[#FFF6D8]`}><Pencil className="w-4 h-4" aria-hidden="true" /></button>
+          <button type="button" onClick={onRemove} aria-label={`Remove ${what}`} title="Remove" className={`${iconBtn} text-red-700 hover:bg-red-50`}><Trash2 className="w-4 h-4" aria-hidden="true" /></button>
+        </div>
+      )}
+    </motion.li>
+  );
+};
+
+/** Meat to a country that does not normally take it needs three deliberate yeses. */
+const MeatConfirm: React.FC<{ country: string; name: string; kg: number; qty: number; rate: number; onCancel: () => void; onConfirm: () => void }> = ({ country, name, kg, qty, rate, onCancel, onConfirm }) => {
+  const [step, setStep] = useState(1);
+  const nextRef = React.useRef<HTMLButtonElement>(null);
+  useEffect(() => { nextRef.current?.focus(); }, [step]);
+  const steps = [
+    { emoji: '🥩', title: `Meat to ${country}?`, body: `Meat is normally allowed only for Europe, the UK and Hong Kong. ${country} is not on that list.`, back: 'Cancel', next: 'Continue' },
+    { emoji: '⚠️', title: 'Customs may stop this parcel', body: `A parcel with meat to ${country} can be held, sent back or destroyed, usually at the customer's cost. Has the customer been told?`, back: 'Go back', next: 'Yes, they know' },
+    { emoji: '🧾', title: 'Final check', body: rate > 0 ? `You are adding ${name} (${money2(kg * qty)} kg) at Rs ${money2(rate)} per kg. It will print on the customer bill and the box sheet.` : `You are adding ${name} (${money2(kg * qty)} kg). There is no meat rate for ${country}, so it bills at Rs 0 unless you type a meat charge under Charges. It will print on the bill.`, back: 'Go back', next: 'Add meat anyway' },
+  ];
+  const s = steps[step - 1];
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#00152D]/60 p-4" role="dialog" aria-modal="true" aria-labelledby="meat-t" onKeyDown={(e) => e.key === 'Escape' && onCancel()}>
+      <motion.div key={step} initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.18 }} className="w-full max-w-md bg-white rounded-2xl p-6 space-y-4 shadow-xl border-t-4 border-[#F2B705]">
+        <p className="text-xs font-bold text-slate-600">Step {step} of 3</p>
+        <div className="flex items-start gap-3">
+          <span className="text-3xl leading-none" aria-hidden="true">{s.emoji}</span>
+          <div>
+            <h2 id="meat-t" className="font-heading font-extrabold text-xl text-[#002147]">{s.title}</h2>
+            <p className="text-sm text-slate-700 mt-1">{s.body}</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap justify-end gap-2">
+          <button type="button" onClick={() => (step === 1 ? onCancel() : setStep(step - 1))} className={btnGhost}>{s.back}</button>
+          <button type="button" ref={nextRef} onClick={() => (step === 3 ? onConfirm() : setStep(step + 1))} className={btnPrimary}>{s.next}</button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+const money2 = (n: number) => fmtMoney(n);
 
 const BoxSection: React.FC<{
   box: BoxDraft;
   index: number;
   total: number;
+  country: string;
   meatAllowed: boolean;
+  meatRate: number;
   onChange: (b: BoxDraft) => void;
-}> = ({ box, index, total, meatAllowed, onChange }) => {
+  ctx: FieldCtx;
+}> = ({ box, index, total, country, meatAllowed, meatRate, onChange, ctx }) => {
   const [g, setG] = useState({ name: '', unit: 'pcs', qty: '' });
   const [l, setL] = useState<{ kind: LiquidKind; other: string; unit: string; qty: string }>({ kind: 'Ghee', other: '', unit: 'btl', qty: '' });
   const [m, setM] = useState({ name: '', kg: '', qty: '' });
+  const [gErr, setGErr] = useState<string | null>(null);
+  const [lErr, setLErr] = useState<string | null>(null);
+  const [mErr, setMErr] = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [meatAsk, setMeatAsk] = useState<MeatItem | null>(null);
+
   const addGoods = () => {
     const qty = Number(g.qty);
-    if (!g.name.trim() || !(qty > 0)) return;
-    onChange({ ...box, goods: [...box.goods, { id: uid(), name: g.name.trim(), unit: g.unit, qty }] });
+    if (!g.name.trim()) return setGErr('Enter the item name, for example "Dhaka topi".');
+    if (!(qty > 0)) return setGErr('Enter how many. The quantity must be more than 0.');
+    onChange({ ...box, goods: [...box.goods, { id: uid(), name: g.name.trim(), unit: g.unit || 'pcs', qty }] });
     setG({ ...g, name: '', qty: '' });
+    setGErr(null);
   };
   const addLiquid = () => {
     const qty = Number(l.qty);
-    if (!(qty > 0) || (l.kind === 'Other' && !l.other.trim())) return;
+    if (l.kind === 'Other' && !l.other.trim()) return setLErr('Enter the liquid name, or pick Ghee, Oil or Honey.');
+    if (!(qty > 0)) return setLErr('Enter how many bottles. The quantity must be more than 0.');
     onChange({ ...box, liquids: [...box.liquids, { id: uid(), kind: l.kind, otherName: l.kind === 'Other' ? l.other.trim() : '', unit: l.unit || 'btl', qty }] });
     setL({ ...l, other: '', qty: '' });
+    setLErr(null);
   };
   const addMeat = () => {
     const qty = Number(m.qty);
     const kg = Number(m.kg);
-    if (!m.name.trim() || !(kg > 0) || !(qty > 0)) return;
-    onChange({ ...box, meats: [...box.meats, { id: uid(), name: m.name.trim(), kgPerUnit: kg, qty }] });
+    if (!m.name.trim()) return setMErr('Enter the meat name, for example "Dried buffalo".');
+    if (!(kg > 0)) return setMErr('Enter the weight of one piece in kg, more than 0.');
+    if (!(qty > 0)) return setMErr('Enter how many pieces. The quantity must be more than 0.');
+    const item: MeatItem = { id: uid(), name: m.name.trim(), kgPerUnit: kg, qty };
+    setMErr(null);
+    if (!meatAllowed) return setMeatAsk(item);
+    commitMeat(item);
+  };
+  const commitMeat = (item: MeatItem) => {
+    onChange({ ...box, meats: [...box.meats, item] });
     setM({ name: '', kg: '', qty: '' });
+    setMeatAsk(null);
   };
   const onEnter = (fn: () => void) => (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -205,7 +365,24 @@ const BoxSection: React.FC<{
       fn();
     }
   };
+  const mapGoods = (id: string, patch: Partial<BoxDraft['goods'][number]>) => onChange({ ...box, goods: box.goods.map((x) => (x.id === id ? { ...x, ...patch } : x)) });
+  const mapLiquid = (id: string, patch: Partial<BoxDraft['liquids'][number]>) => onChange({ ...box, liquids: box.liquids.map((x) => (x.id === id ? { ...x, ...patch } : x)) });
+  const mapMeat = (id: string, patch: Partial<BoxDraft['meats'][number]>) => onChange({ ...box, meats: box.meats.map((x) => (x.id === id ? { ...x, ...patch } : x)) });
   const key = `box${index}`;
+  const items = boxItemCount(box);
+  const rowErr = (msg: string | null) => (
+    <AnimatePresence initial={false}>
+      {msg && (
+        <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="alert" className="flex items-start gap-1.5 text-xs font-semibold text-red-700">
+          <CircleAlert className="w-3.5 h-3.5 mt-px shrink-0" aria-hidden="true" /> {msg}
+        </motion.p>
+      )}
+    </AnimatePresence>
+  );
+  const sub = (emoji: string, label: string, n: number) => (
+    <h4 className="text-sm font-extrabold text-[#002147] flex items-center gap-2"><span aria-hidden="true">{emoji}</span> {label} <Count n={n} label={`${label.toLowerCase()} added`} /></h4>
+  );
+  const issueKey = `box-${index}`;
   return (
     <section aria-labelledby={`${key}-t`} className={`${card} space-y-5 border-l-4 border-l-[#F2B705]`}>
       <SectionHead
@@ -213,117 +390,129 @@ const BoxSection: React.FC<{
         as="h3"
         id={`${key}-t`}
         title={`Box ${index + 1} of ${total}`}
-        hint="Goods, liquids and meat packed in this box."
+        hint={items ? `${items} item${items === 1 ? '' : 's'} packed in this box.` : 'Add the goods, liquid or meat packed in this box.'}
         aside={
           <label className="flex items-center gap-2 text-xs font-bold text-slate-700 shrink-0">
             <span>Box weight (kg, optional)</span>
-            <Num value={box.weightKg} onChange={(n) => onChange({ ...box, weightKg: n })} ariaLabel={`Weight of box ${index + 1} in kg`} className="w-24!" />
+            <Num id={`${key}-w`} value={box.weightKg} onChange={(n) => onChange({ ...box, weightKg: n })} placeholder="e.g. 18" className="w-24!" ctx={ctx} k={`box-${index}-weight`} />
           </label>
         }
       />
+      <FieldMsg ctx={ctx} k={`box-${index}-weight`} />
+      <FieldMsg ctx={ctx} k={issueKey} />
 
       {/* GOODS */}
       <div className="space-y-2">
-        <h4 className="text-sm font-extrabold text-[#002147]">Goods</h4>
+        {sub('🧺', 'Goods', box.goods.length)}
         <div className="grid grid-cols-2 sm:grid-cols-[minmax(0,1fr)_110px_90px_auto] gap-2 items-end">
           <div className="col-span-2 sm:col-span-1">
             <label className={lbl} htmlFor={`${key}-gn`}>Item name</label>
-            <input id={`${key}-gn`} value={g.name} onChange={(e) => setG({ ...g, name: e.target.value })} onKeyDown={onEnter(addGoods)} className={inp} />
+            <input id={`${key}-gn`} value={g.name} placeholder="e.g. Dhaka topi" onChange={(e) => { setG({ ...g, name: e.target.value }); setGErr(null); }} onKeyDown={onEnter(addGoods)} className={`${inp} ${gErr ? 'border-red-600!' : ''}`} />
           </div>
           <div>
             <label className={lbl} htmlFor={`${key}-gu`}>Type</label>
-            <input id={`${key}-gu`} list="unit-list" value={g.unit} onChange={(e) => setG({ ...g, unit: e.target.value })} className={inp} />
+            <input id={`${key}-gu`} list="unit-list" value={g.unit} placeholder="pcs" onChange={(e) => setG({ ...g, unit: e.target.value })} className={inp} />
           </div>
           <div>
             <label className={lbl} htmlFor={`${key}-gq`}>Quantity</label>
-            <input id={`${key}-gq`} type="number" min="0" inputMode="decimal" value={g.qty} onChange={(e) => setG({ ...g, qty: e.target.value })} onKeyDown={onEnter(addGoods)} className={inp} />
+            <input id={`${key}-gq`} type="number" min="0" inputMode="decimal" value={g.qty} placeholder="e.g. 5" onChange={(e) => { setG({ ...g, qty: e.target.value }); setGErr(null); }} onKeyDown={onEnter(addGoods)} className={`${inp} ${gErr ? 'border-red-600!' : ''}`} />
           </div>
           <button type="button" onClick={addGoods} className={`${btnPrimary} col-span-2 sm:col-span-1`}><Plus className="w-4 h-4" aria-hidden="true" /> Add</button>
         </div>
+        {rowErr(gErr)}
         {box.goods.length > 0 && (
           <ul className="list-none p-0 m-0" aria-label={`Goods in box ${index + 1}`}>
-            {box.goods.map((it) => (
-              <RowShell key={it.id} what={it.name} onRemove={() => onChange({ ...box, goods: box.goods.filter((x) => x.id !== it.id) })}>
-                <input aria-label="Item name" placeholder="Item name" value={it.name} onChange={(e) => onChange({ ...box, goods: box.goods.map((x) => (x.id === it.id ? { ...x, name: e.target.value } : x)) })} className={`${inp} col-span-2 sm:col-span-1`} />
-                <input aria-label="Type" list="unit-list" value={it.unit} onChange={(e) => onChange({ ...box, goods: box.goods.map((x) => (x.id === it.id ? { ...x, unit: e.target.value } : x)) })} className={inp} />
-                <Num value={it.qty} ariaLabel="Quantity" onChange={(n) => onChange({ ...box, goods: box.goods.map((x) => (x.id === it.id ? { ...x, qty: n ?? 0 } : x)) })} />
-              </RowShell>
-            ))}
+            <AnimatePresence initial={false}>
+              {box.goods.map((it) => (
+                <ItemRow key={it.id} emoji="🧺" title={it.name || 'Unnamed item'} detail={`${it.qty} ${it.unit}`} what={it.name || 'item'} editing={editing === it.id} onEdit={() => setEditing(it.id)} onDone={() => setEditing(null)} cols="sm:grid-cols-[minmax(0,1fr)_110px_90px_92px]" onRemove={() => { setEditing(null); onChange({ ...box, goods: box.goods.filter((x) => x.id !== it.id) }); }}>
+                  <input aria-label="Item name" placeholder="Item name" value={it.name} onChange={(e) => mapGoods(it.id, { name: e.target.value })} className={`${inp} col-span-2 sm:col-span-1 ${it.name.trim() ? '' : 'border-red-600!'}`} />
+                  <input aria-label="Type" list="unit-list" placeholder="pcs" value={it.unit} onChange={(e) => mapGoods(it.id, { unit: e.target.value })} className={inp} />
+                  <Num value={it.qty} ariaLabel="Quantity" placeholder="Qty" onChange={(n) => mapGoods(it.id, { qty: n ?? 0 })} />
+                </ItemRow>
+              ))}
+            </AnimatePresence>
           </ul>
         )}
       </div>
 
       {/* LIQUID */}
       <div className="space-y-2 pt-4 border-t border-slate-200">
-        <h4 className="text-sm font-extrabold text-[#002147]">Liquid</h4>
+        {sub('🧴', 'Liquid', box.liquids.length)}
         <div className="grid grid-cols-2 sm:grid-cols-[130px_minmax(0,1fr)_90px_90px_auto] gap-2 items-end">
           <div>
             <label className={lbl} htmlFor={`${key}-lk`}>Kind</label>
-            <select id={`${key}-lk`} value={l.kind} onChange={(e) => setL({ ...l, kind: e.target.value as LiquidKind })} className={inp}>
+            <select id={`${key}-lk`} value={l.kind} onChange={(e) => { setL({ ...l, kind: e.target.value as LiquidKind }); setLErr(null); }} className={inp}>
               {LIQUID_KINDS.map((k) => <option key={k}>{k}</option>)}
             </select>
           </div>
           <div>
             <label className={lbl} htmlFor={`${key}-lo`}>{l.kind === 'Other' ? 'Liquid name' : 'Name'}</label>
-            <input id={`${key}-lo`} disabled={l.kind !== 'Other'} value={l.kind === 'Other' ? l.other : l.kind} onChange={(e) => setL({ ...l, other: e.target.value })} className={`${inp} disabled:bg-slate-100`} />
+            <input id={`${key}-lo`} disabled={l.kind !== 'Other'} value={l.kind === 'Other' ? l.other : l.kind} placeholder="e.g. Mustard oil" onChange={(e) => { setL({ ...l, other: e.target.value }); setLErr(null); }} className={`${inp} ${lErr && l.kind === 'Other' ? 'border-red-600!' : ''}`} />
           </div>
           <div>
             <label className={lbl} htmlFor={`${key}-lu`}>Type</label>
-            <input id={`${key}-lu`} list="unit-list" value={l.unit} onChange={(e) => setL({ ...l, unit: e.target.value })} className={inp} />
+            <input id={`${key}-lu`} list="unit-list" value={l.unit} placeholder="btl" onChange={(e) => setL({ ...l, unit: e.target.value })} className={inp} />
           </div>
           <div>
             <label className={lbl} htmlFor={`${key}-lq`}>Quantity</label>
-            <input id={`${key}-lq`} type="number" min="0" inputMode="decimal" value={l.qty} onChange={(e) => setL({ ...l, qty: e.target.value })} onKeyDown={onEnter(addLiquid)} className={inp} />
+            <input id={`${key}-lq`} type="number" min="0" inputMode="decimal" value={l.qty} placeholder="e.g. 2" onChange={(e) => { setL({ ...l, qty: e.target.value }); setLErr(null); }} onKeyDown={onEnter(addLiquid)} className={`${inp} ${lErr && l.kind !== 'Other' ? 'border-red-600!' : ''}`} />
           </div>
           <button type="button" onClick={addLiquid} className={`${btnPrimary} col-span-2 sm:col-span-1`}><Plus className="w-4 h-4" aria-hidden="true" /> Add</button>
         </div>
+        {rowErr(lErr)}
         {box.liquids.length > 0 && (
           <ul className="list-none p-0 m-0" aria-label={`Liquids in box ${index + 1}`}>
-            {box.liquids.map((it) => (
-              <RowShell key={it.id} what={it.kind} cols="sm:grid-cols-[130px_minmax(0,1fr)_90px_90px_44px]" onRemove={() => onChange({ ...box, liquids: box.liquids.filter((x) => x.id !== it.id) })}>
-                <select aria-label="Kind" value={it.kind} onChange={(e) => onChange({ ...box, liquids: box.liquids.map((x) => (x.id === it.id ? { ...x, kind: e.target.value as LiquidKind } : x)) })} className={inp}>
-                  {LIQUID_KINDS.map((k) => <option key={k}>{k}</option>)}
-                </select>
-                <input aria-label="Liquid name" disabled={it.kind !== 'Other'} value={it.kind === 'Other' ? it.otherName : it.kind} onChange={(e) => onChange({ ...box, liquids: box.liquids.map((x) => (x.id === it.id ? { ...x, otherName: e.target.value } : x)) })} className={inp} />
-                <input aria-label="Type" list="unit-list" value={it.unit} onChange={(e) => onChange({ ...box, liquids: box.liquids.map((x) => (x.id === it.id ? { ...x, unit: e.target.value } : x)) })} className={inp} />
-                <Num value={it.qty} ariaLabel="Quantity" onChange={(n) => onChange({ ...box, liquids: box.liquids.map((x) => (x.id === it.id ? { ...x, qty: n ?? 0 } : x)) })} />
-              </RowShell>
-            ))}
+            <AnimatePresence initial={false}>
+              {box.liquids.map((it) => (
+                <ItemRow key={it.id} emoji="🧴" title={liquidName(it)} detail={`${it.qty} ${it.unit}`} what={liquidName(it)} editing={editing === it.id} onEdit={() => setEditing(it.id)} onDone={() => setEditing(null)} cols="sm:grid-cols-[130px_minmax(0,1fr)_90px_90px_92px]" onRemove={() => { setEditing(null); onChange({ ...box, liquids: box.liquids.filter((x) => x.id !== it.id) }); }}>
+                  <select aria-label="Kind" value={it.kind} onChange={(e) => mapLiquid(it.id, { kind: e.target.value as LiquidKind })} className={inp}>
+                    {LIQUID_KINDS.map((k) => <option key={k}>{k}</option>)}
+                  </select>
+                  <input aria-label="Liquid name" disabled={it.kind !== 'Other'} placeholder="Liquid name" value={it.kind === 'Other' ? it.otherName : it.kind} onChange={(e) => mapLiquid(it.id, { otherName: e.target.value })} className={inp} />
+                  <input aria-label="Type" list="unit-list" placeholder="btl" value={it.unit} onChange={(e) => mapLiquid(it.id, { unit: e.target.value })} className={inp} />
+                  <Num value={it.qty} ariaLabel="Quantity" placeholder="Qty" onChange={(n) => mapLiquid(it.id, { qty: n ?? 0 })} />
+                </ItemRow>
+              ))}
+            </AnimatePresence>
           </ul>
         )}
       </div>
 
       {/* MEAT */}
       <div className="space-y-2 pt-4 border-t border-slate-200">
-        <h4 className="text-sm font-extrabold text-[#002147]">Meat</h4>
-        {!meatAllowed && <p className={warnBox}><AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />Meat is normally allowed only for Europe, UK and Hong Kong. You can still add it, but check first.</p>}
+        {sub('🥩', 'Meat', box.meats.length)}
+        {!meatAllowed && <p className={warnBox}><AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />Meat is normally allowed only for Europe, UK and Hong Kong. {country || 'This country'} is not on that list, so you will be asked to confirm three times before adding.</p>}
         <div className="grid grid-cols-2 sm:grid-cols-[minmax(0,1fr)_100px_90px_auto] gap-2 items-end">
           <div className="col-span-2 sm:col-span-1">
             <label className={lbl} htmlFor={`${key}-mn`}>Meat name</label>
-            <input id={`${key}-mn`} value={m.name} onChange={(e) => setM({ ...m, name: e.target.value })} onKeyDown={onEnter(addMeat)} className={inp} />
+            <input id={`${key}-mn`} value={m.name} placeholder="e.g. Dried buffalo" onChange={(e) => { setM({ ...m, name: e.target.value }); setMErr(null); }} onKeyDown={onEnter(addMeat)} className={inp} />
           </div>
           <div>
             <label className={lbl} htmlFor={`${key}-mk`}>Kg each</label>
-            <input id={`${key}-mk`} type="number" min="0" step="0.1" inputMode="decimal" value={m.kg} onChange={(e) => setM({ ...m, kg: e.target.value })} className={inp} />
+            <input id={`${key}-mk`} type="number" min="0" step="0.1" inputMode="decimal" value={m.kg} placeholder="e.g. 0.5" onChange={(e) => { setM({ ...m, kg: e.target.value }); setMErr(null); }} className={inp} />
           </div>
           <div>
             <label className={lbl} htmlFor={`${key}-mq`}>Quantity</label>
-            <input id={`${key}-mq`} type="number" min="0" inputMode="decimal" value={m.qty} onChange={(e) => setM({ ...m, qty: e.target.value })} onKeyDown={onEnter(addMeat)} className={inp} />
+            <input id={`${key}-mq`} type="number" min="0" inputMode="decimal" value={m.qty} placeholder="e.g. 4" onChange={(e) => { setM({ ...m, qty: e.target.value }); setMErr(null); }} onKeyDown={onEnter(addMeat)} className={inp} />
           </div>
           <button type="button" onClick={addMeat} className={`${btnPrimary} col-span-2 sm:col-span-1`}><Plus className="w-4 h-4" aria-hidden="true" /> Add</button>
         </div>
+        {rowErr(mErr)}
         {box.meats.length > 0 && (
           <ul className="list-none p-0 m-0" aria-label={`Meat in box ${index + 1}`}>
-            {box.meats.map((it) => (
-              <RowShell key={it.id} what={it.name} cols="sm:grid-cols-[minmax(0,1fr)_100px_90px_44px]" onRemove={() => onChange({ ...box, meats: box.meats.filter((x) => x.id !== it.id) })}>
-                <input aria-label="Meat name" placeholder="Meat name" value={it.name} onChange={(e) => onChange({ ...box, meats: box.meats.map((x) => (x.id === it.id ? { ...x, name: e.target.value } : x)) })} className={`${inp} col-span-2 sm:col-span-1`} />
-                <Num value={it.kgPerUnit} ariaLabel="Kg each" onChange={(n) => onChange({ ...box, meats: box.meats.map((x) => (x.id === it.id ? { ...x, kgPerUnit: n ?? 0 } : x)) })} />
-                <Num value={it.qty} ariaLabel="Quantity" onChange={(n) => onChange({ ...box, meats: box.meats.map((x) => (x.id === it.id ? { ...x, qty: n ?? 0 } : x)) })} />
-              </RowShell>
-            ))}
+            <AnimatePresence initial={false}>
+              {box.meats.map((it) => (
+                <ItemRow key={it.id} emoji="🥩" title={it.name || 'Unnamed meat'} detail={`${it.qty} × ${it.kgPerUnit} kg = ${money2(it.qty * it.kgPerUnit)} kg`} what={it.name || 'meat'} editing={editing === it.id} onEdit={() => setEditing(it.id)} onDone={() => setEditing(null)} cols="sm:grid-cols-[minmax(0,1fr)_100px_90px_92px]" onRemove={() => { setEditing(null); onChange({ ...box, meats: box.meats.filter((x) => x.id !== it.id) }); }}>
+                  <input aria-label="Meat name" placeholder="Meat name" value={it.name} onChange={(e) => mapMeat(it.id, { name: e.target.value })} className={`${inp} col-span-2 sm:col-span-1`} />
+                  <Num value={it.kgPerUnit} ariaLabel="Kg each" placeholder="Kg" onChange={(n) => mapMeat(it.id, { kgPerUnit: n ?? 0 })} />
+                  <Num value={it.qty} ariaLabel="Quantity" placeholder="Qty" onChange={(n) => mapMeat(it.id, { qty: n ?? 0 })} />
+                </ItemRow>
+              ))}
+            </AnimatePresence>
           </ul>
         )}
       </div>
+      {meatAsk && <MeatConfirm country={country || 'this country'} name={meatAsk.name} kg={meatAsk.kgPerUnit} qty={meatAsk.qty} rate={meatRate} onCancel={() => setMeatAsk(null)} onConfirm={() => commitMeat(meatAsk)} />}
     </section>
   );
 };
@@ -360,6 +549,10 @@ export const ShipmentEditorPage: React.FC = () => {
   const [popupBlocked, setPopupBlocked] = useState(false);
   const [restored, setRestored] = useState(() => isNew && !!localStorage.getItem(DRAFT_KEY));
   const [newExtra, setNewExtra] = useState({ name: '', amount: '' });
+  const [extraErr, setExtraErr] = useState<string | null>(null);
+  const [editingExtra, setEditingExtra] = useState<string | null>(null);
+  const [touched, setTouched] = useState<Set<string>>(() => new Set());
+  const [submitted, setSubmitted] = useState(false);
 
   // Load a saved shipment for editing.
   useEffect(() => {
@@ -427,6 +620,21 @@ export const ShipmentEditorPage: React.FC = () => {
 
   const result = useMemo(() => computeBill(draft, baseAuto), [draft, baseAuto]);
   const boxCount = result.boxCount;
+  const allIssues = useMemo(() => collectIssues(draft), [draft]);
+  const ctx = useMemo(() => ({
+    issue: (key: string): Issue | undefined => {
+      const i = allIssues[key];
+      if (!i) return undefined;
+      return i.level === 'warn' || submitted || touched.has(key) ? i : undefined;
+    },
+    touch: (key: string) => setTouched((t) => (t.has(key) ? t : new Set(t).add(key))),
+    fix: (key: string) => {
+      const fix = allIssues[key]?.fix;
+      if (fix) update((d) => fix.apply(d));
+    },
+  }), [allIssues, submitted, touched, update]);
+  const blocking = useMemo(() => Object.entries(allIssues).filter(([, i]) => i.level === 'error'), [allIssues]);
+  const itemTotal = draft.boxes.slice(0, boxCount).reduce((n, b) => n + boxItemCount(b), 0);
 
   const leave = () => {
     if (dirty && hasTyped && !window.confirm('You have changes that are not saved. Leave this page and lose them?')) return;
@@ -434,7 +642,8 @@ export const ShipmentEditorPage: React.FC = () => {
   };
 
   const save = async (thenPrint: boolean) => {
-    const errs = validateBill(draft);
+    setSubmitted(true);
+    const errs = blocking.length ? blocking.map(([, i]) => i.message) : validateBill(draft);
     setErrors(errs);
     setNotice(null);
     if (errs.length) {
@@ -469,7 +678,14 @@ export const ShipmentEditorPage: React.FC = () => {
   const doPrint = (html: string) => setPopupBlocked(!openPrintWindow(html));
 
   if (!canEdit) {
-    return <p className="p-6 text-slate-700">You do not have permission to create or edit shipments.</p>;
+    return (
+      <div className={`${card} max-w-xl mx-auto text-center space-y-3`}>
+        <span className="mx-auto w-12 h-12 rounded-2xl bg-[#FFF6D8] text-[#8C6400] inline-flex items-center justify-center" aria-hidden="true"><Lock className="w-6 h-6" /></span>
+        <h1 className="font-heading font-extrabold text-xl text-[#002147]">You can view shipments, not edit them</h1>
+        <p className="text-sm text-slate-700">Your role is <strong>{role || 'Staff'}</strong>. Creating and editing shipments needs the Admin or Manager role. Ask an admin to change your role in Users &amp; Roles.</p>
+        <button type="button" onClick={() => navigate('/admin/shipments')} className={btnPrimary}><ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to shipments</button>
+      </div>
+    );
   }
   if (loading) return <p className="p-6 text-slate-700" role="status">Loading shipment…</p>;
 
@@ -483,12 +699,14 @@ export const ShipmentEditorPage: React.FC = () => {
       <p className="text-sm font-mono text-slate-800 sm:text-right whitespace-nowrap">Auto: <strong className={auto === 'no rate' ? 'text-amber-900' : ''}>{auto}</strong></p>
       <div>
         <label htmlFor={rid} className="sr-only">{label} manual amount</label>
-        <Num id={rid} value={ov} onChange={setOv} placeholder="Manual Rs" />
+        <Num id={rid} value={ov} onChange={setOv} placeholder="Manual Rs" ctx={ctx} k={rid} />
+        <FieldMsg ctx={ctx} k={rid} />
       </div>
     </div>
   );
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="max-w-6xl mx-auto space-y-5 sm:space-y-6 pb-8">
       <datalist id="unit-list">{GOODS_UNITS.map((u) => <option key={u} value={u} />)}</datalist>
 
@@ -505,6 +723,30 @@ export const ShipmentEditorPage: React.FC = () => {
           {saving ? 'Saving…' : savedId ? (dirty ? 'Unsaved changes' : 'Saved to database') : 'Not saved yet'}
         </span>
       </header>
+
+      <details className="group rounded-2xl border border-[#002147]/10 bg-white shadow-sm">
+        <summary className="flex items-center gap-2.5 px-4 py-3 cursor-pointer list-none text-sm font-bold text-[#002147] rounded-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F2B705]/70">
+          <Lightbulb className="w-4 h-4 text-[#8C6400]" aria-hidden="true" /> How to fill this form
+          <span className="ml-auto text-xs font-semibold text-slate-600 group-open:hidden">Show</span>
+          <span className="ml-auto text-xs font-semibold text-slate-600 hidden group-open:inline">Hide</span>
+        </summary>
+        <div className="px-4 pb-4 grid gap-3 sm:grid-cols-2 text-sm text-slate-700">
+          <ol className="list-decimal pl-5 space-y-1.5">
+            <li><span aria-hidden="true">📝 </span>Check the bill number and date at the top.</li>
+            <li><span aria-hidden="true">📤 </span>Fill in the sender, then the receiver and destination country.</li>
+            <li><span aria-hidden="true">⚖️ </span>Enter the total weight. One box is added for every 20 kg.</li>
+            <li><span aria-hidden="true">🧺 </span>In each box add goods, liquid and meat, then tap <strong>Add</strong>.</li>
+            <li><span aria-hidden="true">💰 </span>Check the charges. Type an amount to replace an automatic one.</li>
+            <li><span aria-hidden="true">💾 </span>Save, then print the bill and box sheets.</li>
+          </ol>
+          <ul className="list-none p-0 m-0 space-y-1.5">
+            <li className="flex gap-2"><Pencil className="w-4 h-4 mt-0.5 shrink-0 text-[#002147]" aria-hidden="true" /> The pencil on any added item lets you change it later.</li>
+            <li className="flex gap-2"><Wrench className="w-4 h-4 mt-0.5 shrink-0 text-[#002147]" aria-hidden="true" /> A navy fix button under an error repairs it in one tap.</li>
+            <li className="flex gap-2"><ShieldCheck className="w-4 h-4 mt-0.5 shrink-0 text-[#002147]" aria-hidden="true" /> You are signed in as <strong>{role || 'Staff'}</strong> and can create and edit shipments.</li>
+            <li className="flex gap-2"><span aria-hidden="true">🥩</span> Meat to a country that does not allow it asks for three confirmations.</li>
+          </ul>
+        </div>
+      </details>
 
       {restored && (
         <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#002147]/20 bg-[#EEF3F9] px-4 py-3 text-sm text-[#002147]">
@@ -529,7 +771,7 @@ export const ShipmentEditorPage: React.FC = () => {
       {(errors.length > 0 || notice) && (
         <div id="form-errors" role={errors.length ? 'alert' : 'status'} className={`rounded-xl border px-4 py-3 text-sm ${errors.length ? 'border-red-300 bg-red-50 text-red-900' : 'border-emerald-300 bg-emerald-50 text-emerald-900'}`}>
           {errors.length ? (
-            <ul className="list-disc pl-5 space-y-0.5">{errors.map((e) => <li key={e}>{e}</li>)}</ul>
+            <div className="space-y-1"><p className="font-bold flex items-center gap-2"><CircleAlert className="w-4 h-4" aria-hidden="true" /> Not saved yet. Fix {errors.length === 1 ? 'this' : `these ${errors.length}`}:</p><ul className="list-disc pl-5 space-y-0.5">{errors.map((e) => <li key={e}>{e}</li>)}</ul>{blocking[0] && <button type="button" className="font-bold underline cursor-pointer" onClick={() => { const el = document.getElementById(blocking[0][0]); el?.scrollIntoView({ block: 'center', behavior: 'smooth' }); (el as HTMLElement | null)?.focus({ preventScroll: true }); }}>Go to the first problem</button>}</div>
           ) : (
             <p className="flex items-center gap-2"><Check className="w-4 h-4" aria-hidden="true" /> {notice}</p>
           )}
@@ -539,7 +781,8 @@ export const ShipmentEditorPage: React.FC = () => {
       <section className={`${card} grid grid-cols-1 sm:grid-cols-3 gap-4`} aria-label="Bill details">
         <div>
           <label htmlFor="bill-no" className={lbl}>Bill number<Req /></label>
-          <input id="bill-no" value={draft.billNo} onChange={(e) => update((d) => { d.billNo = e.target.value.toUpperCase().replace(/\s/g, ''); })} className={`${inp} font-mono font-bold`} />
+          <input id="bill-no" value={draft.billNo} onChange={(e) => update((d) => { d.billNo = e.target.value.toUpperCase().replace(/\s/g, ''); })} className={`${inp} font-mono font-bold ${bad(ctx, 'bill-no')}`} placeholder="BC1810AB" {...aria(ctx, 'bill-no')} />
+          <FieldMsg ctx={ctx} k="bill-no" />
         </div>
         <div>
           <label htmlFor="bill-date" className={lbl}>Billing date</label>
@@ -554,8 +797,8 @@ export const ShipmentEditorPage: React.FC = () => {
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <PartyForm idp="sender" title="Sender" required party={draft.sender} onChange={(p) => update((d) => { d.sender = p; })} lockCountryNote="Nepal by default. Change it only if needed." />
-        <PartyForm idp="receiver" title="Receiver" required party={draft.receiver} onChange={(p) => update((d) => { d.receiver = p; })} />
+        <PartyForm idp="sender" title="Sender" required party={draft.sender} onChange={(p) => update((d) => { d.sender = p; })} lockCountryNote="Nepal by default. Change it only if needed." ctx={ctx} />
+        <PartyForm idp="receiver" title="Receiver" required party={draft.receiver} onChange={(p) => update((d) => { d.receiver = p; })} ctx={ctx} />
       </div>
 
       {/* WEIGHT + BOXES */}
@@ -564,7 +807,8 @@ export const ShipmentEditorPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label htmlFor="total-weight" className={lbl}>Total weight (kg)<Req /></label>
-            <Num id="total-weight" value={draft.totalWeightKg || null} onChange={(n) => update((d) => { d.totalWeightKg = n ?? 0; })} />
+            <Num id="total-weight" value={draft.totalWeightKg || null} placeholder="e.g. 18.5" onChange={(n) => update((d) => { d.totalWeightKg = n ?? 0; })} ctx={ctx} k="total-weight" />
+            <FieldMsg ctx={ctx} k="total-weight" />
           </div>
           <div>
             <label htmlFor="box-count" className={lbl}>Number of boxes</label>
@@ -593,12 +837,9 @@ export const ShipmentEditorPage: React.FC = () => {
             </p>
           </div>
         </div>
-        {draft.totalWeightKg > 0 && draft.totalWeightKg / boxCount > 20 && (
-          <p role="status" className={warnBox}>
-            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
-            <span>{(draft.totalWeightKg / boxCount).toFixed(2)} kg per box is over the 20 kg box limit.</span>
-          </p>
-        )}
+        <FieldMsg ctx={ctx} k="box-count" />
+        <FieldMsg ctx={ctx} k="box-weights" />
+        <p className="flex items-center gap-2 text-sm text-slate-700"><span aria-hidden="true">📦</span> Items added across all boxes <Count n={itemTotal} label="items in total" /></p>
       </section>
 
       {draft.boxes.slice(0, boxCount).map((b, i) => (
@@ -607,7 +848,10 @@ export const ShipmentEditorPage: React.FC = () => {
           box={b}
           index={i}
           total={boxCount}
+          country={draft.receiver.country}
           meatAllowed={result.meatAllowed || !draft.receiver.country}
+          meatRate={result.meatRate}
+          ctx={ctx}
           onChange={(nb) => update((d) => { d.boxes[i] = nb; })}
         />
       ))}
@@ -630,7 +874,7 @@ export const ShipmentEditorPage: React.FC = () => {
           `Rs ${fmtMoney(draft.liquidRate * result.liquidUnits)}`,
           draft.liquidChargeOverride,
           (n) => update((d) => { d.liquidChargeOverride = n; }),
-          <label className="text-xs text-slate-700 flex flex-wrap items-center gap-2 mt-1.5">Rate per bottle <Num value={draft.liquidRate} ariaLabel="Liquid rate per bottle" className="w-24! min-h-[36px]!" onChange={(n) => update((d) => { d.liquidRate = n ?? 0; })} /></label>
+          <label className="text-xs text-slate-700 flex flex-wrap items-center gap-2 mt-1.5">Rate per bottle <Num value={draft.liquidRate} ariaLabel="Liquid rate per bottle" className="w-24! min-h-[36px]!" ctx={ctx} k="rate-liquid" onChange={(n) => update((d) => { d.liquidRate = n ?? 0; })} /></label>
         )}
         {rateRow(
           'r-meat',
@@ -639,7 +883,7 @@ export const ShipmentEditorPage: React.FC = () => {
           `Rs ${fmtMoney(result.meatKg * (draft.meatRateOverride ?? autoMeatRate(draft.receiver.country)))}`,
           draft.meatChargeOverride,
           (n) => update((d) => { d.meatChargeOverride = n; }),
-          <label className="text-xs text-slate-700 flex flex-wrap items-center gap-2 mt-1.5">Rate per kg (auto {fmtMoney(autoMeatRate(draft.receiver.country))}) <Num value={draft.meatRateOverride} placeholder="Auto" ariaLabel="Meat rate per kg" className="w-24! min-h-[36px]!" onChange={(n) => update((d) => { d.meatRateOverride = n; })} /></label>
+          <label className="text-xs text-slate-700 flex flex-wrap items-center gap-2 mt-1.5">Rate per kg (auto {fmtMoney(autoMeatRate(draft.receiver.country))}) <Num value={draft.meatRateOverride} placeholder="Auto" ariaLabel="Meat rate per kg" className="w-24! min-h-[36px]!" ctx={ctx} k="rate-meat" onChange={(n) => update((d) => { d.meatRateOverride = n; })} /></label>
         )}
         {rateRow(
           'r-box',
@@ -648,41 +892,55 @@ export const ShipmentEditorPage: React.FC = () => {
           `Rs ${fmtMoney(boxCount * draft.boxRate)}`,
           draft.boxChargeOverride,
           (n) => update((d) => { d.boxChargeOverride = n; }),
-          <label className="text-xs text-slate-700 flex flex-wrap items-center gap-2 mt-1.5">Rate per box <Num value={draft.boxRate} ariaLabel="Custom box rate" className="w-24! min-h-[36px]!" onChange={(n) => update((d) => { d.boxRate = n ?? 0; })} /></label>
+          <label className="text-xs text-slate-700 flex flex-wrap items-center gap-2 mt-1.5">Rate per box <Num value={draft.boxRate} ariaLabel="Custom box rate" className="w-24! min-h-[36px]!" ctx={ctx} k="rate-box" onChange={(n) => update((d) => { d.boxRate = n ?? 0; })} /></label>
         )}
 
         <div className="pt-4 border-t border-slate-200 space-y-2">
-          <h3 className="text-sm font-extrabold text-[#002147]">Additional charges</h3>
+          <h3 className="text-sm font-extrabold text-[#002147] flex items-center gap-2"><span aria-hidden="true">💰</span> Additional charges <Count n={draft.extras.length} label="additional charges" /></h3>
           <div className="grid grid-cols-2 sm:grid-cols-[minmax(0,1fr)_130px_auto] gap-2 items-end">
             <div className="col-span-2 sm:col-span-1">
               <label className={lbl} htmlFor="extra-name">Charge name</label>
-              <input id="extra-name" value={newExtra.name} onChange={(e) => setNewExtra({ ...newExtra, name: e.target.value })} className={inp} />
+              <input id="extra-name" value={newExtra.name} placeholder="e.g. Packing fee" onChange={(e) => { setNewExtra({ ...newExtra, name: e.target.value }); setExtraErr(null); }} className={`${inp} ${extraErr ? 'border-red-600!' : ''}`} />
             </div>
             <div className="col-span-2 sm:col-span-1">
               <label className={lbl} htmlFor="extra-amt">Amount (Rs)</label>
-              <input id="extra-amt" type="number" inputMode="decimal" value={newExtra.amount} onChange={(e) => setNewExtra({ ...newExtra, amount: e.target.value })} className={inp} />
+              <input id="extra-amt" type="number" inputMode="decimal" value={newExtra.amount} placeholder="e.g. 500" onChange={(e) => { setNewExtra({ ...newExtra, amount: e.target.value }); setExtraErr(null); }} className={`${inp} ${extraErr ? 'border-red-600!' : ''}`} />
             </div>
             <button
               type="button"
               className={`${btnPrimary} col-span-2 sm:col-span-1`}
               onClick={() => {
                 const amount = Number(newExtra.amount);
-                if (!newExtra.name.trim() || !Number.isFinite(amount) || newExtra.amount === '') return;
+                if (!newExtra.name.trim()) return setExtraErr('Name the charge so it prints on the bill, for example "Packing fee".');
+                if (newExtra.amount === '' || !Number.isFinite(amount) || amount === 0) return setExtraErr('Enter the amount in Rs. It cannot be empty or 0.');
                 update((d) => { d.extras.push({ id: uid(), name: newExtra.name.trim(), amount }); });
                 setNewExtra({ name: '', amount: '' });
+                setExtraErr(null);
               }}
             >
               <Plus className="w-4 h-4" aria-hidden="true" /> Add
             </button>
           </div>
+          <AnimatePresence initial={false}>
+            {extraErr && (
+              <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="alert" className="flex items-start gap-1.5 text-xs font-semibold text-red-700">
+                <CircleAlert className="w-3.5 h-3.5 mt-px shrink-0" aria-hidden="true" /> {extraErr}
+              </motion.p>
+            )}
+          </AnimatePresence>
           {draft.extras.length > 0 && (
             <ul className="list-none p-0 m-0" aria-label="Additional charges">
-              {draft.extras.map((x, i) => (
-                <RowShell key={x.id} what={x.name} cols="sm:grid-cols-[minmax(0,1fr)_130px_44px]" onRemove={() => update((d) => { d.extras.splice(i, 1); })}>
-                  <input aria-label="Charge name" value={x.name} onChange={(e) => update((d) => { d.extras[i].name = e.target.value; })} className={`${inp} col-span-2 sm:col-span-1`} />
-                  <Num value={x.amount} ariaLabel="Charge amount" onChange={(n) => update((d) => { d.extras[i].amount = n ?? 0; })} />
-                </RowShell>
-              ))}
+              <AnimatePresence initial={false}>
+                {draft.extras.map((x, i) => (
+                  <React.Fragment key={x.id}>
+                    <ItemRow emoji="💰" title={x.name || 'Unnamed charge'} detail={`Rs ${fmtMoney(x.amount)}`} what={x.name || 'charge'} editing={editingExtra === x.id} onEdit={() => setEditingExtra(x.id)} onDone={() => setEditingExtra(null)} cols="sm:grid-cols-[minmax(0,1fr)_130px_92px]" onRemove={() => { setEditingExtra(null); update((d) => { d.extras.splice(i, 1); }); }}>
+                      <input id={`extra-${i}`} aria-label="Charge name" placeholder="Charge name" value={x.name} onChange={(e) => update((d) => { d.extras[i].name = e.target.value; })} className={`${inp} col-span-2 sm:col-span-1 ${bad(ctx, `extra-${i}`)}`} />
+                      <Num value={x.amount} ariaLabel="Charge amount" placeholder="Rs" onChange={(n) => update((d) => { d.extras[i].amount = n ?? 0; })} />
+                    </ItemRow>
+                    {ctx.issue(`extra-${i}`) && <li className="list-none"><FieldMsg ctx={ctx} k={`extra-${i}`} /></li>}
+                  </React.Fragment>
+                ))}
+              </AnimatePresence>
             </ul>
           )}
         </div>
@@ -770,5 +1028,6 @@ export const ShipmentEditorPage: React.FC = () => {
         </div>
       )}
     </div>
+    </MotionConfig>
   );
 };
