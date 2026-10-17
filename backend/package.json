@@ -1,0 +1,10 @@
+{
+  "name": "thebccargo-render-entry",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Render entry point. The service Root Directory is 'backend', so this folder builds and starts the real app one level up. Clear Root Directory in Render and this folder can be deleted.",
+  "scripts": {
+    "postinstall": "cd .. && npm install --include=dev && npm run build",
+    "start": "cd .. && node server.js"
+  }
+}
