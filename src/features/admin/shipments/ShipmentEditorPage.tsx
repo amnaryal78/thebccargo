@@ -28,11 +28,15 @@ import {
   type LiquidKind,
   type MeatItem,
   liquidName,
+  liquidKindLabel,
   type Party,
 } from './billing/model';
 import { buildBoxSheetsHtml, buildCustomerBillHtml, openPrintWindow, type BillSnapshot } from './billing/print';
 import { fromShipmentRow, toShipmentRow } from './billing/persist';
 import { boxItemCount, collectIssues, type Issue } from './billing/issues';
+import { ItemNameInput } from './catalog/ItemNameInput';
+import { refreshLearnedItems, useItemCatalog } from './catalog/useItemCatalog';
+import { declareName, type CatalogItem } from './catalog';
 
 const STATUSES = [
   ['pending', 'Pending'],
@@ -317,7 +321,9 @@ const BoxSection: React.FC<{
   meatRate: number;
   onChange: (b: BoxDraft) => void;
   ctx: FieldCtx;
-}> = ({ box, index, total, country, meatAllowed, meatRate, onChange, ctx }) => {
+  goodsCatalog: CatalogItem[];
+  meatCatalog: CatalogItem[];
+}> = ({ box, index, total, country, meatAllowed, meatRate, onChange, ctx, goodsCatalog, meatCatalog }) => {
   const [g, setG] = useState({ name: '', unit: 'pcs', qty: '' });
   const [l, setL] = useState<{ kind: LiquidKind; other: string; unit: string; qty: string }>({ kind: 'Ghee', other: '', unit: 'btl', qty: '' });
   const [m, setM] = useState({ name: '', kg: '', qty: '' });
@@ -331,7 +337,7 @@ const BoxSection: React.FC<{
     const qty = Number(g.qty);
     if (!g.name.trim()) return setGErr('Enter the item name, for example "Dhaka topi".');
     if (!(qty > 0)) return setGErr('Enter how many. The quantity must be more than 0.');
-    onChange({ ...box, goods: [...box.goods, { id: uid(), name: g.name.trim(), unit: g.unit || 'pcs', qty }] });
+    onChange({ ...box, goods: [...box.goods, { id: uid(), name: declareName(g.name.trim()), unit: g.unit || 'pcs', qty }] });
     setG({ ...g, name: '', qty: '' });
     setGErr(null);
   };
@@ -339,7 +345,7 @@ const BoxSection: React.FC<{
     const qty = Number(l.qty);
     if (l.kind === 'Other' && !l.other.trim()) return setLErr('Enter the liquid name, or pick Ghee, Oil or Honey.');
     if (!(qty > 0)) return setLErr('Enter how many bottles. The quantity must be more than 0.');
-    onChange({ ...box, liquids: [...box.liquids, { id: uid(), kind: l.kind, otherName: l.kind === 'Other' ? l.other.trim() : '', unit: l.unit || 'btl', qty }] });
+    onChange({ ...box, liquids: [...box.liquids, { id: uid(), kind: l.kind, otherName: l.kind === 'Other' ? declareName(l.other.trim()) : '', unit: l.unit || 'btl', qty }] });
     setL({ ...l, other: '', qty: '' });
     setLErr(null);
   };
@@ -349,7 +355,7 @@ const BoxSection: React.FC<{
     if (!m.name.trim()) return setMErr('Enter the meat name, for example "Dried buffalo".');
     if (!(kg > 0)) return setMErr('Enter the weight of one piece in kg, more than 0.');
     if (!(qty > 0)) return setMErr('Enter how many pieces. The quantity must be more than 0.');
-    const item: MeatItem = { id: uid(), name: m.name.trim(), kgPerUnit: kg, qty };
+    const item: MeatItem = { id: uid(), name: declareName(m.name.trim()), kgPerUnit: kg, qty };
     setMErr(null);
     if (!meatAllowed) return setMeatAsk(item);
     commitMeat(item);
@@ -407,7 +413,7 @@ const BoxSection: React.FC<{
         <div className="grid grid-cols-2 sm:grid-cols-[minmax(0,1fr)_110px_90px_auto] gap-2 items-end">
           <div className="col-span-2 sm:col-span-1">
             <label className={lbl} htmlFor={`${key}-gn`}>Item name</label>
-            <input id={`${key}-gn`} value={g.name} placeholder="e.g. Dhaka topi" onChange={(e) => { setG({ ...g, name: e.target.value }); setGErr(null); }} onKeyDown={onEnter(addGoods)} className={`${inp} ${gErr ? 'border-red-600!' : ''}`} />
+            <ItemNameInput id={`${key}-gn`} value={g.name} items={goodsCatalog} placeholder="e.g. Shoes, chocolate, socks" onChange={(t) => { setG({ ...g, name: t }); setGErr(null); }} onPick={(it) => { setG({ ...g, name: it.name, unit: it.unit }); setGErr(null); document.getElementById(`${key}-gq`)?.focus(); }} onEnter={addGoods} className={`${inp} ${gErr ? 'border-red-600!' : ''}`} />
           </div>
           <div>
             <label className={lbl} htmlFor={`${key}-gu`}>Type</label>
@@ -425,7 +431,7 @@ const BoxSection: React.FC<{
             <AnimatePresence initial={false}>
               {box.goods.map((it) => (
                 <ItemRow key={it.id} emoji="🧺" title={it.name || 'Unnamed item'} detail={`${it.qty} ${it.unit}`} what={it.name || 'item'} editing={editing === it.id} onEdit={() => setEditing(it.id)} onDone={() => setEditing(null)} cols="sm:grid-cols-[minmax(0,1fr)_110px_90px_92px]" onRemove={() => { setEditing(null); onChange({ ...box, goods: box.goods.filter((x) => x.id !== it.id) }); }}>
-                  <input aria-label="Item name" placeholder="Item name" value={it.name} onChange={(e) => mapGoods(it.id, { name: e.target.value })} className={`${inp} col-span-2 sm:col-span-1 ${it.name.trim() ? '' : 'border-red-600!'}`} />
+                  <div className="col-span-2 sm:col-span-1"><ItemNameInput id={`${key}-ge-${it.id}`} ariaLabel="Item name" placeholder="Item name" value={it.name} items={goodsCatalog} onChange={(t) => mapGoods(it.id, { name: t })} onPick={(c) => mapGoods(it.id, { name: c.name, unit: c.unit })} className={`${inp} ${it.name.trim() ? '' : 'border-red-600!'}`} /></div>
                   <input aria-label="Type" list="unit-list" placeholder="pcs" value={it.unit} onChange={(e) => mapGoods(it.id, { unit: e.target.value })} className={inp} />
                   <Num value={it.qty} ariaLabel="Quantity" placeholder="Qty" onChange={(n) => mapGoods(it.id, { qty: n ?? 0 })} />
                 </ItemRow>
@@ -442,12 +448,12 @@ const BoxSection: React.FC<{
           <div>
             <label className={lbl} htmlFor={`${key}-lk`}>Kind</label>
             <select id={`${key}-lk`} value={l.kind} onChange={(e) => { setL({ ...l, kind: e.target.value as LiquidKind }); setLErr(null); }} className={inp}>
-              {LIQUID_KINDS.map((k) => <option key={k}>{k}</option>)}
+              {LIQUID_KINDS.map((k) => <option key={k} value={k}>{liquidKindLabel(k)}</option>)}
             </select>
           </div>
           <div>
             <label className={lbl} htmlFor={`${key}-lo`}>{l.kind === 'Other' ? 'Liquid name' : 'Name'}</label>
-            <input id={`${key}-lo`} disabled={l.kind !== 'Other'} value={l.kind === 'Other' ? l.other : l.kind} placeholder="e.g. Mustard oil" onChange={(e) => { setL({ ...l, other: e.target.value }); setLErr(null); }} className={`${inp} ${lErr && l.kind === 'Other' ? 'border-red-600!' : ''}`} />
+            <input id={`${key}-lo`} disabled={l.kind !== 'Other'} value={l.kind === 'Other' ? l.other : liquidKindLabel(l.kind)} placeholder="e.g. Mustard oil" onChange={(e) => { setL({ ...l, other: e.target.value }); setLErr(null); }} className={`${inp} ${lErr && l.kind === 'Other' ? 'border-red-600!' : ''}`} />
           </div>
           <div>
             <label className={lbl} htmlFor={`${key}-lu`}>Type</label>
@@ -466,9 +472,9 @@ const BoxSection: React.FC<{
               {box.liquids.map((it) => (
                 <ItemRow key={it.id} emoji="🧴" title={liquidName(it)} detail={`${it.qty} ${it.unit}`} what={liquidName(it)} editing={editing === it.id} onEdit={() => setEditing(it.id)} onDone={() => setEditing(null)} cols="sm:grid-cols-[130px_minmax(0,1fr)_90px_90px_92px]" onRemove={() => { setEditing(null); onChange({ ...box, liquids: box.liquids.filter((x) => x.id !== it.id) }); }}>
                   <select aria-label="Kind" value={it.kind} onChange={(e) => mapLiquid(it.id, { kind: e.target.value as LiquidKind })} className={inp}>
-                    {LIQUID_KINDS.map((k) => <option key={k}>{k}</option>)}
+                    {LIQUID_KINDS.map((k) => <option key={k} value={k}>{liquidKindLabel(k)}</option>)}
                   </select>
-                  <input aria-label="Liquid name" disabled={it.kind !== 'Other'} placeholder="Liquid name" value={it.kind === 'Other' ? it.otherName : it.kind} onChange={(e) => mapLiquid(it.id, { otherName: e.target.value })} className={inp} />
+                  <input aria-label="Liquid name" disabled={it.kind !== 'Other'} placeholder="Liquid name" value={it.kind === 'Other' ? it.otherName : liquidKindLabel(it.kind)} onChange={(e) => mapLiquid(it.id, { otherName: e.target.value })} className={inp} />
                   <input aria-label="Type" list="unit-list" placeholder="btl" value={it.unit} onChange={(e) => mapLiquid(it.id, { unit: e.target.value })} className={inp} />
                   <Num value={it.qty} ariaLabel="Quantity" placeholder="Qty" onChange={(n) => mapLiquid(it.id, { qty: n ?? 0 })} />
                 </ItemRow>
@@ -485,7 +491,7 @@ const BoxSection: React.FC<{
         <div className="grid grid-cols-2 sm:grid-cols-[minmax(0,1fr)_100px_90px_auto] gap-2 items-end">
           <div className="col-span-2 sm:col-span-1">
             <label className={lbl} htmlFor={`${key}-mn`}>Meat name</label>
-            <input id={`${key}-mn`} value={m.name} placeholder="e.g. Dried buffalo" onChange={(e) => { setM({ ...m, name: e.target.value }); setMErr(null); }} onKeyDown={onEnter(addMeat)} className={inp} />
+            <ItemNameInput id={`${key}-mn`} value={m.name} items={meatCatalog} placeholder="e.g. Sukuti, chicken, fish" onChange={(t) => { setM({ ...m, name: t }); setMErr(null); }} onPick={(it) => { setM({ ...m, name: it.name }); setMErr(null); document.getElementById(`${key}-mk`)?.focus(); }} onEnter={addMeat} className={inp} />
           </div>
           <div>
             <label className={lbl} htmlFor={`${key}-mk`}>Kg each</label>
@@ -503,7 +509,7 @@ const BoxSection: React.FC<{
             <AnimatePresence initial={false}>
               {box.meats.map((it) => (
                 <ItemRow key={it.id} emoji="🥩" title={it.name || 'Unnamed meat'} detail={`${it.qty} × ${it.kgPerUnit} kg = ${money2(it.qty * it.kgPerUnit)} kg`} what={it.name || 'meat'} editing={editing === it.id} onEdit={() => setEditing(it.id)} onDone={() => setEditing(null)} cols="sm:grid-cols-[minmax(0,1fr)_100px_90px_92px]" onRemove={() => { setEditing(null); onChange({ ...box, meats: box.meats.filter((x) => x.id !== it.id) }); }}>
-                  <input aria-label="Meat name" placeholder="Meat name" value={it.name} onChange={(e) => mapMeat(it.id, { name: e.target.value })} className={`${inp} col-span-2 sm:col-span-1`} />
+                  <div className="col-span-2 sm:col-span-1"><ItemNameInput id={`${key}-me-${it.id}`} ariaLabel="Meat name" placeholder="Meat name" value={it.name} items={meatCatalog} onChange={(t) => mapMeat(it.id, { name: t })} onPick={(c) => mapMeat(it.id, { name: c.name })} className={inp} /></div>
                   <Num value={it.kgPerUnit} ariaLabel="Kg each" placeholder="Kg" onChange={(n) => mapMeat(it.id, { kgPerUnit: n ?? 0 })} />
                   <Num value={it.qty} ariaLabel="Quantity" placeholder="Qty" onChange={(n) => mapMeat(it.id, { qty: n ?? 0 })} />
                 </ItemRow>
@@ -525,6 +531,7 @@ export const ShipmentEditorPage: React.FC = () => {
   const { role } = useAuth();
   const canEdit = getRolePermissions(role).canManageShipments;
   const { sheetRates } = useEstimatorData();
+  const catalog = useItemCatalog();
 
   const [draft, setDraft] = useState<BillDraft>(() => {
     if (isNew) {
@@ -662,6 +669,17 @@ export const ShipmentEditorPage: React.FC = () => {
       setSavedJson(currentJson);
       try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
       setRestored(false);
+      // Remember every item name on this bill so it is suggested next time. Never blocks or fails the save.
+      void adminDataService
+        .recordItemUsage(
+          draft.boxes.slice(0, result.boxCount).flatMap((b) => [
+            ...b.goods.map((g) => ({ name: g.name, unit: g.unit })),
+            ...b.liquids.map((q) => ({ name: liquidName(q), unit: q.unit })),
+            ...b.meats.map((m) => ({ name: m.name, unit: 'pcs' })),
+          ])
+        )
+        .then(refreshLearnedItems)
+        .catch(() => undefined);
       setNotice(`Saved ${draft.billNo}. Total Rs ${fmtMoney(result.total)}.`);
       if (isNew) navigate(`/admin/shipments/${saved.id}`, { replace: true });
       if (thenPrint) setPrintOpen(true);
@@ -852,6 +870,8 @@ export const ShipmentEditorPage: React.FC = () => {
           meatAllowed={result.meatAllowed || !draft.receiver.country}
           meatRate={result.meatRate}
           ctx={ctx}
+          goodsCatalog={catalog.goods}
+          meatCatalog={catalog.meat}
           onChange={(nb) => update((d) => { d.boxes[i] = nb; })}
         />
       ))}

@@ -14,26 +14,15 @@ describe('Tracking Service Logic', () => {
     expect(result.error || '').toMatch(/at least 4 characters/i);
   });
 
-  test('returns sanitized manifest for verified seed consignment BC-90214-HKG', async () => {
+  test('does not serve demo consignments', async () => {
     const result = await fetchPublicTracking('BC-90214-HKG');
-    expect(result.error).toBeNull();
-    expect(result.data).not.toBeNull();
-    if (result.data) {
-      expect(result.data.trackingNumber).toBe('BC-90214-HKG');
-      expect(result.data.status).toBe('In Transit');
-      expect(result.data.milestones.length).toBeGreaterThan(0);
-      // PII must be sanitized
-      expect(result.data.shipper.name).toBe('Authorized Exporter');
-      expect(result.data.consignee.name).toBe('Authorized Consignee');
-    }
+    expect(result.data).toBeNull();
+    expect(result.error || '').toMatch(/no active shipment found/i);
   });
 
-  test('normalizes lowercase tracking code input', async () => {
-    const result = await fetchPublicTracking('bc-90214-hkg');
-    expect(result.error).toBeNull();
-    expect(result.data).not.toBeNull();
-    if (result.data) {
-      expect(result.data.trackingNumber).toBe('BC-90214-HKG');
-    }
+  test('normalizes lowercase tracking code input in the not-found message', async () => {
+    const result = await fetchPublicTracking('bc-unknown-0001');
+    expect(result.data).toBeNull();
+    expect(result.error || '').toContain('BC-UNKNOWN-0001');
   });
 });
