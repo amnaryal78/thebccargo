@@ -1,6 +1,5 @@
 import { supabase } from '../lib/supabase';
 import { Shipment, ShipmentStatus, ServiceMode } from '../types';
-import { INITIAL_SHIPMENTS } from '../data/initialData';
 
 export interface PublicTrackingResponse {
   tracking_number: string;
@@ -62,7 +61,7 @@ export const fetchPublicTracking = async (trackingNumber: string): Promise<{ dat
         status: mapStatus(publicData.status),
         commodity: 'Commercial Air/General Cargo',
         shipper: {
-          name: 'Verified Exporter',
+          name: 'Authorized Exporter',
           company: 'BC Cargo Verified Shipper',
           city: publicData.origin,
           country: 'Nepal'
@@ -102,29 +101,7 @@ export const fetchPublicTracking = async (trackingNumber: string): Promise<{ dat
       return { data: formattedShipment, error: null };
     }
   } catch (err) {
-    console.warn('Supabase query fallback to seed manifests:', err);
-  }
-
-  // Local verified seed manifests for development/demo fallback
-  const localMatch = INITIAL_SHIPMENTS.find(s => s.trackingNumber.toUpperCase() === cleanCode);
-  if (localMatch) {
-    // Sanitize seed data to ensure no PII is exposed publicly
-    const sanitizedMatch: Shipment = {
-      ...localMatch,
-      shipper: {
-        name: 'Authorized Exporter',
-        company: localMatch.shipper.company,
-        city: localMatch.shipper.city,
-        country: localMatch.shipper.country
-      },
-      consignee: {
-        name: 'Authorized Consignee',
-        company: localMatch.consignee.company,
-        city: localMatch.consignee.city,
-        country: localMatch.consignee.country
-      }
-    };
-    return { data: sanitizedMatch, error: null };
+    console.warn('Tracking lookup failed:', err);
   }
 
   return { data: null, error: `No active shipment found with tracking code "${cleanCode}". Please verify your AWB or contact BC Cargo operations.` };

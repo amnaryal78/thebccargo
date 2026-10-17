@@ -4,29 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>The BC Cargo &amp; Courier Pvt. Ltd. | National &amp; International Logistics</title>
-    <meta name="description" content="National and International cargo, express courier, air freight charters, and customs clearance logistics headquartered in Hetauda, connecting Nepal with 50+ global destinations." />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F7F9FC" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#071A33" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="description" content="National and International cargo, express courier, air freight charters, and customs clearance logistics headquartered in Hetauda, connecting Nepal with 220+ destinations." />
+    <meta name="theme-color" content="#F6F6F4" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
     <script>
-      (function() {
-        try {
-          var saved = localStorage.getItem('bc_cargo_theme');
-          var isDark = saved === 'dark' || ((!saved || saved === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-          if (isDark) {
-            document.documentElement.classList.add('dark');
-          } else {
-            document.documentElement.classList.remove('dark');
-          }
-        } catch (e) {}
-      })();
+      // Light theme only: forget any old saved theme choice
+      try { localStorage.removeItem('bc_cargo_theme'); } catch (e) {}
     </script>
   </head>
-  <body class="antialiased selection:bg-[#0B5ED7] selection:text-white">
+  <body class="antialiased selection:bg-[#F2B705] selection:text-[#002147]">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').catch(function(err) {
+            console.warn('[SW Registration]', err);
+          });
+        });
+      }
+    </script>
   </body>
 </html>

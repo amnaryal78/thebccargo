@@ -14,6 +14,7 @@
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
+import zlib from 'zlib';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -95,12 +96,15 @@ async function handleChatApi(req, res) {
   req.on('end', async () => {
     try {
       const payload = JSON.parse(body || '{}');
-      const userMessage = payload.message || '';
+      const userMessage = (payload.message || '').trim();
       const settings = payload.settings || {};
-      const knowledge = payload.knowledge || [];
       const history = payload.history || [];
 
-      const lowerMsg = userMessage.toLowerCase().trim();
+      const WHATSAPP_ACTION = { label: 'WhatsApp', type: 'whatsapp', payload: '9779855068307' };
+      const CALL_ACTION = { label: 'Call', type: 'call', payload: '+9779855068307' };
+      const PRICE_ACTION = { label: 'Price', type: 'navigate', payload: 'rates' };
+
+      const lowerMsg = userMessage.toLowerCase();
       const forbidden = [
         'prime minister', 'president', 'write python', 'write code', 'medical advice',
         'tell me a joke', 'recipe', 'movie', 'actor', 'system prompt', 'api key', 'secret key',
@@ -110,25 +114,79 @@ async function handleChatApi(req, res) {
       if (forbidden.some(f => lowerMsg.includes(f))) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({
-          reply: settings.fallbackMessage || 'I can help only with The BC Cargo services, pickup, delivery, tracking, rates, destinations, and contact information. Please ask me something about BC Cargo.',
-          isFallback: true
+          reply: settings.fallbackMessage || 'I only help with cargo, shipping, and BC Cargo services. For other inquiries, please message our team on WhatsApp at +977 9855068307 or call 057-520000.',
+          isFallback: true,
+          actions: [WHATSAPP_ACTION, CALL_ACTION]
         }));
       }
 
-      const knowledgeText = knowledge.map(k => `[${k.category}] ${k.title}: ${k.content}`).join('\n');
-      const fallbackMsgText = settings.fallbackMessage || 'I can help only with The BC Cargo services, pickup, delivery, tracking, rates, destinations, and contact information. Please ask me something about BC Cargo.';
+      // Meat rule check
+      if (lowerMsg.includes('meat') || lowerMsg.includes('sukuti') || lowerMsg.includes('buff') || lowerMsg.includes('मासु')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        if (lowerMsg.includes('uk') || lowerMsg.includes('united kingdom') || lowerMsg.includes('europe') || lowerMsg.includes('hong kong') || lowerMsg.includes('hkg')) {
+          return res.end(JSON.stringify({
+            reply: 'Meat items (including dried/sukuti) are allowed for Europe, UK, and Hong Kong under special export packaging. Prohibited for other destinations.',
+            actions: [WHATSAPP_ACTION, PRICE_ACTION]
+          }));
+        }
+        return res.end(JSON.stringify({
+          reply: 'Meat is accepted ONLY for Europe, UK, and Hong Kong. Meat shipments to USA, Australia, Gulf countries, Japan, Canada, and other destinations are strictly prohibited by customs.',
+          actions: [WHATSAPP_ACTION, PRICE_ACTION]
+        }));
+      }
 
-      const systemPrompt = `You are "BC Cargo AI", the official controlled digital customer service assistant for The BC Cargo & Courier.
-Your sole job is to answer customer questions strictly based on approved BC Cargo information below.
-Rules:
-1. Represent ONLY The BC Cargo & Courier (Government Licensed #B-409).
-2. Answer strictly using the approved knowledge below. Do NOT invent prices, delivery times, or policies.
-3. If asked anything outside BC Cargo services, reply strictly with: "${fallbackMsgText}"
-4. Keep answers concise, polite, professional, and clear.
-5. Support English and Nepali naturally.
+      // Pickup rule check
+      if (lowerMsg.includes('pickup') || lowerMsg.includes('pick up') || lowerMsg.includes('collect') || lowerMsg.includes('उठाउने')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        if (lowerMsg.includes('london') || lowerMsg.includes('usa') || lowerMsg.includes('korea') || lowerMsg.includes('uk') || lowerMsg.includes('dubai') || lowerMsg.includes('australia') || lowerMsg.includes('outside nepal')) {
+          return res.end(JSON.stringify({
+            reply: 'We only pick up shipments within Nepal. We deliver worldwide to 190+ countries. We do not pick up from outside Nepal.',
+            actions: [WHATSAPP_ACTION, PRICE_ACTION]
+          }));
+        }
+        return res.end(JSON.stringify({
+          reply: 'Yes! We provide doorstep pickup anywhere in Nepal (Hetauda, Kathmandu, Pokhara, Chitwan, Birgunj, and all districts). Consignments are dispatched internationally from Nepal.',
+          actions: [WHATSAPP_ACTION, PRICE_ACTION]
+        }));
+      }
 
-APPROVED BC CARGO KNOWLEDGE:
-${knowledgeText}`;
+      // Booking inquiry
+      if (lowerMsg.includes('book') || lowerMsg.includes('booking') || lowerMsg.includes('बुकिङ')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({
+          reply: 'Booking a shipment needs human staff to confirm customs paperwork and dispatch. Please message our team on WhatsApp or call our Hetauda office.',
+          actions: [WHATSAPP_ACTION, CALL_ACTION]
+        }));
+      }
+
+      // Tracking inquiry
+      if (lowerMsg.includes('track') || lowerMsg.includes('tracking')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({
+          reply: 'Live tracking updates need human staff assistance. Please message our WhatsApp with your tracking code, or call us.',
+          actions: [WHATSAPP_ACTION, CALL_ACTION]
+        }));
+      }
+
+      // Rates inquiry
+      if (lowerMsg.includes('rate') || lowerMsg.includes('price') || lowerMsg.includes('cost') || lowerMsg.includes('how much') || lowerMsg.includes('भाडा')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({
+          reply: 'Prices come strictly from our live rates tariff engine. Please click Price below to view exact live rates, or message our team on WhatsApp for a custom quotation.',
+          actions: [PRICE_ACTION, WHATSAPP_ACTION]
+        }));
+      }
+
+      const systemPrompt = `You are "BC Cargo AI", the official customer service assistant for The BC Cargo & Courier (Govt License #B-409, Kantirajpath, Hetauda-4, Nepal, Phone: +977 9855068307 / 057-520000, WhatsApp: +977 9855068307).
+Strict Rules:
+1. Talk ONLY about cargo, shipping, and BC Cargo. Reject non-cargo questions politely.
+2. Use short, easy words. Be concise.
+3. Pickup is ONLY within Nepal (doorstep pickup anywhere in Nepal). Delivery is worldwide to 190+ countries.
+4. Meat is ONLY accepted for Europe, UK, and Hong Kong. Prohibited everywhere else.
+5. Prices come ONLY from the live rates function. NEVER guess or invent a price.
+6. Booking and tracking need a human: tell the user to contact WhatsApp (+977 9855068307).
+7. If you do not know the answer, tell the user to message on WhatsApp (+977 9855068307).
+8. Answer in the same language the user asks (Nepali, English, etc.).`;
 
       const openRouterKey = process.env.OPENROUTER_API_KEY;
       const reqModel = settings.model || process.env.DEFAULT_AI_MODEL || 'google/gemma-4-26b-a4b-it:free';
@@ -152,8 +210,8 @@ ${knowledgeText}`;
                   ...history.map(h => ({ role: h.sender === 'user' ? 'user' : 'assistant', content: h.text })),
                   { role: 'user', content: userMessage }
                 ],
-                temperature: 0.2,
-                max_tokens: settings.maxTokens || 400
+                temperature: 0.1,
+                max_tokens: settings.maxTokens || 300
               })
             });
 
@@ -162,7 +220,10 @@ ${knowledgeText}`;
               const aiText = data.choices?.[0]?.message?.content;
               if (aiText) {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
-                return res.end(JSON.stringify({ reply: aiText.trim() }));
+                return res.end(JSON.stringify({
+                  reply: aiText.trim(),
+                  actions: [WHATSAPP_ACTION, PRICE_ACTION]
+                }));
               }
             }
           } catch (e) {
@@ -173,7 +234,8 @@ ${knowledgeText}`;
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify({
-        reply: `I am BC Cargo AI. I can assist you with our priority air freight, domestic courier, sea cargo, doorstep pickup, or package tracking. How can I help you with your shipment today?`
+        reply: `The BC Cargo Central HQ is at Kantirajpath, Hetauda-4, Nepal. We provide doorstep pickup across Nepal and worldwide express cargo delivery. How can we help you?`,
+        actions: [WHATSAPP_ACTION, PRICE_ACTION]
       }));
 
     } catch (e) {
@@ -312,7 +374,85 @@ Return ONLY the raw JSON object conforming to the schema.`;
 }
 
 // ============================================================================
-// 5. Static File Serving with SPA Fallback
+// 5. In-Memory Sliding Window Rate Limiter
+// ============================================================================
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 60; // 60 requests/min per IP
+const ipRequestCounts = new Map();
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  let record = ipRequestCounts.get(ip);
+  if (!record || now - record.startTime > RATE_LIMIT_WINDOW_MS) {
+    record = { count: 1, startTime: now };
+    ipRequestCounts.set(ip, record);
+    return true;
+  }
+  record.count++;
+  if (record.count > MAX_REQUESTS_PER_WINDOW) {
+    return false;
+  }
+  return true;
+}
+
+// Clean up stale rate limit records every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, record] of ipRequestCounts.entries()) {
+    if (now - record.startTime > RATE_LIMIT_WINDOW_MS) {
+      ipRequestCounts.delete(ip);
+    }
+  }
+}, 5 * 60 * 1000).unref();
+
+// ============================================================================
+// 6. Security Headers Specification
+// ============================================================================
+const BASE_SECURITY_HEADERS = {
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://flagcdn.com https://*.supabase.co https://images.unsplash.com https://thebccargo.com; connect-src 'self' https://cdn.jsdelivr.net https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self';",
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'SAMEORIGIN',
+  'Referrer-Policy': 'strict-origin-when-cross-origin'
+};
+
+// ============================================================================
+// 7. Stream with Brotli & Gzip Compression
+// ============================================================================
+function streamWithCompression(req, res, targetFile, headers, statusCode = 200) {
+  const acceptEncoding = req.headers['accept-encoding'] || '';
+  const ext = path.extname(targetFile).toLowerCase();
+  
+  // Compress text-based assets
+  const isCompressible = ['.html', '.js', '.mjs', '.css', '.json', '.xml', '.txt', '.svg', '.map'].includes(ext);
+
+  headers['Vary'] = 'Accept-Encoding';
+
+  const rawStream = fs.createReadStream(targetFile);
+  rawStream.on('error', () => {
+    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end('Internal Server Error');
+  });
+
+  if (isCompressible && acceptEncoding.includes('br')) {
+    headers['Content-Encoding'] = 'br';
+    delete headers['Content-Length'];
+    res.writeHead(statusCode, headers);
+    rawStream.pipe(zlib.createBrotliCompress()).pipe(res);
+  } else if (isCompressible && acceptEncoding.includes('gzip')) {
+    headers['Content-Encoding'] = 'gzip';
+    delete headers['Content-Length'];
+    res.writeHead(statusCode, headers);
+    rawStream.pipe(zlib.createGzip()).pipe(res);
+  } else {
+    res.writeHead(statusCode, headers);
+    rawStream.pipe(res);
+  }
+}
+
+// ============================================================================
+// 8. Static File Serving with Prerender & SPA Fallback
 // ============================================================================
 function serveStaticFile(req, res) {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
@@ -330,7 +470,7 @@ function serveStaticFile(req, res) {
     let targetFile = safePath;
     let isFile = !err && stats.isFile();
 
-    // If it's a directory, check for index.html inside it
+    // 1. If it's a directory, check for index.html inside it
     if (!err && stats.isDirectory()) {
       const dirIndex = path.join(safePath, 'index.html');
       if (fs.existsSync(dirIndex)) {
@@ -339,7 +479,20 @@ function serveStaticFile(req, res) {
       }
     }
 
-    // SPA fallback: If file doesn't exist and there is no file extension (e.g. /rates, /track, /book, /admin)
+    // 2. Prerendered HTML: If route without extension (e.g. /rates, /services/air-freight-express)
+    // Check if dist/<route>/index.html exists first!
+    if (!isFile) {
+      const cleanPath = pathname.replace(/^\//, '').replace(/\/$/, '');
+      if (cleanPath && !path.extname(cleanPath)) {
+        const prerenderedCandidate = path.join(DIST_DIR, cleanPath, 'index.html');
+        if (fs.existsSync(prerenderedCandidate)) {
+          targetFile = prerenderedCandidate;
+          isFile = true;
+        }
+      }
+    }
+
+    // 3. SPA Fallback: If still not a file and no extension, serve main dist/index.html
     if (!isFile) {
       const ext = path.extname(pathname);
       if (!ext || ext === '.html') {
@@ -349,7 +502,7 @@ function serveStaticFile(req, res) {
     }
 
     if (!isFile) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.writeHead(404, { 'Content-Type': 'text/plain', ...BASE_SECURITY_HEADERS });
       return res.end('404 Not Found');
     }
 
@@ -357,11 +510,12 @@ function serveStaticFile(req, res) {
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
     const headers = {
-      'Content-Type': contentType,
-      'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'SAMEORIGIN',
-      'Referrer-Policy': 'strict-origin-when-cross-origin'
+      ...BASE_SECURITY_HEADERS,
+      'Content-Type': contentType
     };
+
+    // Private app areas are never search results, whatever robots.txt says.
+    if (/^\/(admin|login)(\/|$)/.test(pathname)) headers['X-Robots-Tag'] = 'noindex, nofollow';
 
     if (pathname.startsWith('/assets/')) {
       headers['Cache-Control'] = 'public, max-age=31536000, immutable';
@@ -373,27 +527,53 @@ function serveStaticFile(req, res) {
       headers['Cache-Control'] = 'public, max-age=3600';
     }
 
-    const stream = fs.createReadStream(targetFile);
-    stream.on('error', (readErr) => {
-      res.writeHead(500, { 'Content-Type': 'text/plain' });
-      res.end('Internal Server Error');
-    });
-
-    res.writeHead(200, headers);
-    stream.pipe(res);
+    streamWithCompression(req, res, targetFile, headers);
   });
 }
 
+const PERMANENT_REDIRECTS = {
+  '/rates/national': '/rates',
+  '/rates/calculator': '/rates',
+  '/services/courier-nat': '/services',
+  '/services/haulage-nat': '/services',
+  '/services/nepal-domestic-express': '/services',
+  '/services/domestic-express-cargo': '/services'
+};
+
 // ============================================================================
-// 6. Primary HTTP Request Dispatcher
+// 9. Primary HTTP Request Dispatcher
 // ============================================================================
 const server = http.createServer((req, res) => {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = parsedUrl.pathname;
+  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+
+  // 301 Permanent Redirects for legacy routes
+  if (PERMANENT_REDIRECTS[pathname]) {
+    res.writeHead(301, {
+      Location: PERMANENT_REDIRECTS[pathname],
+      ...BASE_SECURITY_HEADERS
+    });
+    return res.end();
+  }
+
+  // Apply rate limiting to all /api/* endpoints
+  if (pathname.startsWith('/api/')) {
+    if (!checkRateLimit(clientIp)) {
+      res.writeHead(429, { 
+        'Content-Type': 'application/json',
+        'Retry-After': '60',
+        ...BASE_SECURITY_HEADERS 
+      });
+      return res.end(JSON.stringify({ 
+        error: 'Rate limit exceeded. Please wait a moment before sending more requests.' 
+      }));
+    }
+  }
 
   // Health check endpoint
   if (pathname === '/api/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.writeHead(200, { 'Content-Type': 'application/json', ...BASE_SECURITY_HEADERS });
     return res.end(JSON.stringify({
       status: 'healthy',
       app: 'The BC Cargo & Courier',
@@ -412,7 +592,7 @@ const server = http.createServer((req, res) => {
     return handleFixBlogApi(req, res);
   }
 
-  // Static files and SPA fallback
+  // Static files with prerender and compression
   serveStaticFile(req, res);
 });
 
@@ -420,6 +600,8 @@ server.listen(PORT, HOST, () => {
   console.log(`================================================================`);
   console.log(` The BC Cargo & Courier — Standalone Production Server`);
   console.log(` Listening on: http://${HOST}:${PORT}`);
+  console.log(` Compression: Brotli & Gzip Active`);
+  console.log(` Security Headers: CSP, HSTS, Permissions-Policy Active`);
   console.log(` Static Directory: ${DIST_DIR}`);
   console.log(` Health Check: http://${HOST}:${PORT}/api/health`);
   console.log(`================================================================`);

@@ -4,7 +4,7 @@ import { secureDataStorage } from '../lib/secureStorage';
 export interface CursorMessageItem {
   id: string;
   text: string;
-  category: 'brand' | 'location' | 'service' | 'trust' | 'cta' | 'international';
+  category: 'brand' | 'location' | 'service' | 'trust' | 'cta' | 'international' | 'ad';
   enabled: boolean;
   order?: number;
 }
@@ -13,15 +13,13 @@ export const DEFAULT_CURSOR_MESSAGES: CursorMessageItem[] = [
   { id: 'cm-1', text: 'The BC Cargo', category: 'brand', enabled: true, order: 1 },
   { id: 'cm-2', text: 'Our Location Hetauda', category: 'location', enabled: true, order: 2 },
   { id: 'cm-3', text: 'Courier your product now', category: 'cta', enabled: true, order: 3 },
-  { id: 'cm-4', text: 'National & International Service', category: 'service', enabled: true, order: 4 },
+  { id: 'cm-4', text: 'Worldwide Freight Forwarding', category: 'service', enabled: true, order: 4 },
   { id: 'cm-5', text: 'Connecting Nepal & the World', category: 'international', enabled: true, order: 5 },
-  { id: 'cm-6', text: 'Your Goods, Our Responsibility', category: 'trust', enabled: true, order: 6 },
   { id: 'cm-7', text: 'Fast. Safe. Reliable.', category: 'trust', enabled: true, order: 7 },
   { id: 'cm-8', text: 'Send With Confidence', category: 'cta', enabled: true, order: 8 },
-  { id: 'cm-9', text: 'You Trust Us, We Deliver', category: 'trust', enabled: true, order: 9 },
   { id: 'cm-10', text: 'International Cargo & Courier', category: 'international', enabled: true, order: 10 },
-  { id: 'cm-11', text: 'Customs License #B-409', category: 'trust', enabled: true, order: 11 },
-  { id: 'cm-12', text: 'Daily Nepal & Global Dispatch', category: 'service', enabled: true, order: 12 }
+  { id: 'cm-12', text: 'Daily Global Air & Road Dispatch', category: 'service', enabled: true, order: 12 },
+  { id: 'cm-13', text: 'Book Online & Track Live AWB', category: 'ad', enabled: true, order: 13 }
 ];
 
 const LOCAL_STORAGE_KEY = 'bc_cargo_cursor_messages';
@@ -38,6 +36,9 @@ export function getCursorMessages(): CursorMessageItem[] {
  */
 export function saveCursorMessages(messages: CursorMessageItem[]): void {
   secureDataStorage.setItem(LOCAL_STORAGE_KEY, messages);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('bc_cursor_messages_changed', { detail: messages }));
+  }
 }
 
 /**

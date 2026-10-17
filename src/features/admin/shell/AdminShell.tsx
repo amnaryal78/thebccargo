@@ -61,7 +61,9 @@ const AdminShellInner: React.FC = () => {
   const permissions = getRolePermissions(role);
   const { items: notifications, markRead } = useAdminNotifications();
   const notificationsRef = useRef(notifications);
-  notificationsRef.current = notifications;
+  useEffect(() => {
+    notificationsRef.current = notifications;
+  }, [notifications]);
 
   // Leaving a page marks that page's notifications as read (a page you just opened still shows them as new).
   useEffect(() => {

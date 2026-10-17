@@ -3,8 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { ShieldCheck, ShieldAlert, ArrowLeft, Loader2, Globe2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { BcLogo } from '../components/BcLogo';
-import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
+import { Card } from '../design/primitives/Card';
 import { SEOHead } from '../components/SEOHead';
 
 export const LoginPage: React.FC = () => {
@@ -51,6 +50,7 @@ export const LoginPage: React.FC = () => {
   return (
     <div className="min-h-[85vh] flex flex-col items-center justify-center px-4 py-12">
       <SEOHead
+        noindex
         title="Account Sign In | The BC Cargo & Courier"
         description="Sign in with your Google account to access BC Cargo services, package history, and administration portals."
       />
@@ -60,29 +60,29 @@ export const LoginPage: React.FC = () => {
         {/* Back Link */}
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-[#0B5ED7] transition-colors self-start cursor-pointer"
+          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-[#002147] transition-colors self-start cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Return to Public Site</span>
         </Link>
 
         {/* Main Login Card */}
-        <Card className="p-8 sm:p-10 flex flex-col gap-6 shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#071A33]">
+        <Card className="p-8 sm:p-10 flex flex-col gap-6 shadow-2xl border border-slate-200 bg-white">
           
           <div className="flex flex-col items-center text-center gap-2">
             <div className="mb-2">
               <BcLogo size="lg" showSubtitle={false} />
             </div>
-            <h1 className="font-heading font-extrabold text-2xl text-slate-900 dark:text-white uppercase tracking-tight">
+            <h1 className="font-heading font-extrabold text-2xl text-slate-900 uppercase tracking-tight">
               Sign In to The BC Cargo
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500">
               Sign in with your authorized Google account to access your account &amp; operational portals.
             </p>
           </div>
 
           {error && (
-            <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 text-xs font-semibold flex items-center gap-2.5">
+            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold flex items-center gap-2.5">
               <ShieldAlert className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -94,11 +94,11 @@ export const LoginPage: React.FC = () => {
               type="button"
               onClick={handleGoogleLogin}
               disabled={oauthLoading || authLoading}
-              className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0B2445] text-slate-800 dark:text-white border border-slate-300 dark:border-slate-700 font-heading font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-[#0E2F5A] active:scale-[0.99] transition-all shadow-md cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full h-12 px-4 rounded-xl bg-white text-slate-800 border border-slate-300 font-heading font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-3 hover:bg-slate-50 active:scale-[0.99] transition-all shadow-md cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {oauthLoading || authLoading ? (
                 <>
-                  <Loader2 className="w-5 h-5 text-[#0B5ED7] animate-spin" />
+                  <Loader2 className="w-5 h-5 text-[#002147] animate-spin" />
                   <span>Connecting to Google...</span>
                 </>
               ) : (
@@ -131,7 +131,7 @@ export const LoginPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="text-center border-t border-slate-100 dark:border-slate-800 pt-4">
+          <div className="text-center border-t border-slate-100 pt-4">
             <span className="text-[11px] text-slate-400 font-mono flex items-center justify-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
               <span>Database Allowlist &amp; RBAC Access Control Active</span>

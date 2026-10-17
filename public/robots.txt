@@ -1,17 +1,12 @@
-# BC Cargo & Courier - Robots Policy
+# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
-Allow: /track
-Allow: /book
-Allow: /services
-Allow: /rates
-Allow: /blogs
-Allow: /about
-Allow: /contact
-Allow: /policies
-Allow: /careers
 
+# Disallow private and administrative portals from search indexing
 Disallow: /admin/
-Disallow: /admin/*
+Disallow: /admin
+Disallow: /login
+Disallow: /_kit
 
+# Official Sitemap Location
 Sitemap: https://thebccargo.com/sitemap.xml
