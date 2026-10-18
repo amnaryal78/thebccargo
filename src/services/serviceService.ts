@@ -9,7 +9,7 @@ export const DEFAULT_SERVICES: ServiceItem[] = [
     slug: 'fast-international-air-delivery',
     category: 'Worldwide',
     description: 'Daily flight connections from Kathmandu (TIA) to over 50 countries.',
-    features: ['Daily Flights Worldwide', 'Doorstep Pickup Across Nepal', 'Customs Paperwork Included'],
+    features: ['Daily Flights Worldwide', 'Kathmandu & Hetauda Export Pickup', 'Customs Paperwork Included'],
     iconName: 'Plane'
   },
   {
@@ -25,7 +25,7 @@ export const DEFAULT_SERVICES: ServiceItem[] = [
     id: 's-3',
     title: 'Cross-Border Road Delivery',
     slug: 'cross-border-road-delivery',
-    category: 'Inside Nepal',
+    category: 'Overland Corridor',
     description: 'Daily truck network connecting Nepal, India, and China border posts.',
     features: ['Nepal-India ICP Raxaul/Birgunj', 'China Border Tatopani & Rasuwagadhi', 'GPS Tracked Fleet Trucks'],
     iconName: 'Truck'

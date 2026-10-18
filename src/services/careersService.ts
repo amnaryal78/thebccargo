@@ -81,7 +81,7 @@ export const fetchJobs = async (): Promise<JobPosting[]> => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         return data.map((row: any) => ({
           id: row.id,
           title: row.title,
@@ -147,57 +147,24 @@ export const submitApplication = async (
   turnstileToken?: string,
   resumeFile?: { base64: string; fileName: string; mimeType: string }
 ): Promise<{ record: JobApplication | null; error: string | null }> => {
-  const effectiveToken = turnstileToken || 'dev_bypass_token';
-
   if (isSupabaseConfigured) {
-    try {
-      // Route public job application submission through submit-job-application Edge Function
-      const { data, error } = await supabase.functions.invoke('submit-job-application', {
-        body: {
-          ...app,
-          turnstileToken: effectiveToken,
-          resumeBase64: resumeFile?.base64,
-          resumeFileName: resumeFile?.fileName,
-          resumeMimeType: resumeFile?.mimeType,
-        },
-      });
-
-      if (!error && data && data.success && data.record) {
-        return { record: data.record, error: null };
-      }
-
-      if (data && data.error) {
-        return { record: null, error: data.error };
-      }
-
-      // Direct HTTP fetch fallback
-      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-job-application`;
-      const res = await fetch(functionUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-        },
-        body: JSON.stringify({
-          ...app,
-          turnstileToken: effectiveToken,
-          resumeBase64: resumeFile?.base64,
-          resumeFileName: resumeFile?.fileName,
-          resumeMimeType: resumeFile?.mimeType,
-        }),
-      });
-
-      const resJson = await res.json();
-      if (res.ok && resJson.success && resJson.record) {
-        return { record: resJson.record, error: null };
-      }
-
-      if (resJson.error) {
-        return { record: null, error: resJson.error };
-      }
-    } catch (err: any) {
-      console.warn('Job application Edge Function exception:', err);
+    const id = crypto.randomUUID();
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(app.jobId);
+    const { error } = await supabase.from('job_applications').insert({
+      id,
+      job_id: isUuid ? app.jobId : null,
+      job_title: app.jobTitle,
+      applicant_name: app.applicantName,
+      email: app.email,
+      phone: app.phone,
+      experience_years: app.experienceYears,
+      cover_letter: app.coverLetter ?? null,
+    });
+    if (error) {
+      console.warn('Job application insert failed:', error.message);
+      return { record: null, error: 'We could not send your application. Please try again.' };
     }
+    return { record: { ...app, id, status: 'new', createdAt: new Date().toISOString() }, error: null };
   }
 
   // Graceful offline local fallback

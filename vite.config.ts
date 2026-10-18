@@ -259,9 +259,46 @@ export default defineConfig(() => {
     optimizeDeps: {
       include: ['react', 'react-dom', 'framer-motion', 'dotted-map'],
     },
-    server: {
-      port: 3000,
-      host: '0.0.0.0',
+ server: {
+  port: 3000,
+  host: '0.0.0.0',
+  allowedHosts: [
+    'destiny-pedometer-radar.ngrok-free.dev',
+  ],
+},
+    define: {
+      'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL || 'https://xtipmcthdyyubohspjro.supabase.co'),
+      'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || ''),
     },
+    build: {
+      target: 'es2022',
+      cssCodeSplit: true,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('three')) {
+                return 'vendor-three';
+              }
+              if (id.includes('framer-motion')) {
+                return 'vendor-motion';
+              }
+              if (id.includes('dotted-map')) {
+                return 'vendor-map';
+              }
+              if (id.includes('@supabase')) {
+                return 'vendor-supabase';
+              }
+              if (id.includes('lucide-react')) {
+                return 'vendor-icons';
+              }
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+                return 'vendor-react';
+              }
+            }
+          }
+        }
+      }
+    }
   };
 });

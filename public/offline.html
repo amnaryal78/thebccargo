@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline Mode | The BC Cargo &amp; Courier</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <style>
+    :root {
+      --bg: #F6F6F4;
+      --surface: #FFFFFF;
+      --oxford: #002147;
+      --gold: #F2B705;
+      --gold-dark: #B8860B;
+      --text: #121211;
+      --text-muted: #64748B;
+      --line: #E2E8F0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    /* Claymorphic Card Surface */
+    .clay-card {
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 40px 32px;
+      max-width: 480px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 
+        10px 10px 24px rgba(0, 33, 71, 0.08),
+        -8px -8px 20px rgba(255, 255, 255, 0.8),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* Claymorphic Icon Well */
+    .clay-icon-well {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 
+        inset 4px 4px 8px rgba(0, 33, 71, 0.08),
+        inset -3px -3px 6px rgba(255, 255, 255, 0.9);
+      color: #D97706;
+    }
+
+    /* Debossed Status Pill */
+    .clay-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-family: monospace;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--bg);
+      box-shadow: 
+        inset 2px 2px 4px rgba(0, 0, 0, 0.06),
+        inset -1px -1px 2px rgba(255, 255, 255, 0.8);
+      color: var(--text-muted);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #EF4444;
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .contact-box {
+      width: 100%;
+      background: var(--bg);
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 8px;
+      box-shadow: 
+        inset 2px 2px 5px rgba(0, 33, 71, 0.05),
+        inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    /* Tactile Clay Button */
+    .btn-clay {
+      background: #F2B705;
+      color: #002147;
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 14px 24px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 
+        4px 4px 10px rgba(242, 183, 5, 0.35),
+        -2px -2px 6px rgba(255, 255, 255, 0.9),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.6);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-clay:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        6px 6px 14px rgba(242, 183, 5, 0.45),
+        -3px -3px 8px rgba(255, 255, 255, 0.9);
+    }
+
+    .btn-clay:active {
+      transform: translateY(2px);
+      box-shadow: 
+        inset 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-clay-secondary {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 
+        4px 4px 10px rgba(0, 33, 71, 0.08),
+        -2px -2px 6px rgba(255, 255, 255, 0.9);
+    }
+
+    .btn-clay-secondary:hover {
+      box-shadow: 
+        6px 6px 14px rgba(0, 33, 71, 0.12),
+        -3px -3px 8px rgba(255, 255, 255, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <div class="clay-card">
+    <div class="clay-icon-well">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+        <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+        <line x1="12" y1="20" x2="12.01" y2="20"></line>
+      </svg>
+    </div>
+
+    <div class="clay-pill">
+      <span class="pulse-dot"></span>
+      <span>No Internet Connection</span>
+    </div>
+
+    <h1>You Are Offline</h1>
+    <p>
+      Your device lost its internet connection. Cached pages like Rate Estimator and Contact remain viewable, or you can call our central telephone dispatch directly.
+    </p>
+
+    <div class="contact-box">
+      <strong>Emergency Phone Dispatch</strong>
+      <span>School Road -4, Hetauda HQ: <strong>+977-57-591816</strong></span>
+      <span>Mobile Hotline: <strong>+977-9855000000</strong></span>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn-clay" onclick="window.location.reload()">
+        <span>↻ Retry Connection</span>
+      </button>
+      <a class="btn-clay btn-clay-secondary" href="tel:+977057591816">
+        <span>📞 Call Dispatch Desk</span>
+      </a>
+      <a class="btn-clay btn-clay-secondary" href="/rates">
+        <span>View Offline Rates</span>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

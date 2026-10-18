@@ -1,39 +1,45 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider } from './context/ThemeContext';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { HashRedirect } from './router/HashRedirect';
 import { Shipment, ServiceMode } from './types';
 import { Header } from './components/Header';
 import { LandingPage } from './components/LandingPage';
-import { TrackingSection } from './components/TrackingSection';
-import { BookingSystem } from './components/BookingSystem';
-import { ServicesSuite } from './components/ServicesSuite';
 import { Footer } from './components/Footer';
-import { PrintableAwbModal } from './components/PrintableAwbModal';
 import { CustomCursor } from './components/CustomCursor';
-import { MapPin } from 'lucide-react';
+import { AndroidBottomNav } from './components/AndroidBottomNav';
+import { StickyContactButtons } from './components/StickyContactButtons';
 
-// Code-Split Lazy Loaded Page Components for Core Web Vitals Optimization
+// Code-Split Lazy Loaded Page & Section Components for Core Web Vitals Optimization
+const TrackingSection = lazy(() => import('./components/TrackingSection').then(m => ({ default: m.TrackingSection })));
+const BookingSystem = lazy(() => import('./components/BookingSystem').then(m => ({ default: m.BookingSystem })));
+const ServicesSuite = lazy(() => import('./components/ServicesSuite').then(m => ({ default: m.ServicesSuite })));
+const PrintableAwbModal = lazy(() => import('./components/PrintableAwbModal').then(m => ({ default: m.PrintableAwbModal })));
+
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const RatesPage = lazy(() => import('./pages/RatesPage').then(m => ({ default: m.RatesPage })));
+const ServiceDetailPage = lazy(() => import('./pages/ServiceDetailPage').then(m => ({ default: m.ServiceDetailPage })));
 const BlogListPage = lazy(() => import('./pages/BlogListPage').then(m => ({ default: m.BlogListPage })));
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage').then(m => ({ default: m.BlogPostPage })));
 const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
 const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
 const PoliciesPage = lazy(() => import('./pages/PoliciesPage').then(m => ({ default: m.PoliciesPage })));
+const HowToShipPage = lazy(() => import('./pages/HowToShipPage').then(m => ({ default: m.HowToShipPage })));
+const BecomePartnerPage = lazy(() => import('./pages/BecomePartnerPage').then(m => ({ default: m.BecomePartnerPage })));
 const FaqPage = lazy(() => import('./pages/FaqPage').then(m => ({ default: m.FaqPage })));
 const CareersPage = lazy(() => import('./pages/CareersPage').then(m => ({ default: m.CareersPage })));
 const CareerDetailPage = lazy(() => import('./pages/CareerDetailPage').then(m => ({ default: m.CareerDetailPage })));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage').then(m => ({ default: m.AdminLoginPage })));
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+const DesignKitPage = lazy(() => import('./pages/DesignKitPage').then(m => ({ default: m.DesignKitPage })));
+const CountryLandingPage = lazy(() => import('./pages/country/CountryLandingPage').then(m => ({ default: m.CountryLandingPage })));
 
 const RouteLoadingFallback = () => (
   <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
-    <div className="w-8 h-8 border-3 border-[#0B5ED7] border-t-transparent rounded-full animate-spin" />
-    <span className="text-xs font-mono text-slate-400 tracking-wider">Loading The BC Cargo...</span>
+    <div className="w-8 h-8 border-3 border-[#002147] border-t-transparent rounded-full animate-spin" />
+    <span className="text-xs font-mono text-[var(--text-muted)] tracking-wider">Loading The BC Cargo...</span>
   </div>
 );
 
@@ -59,6 +65,7 @@ function AppContent() {
     if (path.startsWith('about')) return 'about';
     if (path.startsWith('contact')) return 'contact';
     if (path.startsWith('policies')) return 'policies';
+    if (path.startsWith('how-to-ship')) return 'how-to-ship';
     if (path.startsWith('faq')) return 'faq';
     if (path.startsWith('careers')) return 'careers';
     if (path.startsWith('login')) return 'login';
@@ -66,7 +73,7 @@ function AppContent() {
   };
 
   const handleNavigate = (sectionId: string) => {
-    const pathToNavigate = sectionId === 'home' ? '/' : `/${sectionId}`;
+    const pathToNavigate = sectionId === 'home' ? '/' : sectionId.startsWith('/') ? sectionId : `/${sectionId}`;
     navigate(pathToNavigate);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -85,7 +92,7 @@ function AppContent() {
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7F9FC] dark:bg-[#071A33] text-slate-900 dark:text-slate-100 transition-colors">
+    <div className="min-h-screen flex flex-col bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] transition-colors">
       <CustomCursor />
       {!isAdminRoute && (
         <Header
@@ -96,7 +103,7 @@ function AppContent() {
         />
       )}
 
-      <main className={`flex-1 ${!isAdminRoute ? 'pt-24' : ''}`}>
+      <main className={`flex-1 ${!isAdminRoute ? 'pt-24 pb-20 lg:pb-0' : ''}`}>
         <Suspense fallback={<RouteLoadingFallback />}>
           <Routes>
             <Route
@@ -135,12 +142,17 @@ function AppContent() {
               }
             />
             <Route path="/services" element={<ServicesSuite />} />
+            <Route path="/services/:slug" element={<ServiceDetailPage />} />
+            <Route path="/services/courier-nat" element={<Navigate to="/services" replace />} />
+            <Route path="/services/haulage-nat" element={<Navigate to="/services" replace />} />
+            <Route path="/services/nepal-domestic-express" element={<Navigate to="/services" replace />} />
+            <Route path="/services/domestic-express-cargo" element={<Navigate to="/services" replace />} />
             
             {/* Rates Routes */}
             <Route path="/rates" element={<RatesPage />} />
-            <Route path="/rates/national" element={<RatesPage />} />
+            <Route path="/rates/national" element={<Navigate to="/rates" replace />} />
             <Route path="/rates/international" element={<RatesPage />} />
-            <Route path="/rates/calculator" element={<RatesPage />} />
+            <Route path="/rates/calculator" element={<Navigate to="/rates" replace />} />
             <Route path="/rates/rfq" element={<RatesPage />} />
 
             {/* Knowledge Base & Blog Routes */}
@@ -151,7 +163,20 @@ function AppContent() {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/policies" element={<PoliciesPage />} />
+            <Route path="/how-to-ship" element={<HowToShipPage />} />
             <Route path="/faq" element={<FaqPage />} />
+            <Route path="/become-a-partner" element={<BecomePartnerPage />} />
+
+            {/* Top Country Corridor SEO Landing Pages */}
+            <Route path="/send-parcel-nepal-to-south-korea" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-south-korea" />} />
+            <Route path="/send-parcel-nepal-to-malaysia" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-malaysia" />} />
+            <Route path="/send-parcel-nepal-to-uk" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-uk" />} />
+            <Route path="/send-parcel-nepal-to-japan" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-japan" />} />
+            <Route path="/send-parcel-nepal-to-europe" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-europe" />} />
+            <Route path="/send-parcel-nepal-to-gulf" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-gulf" />} />
+            <Route path="/send-parcel-nepal-to-hong-kong" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-hong-kong" />} />
+            <Route path="/send-parcel-nepal-to-usa" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-usa" />} />
+            <Route path="/send-parcel-nepal-to-:corridor" element={<CountryLandingPage />} />
 
             {/* Careers Routes */}
             <Route path="/careers" element={<CareersPage />} />
@@ -168,6 +193,9 @@ function AppContent() {
               }
             />
             
+            {/* Design System Verification Kit (Noindex, Internal) */}
+            <Route path="/_kit" element={<DesignKitPage />} />
+
             {/* Fallback 404 Route */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
@@ -176,36 +204,23 @@ function AppContent() {
 
       {!isAdminRoute && <Footer onNavigate={handleNavigate} />}
 
-      {/* Floating Pinned Location Hubs Action Button (Annotation 8 - Responsive PC & Mobile) */}
+      {/* Mobile Sticky Direct Contact Buttons & Android Bottom Nav Bar */}
+      {!isAdminRoute && <StickyContactButtons />}
       {!isAdminRoute && (
-        <button
-          onClick={() => {
-            handleNavigate('about');
-            setTimeout(() => {
-              const el = document.getElementById('hubs');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
-          }}
-          className="fixed bottom-6 right-6 z-40 p-3.5 sm:px-4 sm:py-3 rounded-full bg-[#0B5ED7] hover:bg-[#084298] text-white shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center gap-2 group cursor-pointer border border-white/20 active:scale-95"
-          title="Our Offices & Hubs Map"
-          aria-label="View Delivery Hubs Map"
-        >
-          <span className="relative flex h-3 w-3 sm:hidden">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F5C84C] opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-[#F5C84C]"></span>
-          </span>
-          <MapPin className="w-5 h-5 text-[#F5C84C] group-hover:scale-110 transition-transform shrink-0" />
-          <span className="hidden sm:inline text-xs font-heading font-bold uppercase tracking-wider pr-1">
-            Offices &amp; Hubs Map
-          </span>
-        </button>
+        <AndroidBottomNav
+          activeSection={getActiveSectionFromPath()}
+          onNavigate={handleNavigate}
+          onOpenBooking={handleOpenBooking}
+        />
       )}
 
       {printableShipment && (
-        <PrintableAwbModal
-          shipment={printableShipment}
-          onClose={() => setPrintableShipment(null)}
-        />
+        <Suspense fallback={null}>
+          <PrintableAwbModal
+            shipment={printableShipment}
+            onClose={() => setPrintableShipment(null)}
+          />
+        </Suspense>
       )}
     </div>
   );
@@ -213,7 +228,6 @@ function AppContent() {
 
 export default function App() {
   return (
-    <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
           <HashRedirect>
@@ -221,6 +235,5 @@ export default function App() {
           </HashRedirect>
         </BrowserRouter>
       </AuthProvider>
-    </ThemeProvider>
   );
 }

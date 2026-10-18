@@ -1,56 +1,28 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { FeedbackItem } from '../components/FeedbackSection';
 
-export const DEFAULT_REVIEWS: FeedbackItem[] = [
-  {
-    id: 'fb-1',
-    name: 'Ramesh Adhikari',
-    role: 'Export Manager',
-    company: 'Himalayan Handicrafts Ltd.',
-    rating: 5,
-    mode: 'Air Delivery',
-    comment: 'The BC Cargo delivered our urgent package from Kathmandu to Frankfurt in under 48 hours. Easy customs clearance and clear live tracking throughout.',
-    date: 'Sept 18, 2026',
-    verified: true,
-    avatarBg: 'bg-[#0B5ED7] text-white'
-  },
-  {
-    id: 'fb-2',
-    name: 'Priya Sharma',
-    role: 'Supply Chain Director',
-    company: 'Nepal Agro Industries',
-    rating: 5,
-    mode: 'Sea Delivery',
-    comment: 'Dependable delivery from Birgunj to Kolkata port. Digital tracking gave us full peace of mind for our large shipment.',
-    date: 'Sept 12, 2026',
-    verified: true,
-    avatarBg: 'bg-[#071A33] text-white'
-  },
-  {
-    id: 'fb-3',
-    name: 'David Miller',
-    role: 'Logistics Procurement',
-    company: 'Global Trade Syndicate (UAE)',
-    rating: 5,
-    mode: 'Fast Courier',
-    comment: 'Very polite staff and fast delivery from Hetauda to Delhi. A trusted and reliable delivery partner in Nepal.',
-    date: 'Aug 29, 2026',
-    verified: true,
-    avatarBg: 'bg-emerald-700 text-white'
-  }
-];
+/** No invented reviews: only approved rows from the `reviews` table are ever shown. */
+export const DEFAULT_REVIEWS: FeedbackItem[] = [];
 
-export async function fetchApprovedReviews(): Promise<FeedbackItem[]> {
+export async function fetchReviewsPage(options?: {
+  limit?: number;
+  offset?: number;
+}): Promise<{ items: FeedbackItem[]; hasMore: boolean }> {
+  const limit = options?.limit ?? 10;
+  const offset = options?.offset ?? 0;
+
   if (isSupabaseConfigured) {
     try {
-      const { data, error } = await supabase
+      const { data, error, count } = await supabase
         .from('reviews')
-        .select('*')
+        .select('*', { count: 'exact' })
         .eq('approved', true)
-        .order('created_at', { ascending: false });
+        .order('is_top', { ascending: false, nullsFirst: false })
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
       if (!error && data && data.length > 0) {
-        return data.map((r: any) => ({
+        const items = data.map((r: any) => ({
           id: r.id,
           name: r.customer_name,
           role: r.role || 'Verified Customer',
@@ -60,14 +32,24 @@ export async function fetchApprovedReviews(): Promise<FeedbackItem[]> {
           comment: r.comment,
           date: new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
           verified: r.verified !== false,
-          avatarBg: r.avatar_bg || 'bg-[#0B5ED7] text-white'
+          avatarBg: r.avatar_bg || 'bg-[#002147] text-[#F2B705]',
+          isTop: Boolean(r.is_top)
         }));
+        const total = count ?? items.length;
+        return { items, hasMore: total > offset + items.length };
       }
     } catch (e) {
       console.warn('Supabase reviews fetch error:', e);
     }
   }
-  return DEFAULT_REVIEWS;
+
+  const items = DEFAULT_REVIEWS.slice(offset, offset + limit);
+  return { items, hasMore: DEFAULT_REVIEWS.length > offset + items.length };
+}
+
+export async function fetchApprovedReviews(): Promise<FeedbackItem[]> {
+  const { items } = await fetchReviewsPage({ limit: 10, offset: 0 });
+  return items.length > 0 ? items : DEFAULT_REVIEWS;
 }
 
 export async function submitReview(review: Omit<FeedbackItem, 'id' | 'date'>): Promise<{ success: boolean; error: string | null }> {
@@ -82,12 +64,13 @@ export async function submitReview(review: Omit<FeedbackItem, 'id' | 'date'>): P
           rating: review.rating,
           mode: review.mode,
           comment: review.comment,
-          verified: true,
-          approved: true,
+          verified: false,
+          approved: false,
           avatar_bg: review.avatarBg
         });
 
-      if (!error) return { success: true, error: null };
+      if (error) return { success: false, error: 'We could not send your feedback. Please try again.' };
+      return { success: true, error: null };
     } catch (e: any) {
       return { success: false, error: e.message || 'Failed to submit review' };
     }

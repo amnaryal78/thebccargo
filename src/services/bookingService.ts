@@ -34,66 +34,56 @@ export async function submitBooking(
   payload: BookingPayload,
   turnstileToken?: string
 ): Promise<{ record: BookingRecord | null; error: string | null }> {
-  const effectiveToken = turnstileToken || payload.turnstileToken || 'dev_bypass_token';
-
-  if (isSupabaseConfigured) {
-    try {
-      // Route public booking submission through hardened Edge Function
-      const { data, error } = await supabase.functions.invoke('submit-booking', {
-        body: {
-          ...payload,
-          turnstileToken: effectiveToken,
-        },
-      });
-
-      if (error) {
-        console.warn('Booking Edge Function error:', error);
-        // Fallback to fetch API if functions client encounters transport issues
-        const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-booking`;
-        const res = await fetch(functionUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-          },
-          body: JSON.stringify({
-            ...payload,
-            turnstileToken: effectiveToken,
-          }),
-        });
-
-        const resJson = await res.json();
-        if (res.ok && resJson.success && resJson.record) {
-          return { record: resJson.record, error: null };
-        }
-        return { record: null, error: resJson.error || 'Server rejected booking request.' };
-      }
-
-      if (data && data.success && data.record) {
-        return { record: data.record, error: null };
-      }
-
-      if (data && data.error) {
-        return { record: null, error: data.error };
-      }
-    } catch (e: any) {
-      console.warn('Booking Edge Function exception:', e);
-    }
+  // Reject Nepal as destination
+  const dest = String(payload.destination || '').trim().toLowerCase();
+  const destAddr = String(payload.receiverAddress || '').trim().toLowerCase();
+  if (dest === 'nepal' || dest.endsWith(', nepal') || destAddr === 'nepal' || destAddr.endsWith(', nepal')) {
+    return { record: null, error: 'We ship from Nepal to other countries. Destination cannot be Nepal.' };
   }
 
-  // Graceful Local Fallback for offline development
-  const generatedRef = `BK-2026-${Math.floor(100000 + Math.random() * 900000)}`;
-  const generatedAwb = `BC-AWB-2026-${Math.floor(100000 + Math.random() * 900000)}`;
-  const fallbackRecord: BookingRecord = {
-    id: `BK-ID-${Date.now()}`,
-    bookingRef: generatedRef,
-    awbNumber: generatedAwb,
-    ...payload,
-    status: 'submitted',
-    createdAt: new Date().toISOString(),
-  };
+  const bookingRef = `BK-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
 
-  return { record: fallbackRecord, error: null };
+  if (isSupabaseConfigured) {
+    const id = crypto.randomUUID();
+    const { error } = await supabase.from('bookings').insert({
+      id,
+      booking_ref: bookingRef,
+      sender_name: payload.senderName,
+      sender_email: payload.senderEmail,
+      sender_phone: payload.senderPhone ?? null,
+      sender_address: payload.senderAddress ?? null,
+      receiver_name: payload.receiverName,
+      receiver_email: payload.receiverEmail ?? null,
+      receiver_phone: payload.receiverPhone ?? null,
+      receiver_address: payload.receiverAddress ?? null,
+      origin: payload.origin,
+      destination: payload.destination,
+      service_mode: payload.serviceMode,
+      commodity: payload.commodity ?? null,
+      weight_kg: payload.weightKg,
+      box_count: payload.boxCount ?? null,
+      dimensions: payload.dimensions ?? null,
+      notes: payload.notes ?? null,
+      estimated_price: payload.estimatedPrice ?? null,
+      currency: payload.currency ?? null,
+    });
+    if (error) {
+      console.warn('Booking insert failed:', error.message);
+      return { record: null, error: 'We could not send your booking. Please try again or call us.' };
+    }
+    const { turnstileToken: _t, ...rest } = payload;
+    return {
+      record: { ...rest, id, bookingRef, status: 'submitted', createdAt: new Date().toISOString() },
+      error: null,
+    };
+  }
+
+  // Local development only (Supabase not configured)
+  const { turnstileToken: _unused, ...rest } = payload;
+  return {
+    record: { id: `BK-ID-${Date.now()}`, bookingRef, ...rest, status: 'submitted', createdAt: new Date().toISOString() },
+    error: null,
+  };
 }
 
 export async function fetchAllBookings(): Promise<BookingRecord[]> {

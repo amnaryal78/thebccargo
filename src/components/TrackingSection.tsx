@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { 
   CheckCircle2, 
   RotateCw, 
@@ -7,85 +8,109 @@ import {
   RefreshCw,
   Search,
   AlertCircle,
-  Clock,
   PhoneCall,
   Plane,
   Truck,
   Ship,
-  Box,
   HelpCircle,
-  AlertTriangle
+  MessageCircle,
+  Clock,
+  ShieldCheck,
+  Package
 } from 'lucide-react';
 import { Shipment, Milestone } from '../types';
 import { fetchPublicTracking } from '../services/trackingService';
+import { Button } from '../design/primitives/Button';
+import { Spotlight } from './ui/spotlight';
 
 interface TrackingSectionProps {
-  shipment: Shipment | null;
-  allShipments: Shipment[];
-  onSelectShipment: (trackingNumber: string) => void;
-  onOpenPrintAwb: (shipment: Shipment) => void;
+  shipment?: Shipment | null;
+  allShipments?: Shipment[];
+  onSelectShipment?: (trackingNumber: string) => void;
+  onOpenPrintAwb?: (shipment: Shipment) => void;
 }
 
 export const TrackingSection: React.FC<TrackingSectionProps> = ({
   shipment,
-  allShipments,
   onSelectShipment,
   onOpenPrintAwb
 }) => {
-  const [searchCode, setSearchCode] = useState(shipment?.trackingNumber || '');
-  const [currentShipment, setCurrentShipment] = useState<Shipment | null>(shipment);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlTrackingCode = searchParams.get('awb') || searchParams.get('tracking') || searchParams.get('ref') || '';
+
+  const [searchCode, setSearchCode] = useState(urlTrackingCode || shipment?.trackingNumber || '');
+  const [currentShipment, setCurrentShipment] = useState<Shipment | null>(shipment || null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    setCurrentShipment(shipment);
-    if (shipment?.trackingNumber) {
-      setSearchCode(shipment.trackingNumber);
-    }
-    setErrorMessage(null);
-  }, [shipment]);
-
-  const handleSearchSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchCode.trim()) {
-      setErrorMessage('Please enter your tracking number to track.');
+  const executeSearch = useCallback(async (code: string) => {
+    const clean = code.trim().toUpperCase();
+    if (!clean) {
+      setErrorMessage('Please enter your Waybill (AWB) or tracking number.');
       return;
     }
 
     setIsLoading(true);
     setErrorMessage(null);
 
-    const { data, error } = await fetchPublicTracking(searchCode.trim());
+    const { data, error } = await fetchPublicTracking(clean);
     setIsLoading(false);
 
     if (error || !data) {
-      setErrorMessage(error || 'We could not find a package with that tracking number. Please check the number and try again.');
+      setErrorMessage(
+        error || `No active consignment found for "${clean}". Please verify your AWB or contact our 24/7 central dispatch.`
+      );
       setCurrentShipment(null);
     } else {
       setCurrentShipment(data);
-      onSelectShipment(data.trackingNumber);
+      if (onSelectShipment) {
+        onSelectShipment(data.trackingNumber);
+      }
+      setSearchParams({ awb: data.trackingNumber }, { replace: true });
     }
+  }, [onSelectShipment, setSearchParams]);
+
+  // Handle URL param on mount or change
+  useEffect(() => {
+    if (urlTrackingCode && (!currentShipment || currentShipment.trackingNumber !== urlTrackingCode)) {
+      setSearchCode(urlTrackingCode);
+      executeSearch(urlTrackingCode);
+    }
+  }, [urlTrackingCode, executeSearch, currentShipment]);
+
+  // Sync prop shipment if changed from outside
+  useEffect(() => {
+    if (shipment) {
+      setCurrentShipment(shipment);
+      setSearchCode(shipment.trackingNumber);
+      setErrorMessage(null);
+    }
+  }, [shipment]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    executeSearch(searchCode);
   };
 
-  const getStatusBadge = (status: Milestone['status']) => {
+  const getStatusNode = (status: Milestone['status']) => {
     switch (status) {
       case 'completed':
         return (
-          <div className="w-7 h-7 rounded-full bg-[#10B981] text-white flex items-center justify-center shrink-0 shadow-xs">
+          <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-hard-xs border border-white/60">
             <CheckCircle2 className="w-4 h-4" />
           </div>
         );
       case 'current':
         return (
-          <div className="w-7 h-7 rounded-full bg-[#0B5ED7] text-white flex items-center justify-center shrink-0 animate-pulse shadow-sm">
+          <div className="w-8 h-8 rounded-full bg-[var(--gold)] text-[var(--oxford-deep)] flex items-center justify-center shrink-0 shadow-hard-xs border border-ox-900/40 animate-pulse">
             <RotateCw className="w-4 h-4 animate-spin" />
           </div>
         );
       case 'pending':
       default:
         return (
-          <div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-400 flex items-center justify-center shrink-0 border border-slate-300 dark:border-slate-700">
-            <div className="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-600" />
+          <div className="w-8 h-8 rounded-full bg-[var(--surface-2)] text-[var(--text-muted)] flex items-center justify-center shrink-0 border border-[var(--line)] shadow-hard-xs">
+            <div className="w-2 h-2 rounded-full bg-[var(--text-muted)]" />
           </div>
         );
     }
@@ -101,169 +126,187 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-[#0B5ED7] dark:text-[#2F80ED] text-xs font-bold uppercase tracking-wider font-mono mb-1">
-              <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-              <span>Package Tracking</span>
+            <div className="flex items-center gap-2 text-[var(--oxford-deep)] text-xs font-bold uppercase tracking-wider font-mono mb-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>Waybill Tracking System</span>
             </div>
-            <h1 className="font-heading font-extrabold text-2xl sm:text-4xl text-slate-900 dark:text-white tracking-tight">
-              Track Your Package
+            <h1 className="font-heading font-extrabold text-2xl sm:text-4xl text-[var(--text)] tracking-tight">
+              Track Consignment
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Enter your tracking number below to see where your package is right now.
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1">
+              Direct database query across Nepal linehaul, bonded customs, and international freight nodes.
             </p>
           </div>
 
-          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-[#0B2445] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 self-start md:self-auto">
-            UTC+05:45 (Nepal Standard Time)
-          </span>
+          <div className="flex items-center gap-2 text-xs font-mono text-[var(--text-muted)] bg-[var(--surface)] px-3 py-1.5 rounded-[var(--r-xs)] border border-[var(--line)] shadow-hard-xs self-start md:self-auto">
+            <Clock className="w-3.5 h-3.5 text-[var(--gold-dark)]" />
+            <span>UTC+05:45 (Nepal Standard Time)</span>
+          </div>
         </div>
 
         {/* Tracking Input Card */}
-        <div className="bg-white dark:bg-[#0B2445] p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-3">
-          <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-2">
+        <Spotlight
+          intensity="normal"
+          className="bg-[var(--surface)] p-5 sm:p-6 rounded-[var(--r-md)] border border-[var(--line)] shadow-hard flex flex-col gap-3"
+        >
+          <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={searchCode}
                 onChange={(e) => setSearchCode(e.target.value)}
-                placeholder="Enter your tracking number (e.g. BC-90214-HKG)"
-                className="w-full bg-slate-50 dark:bg-[#071A33] border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-3 pl-10 text-xs sm:text-sm font-mono text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#0B5ED7] focus:ring-2 focus:ring-[#0B5ED7]/20"
+                placeholder="Enter Waybill / AWB Code (e.g. BC-90214-HKG)"
+                className="w-full min-h-[48px] bg-[var(--surface-2)] border border-[var(--line)] rounded-[var(--r-sm)] px-4 py-3 pl-11 text-xs sm:text-sm font-mono text-[var(--text)] placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#002147] focus:border-transparent transition-all clay-inset shadow-none"
               />
             </div>
-            <button
+            <Button
               type="submit"
+              variant="primary"
+              size="md"
               disabled={isLoading}
-              className="bg-[#0B5ED7] hover:bg-[#084298] text-white px-6 py-3 rounded-xl text-xs sm:text-sm font-semibold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shrink-0 disabled:opacity-50 cursor-pointer shadow-sm"
+              isLoading={isLoading}
+              className="shrink-0 min-h-[48px] px-6"
             >
-              {isLoading ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Searching...</span>
-                </>
-              ) : (
-                <>
-                  <Search className="w-4 h-4" />
-                  <span>Track Package</span>
-                </>
-              )}
-            </button>
+              <Search className="w-4 h-4 mr-2" />
+              <span>Track Consignment</span>
+            </Button>
           </form>
 
-          {/* Quick Demo Selector Chips */}
-          {allShipments.length > 0 && (
-            <div className="flex items-center gap-2 overflow-x-auto pt-1 text-xs text-slate-500 dark:text-slate-400 font-mono">
-              <span className="uppercase text-[10px] text-slate-400 shrink-0">Recent Shipments:</span>
-              {allShipments.map((s) => (
-                <button
-                  key={s.trackingNumber}
-                  onClick={() => {
-                    setSearchCode(s.trackingNumber);
-                    setCurrentShipment(s);
-                    onSelectShipment(s.trackingNumber);
-                    setErrorMessage(null);
-                  }}
-                  className={`px-2.5 py-1 rounded-md text-[11px] transition-colors shrink-0 cursor-pointer border ${
-                    currentShipment?.trackingNumber === s.trackingNumber
-                      ? 'bg-[#0B5ED7] text-white border-[#0B5ED7] font-semibold'
-                      : 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200'
-                  }`}
-                >
-                  {s.trackingNumber}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+          <div className="flex items-center justify-between text-[11px] font-mono text-[var(--text-muted)] pt-1 px-1">
+            <span>Official Air Waybills (AWB) &amp; Consignment Manifests only</span>
+            <span className="flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Zero-PII Public Query</span>
+            </span>
+          </div>
+        </Spotlight>
 
-        {/* Error / Not Found State */}
+        {/* Error / Not Found State with WhatsApp & Phone fallback */}
         {errorMessage && (
-          <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fadeIn">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-6 h-6 text-amber-600 dark:text-amber-400 shrink-0" />
-              <div>
-                <h4 className="font-bold text-sm">Package Not Found</h4>
-                <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">{errorMessage}</p>
+          <div className="p-6 rounded-[var(--r-md)] bg-amber-500/10 border border-amber-500/30 shadow-hard-xs text-[var(--text)] flex flex-col gap-5 animate-fadeIn">
+            <div className="flex items-start gap-3.5">
+              <AlertCircle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
+              <div className="flex flex-col gap-1">
+                <h4 className="font-heading font-bold text-base text-[var(--text)]">Consignment Not Found</h4>
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
+                  {errorMessage}
+                </p>
               </div>
             </div>
-            <a
-              href="mailto:thebcargo@gmail.com"
-              className="px-4 py-2 rounded-lg bg-[#0B5ED7] hover:bg-[#084298] text-white text-xs font-semibold uppercase tracking-wider shrink-0 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <HelpCircle className="w-3.5 h-3.5" />
-              <span>Contact Us</span>
-            </a>
+
+            <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 border-t border-amber-500/20">
+              <span className="text-xs font-mono text-[var(--text-muted)] self-start sm:self-auto">
+                Need urgent tracing assistance?
+              </span>
+              <div className="flex items-center gap-3 w-full sm:w-auto ml-auto">
+                <a
+                  href={`https://wa.me/9779855019485?text=${encodeURIComponent(`Hello BC Cargo, I am trying to track consignment code: ${searchCode.trim()}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 sm:flex-initial"
+                >
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="w-full whitespace-nowrap"
+                    leftIcon={<MessageCircle className="w-3.5 h-3.5 shrink-0 text-emerald-400" />}
+                  >
+                    WhatsApp Dispatch
+                  </Button>
+                </a>
+                <a
+                  href="tel:+977057591816"
+                  className="flex-1 sm:flex-initial"
+                >
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full whitespace-nowrap"
+                    leftIcon={<PhoneCall className="w-3.5 h-3.5 shrink-0" />}
+                  >
+                    Call 057-591816
+                  </Button>
+                </a>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Tracking Details Display */}
         {currentShipment && !errorMessage && (
-          <div className="bg-white dark:bg-[#0B2445] rounded-2xl p-5 sm:p-7 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-6 animate-fadeIn">
+          <Spotlight
+            intensity="strong"
+            className="bg-[var(--surface)] rounded-[var(--r-md)] p-6 sm:p-8 border border-[var(--line)] shadow-hard flex flex-col gap-8 animate-fadeIn"
+          >
             
             {/* Top Overview Banner */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-[#0B5ED7]/10 text-[#0B5ED7] dark:text-[#2F80ED] flex items-center justify-center shrink-0">
-                  {currentShipment.mode === 'ocean' ? <Ship className="w-6 h-6" /> :
-                   currentShipment.mode === 'overland' ? <Truck className="w-6 h-6" /> :
-                   <Plane className="w-6 h-6" />}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--line)]">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-[var(--r-sm)] bg-[var(--surface-2)] text-[var(--oxford-deep)] border border-[var(--line)] flex items-center justify-center shrink-0">
+                  {currentShipment.mode === 'ocean' ? <Ship className="w-7 h-7" /> :
+                   currentShipment.mode === 'overland' ? <Truck className="w-7 h-7" /> :
+                   <Plane className="w-7 h-7" />}
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                      Tracking #: {currentShipment.trackingNumber}
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <span className="font-mono text-base sm:text-lg font-bold text-[var(--text)]">
+                      AWB #{currentShipment.trackingNumber}
                     </span>
                     {/* Status Pill */}
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      isDelivered ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300' :
-                      isException ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300' :
-                      'bg-blue-100 dark:bg-blue-950 text-[#0B5ED7] dark:text-blue-300'
+                    <span className={`px-2.5 py-0.5 rounded-[var(--r-xs)] text-[10px] font-mono font-bold uppercase tracking-wider ${
+                      isDelivered ? 'bg-emerald-500 text-white' :
+                      isException ? 'bg-amber-500 text-slate-900 font-bold' :
+                      'bg-[var(--gold)] text-[var(--oxford-deep)]'
                     }`}>
                       {currentShipment.status}
                     </span>
                   </div>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 block">
-                    {currentShipment.commodity} • {currentShipment.origin} ➔ {currentShipment.destination}
+                  <span className="text-xs text-[var(--text-secondary)] mt-1 block">
+                    {currentShipment.serviceName || 'Scheduled Cargo Transit'} • {currentShipment.origin} ➔ {currentShipment.destination}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => onOpenPrintAwb(currentShipment)}
-                  className="px-3.5 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 font-mono text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  <span>Print Receipt</span>
-                </button>
-              </div>
+              {onOpenPrintAwb && (
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onOpenPrintAwb(currentShipment)}
+                  >
+                    <Printer className="w-3.5 h-3.5 mr-1.5" />
+                    <span>Print Waybill Receipt</span>
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Metric Specs Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#071A33] border border-slate-200/80 dark:border-slate-800">
-                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Expected Delivery</span>
-                <span className="font-heading text-sm sm:text-base font-bold text-slate-900 dark:text-white mt-1 block">
+              <div className="p-3.5 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)]">
+                <span className="text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider block">Estimated Delivery</span>
+                <span className="font-heading text-sm sm:text-base font-bold text-[var(--text)] mt-1 block">
                   {currentShipment.estimatedDelivery}
                 </span>
               </div>
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#071A33] border border-slate-200/80 dark:border-slate-800">
-                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Delivery Type</span>
-                <span className="font-heading text-sm sm:text-base font-bold text-slate-900 dark:text-white mt-1 block truncate">
-                  {currentShipment.mode === 'ocean' ? 'Sea Delivery' :
-                   currentShipment.mode === 'overland' ? 'Road Delivery' :
-                   currentShipment.mode === 'express' ? 'Fast Delivery' : 'Air Delivery'}
+              <div className="p-3.5 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)]">
+                <span className="text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider block">Service Corridor</span>
+                <span className="font-heading text-sm sm:text-base font-bold text-[var(--text)] mt-1 block truncate">
+                  {currentShipment.mode === 'ocean' ? 'Maritime Intermodal' :
+                   currentShipment.mode === 'overland' ? 'Cross-Border Overland' :
+                   currentShipment.mode === 'express' ? 'Priority Express Air' : 'Standard Air Freight'}
                 </span>
               </div>
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#071A33] border border-slate-200/80 dark:border-slate-800">
-                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Weight</span>
-                <span className="font-heading text-sm sm:text-base font-bold text-slate-900 dark:text-white mt-1 block">
+              <div className="p-3.5 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)]">
+                <span className="text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider block">Gross Weight</span>
+                <span className="font-heading text-sm sm:text-base font-bold text-[var(--text)] mt-1 block">
                   {currentShipment.grossWeightKg} kg
                 </span>
               </div>
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#071A33] border border-slate-200/80 dark:border-slate-800">
-                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Sent From</span>
-                <span className="font-heading text-sm sm:text-base font-bold text-slate-900 dark:text-white mt-1 block truncate">
+              <div className="p-3.5 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)]">
+                <span className="text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider block">Origin Gateway</span>
+                <span className="font-heading text-sm sm:text-base font-bold text-[var(--text)] mt-1 block truncate">
                   {currentShipment.originHub}
                 </span>
               </div>
@@ -271,31 +314,37 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
 
             {/* Milestone Timeline */}
             <div className="pt-2">
-              <h3 className="font-heading font-bold text-sm uppercase tracking-wide text-slate-900 dark:text-white mb-6">
-                Where Your Package Has Been
-              </h3>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-heading font-bold text-sm uppercase tracking-wider text-[var(--text)] flex items-center gap-2">
+                  <Package className="w-4 h-4 text-[var(--gold-dark)]" />
+                  <span>Verified Transit Milestones</span>
+                </h3>
+                <span className="text-xs font-mono text-[var(--text-muted)]">
+                  {currentShipment.milestones.length} Checkpoints
+                </span>
+              </div>
 
-              <div className="flex flex-col gap-6 relative pl-2">
+              <div className="flex flex-col gap-6 relative pl-1">
                 {currentShipment.milestones.map((m, idx) => (
                   <div key={m.id || idx} className="flex items-start gap-4 relative">
                     {idx < currentShipment.milestones.length - 1 && (
-                      <div className="absolute left-3.5 top-7 bottom-0 w-0.5 bg-slate-200 dark:bg-slate-800 -translate-x-1/2" />
+                      <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-[var(--line)] -translate-x-1/2" />
                     )}
-                    {getStatusBadge(m.status)}
-                    <div className="flex flex-col">
+                    {getStatusNode(m.status)}
+                    <div className="flex flex-col flex-1 pb-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-heading font-semibold text-xs sm:text-sm text-slate-900 dark:text-white">
+                        <span className="font-heading font-bold text-sm text-[var(--text)]">
                           {m.title}
                         </span>
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                        <span className="text-xs text-[var(--text-muted)] font-mono">
                           • {m.location}
                         </span>
                       </div>
-                      <span className="text-[11px] font-mono text-slate-400 mt-0.5">
+                      <span className="text-[11px] font-mono text-[var(--text-muted)] mt-0.5">
                         {m.timestamp}
                       </span>
                       {m.notes && (
-                        <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 bg-slate-50 dark:bg-[#071A33] p-2 rounded-lg border border-slate-100 dark:border-slate-800 max-w-xl">
+                        <p className="text-xs text-[var(--text-secondary)] mt-2 bg-[var(--surface-2)] p-2.5 rounded-[var(--r-xs)] border border-[var(--line)] max-w-2xl leading-relaxed">
                           {m.notes}
                         </p>
                       )}
@@ -305,21 +354,33 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
               </div>
             </div>
 
-            {/* Support / Contact Assistance */}
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-              <span className="text-slate-500 dark:text-slate-400">
-                Have questions about this package or need help?
+            {/* Support / Help footer */}
+            <div className="pt-6 border-t border-[var(--line)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
+              <span className="text-[var(--text-secondary)]">
+                Questions about customs clearance status or delivery timing?
               </span>
-              <a
-                href="tel:+977057520000"
-                className="text-[#0B5ED7] dark:text-[#2F80ED] font-semibold hover:underline flex items-center gap-1 shrink-0"
-              >
-                <PhoneCall className="w-3.5 h-3.5" />
-                <span>Call Us: +977-057-520000</span>
-              </a>
+              <div className="flex items-center gap-3">
+                <a
+                  href={`https://wa.me/9779855019485?text=${encodeURIComponent(`Inquiry for AWB: ${currentShipment.trackingNumber}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono font-bold text-emerald-600 hover:underline flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                >
+                  <MessageCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span className="whitespace-nowrap">WhatsApp Tracing</span>
+                </a>
+                <span className="text-[var(--line-strong)]">|</span>
+                <a
+                  href="tel:+977057591816"
+                  className="font-mono font-bold text-[var(--oxford-deep)] hover:underline flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                >
+                  <PhoneCall className="w-3.5 h-3.5 shrink-0" />
+                  <span className="whitespace-nowrap font-mono">057-591816 / 9855019485</span>
+                </a>
+              </div>
             </div>
 
-          </div>
+          </Spotlight>
         )}
 
       </div>

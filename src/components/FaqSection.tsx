@@ -4,6 +4,8 @@ import {
   ChevronDown, 
   PhoneCall 
 } from 'lucide-react';
+import { Spotlight } from './ui/spotlight';
+
 
 export interface FaqItem {
   id?: string;
@@ -26,8 +28,8 @@ export const DEFAULT_FAQS: FaqItem[] = [
     answer: 'We check two things: how heavy the box is on the scale, and how much space it takes up. If a box is very light but very big (like pillows), pricing is based on its size. If it is small and heavy, pricing is based on scale weight. Our online calculator does this automatically for you.'
   },
   {
-    question: 'Can you pick up my package from my home or office?',
-    answer: 'Yes! We pick up packages across Nepal, including Hetauda, Kathmandu, Birgunj, Pokhara, Chitwan, Butwal, Biratnagar, and many other cities. Just give us your address when booking or call our nearest office.'
+    question: 'Can you pick up my package from my home or office in Nepal?',
+    answer: 'Yes! We offer convenient doorstep collection across Hetauda, Makwanpur, and Kathmandu Valley as an add-on for international shipments. You can also drop off consignments directly at our Hetauda Central Office (School Road -4, Hetauda) or regional logistics counters.'
   },
   {
     question: 'How long does delivery take to other countries?',
@@ -58,14 +60,14 @@ export const FaqSection: React.FC<FaqSectionProps> = ({
         
         {/* Header */}
         <div className="text-center flex flex-col items-center gap-3">
-          <div className="flex items-center gap-2 text-[#0B5ED7] dark:text-[#2F80ED] text-xs font-bold uppercase tracking-wider font-mono">
+          <div className="flex items-center gap-2 text-[#002147] text-xs font-bold uppercase tracking-wider font-mono">
             <HelpCircle className="w-4 h-4" />
             <span>Support &amp; FAQ</span>
           </div>
-          <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-slate-900 dark:text-white tracking-tight">
+          <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-slate-900 tracking-tight">
             {title}
           </h2>
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-xl">
+          <p className="text-sm sm:text-base text-slate-600 max-w-xl">
             {subtitle}
           </p>
         </div>
@@ -75,57 +77,61 @@ export const FaqSection: React.FC<FaqSectionProps> = ({
           {faqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
             return (
-              <div
+              <Spotlight
                 key={faq.id || idx}
-                className="interactive-card bg-white dark:bg-[#0B2445] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-all duration-200"
+                intensity="subtle"
+                className="interactive-card bg-[var(--surface)] rounded-[var(--r-md)] border border-[var(--line)] shadow-hard-xs overflow-hidden transition-all duration-200"
               >
                 <button
                   type="button"
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
-                  className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                  className="w-full min-h-[48px] py-3.5 px-4 sm:px-5 text-left flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
                   aria-expanded={isOpen}
                 >
-                  <span className="font-heading font-semibold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-[#0B5ED7] dark:group-hover:text-[#2F80ED] transition-colors">
+                  <span className="font-heading font-semibold text-sm sm:text-base text-slate-900 group-hover:text-[#002147] transition-colors">
                     {faq.question}
                   </span>
-                  <div className={`p-1.5 rounded-lg bg-slate-100 dark:bg-[#071A33] text-slate-500 dark:text-slate-300 shrink-0 transition-all duration-300 ease-out ${isOpen ? 'rotate-180 bg-[#0B5ED7] text-white dark:bg-[#0B5ED7]' : 'group-hover:bg-slate-200 dark:group-hover:bg-white/10'}`}>
+                  <div className={`p-1.5 rounded-lg bg-slate-100 text-slate-500 shrink-0 transition-all duration-300 ease-out ${isOpen ? 'rotate-180 bg-[#002147] text-white' : 'group-hover:bg-slate-200'}`}>
                     <ChevronDown className="w-4 h-4" />
                   </div>
                 </button>
 
                 {isOpen && (
-                  <div className="px-5 pb-5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-slate-800/80 pt-3 bg-slate-50/50 dark:bg-white/5 animate-fadeIn">
+                  <div className="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-[var(--line)] pt-3 bg-slate-50/50 animate-fadeIn">
                     {faq.answer}
                   </div>
                 )}
-              </div>
+              </Spotlight>
             );
           })}
         </div>
 
         {/* Support Callout Box */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-[#0B2445] border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
+        <Spotlight
+          intensity="normal"
+          className="p-6 rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--line)] flex flex-col sm:flex-row items-center justify-between gap-6 shadow-hard-sm"
+        >
           <div className="flex items-center gap-4 text-center sm:text-left">
-            <div className="w-11 h-11 rounded-xl bg-[#0B5ED7]/10 dark:bg-[#0B5ED7]/20 text-[#0B5ED7] dark:text-[#2F80ED] flex items-center justify-center shrink-0">
+            <div className="w-11 h-11 rounded-[var(--r-sm)] bg-[#002147]/10 text-[#002147] flex items-center justify-center shrink-0">
               <PhoneCall className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-heading font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+              <h4 className="font-heading font-bold text-sm sm:text-base text-slate-900">
                 Have a question or need help sending a package?
               </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Our customer support team is available 24/7 to help you.
               </p>
             </div>
           </div>
 
           <a
-            href="tel:+977057520000"
-            className="px-4 py-2.5 rounded-lg bg-[#0B5ED7] hover:bg-[#084298] text-white font-semibold text-xs uppercase tracking-wider transition-colors shrink-0 whitespace-nowrap cursor-pointer shadow-sm"
+            href="tel:+977057591816"
+            className="min-h-[44px] px-5 py-2.5 inline-flex items-center justify-center rounded-[var(--r-sm)] bg-[#002147] hover:bg-[#F2B705] hover:text-[#002147] hover:border-[#FAC623] hover:shadow-[0_4px_16px_rgba(242,183,5,0.35)] text-white font-semibold text-xs uppercase tracking-wider transition-all shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 shrink-0 whitespace-nowrap cursor-pointer border border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
           >
-            Call: +977-057-520000
+            Call: 057-591816
           </a>
-        </div>
+        </Spotlight>
 
       </div>
     </section>

@@ -1,0 +1,35 @@
+{
+  "name": "The BC Cargo & Courier",
+  "short_name": "BC Cargo",
+  "description": "National & International Freight, Overland Logistics, and Express Courier from Nepal",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F6F6F4",
+  "theme_color": "#002147",
+  "categories": ["business", "logistics", "utilities"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    }
+  ]
+}

@@ -17,7 +17,7 @@ export const Switch: React.FC<SwitchProps> = ({ checked, onChange, label, disabl
         disabled={disabled}
         onClick={() => !disabled && onChange(!checked)}
         className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#1A56DB] focus:ring-offset-2 ${
-          checked ? 'bg-[#0E1638] dark:bg-[#1A56DB]' : 'bg-slate-300 dark:bg-slate-700'
+          checked ? 'bg-[#0E1638]' : 'bg-slate-300'
         }`}
       >
         <span
@@ -26,7 +26,7 @@ export const Switch: React.FC<SwitchProps> = ({ checked, onChange, label, disabl
           }`}
         />
       </button>
-      {label && <span className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">{label}</span>}
+      {label && <span className="text-xs font-semibold uppercase tracking-wider text-slate-700">{label}</span>}
     </label>
   );
 };

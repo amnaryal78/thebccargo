@@ -83,70 +83,35 @@ export const getInquiries = async (): Promise<InquiryRecord[]> => {
 
 export const submitInquiry = async (
   inquiry: Omit<InquiryRecord, 'id' | 'createdAt' | 'status'>,
-  turnstileToken?: string
+  _turnstileToken?: string
 ): Promise<{ record: InquiryRecord | null; error: string | null }> => {
-  const effectiveToken = turnstileToken || 'dev_bypass_token';
-
   if (isSupabaseConfigured) {
-    try {
-      // Route public inquiry submission through submit-inquiry Edge Function
-      const { data, error } = await supabase.functions.invoke('submit-inquiry', {
-        body: {
-          ...inquiry,
-          turnstileToken: effectiveToken,
-        },
-      });
-
-      if (!error && data && data.success && data.record) {
-        return { record: data.record, error: null };
-      }
-
-      if (data && data.error) {
-        return { record: null, error: data.error };
-      }
-
-      // Direct HTTP fetch fallback
-      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-inquiry`;
-      const res = await fetch(functionUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-        },
-        body: JSON.stringify({
-          ...inquiry,
-          turnstileToken: effectiveToken,
-        }),
-      });
-
-      const resJson = await res.json();
-      if (res.ok && resJson.success && resJson.record) {
-        return { record: resJson.record, error: null };
-      }
-
-      if (resJson.error) {
-        return { record: null, error: resJson.error };
-      }
-    } catch (err: any) {
-      console.warn('Inquiry Edge Function submission exception:', err);
+    // Insert straight into Supabase. The id is made here because visitors cannot read rows back.
+    const id = crypto.randomUUID();
+    const { error } = await supabase.from('inquiries').insert({
+      id,
+      name: inquiry.name,
+      email: inquiry.email,
+      phone: inquiry.phone ?? null,
+      subject: inquiry.subject ?? null,
+      message: inquiry.message,
+      service_mode: inquiry.serviceMode ?? null,
+    });
+    if (error) {
+      console.warn('Inquiry insert failed:', error.message);
+      return { record: null, error: 'We could not send your message. Please try again or call us.' };
     }
+    return { record: { ...inquiry, id, status: 'new', createdAt: new Date().toISOString() }, error: null };
   }
 
-  // Graceful local offline fallback persistence
+  // Local development only (Supabase not configured)
   const generatedId = `INQ-2026-${Math.floor(10000 + Math.random() * 90000)}`;
-  const localRecord: InquiryRecord = {
-    ...inquiry,
-    id: generatedId,
-    status: 'new',
-    createdAt: new Date().toISOString()
-  };
-
+  const localRecord: InquiryRecord = { ...inquiry, id: generatedId, status: 'new', createdAt: new Date().toISOString() };
   try {
     const saved = localStorage.getItem('bc_cargo_inquiries');
     const current = saved ? JSON.parse(saved) : INITIAL_INQUIRIES;
     localStorage.setItem('bc_cargo_inquiries', JSON.stringify([localRecord, ...current]));
   } catch (e) {}
-
   return { record: localRecord, error: null };
 };
 

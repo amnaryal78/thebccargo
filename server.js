@@ -100,8 +100,8 @@ async function handleChatApi(req, res) {
       const settings = payload.settings || {};
       const history = payload.history || [];
 
-      const WHATSAPP_ACTION = { label: 'WhatsApp', type: 'whatsapp', payload: '9779855068307' };
-      const CALL_ACTION = { label: 'Call', type: 'call', payload: '+9779855068307' };
+      const WHATSAPP_ACTION = { label: 'WhatsApp', type: 'whatsapp', payload: '9779855019485' };
+      const CALL_ACTION = { label: 'Call', type: 'call', payload: '+9779855019485' };
       const PRICE_ACTION = { label: 'Price', type: 'navigate', payload: 'rates' };
 
       const lowerMsg = userMessage.toLowerCase();
@@ -114,7 +114,7 @@ async function handleChatApi(req, res) {
       if (forbidden.some(f => lowerMsg.includes(f))) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({
-          reply: settings.fallbackMessage || 'I only help with cargo, shipping, and BC Cargo services. For other inquiries, please message our team on WhatsApp at +977 9855068307 or call 057-520000.',
+          reply: settings.fallbackMessage || 'I only help with cargo, shipping, and BC Cargo services. For other inquiries, please message our team on WhatsApp at +977 9855019485 or call 057-591816.',
           isFallback: true,
           actions: [WHATSAPP_ACTION, CALL_ACTION]
         }));
@@ -177,15 +177,15 @@ async function handleChatApi(req, res) {
         }));
       }
 
-      const systemPrompt = `You are "BC Cargo AI", the official customer service assistant for The BC Cargo & Courier (Govt License #B-409, Kantirajpath, Hetauda-4, Nepal, Phone: +977 9855068307 / 057-520000, WhatsApp: +977 9855068307).
+      const systemPrompt = `You are "BC Cargo AI", the official customer service assistant for The BC Cargo & Courier (Govt License #B-409, School Road -4, Hetauda, Nepal, Phone: +977 9855019485 / 057-591816, WhatsApp: +977 9855019485).
 Strict Rules:
 1. Talk ONLY about cargo, shipping, and BC Cargo. Reject non-cargo questions politely.
 2. Use short, easy words. Be concise.
 3. Pickup is ONLY within Nepal (doorstep pickup anywhere in Nepal). Delivery is worldwide to 190+ countries.
 4. Meat is ONLY accepted for Europe, UK, and Hong Kong. Prohibited everywhere else.
 5. Prices come ONLY from the live rates function. NEVER guess or invent a price.
-6. Booking and tracking need a human: tell the user to contact WhatsApp (+977 9855068307).
-7. If you do not know the answer, tell the user to message on WhatsApp (+977 9855068307).
+6. Booking and tracking need a human: tell the user to contact WhatsApp (+977 9855019485).
+7. If you do not know the answer, tell the user to message on WhatsApp (+977 9855019485).
 8. Answer in the same language the user asks (Nepali, English, etc.).`;
 
       const openRouterKey = process.env.OPENROUTER_API_KEY;
@@ -234,7 +234,7 @@ Strict Rules:
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify({
-        reply: `The BC Cargo Central HQ is at Kantirajpath, Hetauda-4, Nepal. We provide doorstep pickup across Nepal and worldwide express cargo delivery. How can we help you?`,
+        reply: `The BC Cargo Central HQ is at School Road -4, Hetauda, Nepal. We provide doorstep pickup across Nepal and worldwide express cargo delivery. How can we help you?`,
         actions: [WHATSAPP_ACTION, PRICE_ACTION]
       }));
 

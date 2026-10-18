@@ -18,11 +18,11 @@ export interface OfficeLocationSetting {
 }
 
 export const DEFAULT_COMPANY_INFO: CompanyInfoSetting = {
-  name: 'The BC Cargo & Courier Pvt. Ltd.',
+  name: 'The BC Cargo & Courier',
   license: 'Customs Broker License #B-409',
-  email: 'thebcargo@gmail.com',
-  phone: '+977-057-520000',
-  headquarters: 'Central HQ: Kantirajpath, Hetauda-4, Makwanpur, Nepal'
+  email: 'thebccargo@gmail.com',
+  phone: '057-591816 / 9855019485',
+  headquarters: 'Central HQ: School Road -4, Hetauda, Nepal'
 };
 
 export const DEFAULT_OFFICE_LOCATIONS: OfficeLocationSetting[] = [
@@ -30,9 +30,9 @@ export const DEFAULT_OFFICE_LOCATIONS: OfficeLocationSetting[] = [
     id: 'hetauda',
     name: 'Hetauda Central HQ',
     city: 'Hetauda',
-    address: 'Kantirajpath, Ward 4, Makwanpur',
-    phone: '+977-057-520000',
-    email: 'thebcargo@gmail.com'
+    address: 'School Road -4, Hetauda, Nepal',
+    phone: '057-591816 / 9855019485',
+    email: 'thebccargo@gmail.com'
   },
   {
     id: 'kathmandu',
@@ -40,7 +40,7 @@ export const DEFAULT_OFFICE_LOCATIONS: OfficeLocationSetting[] = [
     city: 'Kathmandu',
     address: 'Tribhuvan International Airport (TIA) Cargo Complex',
     phone: '+977-01-4429910',
-    email: 'thebcargo@gmail.com'
+    email: 'thebccargo@gmail.com'
   },
   {
     id: 'birgunj',
@@ -48,7 +48,7 @@ export const DEFAULT_OFFICE_LOCATIONS: OfficeLocationSetting[] = [
     city: 'Birgunj',
     address: 'ICP Sirsiya / Dry Port Gate',
     phone: '+977-051-524100',
-    email: 'thebcargo@gmail.com'
+    email: 'thebccargo@gmail.com'
   }
 ];
 

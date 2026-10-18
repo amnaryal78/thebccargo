@@ -22,7 +22,9 @@ CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles (user_id);
 
 -- 4. Seed initial super_admin email pre-authorization
 INSERT INTO user_roles (email, role, active)
-VALUES ('thebcargo@gmail.com', 'super_admin', true)
+VALUES 
+  ('thebccargo@gmail.com', 'super_admin', true),
+  ('thebcargo@gmail.com', 'super_admin', true)
 ON CONFLICT (email) 
 DO UPDATE SET role = 'super_admin', active = true;
 

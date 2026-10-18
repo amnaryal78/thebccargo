@@ -22,6 +22,9 @@ import {
 } from '../services/chatbotService';
 import { ServiceMode } from '../types';
 
+import { TurnstileWidget } from './TurnstileWidget';
+import { Spotlight } from './ui/spotlight';
+
 interface BcCargoChatbotProps {
   onNavigate: (page: string) => void;
   onSearchTrack: (trackingCode: string, mode?: ServiceMode) => void;
@@ -36,6 +39,7 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string>('');
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -52,9 +56,9 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
         text: freshSettings.welcomeMessage,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         actions: [
-          { label: 'Our Services', type: 'navigate', payload: 'services' },
-          { label: 'Check Shipping Rates', type: 'navigate', payload: 'rates' },
-          { label: 'Contact Details', type: 'contact', payload: 'contact' },
+          { label: 'Price', type: 'navigate', payload: 'rates' },
+          { label: 'WhatsApp', type: 'whatsapp', payload: '9779855019485' },
+          { label: 'Call', type: 'call', payload: '+9779855019485' },
         ]
       }
     ]);
@@ -62,7 +66,9 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
 
   // Scroll to bottom when messages update
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Skip the welcome message: scrolling on page load would pull the whole page down to the chat.
+    if (messages.length <= 1 && !isLoading) return;
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [messages, isLoading]);
 
   const handleSend = async (textToSend?: string) => {
@@ -81,7 +87,7 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
     setIsLoading(true);
 
     try {
-      const response = await processChatMessage(query, messages);
+      const response = await processChatMessage(query, messages, turnstileToken);
       setMessages(prev => [...prev, response]);
     } catch (err) {
       setMessages(prev => [
@@ -89,12 +95,12 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
         {
           id: `err-${Date.now()}`,
           sender: 'assistant',
-          text: 'I apologize, but I encountered a temporary connection issue. Please try asking again or contact our support staff at +977-9855012345.',
+          text: 'I apologize, but I encountered a temporary connection issue. Please message our team on WhatsApp or call our Hetauda office.',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           isError: true,
           actions: [
-            { label: 'Call Support', type: 'call', payload: '+977-9855012345' },
-            { label: 'Contact Page', type: 'contact', payload: 'contact' }
+            { label: 'WhatsApp', type: 'whatsapp', payload: '9779855019485' },
+            { label: 'Call', type: 'call', payload: '+9779855019485' }
           ]
         }
       ]);
@@ -112,9 +118,9 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
         text: freshSettings.welcomeMessage,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         actions: [
-          { label: 'Our Services', type: 'navigate', payload: 'services' },
-          { label: 'Check Shipping Rates', type: 'navigate', payload: 'rates' },
-          { label: 'Contact Details', type: 'contact', payload: 'contact' },
+          { label: 'Price', type: 'navigate', payload: 'rates' },
+          { label: 'WhatsApp', type: 'whatsapp', payload: '9779855019485' },
+          { label: 'Call', type: 'call', payload: '+9779855019485' },
         ]
       }
     ]);
@@ -122,6 +128,9 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
 
   const handleActionClick = (action: ChatAction) => {
     switch (action.type) {
+      case 'whatsapp':
+        window.open(action.payload.startsWith('http') ? action.payload : `https://wa.me/${action.payload.replace(/[^0-9]/g, '')}`, '_blank', 'noopener,noreferrer');
+        break;
       case 'track':
         onSearchTrack(action.payload);
         break;
@@ -147,31 +156,27 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
       id="bc-cargo-ai-chatbot" 
       className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full"
     >
-      {/* Outer Card Wrapper with Gradient Glow */}
-      <div className="relative rounded-3xl bg-[#071A33] border border-slate-700/80 shadow-2xl overflow-hidden transition-all">
-        
-        {/* Glow Effects */}
-        <div className="absolute top-0 right-0 w-[400px] h-[300px] bg-[#0B5ED7]/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[350px] h-[250px] bg-[#F5C84C]/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Outer Card Wrapper */}
+      <Spotlight
+        intensity="strong"
+        className="relative rounded-[var(--r-lg)] bg-white border border-[var(--line)] shadow-hard-md overflow-hidden transition-all"
+      >
 
         {/* 1. Chatbot Header */}
-        <div className="relative z-10 px-6 py-4 bg-[#0B2445]/90 border-b border-slate-700/70 flex items-center justify-between flex-wrap gap-3 backdrop-blur-md">
+        <div className="relative z-10 px-6 py-4 bg-white border-b border-[var(--line)] flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#0B5ED7] to-[#2F80ED] flex items-center justify-center text-white shadow-md">
+            <div className="relative w-10 h-10 rounded-[var(--r-sm)] bg-[#002147] border border-[#F2B705]/40 flex items-center justify-center text-[#F2B705] shadow-hard-xs">
               <Bot className="w-5 h-5" />
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#10B981] border-2 border-[#0B2445]" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#10B981] border-2 border-white shadow-hard-xs" />
             </div>
 
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <h3 className="font-heading font-extrabold text-base text-white tracking-tight">
+                <h3 className="font-heading font-extrabold text-base text-[#002147] tracking-tight">
                   {settings.name}
                 </h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[#0B5ED7]/30 text-[#60A5FA] border border-[#0B5ED7]/40">
-                  Controlled AI • {settings.model.split('/')[1] || settings.model}
-                </span>
               </div>
-              <span className="text-[11px] font-mono text-slate-300 flex items-center gap-1.5 mt-0.5">
+              <span className="text-[11px] font-mono text-slate-600 flex items-center gap-1.5 mt-0.5">
                 <ShieldCheck className="w-3 h-3 text-[#10B981]" />
                 Approved BC Cargo Knowledge Base Only (Gov Lic #B-409)
               </span>
@@ -181,17 +186,18 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handleReset}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs flex items-center gap-1.5 font-mono"
+              className="min-h-[44px] min-w-[44px] px-3 py-2 rounded-[var(--r-xs)] bg-[#EEF3F9] hover:bg-[#D6E1EF] text-[#002147] transition-all shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer text-xs inline-flex items-center justify-center gap-1.5 font-mono border border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
               title="Reset Conversation"
+              aria-label="Reset Conversation"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">New Chat</span>
+              <span className="hidden sm:inline">Reset</span>
             </button>
           </div>
         </div>
 
         {/* 2. Messages Stream */}
-        <div className="relative z-10 p-4 sm:p-6 min-h-[380px] max-h-[520px] overflow-y-auto space-y-4 font-sans bg-[#071A33]/70">
+        <div className="relative z-10 p-4 sm:p-6 min-h-[240px] max-h-[520px] overflow-y-auto space-y-4 font-sans bg-[#F6F9FD]">
           
           {messages.map((msg) => (
             <div
@@ -200,20 +206,20 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
             >
               <div className="flex items-end gap-2 max-w-[88%] sm:max-w-[80%]">
                 {msg.sender === 'assistant' && (
-                  <div className="w-7 h-7 rounded-xl bg-[#0B5ED7] text-white flex items-center justify-center shrink-0 mb-1 shadow-xs">
+                  <div className="w-7 h-7 rounded-[var(--r-xs)] bg-[#002147] border border-[#F2B705]/30 text-white flex items-center justify-center shrink-0 mb-1 shadow-hard-xs">
                     <Bot className="w-4 h-4" />
                   </div>
                 )}
 
                 <div
-                  className={`p-4 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-sm ${
+                  className={`p-4 rounded-[var(--r-md)] text-xs sm:text-sm leading-relaxed shadow-hard-xs ${
                     msg.sender === 'user'
-                      ? 'bg-[#0B5ED7] text-white rounded-br-none'
+                      ? 'bg-[#002147] text-white border border-white/10 rounded-br-none'
                       : msg.isFallback
-                      ? 'bg-[#162942] text-amber-200 border border-amber-500/30 rounded-bl-none'
+                      ? 'bg-amber-50 text-amber-900 border border-amber-200 rounded-bl-none'
                       : msg.isError
-                      ? 'bg-[#2A1719] text-rose-200 border border-rose-500/30 rounded-bl-none'
-                      : 'bg-[#0F2D54] text-slate-100 border border-slate-700/60 rounded-bl-none'
+                      ? 'bg-red-50 text-red-800 border border-red-200 rounded-bl-none'
+                      : 'bg-white text-[#121211] border border-[var(--line)] shadow-sm rounded-bl-none'
                   }`}
                 >
                   <div className="whitespace-pre-wrap font-sans">
@@ -222,15 +228,15 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
 
                   {/* Actions Chips */}
                   {msg.actions && msg.actions.length > 0 && (
-                    <div className="flex items-center flex-wrap gap-2 pt-3 mt-3 border-t border-white/10">
+                    <div className="flex items-center flex-wrap gap-2 pt-3 mt-3 border-t border-[var(--line)]">
                       {msg.actions.map((act, i) => (
                         <button
                           key={i}
                           onClick={() => handleActionClick(act)}
-                          className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-mono text-[11px] font-semibold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs border border-white/10 hover:border-white/30"
+                          className="min-h-[40px] px-3.5 py-2 rounded-[var(--r-xs)] bg-[#EEF3F9] hover:bg-[#D6E1EF] text-[#002147] font-mono text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-hard-xs border border-white/10 hover:border-white/30 hover:-translate-y-0.5 active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
                         >
                           <span>{act.label}</span>
-                          <ArrowRight className="w-3 h-3 text-[#F5C84C]" />
+                          <ArrowRight className="w-3.5 h-3.5 text-[#8C6400]" />
                         </button>
                       ))}
                     </div>
@@ -246,15 +252,15 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
 
           {/* Typing Loading Indicator */}
           {isLoading && (
-            <div className="flex items-center gap-2 text-slate-400 text-xs font-mono py-2 px-1">
-              <div className="w-7 h-7 rounded-xl bg-[#0B5ED7] text-white flex items-center justify-center shrink-0 shadow-xs">
+            <div className="flex items-center gap-2 text-slate-500 text-xs font-mono py-2 px-1">
+              <div className="w-7 h-7 rounded bg-[#002147] text-white flex items-center justify-center shrink-0 shadow-xs">
                 <Bot className="w-4 h-4 animate-spin" />
               </div>
-              <div className="flex items-center gap-1.5 bg-[#0F2D54] px-4 py-2.5 rounded-2xl border border-slate-700/60">
-                <span className="w-2 h-2 rounded-full bg-[#0B5ED7] animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-2 h-2 rounded-full bg-[#60A5FA] animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-2 h-2 rounded-full bg-[#F5C84C] animate-bounce" style={{ animationDelay: '300ms' }} />
-                <span className="text-[11px] text-slate-300 ml-1">Searching approved BC Cargo knowledge...</span>
+              <div className="flex items-center gap-1.5 bg-white px-4 py-2.5 rounded-xl border border-[var(--line)]">
+                <span className="w-2 h-2 rounded-full bg-[#F2B705] animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-2 h-2 rounded-full bg-white animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-2 h-2 rounded-full bg-[#F2B705] animate-bounce" style={{ animationDelay: '300ms' }} />
+                <span className="text-[11px] text-slate-600 ml-1">Searching approved BC Cargo knowledge...</span>
               </div>
             </div>
           )}
@@ -263,9 +269,9 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
         </div>
 
         {/* 3. Suggested Questions Toolbar */}
-        <div className="relative z-10 px-4 sm:px-6 py-3 bg-[#0B2445]/60 border-t border-slate-700/50 flex items-center gap-2 overflow-x-auto scrollbar-none">
-          <Sparkles className="w-3.5 h-3.5 text-[#F5C84C] shrink-0" />
-          <span className="text-[10px] font-mono font-bold uppercase text-slate-400 shrink-0">
+        <div className="relative z-10 px-4 sm:px-6 py-3 bg-white border-t border-[var(--line)] flex items-center gap-2 overflow-x-auto scrollbar-none">
+          <Sparkles className="w-3.5 h-3.5 text-[#F2B705] shrink-0" />
+          <span className="text-[10px] font-mono font-bold uppercase text-slate-600 shrink-0">
             Suggested:
           </span>
           {suggestions.map(s => (
@@ -273,7 +279,7 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
               key={s.id}
               onClick={() => handleSend(s.text)}
               disabled={isLoading}
-              className="px-3 py-1 rounded-full bg-slate-800/80 hover:bg-[#0B5ED7] text-slate-200 hover:text-white text-[11px] font-medium transition-all whitespace-nowrap border border-slate-700 hover:border-[#0B5ED7] cursor-pointer"
+              className="min-h-[38px] px-3.5 py-1.5 rounded-[var(--r-xs)] bg-[#EEF3F9] hover:bg-[#002147] text-[#002147] hover:text-white text-xs font-medium transition-all duration-[var(--t-fast)] whitespace-nowrap border border-slate-700 hover:border-[#F2B705] shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
             >
               {s.text}
             </button>
@@ -281,13 +287,13 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
         </div>
 
         {/* 4. Input Console Form */}
-        <div className="relative z-10 p-4 bg-[#0B2445] border-t border-slate-700/70">
+        <div className="relative z-10 p-4 bg-white border-t border-[var(--line)]">
           <form 
             onSubmit={(e) => {
               e.preventDefault();
               handleSend();
             }}
-            className="flex items-center gap-2 bg-[#071A33] p-2 rounded-2xl border border-slate-700 focus-within:border-[#0B5ED7] focus-within:ring-2 focus-within:ring-[#0B5ED7]/20 transition-all"
+            className="flex items-center gap-2 bg-transparent p-2 rounded-[var(--r-sm)] border border-[var(--line)] focus-within:border-[#F2B705] focus-within:ring-2 focus-within:ring-[#F2B705]/40 clay-inset transition-all"
           >
             <input
               ref={inputRef}
@@ -296,20 +302,20 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
               onChange={(e) => setInput(e.target.value)}
               placeholder={settings.inputPlaceholder}
               disabled={isLoading}
-              className="flex-1 bg-transparent px-3 py-1 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none"
+              className="flex-1 min-h-[44px] bg-transparent px-3 py-2 text-xs sm:text-sm text-[#121211] placeholder:text-slate-500 focus:outline-none"
             />
 
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="px-4 py-2.5 rounded-xl bg-[#0B5ED7] hover:bg-[#084298] disabled:bg-slate-700 text-white text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed shrink-0"
+              className="min-h-[44px] px-5 py-2.5 rounded-[var(--r-xs)] bg-[#F2B705] hover:bg-[#FAC623] disabled:bg-slate-200 text-[#002147] disabled:text-slate-500 text-xs font-semibold uppercase tracking-wider transition-all duration-[var(--t-fast)] shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 inline-flex items-center justify-center gap-1.5 cursor-pointer disabled:cursor-not-allowed shrink-0 border border-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               <span>Send</span>
               <Send className="w-3.5 h-3.5" />
             </button>
           </form>
 
-          <div className="flex items-center justify-between px-2 pt-2 text-[10px] font-mono text-slate-400">
+          <div className="flex items-center justify-between px-2 pt-2 text-[10px] font-mono text-slate-500">
             <span className="flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-[#10B981]" />
               Controlled Agentic Assistant • No unapproved external AI opinions
@@ -318,9 +324,12 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
               Press Enter to send
             </span>
           </div>
+
+          {/* Turnstile Anti-bot Protection Widget */}
+          <TurnstileWidget onVerify={(tok) => setTurnstileToken(tok)} className="hidden" />
         </div>
 
-      </div>
+      </Spotlight>
     </section>
   );
 };

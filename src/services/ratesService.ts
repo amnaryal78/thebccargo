@@ -23,6 +23,26 @@ export interface InternationalRate {
   effectiveDate: string;
 }
 
+export interface SheetRateItem {
+  rate_group: string;
+  display_name: string;
+  supported_countries: string[];
+  weight_tier: 'standard' | '10_plus' | '20_plus';
+  weight_kg: number | null;
+  price_npr: number;
+  currency: string;
+  active: boolean;
+}
+
+export interface SheetRatesPayload {
+  rates: SheetRateItem[];
+  rowCount: number;
+  updatedAt: string;
+  source: 'live' | 'cache_memory' | 'cache_database' | 'local_fallback';
+  fallback?: boolean;
+  error?: string;
+}
+
 export const INITIAL_NATIONAL_RATES: NationalRate[] = [
   { id: 'NR-01', serviceName: 'Express Parcel', originRegion: 'Kathmandu Valley', destinationRegion: 'Pokhara / Gandaki', minWeightKg: 0, maxWeightKg: 1, baseRateNpr: 250, perKgRateNpr: 60, effectiveDate: '2026-01-01' },
   { id: 'NR-02', serviceName: 'Express Parcel', originRegion: 'Kathmandu Valley', destinationRegion: 'Biratnagar / Koshi', minWeightKg: 0, maxWeightKg: 1, baseRateNpr: 280, perKgRateNpr: 70, effectiveDate: '2026-01-01' },
@@ -190,6 +210,73 @@ export async function fetchInternationalRates(): Promise<InternationalRate[]> {
   }
 
   return getInternationalRates();
+}
+
+export async function fetchSheetRates(): Promise<SheetRatesPayload> {
+  if (isSupabaseConfigured) {
+    // 1. Invoke Supabase Edge Function 'rates'
+    try {
+      const { data, error } = await supabase.functions.invoke('rates');
+      if (!error && data && data.rates && data.rates.length > 0) {
+        try {
+          localStorage.setItem('bc_cargo_sheet_rates_cache', JSON.stringify(data));
+        } catch {
+          // Ignore localStorage errors
+        }
+        return data as SheetRatesPayload;
+      }
+    } catch (e) {
+      console.warn('Edge function invoke "rates" error, trying database fallback:', e);
+    }
+
+    // 2. Fallback to Supabase sheet_rates_cache table
+    try {
+      const { data: dbData, error: dbError } = await supabase
+        .from('sheet_rates_cache')
+        .select('*')
+        .eq('id', 'latest')
+        .maybeSingle();
+
+      if (!dbError && dbData && dbData.rates && dbData.rates.length > 0) {
+        const payload: SheetRatesPayload = {
+          rates: dbData.rates,
+          rowCount: dbData.row_count,
+          updatedAt: dbData.updated_at,
+          source: 'cache_database',
+          fallback: true,
+        };
+        try {
+          localStorage.setItem('bc_cargo_sheet_rates_cache', JSON.stringify(payload));
+        } catch {
+          // Ignore localStorage errors
+        }
+        return payload;
+      }
+    } catch (dbErr) {
+      console.warn('Supabase sheet_rates_cache query error:', dbErr);
+    }
+  }
+
+  // 3. Fallback to localStorage cache
+  try {
+    const saved = localStorage.getItem('bc_cargo_sheet_rates_cache');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.rates?.length > 0) {
+        return { ...parsed, source: 'local_fallback', fallback: true };
+      }
+    }
+  } catch {
+    // Ignore localStorage errors
+  }
+
+  return {
+    rates: [],
+    rowCount: 0,
+    updatedAt: '',
+    source: 'local_fallback',
+    error: 'Price not available now. Please chat with us.',
+  };
 }
 
 export const getInternationalRates = (): InternationalRate[] => {

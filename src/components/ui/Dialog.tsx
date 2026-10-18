@@ -32,7 +32,7 @@ export const Dialog: React.FC<DialogProps> = ({
 
   if (!isOpen) return null;
 
-  const maxWidthStyles = {
+  const maxWidthStyles: Record<string, string> = {
     sm: 'max-w-sm',
     md: 'max-w-md',
     lg: 'max-w-lg',
@@ -46,26 +46,23 @@ export const Dialog: React.FC<DialogProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
       <div
-        className={`w-full ${maxWidthStyles[maxWidth]} bg-white dark:bg-[#0B2445] rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[90vh]`}
+        className={`w-full ${maxWidthStyles[maxWidth] || 'max-w-md'} bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]`}
         role="dialog"
         aria-modal="true"
       >
-        {/* Dialog Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#060919]/50">
-          <h3 className="font-heading font-bold text-base text-slate-900 dark:text-white uppercase tracking-wide">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
+          <h3 className="font-heading font-bold text-base text-slate-900 uppercase tracking-wide">
             {title || 'Dialog'}
           </h3>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-white/10 transition-colors"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 transition-colors"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
-
-        {/* Dialog Body */}
-        <div className="p-6 overflow-y-auto flex-1 text-sm text-slate-700 dark:text-slate-300">
+        <div className="p-6 overflow-y-auto flex-1 text-sm text-slate-700">
           {children}
         </div>
       </div>

@@ -17,16 +17,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   if (!isSupabaseConfigured) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center max-w-lg mx-auto">
-        <div className="w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 flex items-center justify-center mb-4">
+        <div className="w-14 h-14 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mb-4">
           <ShieldAlert className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-bold font-heading text-slate-900 dark:text-white mb-2">
+        <h2 className="text-xl font-bold font-heading text-slate-900 mb-2">
           Admin Portal Unavailable
         </h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+        <p className="text-sm text-slate-600 mb-6">
           Supabase backend configuration is missing. The admin portal requires a connected Supabase instance with verified authentication and role-based access control.
         </p>
-        <div className="bg-slate-100 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-mono text-slate-700 dark:text-slate-300 w-full text-left">
+        <div className="bg-slate-100 p-4 rounded-xl border border-slate-200 text-xs font-mono text-slate-700 w-full text-left">
           Missing environment configuration:
           <br />• VITE_SUPABASE_URL
           <br />• VITE_SUPABASE_ANON_KEY
@@ -38,7 +38,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   if (loading) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3">
-        <div className="w-9 h-9 border-3 border-[#0B5ED7] border-t-transparent rounded-full animate-spin" />
+        <div className="w-9 h-9 border-3 border-[#002147] border-t-transparent rounded-full animate-spin" />
         <span className="text-xs font-mono text-slate-400 tracking-wider uppercase">Verifying Authorization...</span>
       </div>
     );

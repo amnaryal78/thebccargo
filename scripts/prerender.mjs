@@ -345,7 +345,7 @@ const ROUTE_METADATA = {
         '@context': 'https://schema.org',
         '@type': 'LocalBusiness',
         name: 'The BC Cargo & Courier - Hetauda Central HQ',
-        telephone: '+977-9855068307',
+        telephone: '+977-9855019485',
         email: 'thebccargo@gmail.com',
         url: `${BASE_URL}/send-parcel-nepal-to-south-korea`,
         address: {
@@ -452,7 +452,7 @@ const ROUTE_METADATA = {
         '@context': 'https://schema.org',
         '@type': 'LocalBusiness',
         name: 'The BC Cargo & Courier - Hetauda Central HQ',
-        telephone: '+977-9855068307',
+        telephone: '+977-9855019485',
         url: `${BASE_URL}/send-parcel-nepal-to-malaysia`,
         address: {
           '@type': 'PostalAddress',

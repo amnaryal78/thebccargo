@@ -71,6 +71,16 @@ serve(async (req) => {
       );
     }
 
+    // 2.1 Enforce International only: Destination cannot be Nepal
+    const destStr = String(payload.destination || '').trim().toLowerCase();
+    const destAddrStr = String(payload.receiverAddress || '').trim().toLowerCase();
+    if (destStr === 'nepal' || destStr.endsWith(', nepal') || destAddrStr.endsWith(', nepal') || destAddrStr === 'nepal') {
+      return new Response(
+        JSON.stringify({ error: 'We ship from Nepal to other countries. Destination cannot be Nepal.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(payload.senderEmail)) {
       return new Response(

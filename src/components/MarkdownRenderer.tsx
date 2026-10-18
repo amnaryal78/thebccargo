@@ -24,21 +24,21 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
       if ((part.startsWith('**') && part.endsWith('**')) || (part.startsWith('__') && part.endsWith('__'))) {
         const inner = part.slice(2, -2);
         tokens.push(
-          <strong key={keyIndex++} className="font-bold text-slate-900 dark:text-white">
+          <strong key={keyIndex++} className="font-bold text-slate-900">
             {inner}
           </strong>
         );
       } else if ((part.startsWith('*') && part.endsWith('*')) || (part.startsWith('_') && part.endsWith('_'))) {
         const inner = part.slice(1, -1);
         tokens.push(
-          <em key={keyIndex++} className="italic text-slate-800 dark:text-slate-200">
+          <em key={keyIndex++} className="italic text-slate-800">
             {inner}
           </em>
         );
       } else if (part.startsWith('`') && part.endsWith('`')) {
         const inner = part.slice(1, -1);
         tokens.push(
-          <code key={keyIndex++} className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-xs text-[#0B5ED7] dark:text-[#F5C84C]">
+          <code key={keyIndex++} className="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-xs text-[#002147]">
             {inner}
           </code>
         );
@@ -55,7 +55,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
               href={safeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#0B5ED7] dark:text-[#60A5FA] underline font-semibold hover:text-[#084298]"
+              className="text-[#002147] underline font-semibold hover:opacity-80"
             >
               {label}
             </a>
@@ -87,7 +87,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
       elements.push(
         <ListTag key={`list-${elements.length}`} className={listClass}>
           {listItems.map((item, idx) => (
-            <li key={idx} className="text-slate-700 dark:text-slate-300">
+            <li key={idx} className="text-slate-700">
               {renderFormattedText(item)}
             </li>
           ))}
@@ -152,31 +152,31 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
     // Check headings (#, ##, ###, ####)
     if (trimmed.startsWith('### ')) {
       elements.push(
-        <h3 key={`h3-${elements.length}`} className="font-heading font-bold text-lg sm:text-xl text-slate-900 dark:text-white mt-6 mb-2 tracking-tight">
+        <h3 key={`h3-${elements.length}`} className="font-heading font-bold text-lg sm:text-xl text-slate-900 mt-6 mb-2 tracking-tight">
           {renderFormattedText(trimmed.slice(4))}
         </h3>
       );
     } else if (trimmed.startsWith('## ')) {
       elements.push(
-        <h2 key={`h2-${elements.length}`} className="font-heading font-extrabold text-xl sm:text-2xl text-slate-900 dark:text-white mt-8 mb-3 tracking-tight border-b border-slate-200 dark:border-slate-800 pb-2">
+        <h2 key={`h2-${elements.length}`} className="font-heading font-extrabold text-xl sm:text-2xl text-slate-900 mt-8 mb-3 tracking-tight border-b border-slate-200 pb-2">
           {renderFormattedText(trimmed.slice(3))}
         </h2>
       );
     } else if (trimmed.startsWith('# ')) {
       elements.push(
-        <h1 key={`h1-${elements.length}`} className="font-heading font-extrabold text-2xl sm:text-3xl text-slate-900 dark:text-white mt-8 mb-4 tracking-tight">
+        <h1 key={`h1-${elements.length}`} className="font-heading font-extrabold text-2xl sm:text-3xl text-slate-900 mt-8 mb-4 tracking-tight">
           {renderFormattedText(trimmed.slice(2))}
         </h1>
       );
     } else if (trimmed.startsWith('> ')) {
       elements.push(
-        <blockquote key={`quote-${elements.length}`} className="my-4 border-l-4 border-[#0B5ED7] pl-4 py-2 italic text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-[#071A33]/50 rounded-r-lg">
+        <blockquote key={`quote-${elements.length}`} className="my-4 border-l-4 border-[#002147] pl-4 py-2 italic text-slate-600 bg-slate-50 rounded-r-lg">
           {renderFormattedText(trimmed.slice(2))}
         </blockquote>
       );
     } else if (trimmed.length > 0) {
       elements.push(
-        <p key={`p-${elements.length}`} className="mb-4 leading-relaxed text-slate-800 dark:text-slate-200">
+        <p key={`p-${elements.length}`} className="mb-4 leading-relaxed text-slate-800">
           {renderFormattedText(line)}
         </p>
       );
@@ -185,5 +185,5 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
 
   flushList();
 
-  return <div className={`prose dark:prose-invert max-w-none font-sans text-sm sm:text-base ${className}`}>{elements}</div>;
+  return <div className={`prose max-w-none font-sans text-sm sm:text-base ${className}`}>{elements}</div>;
 };

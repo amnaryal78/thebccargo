@@ -1,69 +1,91 @@
 @import "tailwindcss";
+@import "./design/fonts.css";
+@import "./design/tokens.css";
 
-@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-heading: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-display);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-data);
+  --font-data: var(--font-data);
 
-  --color-brand-blue: #0B5ED7;
-  --color-brand-blue-hover: #084298;
-  --color-brand-blue-light: #EAF3FF;
-  --color-brand-navy: #071A33;
-  --color-brand-navy-deep: #040E1C;
-  --color-brand-navy-surface: #0B2445;
-  --color-brand-yellow: #D97706;
-}
+  /* Oxford Scale */
+  --color-ox-50: var(--ox-50);
+  --color-ox-100: var(--ox-100);
+  --color-ox-200: var(--ox-200);
+  --color-ox-300: var(--ox-300);
+  --color-ox-400: var(--ox-400);
+  --color-ox-500: var(--ox-500);
+  --color-ox-600: var(--ox-600);
+  --color-ox-700: var(--ox-700);
+  --color-ox-800: var(--ox-800);
+  --color-ox-900: var(--ox-900);
+  --color-ox-950: var(--ox-950);
 
-:root {
-  --bg-page: #F7F9FC;
-  --bg-surface: #FFFFFF;
-  --bg-surface-elevated: #FFFFFF;
-  --bg-subtle: #F1F5F9;
-  --text-primary: #0F172A;
-  --text-secondary: #475569;
-  --text-muted: #64748B;
-  --border-subtle: #E2E8F0;
-  --border-strong: #CBD5E1;
-  --accent-blue: #0B5ED7;
-  --accent-yellow: #D97706; /* Dark golden yellow for light mode high contrast */
-  --status-success: #10B981;
+  /* Golden Yellow Scale */
+  --color-gd-50: var(--gd-50);
+  --color-gd-100: var(--gd-100);
+  --color-gd-200: var(--gd-200);
+  --color-gd-300: var(--gd-300);
+  --color-gd-400: var(--gd-400);
+  --color-gd-500: var(--gd-500);
+  --color-gd-600: var(--gd-600);
+  --color-gd-700: var(--gd-700);
+  --color-gd-800: var(--gd-800);
+  --color-gd-900: var(--gd-900);
 
-  /* Global Interaction Tokens (Dark Yellow Accent for Light Mode) */
-  --motion-fast: 150ms;
-  --motion-normal: 240ms;
-  --motion-smooth: 340ms;
-  --ease-out-apple: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out-subtle: cubic-bezier(0.4, 0, 0.2, 1);
-  
-  --interaction-border-hover: rgba(217, 119, 6, 0.75);
-  --interaction-bg-hover: rgba(217, 119, 6, 0.08);
-  --interaction-ring: rgba(217, 119, 6, 0.35);
-  --interaction-glow: rgba(217, 119, 6, 0.16);
-  --interaction-shadow-hover: 0 10px 25px -8px rgba(217, 119, 6, 0.25), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-}
+  /* Ink Scale */
+  --color-ink-0: var(--ink-0);
+  --color-ink-50: var(--ink-50);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-ink-400: var(--ink-400);
+  --color-ink-500: var(--ink-500);
+  --color-ink-600: var(--ink-600);
+  --color-ink-700: var(--ink-700);
+  --color-ink-800: var(--ink-800);
+  --color-ink-900: var(--ink-900);
+  --color-ink-950: var(--ink-950);
 
-html.dark {
-  --bg-page: #071A33;
-  --bg-surface: #0B2445;
-  --bg-surface-elevated: #0F2D54;
-  --bg-subtle: #061528;
-  --text-primary: #F8FAFC;
-  --text-secondary: #CBD5E1;
-  --text-muted: #94A3B8;
-  --border-subtle: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.2);
-  --accent-blue: #2F80ED;
-  --accent-yellow: #F5C84C; /* Bright vibrant yellow for dark mode */
-  --status-success: #10B981;
+  /* Signal Red Scale */
+  --color-rd-100: var(--rd-100);
+  --color-rd-400: var(--rd-400);
+  --color-rd-500: var(--rd-500);
+  --color-rd-600: var(--rd-600);
 
-  /* Global Dark Mode Interaction Tokens (Bright Yellow Accent Hover) */
-  --interaction-border-hover: rgba(245, 200, 76, 0.75);
-  --interaction-bg-hover: rgba(245, 200, 76, 0.12);
-  --interaction-ring: rgba(245, 200, 76, 0.45);
-  --interaction-glow: rgba(245, 200, 76, 0.18);
-  --interaction-shadow-hover: 0 14px 35px -10px rgba(0, 0, 0, 0.6), 0 0 20px rgba(245, 200, 76, 0.2);
+  /* Semantic Theme Tokens */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-oxford: var(--surface-oxford);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-brand: var(--brand);
+  --color-on-brand: var(--on-brand);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-accent-text: var(--accent-text);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-focus: var(--focus-ring);
+  --color-oxford-deep: var(--oxford-deep);
+  --color-gold: var(--gold);
+  --color-gold-dark: var(--gold-dark);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-text-secondary: var(--text-secondary);
+
+  /* Claymorphism Radius Scale */
+  --radius-none: var(--r-none);
+  --radius-xs: var(--r-xs);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-pill: var(--r-pill);
 }
 
 @layer base {
@@ -71,6 +93,49 @@ html.dark {
   *::before,
   *::after {
     box-sizing: border-box;
+  }
+
+  /* Global Typography & Word Wrapping Integrity */
+  p, span, h1, h2, h3, h4, h5, h6, a, button, label, li, dt, dd {
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  /* Global Cursor & Accessibility Pointer Rules */
+  button,
+  [role="button"],
+  [role="tab"],
+  a[href],
+  summary,
+  select,
+  label[for],
+  input[type="checkbox"],
+  input[type="radio"] {
+    cursor: pointer;
+  }
+
+  /* Prevent SVG icons from squashing or distorting inside flex elements */
+  button svg,
+  [role="button"] svg,
+  [role="tab"] svg,
+  a svg,
+  label svg {
+    flex-shrink: 0;
+  }
+
+  :disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed !important;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="search"],
+  input[type="password"],
+  textarea {
+    cursor: text;
   }
 
   html,
@@ -84,27 +149,102 @@ html.dark {
 
   html {
     scroll-behavior: smooth;
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
   
   body {
-    background-color: var(--bg-page);
-    color: var(--text-primary);
-    font-family: var(--font-sans);
-    letter-spacing: -0.011em;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    transition: background-color var(--t-med) ease, color var(--t-med) ease;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
-    letter-spacing: -0.025em;
+    font-family: var(--font-display);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  h1 { font-size: var(--fs-h1); }
+  h2 { font-size: var(--fs-h2); }
+  h3 { font-size: var(--fs-h3); }
+
+  code, pre, kbd, samp, .font-data {
+    font-family: var(--font-data);
+    font-feature-settings: "zero", "ss01", "ss02";
   }
 }
 
-/* Custom scrollbar styling */
+/* Accessible focus outline & inputs */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+  border-color: var(--focus-ring);
+}
+
+/* Ergonomic touch targets: ensure interactive controls meet WCAG 2.5.5 / 2.5.8 */
+button.min-touch,
+.touch-target,
+nav button {
+  min-height: 44px;
+}
+
+nav button {
+  font-weight: 500;
+}
+
+/* Ensure flex containers with standard spacing wrap smoothly on smaller viewports */
+.flex-wrap-safe,
+div.flex.gap-4 {
+  flex-wrap: wrap;
+}
+
+/* Section rhythmic vertical pacing */
+section.space-y-6 {
+  margin-bottom: 3.5rem;
+}
+
+/* High contrast support */
+@media (prefers-contrast: more) {
+  :root {
+    --text-muted: var(--ink-900);
+    --line: rgba(0, 33, 71, 0.3);
+    --line-strong: rgba(0, 33, 71, 0.5);
+  }
+}
+
+
+/* Industrial waybill motif utilities */
+.waybill-border {
+  border: 1px dashed var(--line);
+}
+
+.waybill-notch {
+  position: relative;
+}
+
+.barcode-strip {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='1'%3E%3Crect width='2' height='1' fill='%23002147'/%3E%3Crect x='4' width='3' height='1' fill='%23002147'/%3E%3Crect x='9' width='1' height='1' fill='%23002147'/%3E%3Crect x='12' width='2' height='1' fill='%23002147'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 16px 100%;
+}
+
+/* Custom soft clay scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -115,127 +255,77 @@ html.dark {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #94A3B8;
-  border-radius: 3px;
+  background: var(--ink-300);
+  border-radius: var(--r-pill);
 }
 
-.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
-}
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #64748B;
+  background: var(--ink-400);
 }
 
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  #printable-awb, #printable-awb * {
-    visibility: visible;
-  }
-  #printable-awb {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-  }
+
+/* Claymorphism border softening for elevated surfaces */
+.shadow-hard,
+.shadow-hard-sm,
+.shadow-hard-md,
+.shadow-hard-lg,
+.shadow-hard-xs {
+  border-width: 1px;
 }
 
-/* ==================================================================== */
-/* GLOBAL INTERACTION DESIGN SYSTEM                                     */
-/* Precision, calm, responsive technology & logistics brand polish       */
-/* ==================================================================== */
-
-/* 1. Theme-Aware Text Selection */
-::selection {
-  background-color: rgba(11, 94, 215, 0.22);
-  color: inherit;
-}
-
-.dark ::selection {
-  background-color: rgba(47, 128, 237, 0.35);
-  color: #ffffff;
-}
-
-/* 2. Global Accessible Keyboard Focus Rings */
-:focus-visible {
-  outline: 2px solid var(--accent-blue);
-  outline-offset: 2px;
-  transition: outline-offset var(--motion-fast) var(--ease-out-apple);
-}
-
-/* 3. Interactive Cards (Subtle Lift, Border Highlight, Shadow Depth) */
+/* Interactive card & button standards */
 .interactive-card {
   position: relative;
-  transition: transform var(--motion-normal) var(--ease-out-apple),
-              box-shadow var(--motion-normal) var(--ease-out-apple),
-              border-color var(--motion-normal) ease,
-              background-color var(--motion-normal) ease;
+  transition: transform var(--t-fast) var(--ease-out),
+              box-shadow var(--t-fast) var(--ease-out),
+              border-color var(--t-fast) ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .interactive-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--interaction-shadow-hover);
-    border-color: var(--interaction-border-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hard-lg);
   }
   
   .interactive-card:active {
-    transform: translateY(-1px) scale(0.995);
-    transition-duration: var(--motion-fast);
+    transform: translateY(1px);
+    box-shadow: var(--shadow-press);
   }
 }
 
-@media (hover: none) and (pointer: coarse) {
-  .interactive-card:active {
-    transform: scale(0.99);
-    transition-duration: var(--motion-fast);
-  }
-}
-
-/* 4. Interactive Buttons (Tactile Hover & Press Compression) */
 .interactive-btn {
-  transition: transform var(--motion-fast) var(--ease-out-apple),
-              box-shadow var(--motion-fast) var(--ease-out-apple),
-              background-color var(--motion-fast) ease,
-              border-color var(--motion-fast) ease;
+  transition: transform var(--t-fast) var(--ease-out),
+              box-shadow var(--t-fast) var(--ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .interactive-btn:hover {
-    transform: translateY(-1px);
+    transform: translateY(-1.5px);
   }
-  
   .interactive-btn:active {
-    transform: scale(0.985);
+    transform: translateY(1px);
+    box-shadow: var(--shadow-press);
   }
 }
 
-@media (hover: none) and (pointer: coarse) {
-  .interactive-btn:active {
-    transform: scale(0.98);
-  }
-}
-
-/* 5. Interactive Links (Animated Underline Expansion) */
+/* Interactive Underline */
 .interactive-link {
   position: relative;
   display: inline-flex;
   align-items: center;
-  transition: color var(--motion-fast) ease;
+  transition: color var(--t-fast) ease;
 }
 
 .interactive-link::after {
   content: '';
   position: absolute;
-  bottom: -1px;
+  bottom: -2px;
   left: 0;
   width: 0;
-  height: 1.5px;
-  background-color: currentColor;
-  opacity: 0.85;
-  transition: width var(--motion-normal) var(--ease-out-apple);
+  height: 2px;
+  background-color: var(--accent);
+  transition: width var(--t-med) var(--ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -244,46 +334,132 @@ html.dark {
   }
 }
 
-/* 6. Interactive Table Rows */
-.interactive-row {
-  transition: background-color var(--motion-fast) ease,
-              border-color var(--motion-fast) ease;
+/* ========================================================================= */
+/* DYNAMIC HOVER SYSTEM (Oxford Blue <-> Golden Yellow Physics)             */
+/* ========================================================================= */
+
+/* 1. Oxford Blue elements hover with Golden Yellow accents */
+.hover-oxford-accent {
+  transition: transform var(--t-fast) var(--ease-out),
+              box-shadow var(--t-fast) var(--ease-out),
+              border-color var(--t-fast) ease,
+              color var(--t-fast) ease,
+              background-color var(--t-fast) ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .interactive-row:hover {
-    background-color: var(--interaction-bg-hover);
+  .hover-oxford-accent:hover {
+    border-color: var(--gd-400) !important;
+    box-shadow: 0 8px 24px -4px rgba(242, 183, 5, 0.22),
+                0 0 1px 1px rgba(242, 183, 5, 0.35);
+    transform: translateY(-2px);
+  }
+  .hover-oxford-accent:active {
+    transform: translateY(1px);
+    box-shadow: var(--shadow-press);
   }
 }
 
-/* 7. Subtle Radial Pointer Glow (Material Light Across Surfaces) */
-.interactive-radial-glow {
-  position: relative;
-  overflow: hidden;
+/* 2. Golden Yellow elements hover with Oxford Blue accents */
+.hover-gold-accent {
+  transition: transform var(--t-fast) var(--ease-out),
+              box-shadow var(--t-fast) var(--ease-out),
+              border-color var(--t-fast) ease,
+              color var(--t-fast) ease,
+              background-color var(--t-fast) ease;
 }
 
-.interactive-radial-glow::before {
+@media (hover: hover) and (pointer: fine) {
+  .hover-gold-accent:hover {
+    border-color: var(--ox-700) !important;
+    box-shadow: 0 8px 24px -4px rgba(0, 33, 71, 0.25),
+                0 0 1px 1px rgba(0, 33, 71, 0.3);
+    transform: translateY(-2px);
+  }
+  .hover-gold-accent:active {
+    transform: translateY(1px);
+    box-shadow: var(--shadow-press);
+  }
+}
+
+/* 3. Surface Interactive Cards: Clean Lift with Dual Brand Accents */
+.hover-card-interactive {
+  position: relative;
+  transition: transform var(--t-fast) var(--ease-out),
+              box-shadow var(--t-fast) var(--ease-out),
+              border-color var(--t-fast) ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hover-card-interactive:hover {
+    transform: translateY(-3px);
+    border-color: var(--ox-300);
+    box-shadow: var(--clay-outer-md), 0 0 16px -2px rgba(242, 183, 5, 0.15);
+  }
+  .hover-card-interactive:active {
+    transform: translateY(1px);
+    box-shadow: var(--shadow-press);
+  }
+}
+
+/* 4. Link hover with animated golden/oxford underline */
+.link-gold-hover {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  transition: color var(--t-fast) ease;
+}
+.link-gold-hover::after {
   content: '';
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(
-    480px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    var(--interaction-glow),
-    transparent 65%
-  );
-  transition: opacity var(--motion-normal) ease;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--gd-400);
+  transition: width var(--t-med) var(--ease-out);
 }
-
 @media (hover: hover) and (pointer: fine) {
-  .interactive-radial-glow:hover::before {
-    opacity: 1;
+  .link-gold-hover:hover {
+    color: var(--gd-400);
+  }
+  .link-gold-hover:hover::after {
+    width: 100%;
   }
 }
 
-/* 8. Marquee Animation for Partners & Logistics Corridors */
+.link-oxford-hover {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  transition: color var(--t-fast) ease;
+}
+.link-oxford-hover::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--ox-800);
+  transition: width var(--t-med) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .link-oxford-hover:hover {
+    color: var(--ox-900);
+  }
+  .link-oxford-hover:hover::after {
+    width: 100%;
+  }
+}
+
+/* Phone number & numeric string protection utility */
+.phone-number {
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Marquee Animation for Partners */
 @keyframes marquee {
   0% { transform: translateX(0%); }
   100% { transform: translateX(-50%); }
@@ -297,33 +473,141 @@ html.dark {
   animation-play-state: paused;
 }
 
-/* 9. Reduced Motion Preferences */
+/* =========================================================================== */
+/* GLOBAL SPOTLIGHT INTERACTION SYSTEM                                        */
+/* =========================================================================== */
+.spotlight-container {
+  overflow: hidden;
+  transition: transform var(--t-normal) var(--ease-out), box-shadow var(--t-normal) var(--ease-out), border-color var(--t-normal) var(--ease-out);
+}
+
+.spotlight-container.spotlight-elevate:hover {
+  transform: translateY(-2px);
+}
+
+.spotlight-glow-layer,
+.spotlight-border-layer {
+  pointer-events: none;
+  user-select: none;
+  contain: paint;
+  will-change: opacity;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  .spotlight-container.spotlight-elevate:hover {
+    transform: none;
   }
-
-  .interactive-card:hover,
-  .interactive-btn:hover,
-  .interactive-card:active,
-  .interactive-btn:active {
-    transform: none !important;
-  }
-
-  .interactive-link::after {
-    transition: none !important;
-  }
-
-  .interactive-radial-glow::before {
+  .spotlight-glow-layer,
+  .spotlight-border-layer {
     display: none !important;
   }
+}
 
-  .animate-marquee {
-    animation: none !important;
+
+@media print {
+  @page {
+    size: A5 portrait;
+    margin: 0.2in;
   }
+  body {
+    background: white !important;
+    color: #102033 !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #printable-awb, #printable-awb *,
+  #printable-bill, #printable-bill * {
+    visibility: visible;
+  }
+  #printable-awb,
+  #printable-bill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-shadow: none !important;
+    background: white !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Lets the spotlight hover shade animate its size smoothly (grows while hovering). */
+@property --spot-k {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spotlight-glow-layer {
+    transition: none !important;
+  }
+}
+
+/* About page story: BC mark float, coffee steam and sparks. Decorative only. */
+@keyframes bc-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.bc-float { animation: bc-float 6s ease-in-out infinite; }
+
+@keyframes cs-steam {
+  0% { transform: translateY(8px); opacity: 0; }
+  30% { opacity: 0.7; }
+  100% { transform: translateY(-14px); opacity: 0; }
+}
+.cs-steam { animation: cs-steam 3.4s ease-out infinite; transform-box: fill-box; }
+.cs-steam-2 { animation-delay: 0.9s; }
+.cs-steam-3 { animation-delay: 1.8s; }
+
+@keyframes cs-spark {
+  0% { transform: translateY(6px); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: translateY(-18px); opacity: 0; }
+}
+.cs-spark { animation: cs-spark 4s ease-out infinite; transform-box: fill-box; }
+.cs-spark-2 { animation-delay: 1.3s; }
+.cs-spark-3 { animation-delay: 2.4s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bc-float, .cs-steam, .cs-spark { animation: none; }
+  .cs-steam { opacity: 0.5; }
+  .cs-spark { opacity: 0.8; }
+}
+
+/* Services page parcel journey: plain, short loops only */
+@keyframes cj-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+@keyframes cj-wheel { to { transform: rotate(360deg); } }
+@keyframes cj-road { to { transform: translateX(-24px); } }
+@keyframes cj-scan { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(26px); } }
+@keyframes cj-plane { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes cj-cloud { from { transform: translateX(30px); } to { transform: translateX(-35px); } }
+@keyframes cj-check { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.cj-bounce { animation: cj-bounce 0.7s ease-in-out infinite; }
+.cj-wheel { animation: cj-wheel 0.6s linear infinite; }
+.cj-road { animation: cj-road 0.8s linear infinite; }
+.cj-scan { animation: cj-scan 1.2s ease-in-out infinite; }
+.cj-plane { animation: cj-plane 1.4s ease-in-out infinite; }
+.cj-cloud-1 { animation: cj-cloud 2.4s linear infinite; }
+.cj-cloud-2 { animation: cj-cloud 3s linear infinite reverse; }
+.cj-check { animation: cj-check 0.35s ease-out both; }
+@keyframes cj-arrive { from { transform: scale(0.8); opacity: 0.4; } to { transform: scale(1); opacity: 1; } }
+.cj-arrive { animation: cj-arrive 0.4s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .cj-bounce, .cj-wheel, .cj-road, .cj-scan, .cj-plane, .cj-cloud-1, .cj-cloud-2, .cj-check, .cj-arrive { animation: none; }
+}
+
+/* Text fields are outlined only: no solid fill and no inner shading. */
+input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='button']):not([type='submit']):not([type='color']),
+select,
+textarea {
+  background-color: transparent;
+}
+input:not([type='checkbox']):not([type='radio']):not([type='range']):-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
 }

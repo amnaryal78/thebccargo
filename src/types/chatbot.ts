@@ -75,7 +75,7 @@ export interface ChatbotSuggestion {
 
 export interface ChatAction {
   label: string;
-  type: 'navigate' | 'track' | 'book' | 'call' | 'contact';
+  type: 'navigate' | 'track' | 'book' | 'call' | 'contact' | 'whatsapp';
   payload: string;
 }
 

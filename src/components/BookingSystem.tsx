@@ -1,24 +1,43 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   PackagePlus, 
   ArrowRight, 
-  Check, 
+  ArrowLeft,
   MapPin, 
   Clock, 
   RotateCw, 
   ShieldCheck,
   CheckCircle2,
-  FileText
+  FileText,
+  AlertCircle,
+  Truck,
+  Plane,
+  Ship,
+  Box,
+  DollarSign
 } from 'lucide-react';
 import { ServiceMode } from '../types';
 import { submitBooking } from '../services/bookingService';
-import { TurnstileWidget } from './ui/TurnstileWidget';
+import { TurnstileWidget } from './TurnstileWidget';
+import { Stepper, StepItem } from '../design/primitives/Stepper';
+import { Button } from '../design/primitives/Button';
 
 interface BookingSystemProps {
   onBookingSuccess?: (bookingRef: string, newShipment?: any) => void;
 }
 
+const BOOKING_STEPS: StepItem[] = [
+  { id: 'route', label: 'Route & Mode' },
+  { id: 'cargo', label: 'Cargo Specs' },
+  { id: 'parties', label: 'Shipper & Consignee' },
+  { id: 'review', label: 'Review & Confirm' }
+];
+
 export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }) => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState<string | null>(null);
@@ -26,43 +45,57 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
   const [validationError, setValidationError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string>('');
 
+  // Prefill parameters from Rate Estimator query string:
+  // e.g. /book?dest=Germany&weight=25&mode=air&commodity=Apparel
+  const queryDest = searchParams.get('dest') || searchParams.get('destination') || '';
+  const queryOrigin = searchParams.get('origin') || 'Hetauda';
+  const queryWeight = searchParams.get('weight') ? parseFloat(searchParams.get('weight') || '1') : 5;
+  const queryMode = (searchParams.get('type') || searchParams.get('mode') || 'air').toLowerCase() as ServiceMode;
+  const queryPieces = searchParams.get('pieces') ? parseInt(searchParams.get('pieces') || '1', 10) : 1;
+  const queryCommodity = searchParams.get('commodity') || '';
+
   // Form State
-  const [serviceCategory, setServiceCategory] = useState<'national' | 'international'>('international');
-  const [serviceMode, setServiceMode] = useState<ServiceMode>('air');
-  const [originHub, setOriginHub] = useState('Hetauda Central HQ');
-  const [originCity, setOriginCity] = useState('Hetauda');
-  const [pickupAddress, setPickupAddress] = useState('Kantirajpath, Hetauda-4');
-  const [pickupDate, setPickupDate] = useState(new Date(Date.now() + 86400000).toISOString().split('T')[0]);
+  const [serviceMode, setServiceMode] = useState<ServiceMode>(
+    ['air', 'ocean', 'overland'].includes(queryMode) ? queryMode : 'air'
+  );
+  const [originCity, setOriginCity] = useState(queryOrigin);
+  const [pickupAddress, setPickupAddress] = useState('');
+  const [pickupDate, setPickupDate] = useState(
+    new Date(Date.now() + 86400000).toISOString().split('T')[0]
+  );
 
-  const [destinationCountry, setDestinationCountry] = useState('Germany');
-  const [destinationCity, setDestinationCity] = useState('Frankfurt');
-  const [deliveryAddress, setDeliveryAddress] = useState('Cargo City South, Frankfurt');
+  const [destinationCountry, setDestinationCountry] = useState(queryDest);
+  const [destinationCity, setDestinationCity] = useState('');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
 
-  const [weightKg, setWeightKg] = useState<number>(120);
-  const [lengthCm, setLengthCm] = useState<number>(80);
-  const [widthCm, setWidthCm] = useState<number>(60);
-  const [heightCm, setHeightCm] = useState<number>(50);
-  const [pieces, setPieces] = useState<number>(2);
-  const [commodity, setCommodity] = useState('Apparel & Handmade Textiles');
-  const [declaredValue, setDeclaredValue] = useState<number>(250000);
-  const [needsInsurance, setNeedsInsurance] = useState<boolean>(true);
+  const [weightKg, setWeightKg] = useState<number>(isNaN(queryWeight) || queryWeight <= 0 ? 5 : queryWeight);
+  const [lengthCm, setLengthCm] = useState<number>(30);
+  const [widthCm, setWidthCm] = useState<number>(25);
+  const [heightCm, setHeightCm] = useState<number>(20);
+  const [pieces, setPieces] = useState<number>(isNaN(queryPieces) || queryPieces <= 0 ? 1 : queryPieces);
+  const [commodity, setCommodity] = useState(queryCommodity);
+  const [declaredValue, setDeclaredValue] = useState<number>(0);
+  const [needsInsurance, setNeedsInsurance] = useState<boolean>(false);
 
-  const [shipperName, setShipperName] = useState('Sunil Thapa');
-  const [shipperCompany, setShipperCompany] = useState('Himalayan Craft Exporters');
-  const [shipperPhone, setShipperPhone] = useState('+977-9851000000');
-  const [shipperEmail, setShipperEmail] = useState('export@himalayancraft.np');
+  // Shipper details (clean empty fields, no fake mock names)
+  const [shipperName, setShipperName] = useState('');
+  const [shipperCompany, setShipperCompany] = useState('');
+  const [shipperPhone, setShipperPhone] = useState('');
+  const [shipperEmail, setShipperEmail] = useState('');
 
-  const [consigneeName, setConsigneeName] = useState('Marcus Weber');
-  const [consigneeCompany, setConsigneeCompany] = useState('Eurotex Logistics GmbH');
-  const [consigneePhone, setConsigneePhone] = useState('+49 69 123456');
-  const [consigneeEmail, setConsigneeEmail] = useState('import@eurotex.de');
+  // Consignee details
+  const [consigneeName, setConsigneeName] = useState('');
+  const [consigneeCompany, setConsigneeCompany] = useState('');
+  const [consigneePhone, setConsigneePhone] = useState('');
+  const [consigneeEmail, setConsigneeEmail] = useState('');
 
+  // Volumetric calculation
   const volumeCbm = useMemo(() => {
-    return Number((((lengthCm * widthCm * heightCm) / 1000000) * (pieces || 1)).toFixed(2));
+    return Number((((lengthCm * widthCm * heightCm) / 1000000) * (pieces || 1)).toFixed(3));
   }, [lengthCm, widthCm, heightCm, pieces]);
 
   const volumetricWeightKg = useMemo(() => {
-    const divisor = serviceMode === 'express' ? 5000 : 6000;
+    const divisor = serviceMode === 'air' ? 5000 : 6000;
     return Math.round(((lengthCm * widthCm * heightCm) / divisor) * (pieces || 1));
   }, [lengthCm, widthCm, heightCm, pieces, serviceMode]);
 
@@ -70,11 +103,19 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
 
   const validateStep1 = () => {
     if (!originCity.trim() || !pickupAddress.trim()) {
-      setValidationError('Please enter your pickup city and address.');
+      setValidationError('Please enter your pickup city and address in Nepal.');
       return false;
     }
-    if (serviceCategory === 'international' && (!destinationCountry.trim() || !destinationCity.trim())) {
-      setValidationError('Please enter the destination country and city.');
+    if (!destinationCountry.trim()) {
+      setValidationError('Please specify the destination country.');
+      return false;
+    }
+    if (destinationCountry.trim().toLowerCase() === 'nepal') {
+      setValidationError('We ship from Nepal to other countries. Destination cannot be Nepal.');
+      return false;
+    }
+    if (!destinationCity.trim()) {
+      setValidationError('Please specify the destination city.');
       return false;
     }
     setValidationError(null);
@@ -82,12 +123,12 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
   };
 
   const validateStep2 = () => {
-    if (weightKg <= 0 || pieces <= 0) {
-      setValidationError('Please enter the package weight and number of boxes.');
+    if (!commodity.trim()) {
+      setValidationError('Please specify the cargo description / items you are sending.');
       return false;
     }
-    if (!commodity.trim()) {
-      setValidationError('Please tell us what items you are sending.');
+    if (weightKg <= 0 || pieces <= 0) {
+      setValidationError('Weight and box count must be greater than zero.');
       return false;
     }
     setValidationError(null);
@@ -96,11 +137,15 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
 
   const validateStep3 = () => {
     if (!shipperName.trim() || !shipperPhone.trim() || !shipperEmail.trim()) {
-      setValidationError('Please fill in your contact information (name, phone, and email).');
+      setValidationError('Please fill in complete shipper contact details (Name, Phone, and Email).');
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shipperEmail.trim())) {
+      setValidationError('Please provide a valid email address for the shipper.');
       return false;
     }
     if (!consigneeName.trim() || !consigneePhone.trim()) {
-      setValidationError('Please fill in the receiver\'s name and phone number.');
+      setValidationError('Please fill in the consignee/recipient name and phone number.');
       return false;
     }
     setValidationError(null);
@@ -113,30 +158,46 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
     else if (currentStep === 3 && validateStep3()) setCurrentStep(4);
   };
 
+  const handleStepClick = (index: number) => {
+    const targetStep = index + 1;
+    if (targetStep < currentStep) {
+      setCurrentStep(targetStep);
+      setValidationError(null);
+    } else if (targetStep === 2 && validateStep1()) {
+      setCurrentStep(2);
+    } else if (targetStep === 3 && validateStep1() && validateStep2()) {
+      setCurrentStep(3);
+    } else if (targetStep === 4 && validateStep1() && validateStep2() && validateStep3()) {
+      setCurrentStep(4);
+    }
+  };
+
   const handleSubmitBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
+
+    if (!validateStep1() || !validateStep2() || !validateStep3()) return;
 
     setIsSubmitting(true);
     setValidationError(null);
 
     const { record, error } = await submitBooking({
-      senderName: shipperName,
-      senderEmail: shipperEmail,
-      senderPhone: shipperPhone,
-      senderAddress: `${pickupAddress}, ${originCity}`,
-      receiverName: consigneeName,
-      receiverEmail: consigneeEmail,
-      receiverPhone: consigneePhone,
-      receiverAddress: `${deliveryAddress}, ${destinationCity}, ${destinationCountry}`,
-      origin: originCity,
-      destination: destinationCity,
+      senderName: shipperName.trim(),
+      senderEmail: shipperEmail.trim(),
+      senderPhone: shipperPhone.trim(),
+      senderAddress: `${pickupAddress.trim()}, ${originCity.trim()}`,
+      receiverName: consigneeName.trim(),
+      receiverEmail: consigneeEmail.trim() || undefined,
+      receiverPhone: consigneePhone.trim(),
+      receiverAddress: `${deliveryAddress.trim() || destinationCity.trim()}, ${destinationCity.trim()}${destinationCountry ? `, ${destinationCountry}` : ''}`,
+      origin: originCity.trim(),
+      destination: destinationCity.trim(),
       serviceMode: serviceMode,
-      commodity: commodity,
+      commodity: commodity.trim(),
       weightKg: chargeableWeightKg,
       boxCount: pieces,
       dimensions: `${lengthCm}x${widthCm}x${heightCm}`,
-      notes: `Insurance: ${needsInsurance ? 'Yes' : 'No'}, Declared Value: NPR ${declaredValue}`,
+      notes: `Insurance: ${needsInsurance ? 'Yes' : 'No'}, Declared Value: NPR ${declaredValue || 0}`,
       currency: 'USD'
     }, turnstileToken);
 
@@ -158,430 +219,641 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-[#0B5ED7] dark:text-[#2F80ED] text-xs font-bold uppercase tracking-wider font-mono mb-1">
-              <PackagePlus className="w-4 h-4 text-[#F5C84C]" />
-              <span>Easy Online Booking</span>
+            <div className="flex items-center gap-2 text-[var(--oxford-deep)] text-xs font-bold uppercase tracking-wider font-mono mb-1">
+              <PackagePlus className="w-4 h-4 text-[var(--gold-dark)]" />
+              <span>Commercial &amp; Parcel Dispatch</span>
             </div>
-            <h1 className="font-heading font-extrabold text-2xl sm:text-4xl text-slate-900 dark:text-white tracking-tight">
-              Send a Package
+            <h1 className="font-heading font-extrabold text-2xl sm:text-4xl text-[var(--text)] tracking-tight">
+              Book Cargo Consignment
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Tell us where your package is going, and we will take care of the rest.
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1">
+              Direct booking into central dispatch. Secure waybill generation and collection coordination across Nepal.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-[#0B2445] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 self-start md:self-auto">
-            <Clock className="w-3.5 h-3.5 text-[#10B981]" />
-            <span>Operational Booking Desk</span>
+          <div className="flex items-center gap-2 text-xs font-mono text-[var(--text-muted)] bg-[var(--surface)] px-3 py-1.5 rounded-[var(--r-xs)] border border-[var(--line)] self-start md:self-auto">
+            <Clock className="w-3.5 h-3.5 text-emerald-500" />
+            <span>Central Booking Desk Active</span>
           </div>
         </div>
 
-        {/* Stepper Header */}
+        {/* Stepper Navigation */}
         {!submissionSuccess && (
-          <div className="grid grid-cols-4 gap-2 sm:gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
-            {[
-              { num: 1, label: 'Route & Type' },
-              { num: 2, label: 'Package Info' },
-              { num: 3, label: 'Sender & Receiver' },
-              { num: 4, label: 'Review & Submit' }
-            ].map((step) => {
-              const isActive = currentStep === step.num;
-              const isCompleted = currentStep > step.num;
-
-              return (
-                <button
-                  key={step.num}
-                  type="button"
-                  onClick={() => isCompleted && setCurrentStep(step.num)}
-                  disabled={!isCompleted && !isActive}
-                  className={`flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-2 text-left cursor-pointer transition-colors ${
-                    isActive
-                      ? 'text-[#0B5ED7] dark:text-[#2F80ED]'
-                      : isCompleted
-                      ? 'text-slate-700 dark:text-slate-300'
-                      : 'text-slate-400 opacity-60'
-                  }`}
-                >
-                  <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
-                      isActive
-                        ? 'bg-[#0B5ED7] text-white shadow-md'
-                        : isCompleted
-                        ? 'bg-emerald-500 text-white'
-                        : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
-                    }`}
-                  >
-                    {isCompleted ? <Check className="w-4 h-4" /> : step.num}
-                  </div>
-                  <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider hidden sm:inline">
-                    {step.label}
-                  </span>
-                </button>
-              );
-            })}
+          <div className="bg-[var(--surface)] p-4 sm:p-6 rounded-[var(--r-md)] border border-[var(--line)] shadow-hard-sm">
+            <Stepper
+              steps={BOOKING_STEPS}
+              currentStepIndex={currentStep - 1}
+              onStepClick={handleStepClick}
+            />
           </div>
         )}
 
         {validationError && (
-          <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 text-xs font-semibold">
-            {validationError}
+          <div className="p-4 rounded-[var(--r-sm)] bg-red-50 border border-red-300 text-red-600 text-xs font-semibold flex items-center justify-between gap-2 shadow-hard-xs">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{validationError}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setValidationError(null)}
+              className="text-xs font-semibold text-red-600 hover:text-red-700 underline underline-offset-4 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-red-500 rounded cursor-pointer"
+            >
+              Dismiss
+            </button>
           </div>
         )}
 
-        {/* SUBMISSION SUCCESS CARD */}
+        {/* SUCCESS CARD */}
         {submissionSuccess && (
-          <div className="bg-white dark:bg-[#0B2445] rounded-2xl p-8 sm:p-12 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col items-center text-center gap-6">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+          <div className="bg-[var(--surface)] rounded-[var(--r-md)] p-8 sm:p-12 border border-[var(--line)] shadow-hard flex flex-col items-center text-center gap-6 animate-fadeIn">
+            <div className="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-hard-sm">
               <CheckCircle2 className="w-10 h-10" />
             </div>
+
             <div className="flex flex-col gap-2 max-w-lg">
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#0B5ED7]">
-                Booking Request Confirmed
+              <span className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--gold-dark)]">
+                Booking Registered Successfully
               </span>
-              <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-slate-900 dark:text-white">
-                Booking Reference: {submissionSuccess}
+              <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-[var(--text)]">
+                Reference: {submissionSuccess}
               </h2>
               {submittedAwb && (
-                <div className="inline-flex items-center justify-center gap-2 p-2 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 text-xs font-mono font-bold text-[#0B5ED7]">
-                  <FileText className="w-4 h-4" />
-                  <span>Generated Air Waybill: {submittedAwb}</span>
+                <div className="inline-flex items-center justify-center gap-2 p-2.5 rounded-[var(--r-xs)] bg-[var(--surface-2)] border border-[var(--line)] text-xs font-mono font-bold text-[var(--text)] mt-2 shadow-hard-xs">
+                  <FileText className="w-4 h-4 text-[var(--gold-dark)]" />
+                  <span>Generated Air Waybill: #{submittedAwb}</span>
                 </div>
               )}
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2">
-                Your cargo booking request has been securely processed. Our operations team in Hetauda/Kathmandu will inspect your booking details and dispatch a pickup agent.
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+                Your consignment request has been queued in our central dispatch system. An operations agent will inspect the cargo manifest and contact you to confirm the pickup schedule.
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                setSubmissionSuccess(null);
-                setSubmittedAwb(null);
-                setCurrentStep(1);
-              }}
-              className="px-6 py-2.5 rounded-xl bg-[#0B5ED7] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#084298] transition-colors"
-            >
-              Book Another Package
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              {submittedAwb && (
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={() => navigate(`/track?awb=${submittedAwb}`)}
+                >
+                  <span>Track This Waybill</span>
+                  <ArrowRight className="w-4 h-4 ml-1.5" />
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="md"
+                onClick={() => {
+                  setSubmissionSuccess(null);
+                  setSubmittedAwb(null);
+                  setCurrentStep(1);
+                }}
+              >
+                <span>Book Another Consignment</span>
+              </Button>
+            </div>
           </div>
         )}
 
         {/* STEP 1: ROUTE & TYPE */}
         {!submissionSuccess && currentStep === 1 && (
-          <div className="bg-white dark:bg-[#0B2445] rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-6">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h2 className="font-heading font-bold text-base sm:text-lg text-slate-900 dark:text-white">
-                Step 1: Choose Route &amp; Shipping Method
-              </h2>
-              <span className="text-xs font-mono text-slate-400">1 of 4</span>
+          <div className="bg-[var(--surface)] rounded-[var(--r-md)] p-6 sm:p-8 border border-[var(--line)] shadow-hard flex flex-col gap-6 animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-[var(--line)] pb-3">
+              <div>
+                <span className="text-[10px] font-mono uppercase text-[var(--text-muted)] font-bold">Step 1 of 4</span>
+                <h2 className="font-heading font-bold text-base sm:text-lg text-[var(--text)]">
+                  Route Selection &amp; Service Mode
+                </h2>
+              </div>
+              <span className="px-2.5 py-1 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-xs font-mono font-bold text-[var(--text)] shadow-hard-xs">
+                Stage 1 / 4
+              </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setServiceCategory('international')}
-                className={`p-4 rounded-xl border text-left flex flex-col gap-1 transition-all cursor-pointer ${
-                  serviceCategory === 'international'
-                    ? 'border-[#0B5ED7] bg-blue-50/50 dark:bg-blue-950/30 text-[#0B5ED7]'
-                    : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
-                }`}
-              >
-                <span className="font-bold text-xs uppercase font-mono">Worldwide Delivery</span>
-                <span className="text-[11px]">Nepal to 220+ Countries</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setServiceCategory('national')}
-                className={`p-4 rounded-xl border text-left flex flex-col gap-1 transition-all cursor-pointer ${
-                  serviceCategory === 'national'
-                    ? 'border-[#0B5ED7] bg-blue-50/50 dark:bg-blue-950/30 text-[#0B5ED7]'
-                    : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
-                }`}
-              >
-                <span className="font-bold text-xs uppercase font-mono">Delivery in Nepal</span>
-                <span className="text-[11px]">All 77 Districts Covered</span>
-              </button>
+            {/* Service Mode Selector */}
+            <div>
+              <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1.5">
+                Primary Transport Mode *
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { id: 'air', label: 'Air Freight Express', desc: 'Hetauda HQ & TIA Gateway departure to 190+ countries', icon: Plane },
+                  { id: 'overland', label: 'Cross-Border Road', desc: 'Container linehaul to India & border dry ports', icon: Truck },
+                  { id: 'ocean', label: 'Ocean Container', desc: 'Intermodal rail & sea container shipping', icon: Ship },
+                ].map((mode) => {
+                  const Icon = mode.icon;
+                  const isSelected = serviceMode === mode.id;
+                  return (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() => setServiceMode(mode.id as ServiceMode)}
+                      className={`p-4 text-left rounded-lg border transition-all duration-[var(--t-fast)] cursor-pointer shadow-sm hover:border-slate-400 hover:-translate-y-0.5 active:translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--gold)] flex flex-col justify-between ${
+                        isSelected
+                          ? 'bg-[var(--oxford-deep)] text-white border-transparent font-bold shadow-hard-sm'
+                          : 'bg-white text-[var(--text)] border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-heading font-bold text-xs uppercase tracking-wider">{mode.label}</span>
+                        <Icon className="w-4 h-4 shrink-0" />
+                      </div>
+                      <span className={`text-[11px] mt-1 ${isSelected ? 'text-white/80' : 'text-slate-600'}`}>
+                        {mode.desc}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
+            {/* Pickup & Destination Details */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Pickup City (Nepal) *</label>
+                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                  Pickup City (Nepal) *
+                </label>
                 <input
                   type="text"
                   value={originCity}
                   onChange={(e) => setOriginCity(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0B2445] border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
-                  placeholder="e.g. Hetauda / Kathmandu"
+                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  placeholder="e.g. Hetauda, Kathmandu, Pokhara, Birgunj"
+                  required
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Pickup Address *</label>
+                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                  Pickup Street Address *
+                </label>
                 <input
                   type="text"
                   value={pickupAddress}
                   onChange={(e) => setPickupAddress(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0B2445] border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
-                  placeholder="Full street address for pickup"
+                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  placeholder="e.g. School Road -4 / Factory Gate"
+                  required
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Destination Country *</label>
+                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                  Destination Country *
+                </label>
                 <input
                   type="text"
                   value={destinationCountry}
                   onChange={(e) => setDestinationCountry(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0B2445] border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
-                  placeholder="e.g. Germany, USA, UAE"
+                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  placeholder="e.g. Germany, United States, UAE, India"
+                  required
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Destination City *</label>
+                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                  Destination City *
+                </label>
                 <input
                   type="text"
                   value={destinationCity}
                   onChange={(e) => setDestinationCity(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0B2445] border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
-                  placeholder="Destination city"
+                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  placeholder="e.g. Frankfurt, New York, Delhi, Dubai"
+                  required
                 />
               </div>
-            </div>
 
-            <div className="flex justify-end pt-3">
-              <button
-                type="button"
-                onClick={handleNext}
-                className="px-6 py-2.5 rounded-xl bg-[#0B5ED7] hover:bg-[#084298] text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-sm"
-              >
-                <span>Continue to Package Info</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 2: PACKAGE DETAILS */}
-        {!submissionSuccess && currentStep === 2 && (
-          <div className="bg-white dark:bg-[#0B2445] rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-6">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h2 className="font-heading font-bold text-base sm:text-lg text-slate-900 dark:text-white">
-                Step 2: Package Size &amp; Item Details
-              </h2>
-              <span className="text-xs font-mono text-slate-400">2 of 4</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">What items are you sending? *</label>
+                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                  Target Pickup Date
+                </label>
                 <input
-                  type="text"
-                  value={commodity}
-                  onChange={(e) => setCommodity(e.target.value)}
-                  placeholder="e.g. Handicrafts, Pashmina, Garments"
-                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0B2445] border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
+                  type="date"
+                  value={pickupDate}
+                  min={new Date().toISOString().split('T')[0]}
+                  onChange={(e) => setPickupDate(e.target.value)}
+                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Weight (kg) *</label>
-                  <input
-                    type="number"
-                    value={weightKg}
-                    onChange={(e) => setWeightKg(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0B2445] border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Box Count *</label>
-                  <input
-                    type="number"
-                    value={pieces}
-                    onChange={(e) => setPieces(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0B2445] border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
-                  />
-                </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-3">
-              <button
-                type="button"
-                onClick={() => setCurrentStep(1)}
-                className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold uppercase hover:bg-slate-100 cursor-pointer"
-              >
-                Back
-              </button>
-              <button
-                type="button"
+            <div className="flex flex-wrap items-center justify-end gap-4 mt-6 pt-2">
+              <Button
+                variant="primary"
+                size="md"
                 onClick={handleNext}
-                className="px-6 py-2.5 rounded-xl bg-[#0B5ED7] hover:bg-[#084298] text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-sm"
               >
-                <span>Continue to Contact Details</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+                <span>Continue to Cargo Specs</span>
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
             </div>
           </div>
         )}
 
-        {/* STEP 3: CONTACT INFORMATION */}
+        {/* STEP 2: CARGO SPECS */}
+        {!submissionSuccess && currentStep === 2 && (
+          <div className="bg-[var(--surface)] rounded-[var(--r-md)] p-6 sm:p-8 border border-[var(--line)] shadow-hard flex flex-col gap-6 animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-[var(--line)] pb-3">
+              <div>
+                <span className="text-[10px] font-mono uppercase text-[var(--text-muted)] font-bold">Step 2 of 4</span>
+                <h2 className="font-heading font-bold text-base sm:text-lg text-[var(--text)]">
+                  Cargo Dimensions &amp; Commodity Specifications
+                </h2>
+              </div>
+              <span className="px-2.5 py-1 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-xs font-mono font-bold text-[var(--text)]">
+                Stage 2 / 4
+              </span>
+            </div>
+
+            <div>
+              <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                Commodity / Item Description *
+              </label>
+              <input
+                type="text"
+                value={commodity}
+                onChange={(e) => setCommodity(e.target.value)}
+                placeholder="e.g. Handwoven Himalayan Pashmina Shawls & Wool Garments"
+                className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                  Gross Weight (kg) *
+                </label>
+                <input
+                  type="number"
+                  min="0.5"
+                  step="0.5"
+                  value={weightKg}
+                  onChange={(e) => setWeightKg(parseFloat(e.target.value) || 0)}
+                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm font-mono text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                  Box / Pieces Count *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={pieces}
+                  onChange={(e) => setPieces(parseInt(e.target.value, 10) || 1)}
+                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm font-mono text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                  Declared Value (NPR)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={declaredValue}
+                  onChange={(e) => setDeclaredValue(parseInt(e.target.value, 10) || 0)}
+                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm font-mono text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  placeholder="Optional for insurance"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                  Transit Insurance
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setNeedsInsurance(!needsInsurance)}
+                  className={`w-full min-h-[48px] px-3.5 py-2.5 rounded-md border text-xs font-heading font-bold transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 inline-flex items-center justify-center gap-1.5 ${
+                    needsInsurance
+                      ? 'bg-emerald-500 text-white border-emerald-600'
+                      : 'bg-[var(--surface-2)] text-[var(--text)] border-[var(--line)]'
+                  }`}
+                >
+                  {needsInsurance ? (
+                    <>
+                      <ShieldCheck className="w-4 h-4" />
+                      <span>Insured (All-Risk)</span>
+                    </>
+                  ) : (
+                    <span>No Insurance</span>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Dimensions (cm) */}
+            <div>
+              <span className="text-xs font-heading font-bold text-[var(--text)] block mb-1.5">
+                Carton Dimensions per Unit (L × W × H in cm)
+              </span>
+              <div className="grid grid-cols-3 gap-3">
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Length (cm)"
+                  value={lengthCm}
+                  onChange={(e) => setLengthCm(parseInt(e.target.value, 10) || 1)}
+                  className="min-h-[48px] px-3.5 py-2.5 rounded-md bg-slate-50 border border-slate-300 text-sm font-mono text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                />
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Width (cm)"
+                  value={widthCm}
+                  onChange={(e) => setWidthCm(parseInt(e.target.value, 10) || 1)}
+                  className="min-h-[48px] px-3.5 py-2.5 rounded-md bg-slate-50 border border-slate-300 text-sm font-mono text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                />
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Height (cm)"
+                  value={heightCm}
+                  onChange={(e) => setHeightCm(parseInt(e.target.value, 10) || 1)}
+                  className="min-h-[48px] px-3.5 py-2.5 rounded-md bg-slate-50 border border-slate-300 text-sm font-mono text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Calculated Weight Summary Box */}
+            <div className="p-4 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)] flex flex-wrap items-center justify-between gap-4 text-xs font-mono">
+              <div>
+                <span className="text-[var(--text-muted)] block uppercase text-[10px]">Total Volume</span>
+                <span className="font-bold text-[var(--text)]">{volumeCbm} CBM</span>
+              </div>
+              <div>
+                <span className="text-[var(--text-muted)] block uppercase text-[10px]">Volumetric Weight</span>
+                <span className="font-bold text-[var(--text)]">{volumetricWeightKg} kg</span>
+              </div>
+              <div>
+                <span className="text-[var(--text-muted)] block uppercase text-[10px]">Chargeable Weight</span>
+                <span className="font-bold text-[var(--gold-dark)] text-sm">
+                  {chargeableWeightKg} kg (IATA Billable)
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-4 mt-6 pt-2">
+              <Button
+                variant="outline"
+                size="md"
+                onClick={() => setCurrentStep(1)}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                <span>Back</span>
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
+                onClick={handleNext}
+              >
+                <span>Continue to Parties</span>
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3: SHIPPER & CONSIGNEE DETAILS */}
         {!submissionSuccess && currentStep === 3 && (
-          <div className="bg-white dark:bg-[#0B2445] rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-6">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h2 className="font-heading font-bold text-base sm:text-lg text-slate-900 dark:text-white">
-                Step 3: Sender and Receiver Contact Details
-              </h2>
-              <span className="text-xs font-mono text-slate-400">3 of 4</span>
+          <div className="bg-[var(--surface)] rounded-[var(--r-md)] p-6 sm:p-8 border border-[var(--line)] shadow-hard flex flex-col gap-6 animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-[var(--line)] pb-3">
+              <div>
+                <span className="text-[10px] font-mono uppercase text-[var(--text-muted)] font-bold">Step 3 of 4</span>
+                <h2 className="font-heading font-bold text-base sm:text-lg text-[var(--text)]">
+                  Shipper &amp; Consignee Information
+                </h2>
+              </div>
+              <span className="px-2.5 py-1 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-xs font-mono font-bold text-[var(--text)]">
+                Stage 3 / 4
+              </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#071A33] border border-slate-200 dark:border-slate-800 flex flex-col gap-3">
-                <span className="text-xs font-mono font-bold uppercase text-[#0B5ED7]">Sender (Your Details)</span>
+              {/* Shipper Section */}
+              <div className="p-5 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)] flex flex-col gap-3.5">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--gold-dark)]">
+                  Shipper Details (Sender in Nepal)
+                </span>
                 <div>
-                  <label className="text-[11px] text-slate-500 block mb-1">Your Full Name *</label>
+                  <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                    Contact Person Name *
+                  </label>
                   <input
                     type="text"
                     value={shipperName}
                     onChange={(e) => setShipperName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0B2445] border text-xs"
+                    placeholder="e.g. Prakash Adhikari"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                    required
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                    Company / Organization Name
+                  </label>
+                  <input
+                    type="text"
+                    value={shipperCompany}
+                    onChange={(e) => setShipperCompany(e.target.value)}
+                    placeholder="e.g. Himalayan Crafts Exports Pvt. Ltd."
+                    className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[11px] text-slate-500 block mb-1">Phone *</label>
+                    <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                      Phone Number *
+                    </label>
                     <input
                       type="tel"
                       value={shipperPhone}
                       onChange={(e) => setShipperPhone(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0B2445] border text-xs"
+                      placeholder="+977-98..."
+                      className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] text-slate-500 block mb-1">Email *</label>
+                    <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                      Email Address *
+                    </label>
                     <input
                       type="email"
                       value={shipperEmail}
                       onChange={(e) => setShipperEmail(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0B2445] border text-xs"
+                      placeholder="shipper@example.com"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#071A33] border border-slate-200 dark:border-slate-800 flex flex-col gap-3">
-                <span className="text-xs font-mono font-bold uppercase text-[#0B5ED7]">Receiver Details</span>
+              {/* Consignee Section */}
+              <div className="p-5 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)] flex flex-col gap-3.5">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--gold-dark)]">
+                  Consignee Details (Recipient)
+                </span>
                 <div>
-                  <label className="text-[11px] text-slate-500 block mb-1">Receiver Name *</label>
+                  <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                    Recipient Full Name *
+                  </label>
                   <input
                     type="text"
                     value={consigneeName}
                     onChange={(e) => setConsigneeName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0B2445] border text-xs"
+                    placeholder="e.g. Helmut Schneider / Destination Contact"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                    required
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                    Recipient Company (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={consigneeCompany}
+                    onChange={(e) => setConsigneeCompany(e.target.value)}
+                    placeholder="e.g. Schneider Logistics GmbH"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[11px] text-slate-500 block mb-1">Phone *</label>
+                    <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                      Phone Number *
+                    </label>
                     <input
                       type="tel"
                       value={consigneePhone}
                       onChange={(e) => setConsigneePhone(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0B2445] border text-xs"
+                      placeholder="Receiver contact with country code"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] text-slate-500 block mb-1">Email (optional)</label>
+                    <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                      Email Address (optional)
+                    </label>
                     <input
                       type="email"
                       value={consigneeEmail}
                       onChange={(e) => setConsigneeEmail(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0B2445] border text-xs"
+                      placeholder="receiver@domain.com"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                     />
                   </div>
+                </div>
+                <div>
+                  <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                    Delivery Street / Warehouse Address
+                  </label>
+                  <input
+                    type="text"
+                    value={deliveryAddress}
+                    onChange={(e) => setDeliveryAddress(e.target.value)}
+                    placeholder="Street, Building, Door / Warehouse code"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  />
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-3">
-              <button
-                type="button"
+            <div className="flex flex-wrap items-center justify-between gap-4 mt-6 pt-2">
+              <Button
+                variant="outline"
+                size="md"
                 onClick={() => setCurrentStep(2)}
-                className="px-4 py-2 rounded-xl border text-xs font-semibold uppercase hover:bg-slate-100"
               >
-                Back
-              </button>
-              <button
-                type="button"
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                <span>Back</span>
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
                 onClick={handleNext}
-                className="px-6 py-2.5 rounded-xl bg-[#0B5ED7] hover:bg-[#084298] text-white text-xs font-semibold uppercase flex items-center gap-2"
               >
-                <span>Review &amp; Submit</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+                <span>Review &amp; Verify</span>
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
             </div>
           </div>
         )}
 
         {/* STEP 4: REVIEW & SUBMIT WITH TURNSTILE */}
         {!submissionSuccess && currentStep === 4 && (
-          <form onSubmit={handleSubmitBooking} className="bg-white dark:bg-[#0B2445] rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-6">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h2 className="font-heading font-bold text-base sm:text-lg text-slate-900 dark:text-white">
-                Step 4: Review Details &amp; Anti-Bot Verification
-              </h2>
-              <span className="text-xs font-mono text-slate-400">4 of 4</span>
+          <form onSubmit={handleSubmitBooking} className="bg-[var(--surface)] rounded-[var(--r-md)] p-6 sm:p-8 border border-[var(--line)] shadow-hard flex flex-col gap-6 animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-[var(--line)] pb-3">
+              <div>
+                <span className="text-[10px] font-mono uppercase text-[var(--text-muted)] font-bold">Step 4 of 4</span>
+                <h2 className="font-heading font-bold text-base sm:text-lg text-[var(--text)]">
+                  Final Manifest Review &amp; Dispatch Confirmation
+                </h2>
+              </div>
+              <span className="px-2.5 py-1 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-xs font-mono font-bold text-[var(--text)]">
+                Stage 4 / 4
+              </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#071A33] border border-slate-200 dark:border-slate-800 space-y-2">
-                <span className="font-mono uppercase font-bold text-[#0B5ED7] block">Route &amp; Mode</span>
+              <div className="p-4 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)] space-y-2">
+                <span className="font-mono uppercase font-bold text-[var(--gold-dark)] block">
+                  Route &amp; Mode
+                </span>
                 <p><strong>From:</strong> {originCity} ({pickupAddress})</p>
-                <p><strong>To:</strong> {destinationCity} ({destinationCountry})</p>
+                <p><strong>To:</strong> {destinationCity}, {destinationCountry}</p>
+                <p><strong>Mode:</strong> {serviceMode.toUpperCase()} (International Export)</p>
                 <p><strong>Pickup Date:</strong> {pickupDate}</p>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#071A33] border border-slate-200 dark:border-slate-800 space-y-2">
-                <span className="font-mono uppercase font-bold text-[#0B5ED7] block">Cargo Specification</span>
-                <p><strong>Items:</strong> {commodity}</p>
-                <p><strong>Box Count &amp; Weight:</strong> {pieces} pcs, {weightKg} kg (Chargeable: ~{chargeableWeightKg} kg)</p>
-                <p><strong>Sender:</strong> {shipperName} ({shipperEmail})</p>
+              <div className="p-4 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)] space-y-2">
+                <span className="font-mono uppercase font-bold text-[var(--gold-dark)] block">
+                  Cargo Specification
+                </span>
+                <p><strong>Commodity:</strong> {commodity}</p>
+                <p><strong>Volume &amp; Weight:</strong> {pieces} pcs, {weightKg} kg gross (Chargeable: ~{chargeableWeightKg} kg)</p>
+                <p><strong>Shipper:</strong> {shipperName} ({shipperPhone})</p>
+                <p><strong>Consignee:</strong> {consigneeName} ({consigneePhone})</p>
               </div>
             </div>
 
             {/* Cloudflare Turnstile Anti-bot Protection Widget */}
             <TurnstileWidget onVerify={(tok) => setTurnstileToken(tok)} className="my-1" />
 
-            <div className="flex items-center justify-between pt-3">
-              <button
+            <div className="flex flex-wrap items-center justify-between gap-4 mt-6 pt-2">
+              <Button
                 type="button"
+                variant="outline"
+                size="md"
                 onClick={() => setCurrentStep(3)}
-                className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold uppercase hover:bg-slate-100 cursor-pointer"
               >
-                Back
-              </button>
-              <button
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                <span>Back</span>
+              </Button>
+              <Button
                 type="submit"
+                variant="primary"
+                size="lg"
                 disabled={isSubmitting}
-                className="px-6 py-2.5 rounded-xl bg-[#0B5ED7] hover:bg-[#084298] text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
+                isLoading={isSubmitting}
+                className="w-full sm:w-auto min-h-[48px] py-3.5 px-6 font-bold rounded-lg shadow-md flex items-center justify-center gap-2"
               >
-                {isSubmitting ? (
-                  <>
-                    <RotateCw className="w-4 h-4 animate-spin" />
-                    <span>Processing Booking &amp; AWB...</span>
-                  </>
-                ) : (
-                  <>
-                    <PackagePlus className="w-4 h-4 text-[#F5C84C]" />
-                    <span>Confirm &amp; Generate AWB</span>
-                  </>
-                )}
-              </button>
+                <PackagePlus className="w-5 h-5 mr-2" />
+                <span>Confirm Booking &amp; Generate AWB</span>
+              </Button>
             </div>
           </form>
         )}

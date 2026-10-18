@@ -16,27 +16,28 @@ export const PrintableAwbModal: React.FC<PrintableAwbModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto animate-fadeIn">
-      <div className="bg-white rounded-2xl max-w-3xl w-full border border-slate-300 shadow-2xl overflow-hidden my-8">
+      <div className="bg-white rounded-[var(--r-lg)] max-w-3xl w-full border border-[var(--line)] shadow-hard-lg overflow-hidden my-8">
         
         {/* Modal Top Control Bar */}
         <div className="bg-[#0E1638] text-white px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="font-heading font-bold text-sm uppercase">Package Waybill &amp; Receipt</span>
-            <span className="bg-[#1A56DB] text-[10px] font-mono font-bold px-2 py-0.5 rounded">
+            <span className="bg-[#002147] text-[#F2B705] text-[10px] font-mono font-bold px-2 py-0.5 rounded-[var(--r-xs)]">
               Official Courier Document
             </span>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => window.print()}
-              className="px-3.5 py-1.5 rounded-lg bg-[#0B5ED7] hover:bg-blue-700 text-white font-heading font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="min-h-[44px] px-4 py-2 rounded-[var(--r-sm)] bg-[#002147] hover:bg-[#123562] text-white font-heading font-bold text-xs uppercase tracking-wider inline-flex items-center gap-1.5 shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
             >
-              <Printer className="w-3.5 h-3.5" />
+              <Printer className="w-4 h-4" />
               <span>Print Receipt</span>
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-white/10 text-white transition-colors cursor-pointer"
+              aria-label="Close document modal"
+              className="min-h-[44px] min-w-[44px] p-2 rounded-[var(--r-sm)] hover:bg-white/10 text-white transition-colors cursor-pointer inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
             >
               <X className="w-5 h-5" />
             </button>
@@ -52,16 +53,16 @@ export const PrintableAwbModal: React.FC<PrintableAwbModalProps> = ({
               <BcLogo size="md" showSubtitle={false} />
               <div>
                 <h2 className="font-heading font-extrabold text-base tracking-tight text-slate-900">
-                  THE BC CARGO &amp; COURIER PVT. LTD.
+                  THE BC CARGO &amp; COURIER
                 </h2>
-                <p className="text-[11px] text-slate-600">Central Operations: Kantirajpath, Hetauda-4, Nepal</p>
-                <p className="text-[10px] text-slate-500">Phone: +977-057-520000 • Email: thebcargo@gmail.com</p>
+                <p className="text-[11px] text-slate-600">Central Operations: School Road -4, Hetauda, Nepal</p>
+                <p className="text-[10px] text-slate-500">Phone: 057-591816 / 9855019485 • Email: thebccargo@gmail.com</p>
               </div>
             </div>
 
             <div className="text-right">
               <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Tracking Number</span>
-              <span className="font-heading font-extrabold text-xl text-[#0B5ED7] tracking-wider block">
+              <span className="font-heading font-extrabold text-xl text-[#002147] tracking-wider block">
                 {shipment.trackingNumber}
               </span>
               <span className="text-[10px] text-slate-600 block">Booking Number: {shipment.bookingRef}</span>
@@ -125,7 +126,7 @@ export const PrintableAwbModal: React.FC<PrintableAwbModalProps> = ({
             <div className="p-2.5 grid grid-cols-5 text-xs text-slate-800">
               <span className="font-bold">{shipment.pieces} Pkgs</span>
               <span>{shipment.grossWeightKg.toLocaleString()} KG</span>
-              <span className="font-bold text-[#0B5ED7]">{shipment.chargeableWeightKg.toLocaleString()} KG</span>
+              <span className="font-bold text-[#002147]">{shipment.chargeableWeightKg.toLocaleString()} KG</span>
               <span>{shipment.commodity}</span>
               <span className="text-right font-bold">{shipment.volumeCbm.toFixed(2)} CBM</span>
             </div>
@@ -175,7 +176,7 @@ export const PrintableAwbModal: React.FC<PrintableAwbModalProps> = ({
         <div className="bg-slate-100 px-6 py-4 border-t border-slate-200 flex justify-end">
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-lg bg-slate-800 hover:bg-slate-900 text-white font-heading font-bold text-xs uppercase cursor-pointer"
+            className="min-h-[44px] px-6 py-2.5 rounded-[var(--r-sm)] bg-slate-800 hover:bg-slate-900 text-white font-heading font-bold text-xs uppercase shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 transition-all cursor-pointer inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
           >
             Close
           </button>
