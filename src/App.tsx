@@ -10,6 +10,8 @@ import { Footer } from './components/Footer';
 import { CustomCursor } from './components/CustomCursor';
 import { AndroidBottomNav } from './components/AndroidBottomNav';
 import { StickyContactButtons } from './components/StickyContactButtons';
+import { RouteLoader } from './components/RouteLoader';
+import { BootSignal } from './boot/BootSignal';
 
 // Code-Split Lazy Loaded Page & Section Components for Core Web Vitals Optimization
 const TrackingSection = lazy(() => import('./components/TrackingSection').then(m => ({ default: m.TrackingSection })));
@@ -36,12 +38,6 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ defa
 const DesignKitPage = lazy(() => import('./pages/DesignKitPage').then(m => ({ default: m.DesignKitPage })));
 const CountryLandingPage = lazy(() => import('./pages/country/CountryLandingPage').then(m => ({ default: m.CountryLandingPage })));
 
-const RouteLoadingFallback = () => (
-  <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
-    <div className="w-8 h-8 border-3 border-[#002147] border-t-transparent rounded-full animate-spin" />
-    <span className="text-xs font-mono text-[var(--text-muted)] tracking-wider">Loading The BC Cargo...</span>
-  </div>
-);
 
 function AppContent() {
   const navigate = useNavigate();
@@ -93,6 +89,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] transition-colors">
+      <BootSignal mark="app" />
       <CustomCursor />
       {!isAdminRoute && (
         <Header
@@ -104,7 +101,7 @@ function AppContent() {
       )}
 
       <main className={`flex-1 ${!isAdminRoute ? 'pt-24 pb-20 lg:pb-0' : ''}`}>
-        <Suspense fallback={<RouteLoadingFallback />}>
+        <Suspense fallback={<RouteLoader />}>
           <Routes>
             <Route
               path="/"
@@ -199,6 +196,7 @@ function AppContent() {
             {/* Fallback 404 Route */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
+          <BootSignal mark="route" />
         </Suspense>
       </main>
 

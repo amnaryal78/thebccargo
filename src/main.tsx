@@ -1,3 +1,5 @@
+// Must stay first: starts reporting real load progress to the #bc-boot overlay before the app evaluates.
+import './boot/bootLoader';
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
