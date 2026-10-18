@@ -55,7 +55,7 @@
       "destination": "https://thebccargo.onrender.com/api/:path*"
     },
     {
-      "source": "/((?!api/|assets/|brand/|team/|data/|.*\\..*).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
