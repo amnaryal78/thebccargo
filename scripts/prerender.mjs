@@ -617,18 +617,8 @@ export function prerender() {
     let prerenderedHtml = baseHtml;
     // Remove existing <title> tag
     prerenderedHtml = prerenderedHtml.replace(/<title>.*?<\/title>/i, '');
-    // Home only: the dotted world map is the largest above-the-fold element on phones, so fetch it early.
-    let extraHead = '';
-    if (routePath === '/') {
-      const assets = fs.readdirSync(path.join(DIST_DIR, 'assets'));
-      const map = assets.find((f) => /^world-dots-1280-.*.png$/.test(f));
-      if (map) {
-        extraHead = `
-    <link rel="preload" as="image" href="/assets/${map}" crossorigin="anonymous" fetchpriority="high" />`;
-      }
-    }
     // Inject custom head meta
-    prerenderedHtml = prerenderedHtml.replace('</head>', `    ${metaTags}${extraHead}\n  </head>`);
+    prerenderedHtml = prerenderedHtml.replace('</head>', `    ${metaTags}\n  </head>`);
 
     // Inject semantic body content if provided for JavaScript-disabled fallback & crawler indexability
     if (!meta.bodyHtml) meta = { ...meta, bodyHtml: fallbackBody(routePath, meta) };

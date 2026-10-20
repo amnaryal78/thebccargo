@@ -1,14 +1,9 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { canRender3D } from '../../lib/device-capability';
-import { RouteTable2D } from './RouteTable2D';
+import React, { useState } from 'react';
+import { RouteJourney } from './RouteJourney';
 import { RouteLocation } from './route-data';
 import { Button } from '../../design/primitives/Button';
 import { Input } from '../../design/primitives/Input';
 import { Search, ArrowRight, ShieldCheck, Clock, BookOpen, Handshake } from 'lucide-react';
-
-const RouteTable3DLazy = lazy(() =>
-  import('./RouteTable3D').then((m) => ({ default: m.RouteTable3D }))
-);
 
 interface RouteTableHeroProps {
   onNavigate: (page: string) => void;
@@ -19,36 +14,7 @@ export const RouteTableHero: React.FC<RouteTableHeroProps> = ({
   onNavigate,
   onSearchTrack,
 }) => {
-  const [use3D, setUse3D] = useState(true);
-  // The interactive globe is heavy. Show the light 2D map first and upgrade once the visitor
-  // interacts (or after a few idle seconds), so first paint and input stay fast.
-  const [globeReady, setGlobeReady] = useState(false);
   const [trackingNumber, setTrackingNumber] = useState('');
-
-  useEffect(() => {
-    // Tactical 3D Globe is lightweight SVG; supported across mobile & desktop unless reduced motion is active
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-    setUse3D(!prefersReducedMotion);
-  }, []);
-
-  useEffect(() => {
-    if (!use3D || globeReady) return;
-    const events = ['pointerdown', 'pointermove', 'keydown', 'touchstart', 'wheel', 'scroll'] as const;
-    let timer = 0;
-    const go = () => {
-      events.forEach((e) => window.removeEventListener(e, go));
-      window.clearTimeout(timer);
-      setGlobeReady(true);
-    };
-    events.forEach((e) => window.addEventListener(e, go, { passive: true, once: true }));
-    timer = window.setTimeout(go, 6000);
-    return () => {
-      events.forEach((e) => window.removeEventListener(e, go));
-      window.clearTimeout(timer);
-    };
-  }, [use3D, globeReady]);
 
   const handleTrackSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,21 +129,9 @@ export const RouteTableHero: React.FC<RouteTableHeroProps> = ({
           </div>
         </div>
 
-        {/* Right Column: Interactive Route Table (2D Android / 3D Desktop) */}
+        {/* Right Column: animated Nepal -> destination journeys (no globe: nothing captures touch scrolling) */}
         <div className="lg:col-span-7 w-full flex flex-col">
-          {use3D && globeReady ? (
-            <Suspense fallback={<RouteTable2D onGetEstimate={handleGetEstimate} onBookPickup={handleBookPickup} />}>
-              <RouteTable3DLazy
-                onGetEstimate={handleGetEstimate}
-                onBookPickup={handleBookPickup}
-              />
-            </Suspense>
-          ) : (
-            <RouteTable2D
-              onGetEstimate={handleGetEstimate}
-              onBookPickup={handleBookPickup}
-            />
-          )}
+          <RouteJourney onGetEstimate={handleGetEstimate} onBookPickup={handleBookPickup} />
         </div>
 
       </div>

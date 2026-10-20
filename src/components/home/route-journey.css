@@ -1,0 +1,70 @@
+/*
+ * Nepal -> destination shipment journey (home hero). One ~7s loop per country, CSS only:
+ * truck brings the parcel to the airport, the parcel flies along an arc, lands, gets a delivered tick, then fades.
+ * Only transform / opacity / stroke-dashoffset are animated. The loop is restarted by remounting (key).
+ * Timeline (s): 0-0.4 scene in | 0.2-1.4 truck arrives | 1.4-1.8 parcel loads | 1.8-4.6 flight |
+ *               4.6-5.0 lands | 5.0 delivered tick | 6.5-7.0 scene out.
+ */
+.rj-scene { animation: rj-in 0.4s ease both, rj-out 0.5s ease 6.5s forwards; }
+@keyframes rj-in { from { opacity: 0; } }
+@keyframes rj-out { to { opacity: 0; } }
+
+.rj-title { animation: rj-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both, rj-out 0.5s ease 6.5s forwards; }
+.rj-chip { animation: rj-pop 0.5s cubic-bezier(0.34, 1.5, 0.64, 1) 1.8s both, rj-out 0.5s ease 6.5s forwards; }
+@keyframes rj-rise { from { opacity: 0; transform: translateY(6px); } }
+@keyframes rj-pop { from { opacity: 0; transform: scale(0.8); } }
+
+/* flight path: drawn as the plane passes */
+.rj-arc-done { stroke-dasharray: 1; stroke-dashoffset: 1; animation: rj-draw 2.8s linear 1.8s forwards; }
+@keyframes rj-draw { to { stroke-dashoffset: 0; } }
+
+/* truck: arrives at the Nepal airport node, then drives off */
+.rj-truck { animation: rj-truck-in 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both, rj-truck-out 0.9s ease-in 1.7s forwards; }
+@keyframes rj-truck-in { from { transform: translateX(-120px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes rj-truck-out { to { transform: translateX(-130px); opacity: 0; } }
+.rj-wheel { transform-box: fill-box; transform-origin: center; animation: rj-spin 0.5s linear 0.2s 3, rj-spin 0.5s linear 1.7s 2; }
+@keyframes rj-spin { to { transform: rotate(360deg); } }
+.rj-box-truck { animation: rj-vanish 0.01s linear 1.5s forwards; }
+@keyframes rj-vanish { to { opacity: 0; } }
+
+/* plane (with parcel underneath) */
+.rj-plane-appear { animation: rj-plane-in 0.3s ease 1.5s both; }
+@keyframes rj-plane-in { from { opacity: 0; } }
+.rj-plane { animation: rj-fly 2.8s linear 1.8s both; will-change: transform; }
+@keyframes rj-fly {
+  0% { transform: translate(50.0px, 128.0px) rotate(-43.0deg); }
+  8.33% { transform: translate(75.0px, 106.6px) rotate(-37.9deg); }
+  16.67% { transform: translate(100.0px, 89.1px) rotate(-31.9deg); }
+  25% { transform: translate(125.0px, 75.5px) rotate(-25.0deg); }
+  33.33% { transform: translate(150.0px, 65.8px) rotate(-17.3deg); }
+  41.67% { transform: translate(175.0px, 59.9px) rotate(-8.8deg); }
+  50% { transform: translate(200.0px, 58.0px) rotate(0.0deg); }
+  58.33% { transform: translate(225.0px, 59.9px) rotate(8.8deg); }
+  66.67% { transform: translate(250.0px, 65.8px) rotate(17.3deg); }
+  75% { transform: translate(275.0px, 75.5px) rotate(25.0deg); }
+  83.33% { transform: translate(300.0px, 89.1px) rotate(31.9deg); }
+  91.67% { transform: translate(325.0px, 106.6px) rotate(37.9deg); }
+  100% { transform: translate(350.0px, 128.0px) rotate(43.0deg); }
+}
+.rj-plane-exit { animation: rj-plane-out 0.5s ease-in 4.7s forwards; }
+@keyframes rj-plane-out { to { opacity: 0; transform: translateX(40px); } }
+.rj-box-fly { animation: rj-vanish 0.01s linear 4.6s forwards; }
+
+/* parcel on the ground at the destination, then the delivered tick */
+.rj-box-land { animation: rj-land 0.4s cubic-bezier(0.34, 1.5, 0.64, 1) 4.6s both; }
+@keyframes rj-land { from { opacity: 0; transform: translateY(-26px); } }
+.rj-tick { transform-box: fill-box; transform-origin: center; animation: rj-tick 0.45s cubic-bezier(0.34, 1.7, 0.64, 1) 5s both; }
+@keyframes rj-tick { from { transform: scale(0); } }
+
+/* node rings pulse while it is that node's turn */
+.rj-node-origin { animation: rj-node 0.4s ease 0.2s both; }
+.rj-node-dest { animation: rj-node 0.4s ease 4.4s both; }
+@keyframes rj-node { from { opacity: 0.35; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rj-scene, .rj-title, .rj-chip, .rj-arc-done, .rj-tick, .rj-box-land, .rj-node-origin, .rj-node-dest {
+    animation: none;
+  }
+  .rj-arc-done { stroke-dashoffset: 0; }
+  .rj-truck, .rj-plane, .rj-plane-appear, .rj-plane-exit, .rj-box-fly, .rj-box-truck { display: none; }
+}
