@@ -219,8 +219,14 @@ export const COUNTRY_BY_ISO2: Record<string, Country> = Object.fromEntries(
   COUNTRIES.map((c) => [c.iso2, c])
 );
 
-export const flagUrl = (iso2: string, width: 20 | 40 | 80 = 40): string =>
-  `https://flagcdn.com/w${width}/${iso2.toLowerCase()}.png`;
+/** Flags self-hosted in /public/flags (40px wide): the home route journey shows these on first load. */
+const LOCAL_FLAGS = new Set(['np', 'kr', 'au', 'at', 'jp', 'my', 'nz', 'ae', 'sa', 'kw', 'qa', 'ca', 'us', 'gb', 'de', 'bh', 'hk', 'cy', 'mt', 'ro']);
+
+export const flagUrl = (iso2: string, width: 20 | 40 | 80 = 40): string => {
+  const code = iso2.toLowerCase();
+  if (width <= 40 && LOCAL_FLAGS.has(code)) return `/flags/${code}.png`;
+  return `https://flagcdn.com/w${width}/${code}.png`;
+};
 
 /** Plain-language delivery estimate (business days) when no specific tariff row exists. */
 const REGION_DELIVERY: Record<Region, { days: string; mode: string }> = {

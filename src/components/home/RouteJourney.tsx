@@ -233,7 +233,7 @@ export const RouteJourney: React.FC<RouteJourneyProps> = ({ onGetEstimate, onBoo
                       : 'bg-[var(--surface)] text-[var(--text)] border-[var(--line)] hover:border-[var(--line-strong)]'
                   }`}
                 >
-                  <img src={flagUrl(stop.iso2, 20)} alt="" width={16} height={12} className="w-4 h-3 rounded-[2px] object-cover shrink-0" />
+                  <img src={flagUrl(stop.iso2, 20)} alt="" width={16} height={12} loading="lazy" decoding="async" className="w-4 h-3 rounded-[2px] object-cover shrink-0" />
                   <span>{stop.label}</span>
                 </button>
               );
