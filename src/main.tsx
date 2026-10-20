@@ -1,20 +1,21 @@
-// Must stay first: starts reporting real load progress to the #bc-boot overlay before the app evaluates.
+// Entry point. Kept tiny on purpose: it paints the boot loader first, then starts the app.
+// Must stay first: starts reporting real load progress to the #bc-boot overlay.
 import './boot/bootLoader';
-import {StrictMode} from 'react';
-import {createRoot} from 'react-dom/client';
-import App from './App.tsx';
+// Imported here (not in bootstrap) so the stylesheet stays a normal <link> in the HTML head.
 import './index.css';
 
-// A refresh must always open the top of the page, not wherever the browser last saved.
-if ('scrollRestoration' in window.history) {
-  window.history.scrollRestoration = 'manual';
-}
-if (!window.location.hash) {
-  window.scrollTo(0, 0);
-}
+let started = false;
+const startApp = () => {
+  if (started) return;
+  started = true;
+  import('./bootstrap').catch((err) => {
+    console.error('Failed to start the app', err);
+    window.dispatchEvent(new Event('vite:preloadError'));
+  });
+};
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+// Let the browser paint the loader before the (heavier) React bundle evaluates, so the first paint is never
+// held up behind JavaScript. The bundle is modulepreloaded, so this adds no network wait. The timer is a
+// backstop for tabs where animation frames are paused (background tabs, some crawlers).
+requestAnimationFrame(() => setTimeout(startApp, 0));
+setTimeout(startApp, 200);

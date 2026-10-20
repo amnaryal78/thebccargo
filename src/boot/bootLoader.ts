@@ -31,6 +31,7 @@ let started = 0;
 let progress = 0;
 let lastFrame = 0;
 let lastTickAt = 0;
+let frames = 0;
 let lastWritten = -1;
 let stage: BootStage = 'preparing';
 let slow: 0 | 1 | 2 = 0;
@@ -38,9 +39,10 @@ let failed = false;
 let finished = false;
 let rafId = 0;
 
+/** True once the overlay has had a chance to be seen (the browser has painted at least once). */
 function visible(): boolean {
   if (!root) return false;
-  return parseFloat(getComputedStyle(root).opacity || '0') > 0.04;
+  return frames > 1 || performance.getEntriesByType('paint').length > 0;
 }
 
 function teardown() {
@@ -56,18 +58,28 @@ function finish(force = false) {
   finished = true;
   if (rafId) cancelAnimationFrame(rafId);
   rafId = 0;
-  // Never faded in yet (a fast page): remove it without ever showing it.
-  if (!visible()) return teardown();
+  // Nobody is looking (background tab): just release the page.
+  if (document.hidden) return teardown();
+  const painted = visible();
   root.dataset.stage = 'ready';
   root.style.setProperty('--bc-p', '1');
   setStatus('ready');
-  window.setTimeout(
-    () => {
-      root?.classList.add('is-leaving');
-      window.setTimeout(teardown, LEAVE_MS);
-    },
-    force ? 0 : HOLD_READY_MS,
-  );
+
+  let left = false;
+  const leave = () => {
+    if (left) return;
+    left = true;
+    root?.classList.add('is-leaving');
+    window.setTimeout(teardown, LEAVE_MS);
+  };
+  if (painted) {
+    window.setTimeout(leave, force ? 0 : HOLD_READY_MS);
+  } else {
+    // Fast page (cached assets): let the overlay paint once so the first paint is branded and there is
+    // no blank flash, then fade straight out with no hold. The timer is a backstop if frames stall.
+    requestAnimationFrame(() => requestAnimationFrame(leave));
+    window.setTimeout(leave, 160);
+  }
 }
 
 function setStatus(next: BootStage) {
@@ -81,11 +93,12 @@ function setStatus(next: BootStage) {
 function tick(now: number) {
   if (!root || finished) return;
   lastTickAt = performance.now();
+  frames++;
   const dt = lastFrame ? now - lastFrame : 16;
   lastFrame = now;
 
   const ready = isBootReady(done);
-  // Fast page: ready before the overlay has faded in. Skip the sprint, never show it.
+  // Fast page (cached assets): ready before anything painted. Drop the overlay, never flash it.
   if (ready && !visible()) return finish(true);
   progress = stepProgress(progress, milestoneProgress(done), dt, ready);
 

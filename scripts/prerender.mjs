@@ -620,8 +620,12 @@ export function prerender() {
     // Home only: the dotted world map is the largest above-the-fold element on phones, so fetch it early.
     let extraHead = '';
     if (routePath === '/') {
-      const dots = fs.readdirSync(path.join(DIST_DIR, 'assets')).find((f) => /^world-dots-.*\.svg$/.test(f));
-      if (dots) extraHead = `\n    <link rel="preload" as="image" href="/assets/${dots}" fetchpriority="high" />`;
+      const assets = fs.readdirSync(path.join(DIST_DIR, 'assets'));
+      const map = assets.find((f) => /^world-dots-1280-.*.png$/.test(f));
+      if (map) {
+        extraHead = `
+    <link rel="preload" as="image" href="/assets/${map}" crossorigin="anonymous" fetchpriority="high" />`;
+      }
     }
     // Inject custom head meta
     prerenderedHtml = prerenderedHtml.replace('</head>', `    ${metaTags}${extraHead}\n  </head>`);

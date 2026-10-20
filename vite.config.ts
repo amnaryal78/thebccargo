@@ -270,9 +270,43 @@ function preloadCriticalFonts(): Plugin {
   };
 }
 
+/**
+ * main.tsx loads the app with a dynamic import (so the loader paints first). Dynamic chunks are normally
+ * only fetched once the import() runs, so modulepreload the app chunk and everything it needs up front.
+ */
+function preloadAppChunks(): Plugin {
+  return {
+    name: 'bc-preload-app-chunks',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html, ctx) {
+        const bundle = ctx.bundle ?? {};
+        const entry = Object.values(bundle).find((c) => c.type === 'chunk' && c.isEntry) as
+          | { dynamicImports: string[] }
+          | undefined;
+        if (!entry) return [];
+        const seen = new Set<string>();
+        const visit = (file: string) => {
+          if (seen.has(file)) return;
+          const chunk = bundle[file];
+          if (!chunk || chunk.type !== 'chunk') return;
+          seen.add(file);
+          chunk.imports.forEach(visit);
+        };
+        entry.dynamicImports.filter((f) => /bootstrap-/.test(f)).forEach(visit);
+        return [...seen].filter((f) => !html.includes('href="/' + f + '"')).map((f) => ({
+          tag: 'link',
+          attrs: { rel: 'modulepreload', crossorigin: '', href: '/' + f },
+          injectTo: 'head' as const,
+        }));
+      },
+    },
+  };
+}
+
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss(), bcCargoApiPlugin(), preloadCriticalFonts()],
+    plugins: [react(), tailwindcss(), bcCargoApiPlugin(), preloadCriticalFonts(), preloadAppChunks()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

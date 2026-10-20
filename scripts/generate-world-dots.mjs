@@ -1,6 +1,8 @@
 /**
- * Regenerates src/assets/world-dots.svg, the static dotted world map used by the 2D route table.
- * Run once after changing the grid; the site itself ships no map library.
+ * Regenerates src/assets/world-dots.svg, the vector source of the dotted world map used by the 2D route table.
+ * The site ships pre-rasterised PNGs (world-dots-640.png / world-dots-1280.png: an SVG of ~5,400 dots is
+ * slow to paint on phones). After running this, rasterise with sharp, e.g.:
+ *   sharp(svg, { density: 72 * 640 / 158 }).resize({ width: 640 }).png({ palette: true, quality: 70, colours: 8 })
  *   node scripts/generate-world-dots.mjs
  */
 import fs from 'fs';
