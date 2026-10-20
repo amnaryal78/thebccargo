@@ -22,8 +22,8 @@ import {
 } from './bootProgress';
 
 const FONT_CAP_MS = 3000; // web fonts must never hold the page hostage
-const HOLD_READY_MS = 320; // let "Ready" register, only when the loader is visible
-const LEAVE_MS = 520; // keep in sync with .is-leaving in index.html
+const HOLD_READY_MS = 140; // let "Ready" register, only when the loader is visible
+const LEAVE_MS = 380; // keep in sync with .is-leaving in index.html
 
 const done = new Set<BootMark>();
 let root: HTMLElement | null = null;

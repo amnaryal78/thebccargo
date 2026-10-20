@@ -53,7 +53,7 @@ export function milestoneProgress(done: ReadonlySet<BootMark>): number {
 
 /**
  * Advance the displayed progress by `dtMs`. Always monotonic.
- * - ready:      sprint to 1 (about 300ms)
+ * - ready:      sprint to 1 (about 250ms)
  * - behind:     catch up to the real milestone quickly
  * - at/ahead:   creep slowly toward a small headroom above the milestone
  */
@@ -61,7 +61,7 @@ export function stepProgress(prev: number, target: number, dtMs: number, ready: 
   const dt = Math.max(0, Math.min(dtMs, 250));
   let next: number;
   if (ready) {
-    next = prev + (1 - prev) * (1 - Math.exp(-dt / 90));
+    next = prev + (1 - prev) * (1 - Math.exp(-dt / 70));
     if (next > 0.995) next = 1;
   } else if (prev < target) {
     next = prev + (target - prev) * (1 - Math.exp(-dt / 180));

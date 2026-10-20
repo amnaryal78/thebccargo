@@ -23,14 +23,14 @@
         color:#002147;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
         --i:0;--bc-p:0;--cx:0px;--tx:-120px;--truck:0;--bx:0px;--by:0px;--sh:.22;--sig:0;--ok:0;
         /* Painted immediately (counts as first paint). bootLoader.ts drops it before paint if the page is already ready. */
-        transition:opacity .5s ease,transform .5s cubic-bezier(.2,.8,.2,1)}
+        transition:opacity .36s ease,transform .36s cubic-bezier(.2,.8,.2,1)}
       #bc-boot.is-leaving{opacity:0;transform:scale(1.015);pointer-events:none}
       #bc-boot[data-stage=loading]{--i:1;--tx:43px;--truck:1;--by:-12px;--sh:.12}
       #bc-boot[data-stage=transit]{--i:2;--tx:43px;--truck:1;--by:-12px;--sh:.12;--cx:120px}
       #bc-boot[data-stage=network]{--i:3;--tx:200px;--truck:0;--cx:120px;--bx:60px;--by:-26px;--sh:.12;--sig:1}
       #bc-boot[data-stage=ready]{--i:4;--tx:200px;--truck:0;--cx:120px;--bx:120px;--by:0px;--sh:.22;--ok:1}
       .bc-boot__in{width:min(88vw,400px);display:flex;flex-direction:column;align-items:center;gap:14px;padding-bottom:3vh;
-        transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+        transition:transform .36s cubic-bezier(.2,.8,.2,1)}
       #bc-boot.is-leaving .bc-boot__in{transform:translateY(-8px)}
       .bc-boot__logo{display:block;height:38px;width:auto;opacity:.95}
       .bc-boot__scene{width:100%;height:auto;display:block;overflow:visible}
