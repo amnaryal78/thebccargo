@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="bc-booting">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -16,6 +16,12 @@
       try { localStorage.removeItem('bc_cargo_theme'); } catch (e) {}
     </script>
     <style id="bc-boot-css">
+      /* The prerendered text in #root is for crawlers and no-JS visitors. While the loader covers the page it
+         stays hidden, so swapping it for the real UI never registers as layout shift. CSS-only safety net
+         (animation) reveals it if scripts never run. */
+      html.bc-booting #root{visibility:hidden;animation:bc-reveal 0s 30s forwards}
+      @keyframes bc-reveal{to{visibility:visible}}
+      @keyframes bc-giveup{to{visibility:hidden;pointer-events:none}}
       /* BC Cargo boot loader. Painted from the first HTML byte; src/boot/bootLoader.ts reports real progress.
          Only transform/opacity are animated. Brand: Oxford #002147, golden yellow #F2B705, base #F6F6F4. */
       #bc-boot{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;
@@ -23,7 +29,7 @@
         color:#002147;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
         --i:0;--bc-p:0;--cx:0px;--tx:-120px;--truck:0;--bx:0px;--by:0px;--sh:.22;--sig:0;--ok:0;
         /* Painted immediately (counts as first paint). bootLoader.ts drops it before paint if the page is already ready. */
-        transition:opacity .36s ease,transform .36s cubic-bezier(.2,.8,.2,1)}
+        animation:bc-giveup 0s 30s forwards;transition:opacity .36s ease,transform .36s cubic-bezier(.2,.8,.2,1)}
       #bc-boot.is-leaving{opacity:0;transform:scale(1.015);pointer-events:none}
       #bc-boot[data-stage=loading]{--i:1;--tx:43px;--truck:1;--by:-12px;--sh:.12}
       #bc-boot[data-stage=transit]{--i:2;--tx:43px;--truck:1;--by:-12px;--sh:.12;--cx:120px}
@@ -178,7 +184,7 @@
         <span class="bc-sr" id="bc-boot-sr" role="status" aria-live="polite">Loading The BC Cargo: Preparing</span>
       </div>
     </div>
-    <noscript><style>#bc-boot{display:none!important}</style></noscript>
+    <noscript><style>#bc-boot{display:none!important}html.bc-booting #root{visibility:visible!important}</style></noscript>
     <script type="module" src="/src/main.tsx"></script>
     <script>
       if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {

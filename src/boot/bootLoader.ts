@@ -50,6 +50,7 @@ function teardown() {
   rafId = 0;
   root?.remove();
   document.getElementById('bc-boot-css')?.remove();
+  document.documentElement.classList.remove('bc-booting');
   root = null;
 }
 
@@ -69,6 +70,8 @@ function finish(force = false) {
   const leave = () => {
     if (left) return;
     left = true;
+    // Reveal the real page underneath as the overlay fades, so there is no blank moment.
+    document.documentElement.classList.remove('bc-booting');
     root?.classList.add('is-leaving');
     window.setTimeout(teardown, LEAVE_MS);
   };
@@ -129,6 +132,9 @@ function tick(now: number) {
 export function markBoot(mark: BootMark) {
   if (done.has(mark)) return;
   done.add(mark);
+  // The real page is laid out and ready: stop hiding the prerendered root. The opaque overlay still
+  // covers it for the short exit, and revealing now (not later) means nothing shifts when it fades.
+  if (isBootReady(done)) document.documentElement.classList.remove('bc-booting');
   // A background tab does not run rAF; make sure it still gets released.
   if (document.hidden && isBootReady(done)) finish(true);
 }

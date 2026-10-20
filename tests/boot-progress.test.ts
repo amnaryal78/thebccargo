@@ -105,8 +105,13 @@ describe('boot loader markup', () => {
     expect(html).toContain('prefers-reduced-motion');
   });
 
+  it('hides the prerendered root while booting (no layout shift) and reveals it without JavaScript', () => {
+    expect(html).toContain('<html lang="en" class="bc-booting">');
+    expect(html).toContain('html.bc-booting #root{visibility:hidden');
+  });
+
   it('is hidden without JavaScript and never animates layout properties', () => {
-    expect(html).toContain('<noscript><style>#bc-boot{display:none!important}</style></noscript>');
+    expect(html).toContain('<noscript><style>#bc-boot{display:none!important}html.bc-booting #root{visibility:visible!important}</style></noscript>');
     const css = html.slice(html.indexOf('<style id="bc-boot-css">'), html.indexOf('</style>'));
     expect(css).not.toMatch(/transition:[^;}]*\b(width|height|top|left|margin)\b/);
   });
