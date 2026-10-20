@@ -137,9 +137,9 @@ export const BlogListPage: React.FC = () => {
         ) : filteredBlogs.length === 0 ? (
           <div className="p-12 text-center bg-[var(--surface)] border border-[var(--line)] rounded-[var(--r-md)] shadow-hard-sm space-y-3">
             <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
-            <h3 className="font-heading font-bold text-lg text-[var(--text)]">
+            <h2 className="font-heading font-bold text-lg text-[var(--text)]">
               No Articles Found
-            </h3>
+            </h2>
             <p className="text-xs text-[var(--text-muted)]">
               No trade dispatches match "{searchQuery}".
             </p>
@@ -164,11 +164,11 @@ export const BlogListPage: React.FC = () => {
                     </span>
                   </div>
 
-                  <h3 className="font-heading font-extrabold text-xl text-[var(--text)] group-hover:text-[var(--gold-dark)] transition-colors leading-snug">
+                  <h2 className="font-heading font-extrabold text-xl text-[var(--text)] group-hover:text-[var(--gold-dark)] transition-colors leading-snug">
                     <Link to={`/blogs/${blog.slug}`}>
                       {blog.title}
                     </Link>
-                  </h3>
+                  </h2>
 
                   <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-3 leading-relaxed">
                     {blog.excerpt}

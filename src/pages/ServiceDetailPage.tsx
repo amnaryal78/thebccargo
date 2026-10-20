@@ -248,9 +248,9 @@ export const ServiceDetailPage: React.FC = () => {
                 <div className="w-8 h-8 rounded-full bg-[var(--oxford-deep)] text-white font-heading font-bold text-xs flex items-center justify-center">
                   0{step.stepNumber}
                 </div>
-                <h4 className="font-heading font-bold text-sm text-[var(--text)] pt-1">
+                <h3 className="font-heading font-bold text-sm text-[var(--text)] pt-1">
                   {step.title}
-                </h4>
+                </h3>
                 <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                   {step.description}
                 </p>

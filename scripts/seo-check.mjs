@@ -23,7 +23,7 @@ const htmlFiles = [];
   for (const name of fs.readdirSync(dir)) {
     const p = path.join(dir, name);
     if (fs.statSync(p).isDirectory()) walk(p);
-    else if (name.endsWith('.html')) htmlFiles.push(p);
+    else if (name.endsWith('.html') && !/^google[0-9a-f]+.html$/.test(name)) htmlFiles.push(p);
   }
 })(DIST);
 

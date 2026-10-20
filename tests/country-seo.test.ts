@@ -46,7 +46,7 @@ describe('Phase 4 — Hetauda, Country Landing Pages, and SEO Prerendering', () 
     // Assert key SEO and operational details
     expect(html).toContain('Send Parcel from Hetauda &amp; Nepal to South Korea');
     expect(html).toContain('School Road -4, Hetauda');
-    expect(html).toContain('3–5 business days');
+    expect(html).toContain('10 days');
     expect(html).toContain('Price');
     expect(html).toContain('Chat');
     expect(html).toContain('Customs Restrictions for South Korea');

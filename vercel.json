@@ -55,7 +55,15 @@
       "destination": "https://thebccargo.onrender.com/api/:path*"
     },
     {
-      "source": "/(.*)",
+      "source": "/:route(login|track|book|services|rates|blogs|about|contact|policies|how-to-ship|faq|become-a-partner|careers|admin|_kit)",
+      "destination": "/"
+    },
+    {
+      "source": "/:route(services|rates|blogs|careers|admin)/:rest*",
+      "destination": "/"
+    },
+    {
+      "source": "/send-parcel-nepal-to-:corridor",
       "destination": "/"
     }
   ],

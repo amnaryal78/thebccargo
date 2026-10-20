@@ -490,7 +490,7 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
                     aria-haspopup="listbox"
                     aria-expanded={isCountryDropdownOpen}
                     aria-controls={isCountryDropdownOpen ? listId : undefined}
-                    aria-label={`Destination country: ${shortName(currentCountryObj.name) || 'not selected'}`}
+                    aria-label={shortName(currentCountryObj.name) ? `Destination country: ${shortName(currentCountryObj.name)}` : 'Choose a country'}
                     onClick={() => {
                       setIsCountryDropdownOpen((p) => !p);
                       setCountrySearch('');

@@ -116,9 +116,9 @@ export const FaqSection: React.FC<FaqSectionProps> = ({
               <PhoneCall className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-heading font-bold text-sm sm:text-base text-slate-900">
+              <h3 className="font-heading font-bold text-sm sm:text-base text-slate-900">
                 Have a question or need help sending a package?
-              </h4>
+              </h3>
               <p className="text-xs text-slate-500 mt-0.5">
                 Our customer support team is available 24/7 to help you.
               </p>

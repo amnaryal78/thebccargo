@@ -70,7 +70,7 @@ const ROUTE_METADATA = {
     }
   },
   '/rates/international': {
-    title: 'International Courier Rates from Nepal | The BC Cargo & Courier',
+    title: 'International Courier Rates from Nepal | BC Cargo',
     description: 'Official worldwide cargo and express air courier tariff matrix from Nepal to 190+ countries and global ports.',
     ogType: 'website',
     ogImage: `${BASE_URL}/og-banner.png`
@@ -82,7 +82,7 @@ const ROUTE_METADATA = {
     ogImage: `${BASE_URL}/og-banner.png`
   },
   '/services': {
-    title: 'Multimodal Freight & Logistics Services | The BC Cargo & Courier',
+    title: 'Freight & Logistics Services from Nepal | BC Cargo',
     description: 'End-to-end international logistics solutions from Nepal: scheduled air cargo freight, overland road transport, ocean container shipping, and customs clearance.',
     ogType: 'website',
     ogImage: `${BASE_URL}/og-banner.png`
@@ -336,8 +336,8 @@ const ROUTE_METADATA = {
   // TOP COUNTRY CORRIDORS (Phase 4 High-Converting SEO Landing Pages)
   // =========================================================================
   '/send-parcel-nepal-to-south-korea': {
-    title: 'Cargo & Parcel Service from Hetauda Nepal to South Korea | BC Cargo',
-    description: 'Send parcel and commercial cargo from Hetauda and Nepal to South Korea. Doorstep pickup in Hetauda, fast air freight via Incheon (ICN), transparent live tariffs, and customs assistance.',
+    title: 'Send Parcel from Hetauda Nepal to South Korea | BC Cargo',
+    description: 'Send parcels and cargo from Hetauda, Nepal to South Korea. Doorstep pickup, air freight via Incheon, about 10 days delivery, live tariffs and customs help.',
     ogType: 'service',
     ogImage: `${BASE_URL}/og-banner.png`,
     jsonLd: [
@@ -496,7 +496,7 @@ const ROUTE_METADATA = {
   },
 
   '/send-parcel-nepal-to-uk': {
-    title: 'Air Cargo & Parcel Service from Hetauda to UK | The BC Cargo',
+    title: 'Send Parcel from Hetauda Nepal to the UK | BC Cargo',
     description: 'Send personal packages, legal documents, dry foods, and commercial goods from Hetauda Nepal to the UK. 3–5 day delivery to London and nationwide.',
     ogType: 'service',
     ogImage: `${BASE_URL}/og-banner.png`,
@@ -523,35 +523,35 @@ const ROUTE_METADATA = {
   },
 
   '/send-parcel-nepal-to-japan': {
-    title: 'Send Parcel from Hetauda Nepal to Japan | The BC Cargo',
-    description: 'Send parcel and courier from Hetauda and Nepal to Japan. Fast 3–5 business day delivery to Tokyo and all prefectures. Live sheet pricing and customs clearance.',
+    title: 'Send Parcel from Hetauda Nepal to Japan | BC Cargo',
+    description: 'Send parcel and courier from Hetauda and Nepal to Japan. About 15 days delivery to Tokyo and all prefectures. Live pricing and customs clearance.',
     ogType: 'service',
     ogImage: `${BASE_URL}/og-banner.png`
   },
 
   '/send-parcel-nepal-to-europe': {
-    title: 'Cargo & Parcel Service from Hetauda Nepal to Europe | BC Cargo',
+    title: 'Send Cargo from Hetauda Nepal to Europe | BC Cargo',
     description: 'Send personal and commercial cargo from Hetauda to Europe (EU). Fast customs-cleared air freight to Frankfurt, Paris, Rome, Madrid, and across the EU.',
     ogType: 'service',
     ogImage: `${BASE_URL}/og-banner.png`
   },
 
   '/send-parcel-nepal-to-gulf': {
-    title: 'Send Courier from Hetauda Nepal to Dubai UAE & Gulf | BC Cargo',
+    title: 'Send Courier from Hetauda Nepal to Dubai & Gulf | BC Cargo',
     description: 'Fast courier service from Hetauda to Dubai, UAE, Qatar, and Gulf region. Low per-kg tariffs, 2–4 business days delivery, and complete tracking.',
     ogType: 'service',
     ogImage: `${BASE_URL}/og-banner.png`
   },
 
   '/send-parcel-nepal-to-hong-kong': {
-    title: 'Air Cargo from Hetauda Nepal to Hong Kong | The BC Cargo',
+    title: 'Air Cargo from Hetauda Nepal to Hong Kong | BC Cargo',
     description: 'Send courier and air freight from Hetauda Nepal to Hong Kong. Direct flights, special meat compliance rate, fast 2–4 day delivery, and online tracking.',
     ogType: 'service',
     ogImage: `${BASE_URL}/og-banner.png`
   },
 
   '/send-parcel-nepal-to-usa': {
-    title: 'Send Parcel from Hetauda Nepal to USA | The BC Cargo',
+    title: 'Send Parcel from Hetauda Nepal to USA | BC Cargo',
     description: 'Send parcel and commercial air cargo from Hetauda Nepal to the United States. 4–6 day delivery nationwide with tracking, customs assistance, and live sheet rates.',
     ogType: 'service',
     ogImage: `${BASE_URL}/og-banner.png`
@@ -569,7 +569,13 @@ const NAV_LINKS = [
 function fallbackBody(routePath, meta) {
   const heading = esc(meta.title.split(' | ')[0].split(' — ')[0]);
   const links = NAV_LINKS.filter(([href]) => href !== routePath).map(([href, label]) => `<a href="${href}">${label}</a>`).join(' ');
-  return `<main style="max-width:720px;margin:0 auto;padding:24px;font-family:system-ui,sans-serif;color:#121211"><h1>${heading}</h1><p>${esc(meta.description)}</p><nav aria-label="Main">${links}</nav></main>`;
+  const list = (prefix, skip) => Object.entries(ROUTE_METADATA)
+    .filter(([p]) => p.startsWith(prefix) && p !== skip && p !== routePath)
+    .map(([p, m]) => `<li><a href="${p}">${esc(m.title.split(' | ')[0])}</a></li>`).join('');
+  const services = list('/services/', '/services');
+  const corridors = list('/send-parcel-nepal-to-');
+  const more = (services ? `<h2>Our services</h2><ul>${services}</ul>` : '') + (corridors ? `<h2>Send a parcel from Nepal</h2><ul>${corridors}</ul>` : '');
+  return `<main style="max-width:720px;margin:0 auto;padding:24px;font-family:system-ui,sans-serif;color:#121211"><h1>${heading}</h1><p>${esc(meta.description)}</p><nav aria-label="Main">${links}</nav>${more}<p>The BC Cargo &amp; Courier Pvt. Ltd., School Road -4, Hetauda, Nepal. Phone 057-591816.</p></main>`;
 }
 
 export function prerender() {
@@ -586,10 +592,30 @@ export function prerender() {
     let meta = routeMeta;
     const canonical = `${BASE_URL}${routePath === '/' ? '/' : routePath}`;
     
-    // Format JSON-LD scripts
+    // Format JSON-LD scripts (page schemas + a BreadcrumbList that mirrors the URL path)
     let jsonLdTags = '';
+    const extra = [];
+    if (routePath === '/') {
+      extra.push({ '@context': 'https://schema.org', '@type': 'WebSite', name: 'The BC Cargo & Courier', url: BASE_URL, inLanguage: 'en' });
+    } else {
+      const segs = routePath.replace(/^\//, '').split('/');
+      const crumbs = [{ name: 'Home', url: BASE_URL + '/' }];
+      segs.forEach((_, i) => {
+        const p = '/' + segs.slice(0, i + 1).join('/');
+        const m = ROUTE_METADATA[p];
+        crumbs.push({ name: m ? m.title.split(' | ')[0] : segs[i].replace(/-/g, ' '), url: BASE_URL + p });
+      });
+      extra.push({
+        '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+        itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: c.url }))
+      });
+    }
+    {
+      const own = meta.jsonLd ? (Array.isArray(meta.jsonLd) ? meta.jsonLd : [meta.jsonLd]) : [];
+      meta = { ...meta, jsonLd: [...own, ...extra] };
+    }
     if (meta.jsonLd) {
-      const schemas = Array.isArray(meta.jsonLd) ? meta.jsonLd : [meta.jsonLd];
+      const schemas = meta.jsonLd;
       jsonLdTags = schemas.map((s, idx) => 
         `<script type="application/ld+json" id="prerender-jsonld-${idx}">${JSON.stringify(s)}</script>`
       ).join('\n    ');
@@ -635,6 +661,16 @@ export function prerender() {
     fs.writeFileSync(path.join(targetDir, 'index.html'), prerenderedHtml, 'utf8');
     renderedCount++;
   }
+
+  // 404.html: Vercel serves this with a real 404 status for any URL that is not a route or a file.
+  // The SPA still boots on it, so the in-app NotFoundPage renders; noindex keeps it out of search.
+  const notFound = baseHtml
+    .replace(/<title>.*?<\/title>/i, '')
+    .replace('</head>', `    <title>Page not found | BC Cargo</title>
+    <meta name="robots" content="noindex, follow" />
+  </head>`)
+    .replace('<div id="root"></div>', `<div id="root"><main style="max-width:720px;margin:0 auto;padding:24px;font-family:system-ui,sans-serif"><h1>Page not found</h1><p>This page does not exist. Try the <a href="/">home page</a>, <a href="/rates">rates</a> or <a href="/track">tracking</a>.</p></main></div>`);
+  fs.writeFileSync(path.join(DIST_DIR, '404.html'), notFound, 'utf8');
 
   console.log(`[PRERENDER] Successfully generated ${renderedCount} static HTML pages in dist/!`);
 }

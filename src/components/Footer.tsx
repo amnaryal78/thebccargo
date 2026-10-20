@@ -108,9 +108,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Quick Navigation Links (Col 5-7) */}
           <div className="lg:col-span-3 flex flex-col gap-3">
-            <h4 className="font-heading font-bold text-xs uppercase tracking-widest text-[#002147]">
+            <h2 className="font-heading font-bold text-xs uppercase tracking-widest text-[#002147]">
               Services &amp; Tools
-            </h4>
+            </h2>
             <ul className="flex flex-col gap-2 text-xs font-heading">
               <li>
                 <button
@@ -171,9 +171,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Governance & Information (Col 8-9) */}
           <div className="lg:col-span-2 flex flex-col gap-3">
-            <h4 className="font-heading font-bold text-xs uppercase tracking-widest text-[#002147]">
+            <h2 className="font-heading font-bold text-xs uppercase tracking-widest text-[#002147]">
               Company
-            </h4>
+            </h2>
             <ul className="flex flex-col gap-2 text-xs font-heading">
               <li>
                 <button
@@ -252,9 +252,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Central Terminal HQ Info (Col 10-12) */}
           <div className="lg:col-span-3 flex flex-col gap-3">
-            <h4 className="font-heading font-bold text-xs uppercase tracking-widest text-[#002147]">
+            <h2 className="font-heading font-bold text-xs uppercase tracking-widest text-[#002147]">
               Hetauda Central HQ
-            </h4>
+            </h2>
             <div className="flex flex-col gap-2 text-xs text-slate-600">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-[#8C6400] shrink-0 mt-0.5" />

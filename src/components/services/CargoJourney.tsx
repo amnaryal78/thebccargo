@@ -272,7 +272,7 @@ export const CargoJourney: React.FC<{ className?: string }> = ({ className = '' 
               </span>
               <span className="uppercase tracking-wider text-[10px] font-extrabold text-[#002147] truncate">The BC Cargo</span>
             </div>
-            <span className="text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200/70 px-1.5 py-0.5 rounded leading-none">
+            <span className="text-[10px] font-bold text-slate-600 bg-slate-100 border border-slate-200/70 px-1.5 py-0.5 rounded leading-none">
               {stage + 1}/{STAGES.length}
             </span>
           </div>
@@ -287,7 +287,7 @@ export const CargoJourney: React.FC<{ className?: string }> = ({ className = '' 
               >
                 {i === stage && <Scene index={i} />}
                 <span className="text-xs font-bold text-slate-800 mt-1">{s.title}</span>
-                <span className="text-[10px] text-slate-500 font-medium">{s.note}</span>
+                <span className="text-[10px] text-slate-600 font-medium">{s.note}</span>
               </div>
             ))}
           </div>

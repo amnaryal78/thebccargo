@@ -188,9 +188,9 @@ export const FaqPage: React.FC = () => {
         {filteredFaqs.length === 0 ? (
           <div className="p-10 text-center flex flex-col items-center gap-3 bg-[var(--surface)] rounded-[var(--r-md)] border border-[var(--line)] shadow-hard-sm">
             <FileQuestion className="w-10 h-10 text-[var(--text-muted)]" />
-            <h4 className="font-heading font-bold text-base text-[var(--text)]">
+            <h2 className="font-heading font-bold text-base text-[var(--text)]">
               No Questions Found
-            </h4>
+            </h2>
             <p className="text-xs text-[var(--text-secondary)] max-w-md">
               No FAQs matched "{searchQuery}". Try different keywords or contact our dispatch team directly on WhatsApp or telephone.
             </p>
@@ -246,9 +246,9 @@ export const FaqPage: React.FC = () => {
             <PhoneCall className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="font-heading font-bold text-base sm:text-lg text-[var(--text)]">
+            <h2 className="font-heading font-bold text-base sm:text-lg text-[var(--text)]">
               Still have specific cargo questions?
-            </h4>
+            </h2>
             <p className="text-xs text-[var(--text-secondary)] mt-0.5">
               Our central operations team at School Road -4, Hetauda is available 6 days a week.
             </p>

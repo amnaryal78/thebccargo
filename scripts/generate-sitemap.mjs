@@ -14,7 +14,13 @@ const PUBLIC_DIR = path.resolve(ROOT_DIR, 'public');
 const DIST_DIR = path.resolve(ROOT_DIR, 'dist');
 
 const BASE_URL = 'https://thebccargo.com';
-const CURRENT_DATE = new Date().toISOString().split('T')[0];
+// lastmod = date of the last commit that touched the site source, so it only changes when content really changes
+// (search engines ignore lastmod when every URL claims "today").
+import { execSync } from 'child_process';
+const lastCommitDate = () => {
+  try { return execSync('git log -1 --format=%cs -- src public scripts/prerender.mjs', { cwd: ROOT_DIR }).toString().trim(); } catch { return ''; }
+};
+const CURRENT_DATE = lastCommitDate() || new Date().toISOString().split('T')[0];
 
 export const SITEMAP_ROUTES = [
   // Primary Core Landing & Utilities
@@ -61,6 +67,7 @@ export const SITEMAP_ROUTES = [
 
   // Legal & FAQ
   { path: '/faq', changefreq: 'monthly', priority: 0.7, lastmod: CURRENT_DATE },
+  { path: '/how-to-ship', changefreq: 'monthly', priority: 0.7, lastmod: CURRENT_DATE },
   { path: '/policies', changefreq: 'monthly', priority: 0.5, lastmod: CURRENT_DATE }
 ];
 
@@ -87,6 +94,20 @@ Allow: /
 
 # Disallow private and administrative portals from search indexing
 Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /_kit
+
+# AI search and answer engines are welcome to read the public pages (see also /llms.txt)
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+Allow: /
 Disallow: /admin
 Disallow: /login
 Disallow: /_kit
