@@ -99,6 +99,24 @@
       ]
     },
     {
+      "source": "/(.*)\\.(webp|png|jpg|jpeg|svg|avif|ico|woff2)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/data/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
       "source": "/sw.js",
       "headers": [
         {

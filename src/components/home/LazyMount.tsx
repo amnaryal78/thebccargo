@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 
 interface LazyMountProps {
   children: React.ReactNode;
@@ -36,6 +36,28 @@ export const LazyMount: React.FC<LazyMountProps> = ({ children, minHeight = 320,
     return () => io.disconnect();
   }, [show, rootMargin]);
 
-  if (show) return <>{children}</>;
+  // Keep the reserved height while a code-split section is still downloading, so nothing jumps.
+  if (show) return <Suspense fallback={<div style={{ minHeight }} aria-hidden="true" />}>{children}</Suspense>;
   return <div ref={ref} style={{ minHeight }} aria-hidden="true" />;
+};
+
+/**
+ * Mounts its children when the browser is idle (or after `timeout` ms at the latest).
+ * For widgets that are not needed for the first paint, such as the floating chat button.
+ */
+export const IdleMount: React.FC<{ children: React.ReactNode; timeout?: number }> = ({ children, timeout = 2500 }) => {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(() => setShow(true), { timeout });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const t = window.setTimeout(() => setShow(true), 600);
+    return () => window.clearTimeout(t);
+  }, [timeout]);
+  return show ? <>{children}</> : null;
 };

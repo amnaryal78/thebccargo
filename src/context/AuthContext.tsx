@@ -1,7 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { UserRoleType, checkUserAdminStatus } from '../services/authService';
+import type { User, Session } from '@supabase/supabase-js';
+import { isSupabaseConfigured } from '../lib/supabaseConfig';
+import type { UserRoleType } from '../services/authService';
+
+// The Supabase client (~55 KB gzip) is loaded on demand so it never delays the first paint.
+const loadSupabase = () => import('../lib/supabase').then((m) => m.supabase);
+const loadAuthService = () => import('../services/authService');
 
 export interface AuthContextType {
   user: User | null;
@@ -41,6 +45,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(usr);
 
     try {
+      const { checkUserAdminStatus } = await loadAuthService();
       const authResult = await checkUserAdminStatus(usr.id, usr.email || '');
       setRole(authResult.role);
       setIsAuthorizedAdmin(authResult.isAuthorized);
@@ -59,6 +64,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(true);
     try {
       if (isSupabaseConfigured) {
+        const supabase = await loadSupabase();
         const { data } = await supabase.auth.getSession();
         setSession(data?.session || null);
         await evaluateAuthorization(data?.session || null);
@@ -80,6 +86,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       try {
+        const supabase = await loadSupabase();
         const { data } = await supabase.auth.getSession();
         if (isMounted) {
           setSession(data?.session || null);
@@ -94,23 +101,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     initAuth();
 
+    let unsubscribe: (() => void) | undefined;
     if (isSupabaseConfigured) {
-      const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-        if (isMounted) {
-          setSession(newSession);
-          await evaluateAuthorization(newSession);
-          setLoading(false);
-        }
+      loadSupabase().then((supabase) => {
+        if (!isMounted) return;
+        const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+          if (isMounted) {
+            setSession(newSession);
+            await evaluateAuthorization(newSession);
+            setLoading(false);
+          }
+        });
+        unsubscribe = () => authListener.subscription.unsubscribe();
       });
-
-      return () => {
-        isMounted = false;
-        authListener.subscription.unsubscribe();
-      };
     }
 
     return () => {
       isMounted = false;
+      unsubscribe?.();
     };
   }, []);
 
@@ -123,6 +131,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const baseUrl = window.location.origin;
       const targetRedirect = `${baseUrl}/login${redirectTo ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`;
 
+      const supabase = await loadSupabase();
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -146,6 +155,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(true);
     try {
       if (isSupabaseConfigured) {
+        const supabase = await loadSupabase();
         await supabase.auth.signOut();
       }
     } catch (e) {

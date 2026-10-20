@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { ServiceMode, Shipment } from '../types';
 import { Seo } from './Seo';
 import { RouteTableHero } from './home/RouteTableHero';
 import { HomeServicePicker } from './home/HomeServicePicker';
-import { HowItWorksTimeline } from './home/HowItWorksTimeline';
-import { LazyMount } from './home/LazyMount';
-import { PartnerSlider } from './PartnerSlider';
-import { FeedbackSection } from './FeedbackSection';
-import { BlogSection } from './BlogSection';
-import { FaqSection } from './FaqSection';
-import { BcCargoChatbot } from './BcCargoChatbot';
+import { LazyMount, IdleMount } from './home/LazyMount';
 import { Button } from '../design/primitives/Button';
 import { PackageCheck, Phone } from 'lucide-react';
+
+// Below-the-fold sections are code-split; LazyMount only fetches them as they near the viewport.
+const HowItWorksTimeline = lazy(() => import('./home/HowItWorksTimeline').then((m) => ({ default: m.HowItWorksTimeline })));
+const PartnerSlider = lazy(() => import('./PartnerSlider').then((m) => ({ default: m.PartnerSlider })));
+const FeedbackSection = lazy(() => import('./FeedbackSection').then((m) => ({ default: m.FeedbackSection })));
+const BlogSection = lazy(() => import('./BlogSection').then((m) => ({ default: m.BlogSection })));
+const FaqSection = lazy(() => import('./FaqSection').then((m) => ({ default: m.FaqSection })));
+const BcCargoChatbot = lazy(() => import('./BcCargoChatbot').then((m) => ({ default: m.BcCargoChatbot })));
 
 interface LandingPageProps {
   onNavigate: (page: string) => void;
@@ -113,7 +115,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <LazyMount minHeight={400}>
         <FaqSection />
       </LazyMount>
-      <BcCargoChatbot onNavigate={onNavigate} onSearchTrack={onSearchTrack} />
+      <IdleMount>
+        <Suspense fallback={null}>
+          <BcCargoChatbot onNavigate={onNavigate} onSearchTrack={onSearchTrack} />
+        </Suspense>
+      </IdleMount>
 
       {/* FINAL CTA */}
       <LazyMount minHeight={260}>

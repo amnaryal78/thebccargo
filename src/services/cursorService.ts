@@ -1,4 +1,3 @@
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { secureDataStorage } from '../lib/secureStorage';
 
 export interface CursorMessageItem {

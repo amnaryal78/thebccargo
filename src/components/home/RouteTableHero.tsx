@@ -20,6 +20,9 @@ export const RouteTableHero: React.FC<RouteTableHeroProps> = ({
   onSearchTrack,
 }) => {
   const [use3D, setUse3D] = useState(true);
+  // The interactive globe is heavy. Show the light 2D map first and upgrade once the visitor
+  // interacts (or after a few idle seconds), so first paint and input stay fast.
+  const [globeReady, setGlobeReady] = useState(false);
   const [trackingNumber, setTrackingNumber] = useState('');
 
   useEffect(() => {
@@ -29,6 +32,23 @@ export const RouteTableHero: React.FC<RouteTableHeroProps> = ({
       window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
     setUse3D(!prefersReducedMotion);
   }, []);
+
+  useEffect(() => {
+    if (!use3D || globeReady) return;
+    const events = ['pointerdown', 'pointermove', 'keydown', 'touchstart', 'wheel', 'scroll'] as const;
+    let timer = 0;
+    const go = () => {
+      events.forEach((e) => window.removeEventListener(e, go));
+      window.clearTimeout(timer);
+      setGlobeReady(true);
+    };
+    events.forEach((e) => window.addEventListener(e, go, { passive: true, once: true }));
+    timer = window.setTimeout(go, 6000);
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, go));
+      window.clearTimeout(timer);
+    };
+  }, [use3D, globeReady]);
 
   const handleTrackSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,7 +165,7 @@ export const RouteTableHero: React.FC<RouteTableHeroProps> = ({
 
         {/* Right Column: Interactive Route Table (2D Android / 3D Desktop) */}
         <div className="lg:col-span-7 w-full flex flex-col">
-          {use3D ? (
+          {use3D && globeReady ? (
             <Suspense fallback={<RouteTable2D onGetEstimate={handleGetEstimate} onBookPickup={handleBookPickup} />}>
               <RouteTable3DLazy
                 onGetEstimate={handleGetEstimate}

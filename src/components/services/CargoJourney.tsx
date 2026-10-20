@@ -8,7 +8,7 @@ import { useReducedMotion } from 'framer-motion';
  * With reduced motion the stages stop cycling; the progress bars still pick a stage.
  */
 
-const LOGO = '/brand/bc-logo.webp';
+const LOGO = '/brand/bc-logo-320.webp';
 const STAGE_MS = 1400;
 
 const STAGES: { title: string; note: string }[] = [

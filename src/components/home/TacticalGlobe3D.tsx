@@ -647,7 +647,8 @@ function mulberry32(seed: number) {
   };
 }
 
-const DATA_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
+// Self-hosted copy of world-atlas@2 countries-110m (no third-party request on the critical path).
+const DATA_URL = '/data/countries-110m.json';
 
 /* ========================================================================== */
 /* Props Interface                                                            */

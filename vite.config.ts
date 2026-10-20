@@ -247,9 +247,32 @@ Return ONLY the raw JSON object conforming to the schema.`;
   };
 }
 
+/**
+ * Preloads the two above-the-fold font files (heading + body, latin subset) so text paints in its
+ * final font without waiting for the stylesheet to be parsed first. Hashed names are resolved at build.
+ */
+function preloadCriticalFonts(): Plugin {
+  return {
+    name: 'bc-preload-critical-fonts',
+    transformIndexHtml: {
+      order: 'post',
+      handler(_html, ctx) {
+        const files = Object.keys(ctx.bundle ?? {}).filter((f) =>
+          /(archivo|public-sans)-latin-wght-normal-[\w-]+\.woff2$/.test(f),
+        );
+        return files.map((f) => ({
+          tag: 'link',
+          attrs: { rel: 'preload', as: 'font', type: 'font/woff2', href: '/' + f, crossorigin: '' },
+          injectTo: 'head-prepend' as const,
+        }));
+      },
+    },
+  };
+}
+
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss(), bcCargoApiPlugin()],
+    plugins: [react(), tailwindcss(), bcCargoApiPlugin(), preloadCriticalFonts()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
@@ -275,30 +298,18 @@ export default defineConfig(() => {
       cssCodeSplit: true,
       rollupOptions: {
         output: {
-          manualChunks(id) {
-            if (id.includes('node_modules')) {
-              if (id.includes('three')) {
-                return 'vendor-three';
-              }
-              if (id.includes('framer-motion')) {
-                return 'vendor-motion';
-              }
-              if (id.includes('dotted-map')) {
-                return 'vendor-map';
-              }
-              if (id.includes('@supabase')) {
-                return 'vendor-supabase';
-              }
-              if (id.includes('lucide-react')) {
-                return 'vendor-icons';
-              }
-              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
-                return 'vendor-react';
-              }
-            }
-          }
-        }
-      }
+          // React core + router (incl. the JSX runtime) stay in one chunk so the entry never has to
+          // download an unrelated vendor chunk (it used to pull all of framer-motion just for jsx-runtime).
+          codeSplitting: {
+            groups: [
+              { name: 'vendor-react', test: /[\\/]node_modules[\\/](react|react-dom|scheduler|react-router|react-router-dom|@remix-run)[\\/]/, priority: 40 },
+              { name: 'vendor-motion', test: /[\\/]node_modules[\\/](framer-motion|motion-dom|motion-utils)[\\/]/, priority: 30 },
+              { name: 'vendor-supabase', test: /[\\/]node_modules[\\/]@supabase[\\/]/, priority: 30 },
+              { name: 'vendor-icons', test: /[\\/]node_modules[\\/]lucide-react[\\/]/, priority: 30 },
+            ],
+          },
+        } as Record<string, unknown>,
+      },
     }
   };
 });

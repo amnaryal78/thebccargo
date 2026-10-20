@@ -25,6 +25,9 @@ export const BcLogo: React.FC<BcLogoProps> = ({
     xl: 'h-24',
   };
 
+  // Rendered width = icon height * (1245 / 802); lets the browser pick the smallest sharp file.
+  const logoSizes = { sm: '56px', md: '68px', lg: '99px', xl: '149px' };
+
   const titleSizes = {
     sm: 'text-sm',
     md: 'text-[15px] min-[400px]:text-base sm:text-lg',
@@ -43,7 +46,9 @@ export const BcLogo: React.FC<BcLogoProps> = ({
     <div className={`inline-flex items-center gap-2 min-[400px]:gap-3 select-none ${className}`}>
       {/* Official BC logo: transparent background, so it sits on light and dark surfaces alike */}
       <img
-        src="/brand/bc-logo.webp"
+        src="/brand/bc-logo-192.webp"
+        srcSet="/brand/bc-logo-96.webp 96w, /brand/bc-logo-128.webp 128w, /brand/bc-logo-192.webp 192w, /brand/bc-logo-320.webp 320w"
+        sizes={logoSizes[size]}
         alt={variant === 'mark-only' ? 'The BC Cargo & Courier' : ''}
         aria-hidden={variant === 'full' ? true : undefined}
         width={1245}

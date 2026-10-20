@@ -24,7 +24,7 @@
   --gd-400: #FAC623;
   --gd-500: #F2B705;
   --gd-600: #CC9704;
-  --gd-700: #8C6400; /* WCAG AA validated for >= 4.5:1 text on light surfaces */
+  --gd-700: #8A6200; /* WCAG AA validated for >= 4.5:1 text on every light surface (incl. --ink-100) */
   --gd-800: #735402;
   --gd-900: #4A3601;
 

@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { ShieldAlert } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { isSupabaseConfigured } from '../lib/supabase';
+import { isSupabaseConfigured } from '../lib/supabaseConfig';
 import { AccessRestricted } from './AccessRestricted';
 
 interface ProtectedRouteProps {
