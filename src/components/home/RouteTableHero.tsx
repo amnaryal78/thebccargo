@@ -130,7 +130,7 @@ export const RouteTableHero: React.FC<RouteTableHeroProps> = ({
         </div>
 
         {/* Right Column: animated Nepal -> destination journeys (no globe: nothing captures touch scrolling) */}
-        <div className="lg:col-span-7 w-full flex flex-col">
+        <div className="lg:col-span-7 w-full min-w-0 flex flex-col">
           <RouteJourney onGetEstimate={handleGetEstimate} onBookPickup={handleBookPickup} />
         </div>
 
