@@ -126,7 +126,7 @@ const AdminShellInner: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-[#F6F6F4] text-[#121211] font-body selection:bg-[#F2B705] selection:text-[#002147]">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[var(--bg)] text-[#121211] font-body selection:bg-[#F2B705] selection:text-[#002147]">
       
       {/* ------------------------------------------------------------------ */}
       {/* TOP BAR ON MOBILE (< 768px) */}

@@ -109,7 +109,7 @@ export const DesignKitPage: React.FC = () => {
               <span className="text-xs font-heading font-bold uppercase">Ink (Neutral Warm)</span>
               <div className="grid grid-cols-5 gap-1 text-[10px] font-mono text-center">
                 <div className="h-8 bg-[#FFFFFF] border text-black flex items-center justify-center">0</div>
-                <div className="h-8 bg-[#F6F6F4] text-black flex items-center justify-center">50</div>
+                <div className="h-8 bg-[var(--bg)] text-black flex items-center justify-center">50</div>
                 <div className="h-8 bg-[#D9D8D2] text-black flex items-center justify-center">200</div>
                 <div className="h-8 bg-[#474642] text-white flex items-center justify-center">600</div>
                 <div className="h-8 bg-[#121211] text-white flex items-center justify-center font-bold">900</div>

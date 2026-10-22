@@ -176,9 +176,9 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
                   {settings.name}
                 </h3>
               </div>
-              <span className="text-[11px] font-mono text-slate-600 flex items-center gap-1.5 mt-0.5">
+              <span className="text-[12px] text-slate-600 flex items-center gap-1.5 mt-0.5">
                 <ShieldCheck className="w-3 h-3 text-[#10B981]" />
-                Approved BC Cargo Knowledge Base Only (Gov Lic #B-409)
+                Answers from BC Cargo's own guides and price list
               </span>
             </div>
           </div>
@@ -315,10 +315,10 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
             </button>
           </form>
 
-          <div className="flex items-center justify-between px-2 pt-2 text-[10px] font-mono text-slate-500">
+          <div className="flex items-center justify-between px-2 pt-2 text-[11px] text-slate-500">
             <span className="flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-[#10B981]" />
-              Controlled Agentic Assistant • No unapproved external AI opinions
+              Automatic answers. For anything important, call or chat with our team.
             </span>
             <span className="hidden sm:inline text-slate-500">
               Press Enter to send

@@ -8,7 +8,7 @@ export const RatesPage: React.FC = () => {
 
   // URL query params for preselection
   const destParam = searchParams.get('dest') || searchParams.get('code') || '';
-  const weightParam = parseFloat(searchParams.get('weight') || '') || 2.5;
+  const weightParam = parseFloat(searchParams.get('weight') || '') || 10;
 
   useEffect(() => {
     document.title = 'International Rate Estimator | The BC Cargo & Courier';

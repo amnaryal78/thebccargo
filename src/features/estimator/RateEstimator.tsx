@@ -191,7 +191,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ checked, disabled, onChange, Icon, 
 
 export const RateEstimator: React.FC<RateEstimatorProps> = ({
   initialDestination,
-  initialWeight = 2.5,
+  initialWeight = 10,
   className = '',
   onSelectEstimate,
 }) => {

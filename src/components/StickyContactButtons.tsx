@@ -176,33 +176,6 @@ export const StickyContactButtons: React.FC = () => {
         </div>
       </div>
 
-      {/* Message us: always visible, sits just above the plus button (not inside its menu) */}
-      <div className="group relative flex items-center">
-        <span
-          className="hidden lg:group-hover:inline-flex absolute right-14 px-2.5 py-1 rounded-[var(--r-xs)] bg-[#002147] text-white border border-white/20 text-xs font-mono font-bold shadow-hard-xs whitespace-nowrap transition-opacity duration-200 pointer-events-none"
-          aria-hidden="true"
-        >
-          Chat
-        </span>
-        <button
-          type="button"
-          onClick={() => {
-            setOpen(false);
-            setMessageOpen(true);
-          }}
-          className={`relative ${ACTION_BASE} bg-[#002147] text-white border-white/20 hover:bg-[#F2B705] hover:text-[#002147] hover:border-[#FAC623]`}
-          title="Chat with us"
-          aria-label={unread ? `Chat with us, ${unread} new ${unread === 1 ? 'reply' : 'replies'}` : 'Chat with us'}
-        >
-          <MessageSquarePlus className="w-5 h-5 shrink-0" />
-          {unread > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-[#C02E24] text-white text-[11px] font-bold grid place-items-center ring-2 ring-white">
-              {unread > 9 ? '9+' : unread}
-            </span>
-          )}
-        </button>
-      </div>
-
       {/* Mobile/tablet FAB: expands the three actions above it */}
       <button
         type="button"
@@ -216,6 +189,46 @@ export const StickyContactButtons: React.FC = () => {
           className={`w-6 h-6 transition-transform duration-[var(--t-fast)] motion-reduce:transition-none ${open ? 'rotate-45' : ''}`}
         />
       </button>
+      {/* Real chat with our team: a slim tab on the right edge, clear of page content */}
+      <button
+        type="button"
+        onClick={() => {
+          setOpen(false);
+          setMessageOpen(true);
+        }}
+        aria-label={unread ? `Chat here, ${unread} new ${unread === 1 ? 'reply' : 'replies'}` : 'Chat here with our team'}
+        className="hidden lg:flex fixed right-0 top-1/2 -translate-y-1/2 z-30 flex-col items-center gap-2 pl-2 pr-1.5 py-3.5 rounded-l-2xl bg-[#F2B705] text-[#002147] shadow-[-6px_8px_22px_-10px_rgba(0,33,71,0.45),inset_0_1px_0_rgba(255,255,255,0.55)] border border-r-0 border-[#CC9704]/40 translate-x-1 hover:translate-x-0 hover:pr-2.5 transition-all duration-200 motion-reduce:transition-none cursor-pointer pointer-events-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#002147] focus-visible:ring-offset-2"
+      >
+        <span className="relative">
+          <MessageSquarePlus className="w-[18px] h-[18px]" aria-hidden="true" />
+          {unread > 0 && (
+            <span className="absolute -top-2 -left-2 min-w-[18px] h-[18px] px-1 rounded-full bg-[#C02E24] text-white text-[10px] font-bold grid place-items-center ring-2 ring-[#F2B705]">
+              {unread > 9 ? '9+' : unread}
+            </span>
+          )}
+        </span>
+        <span className="font-heading font-bold text-[12.5px] leading-none [writing-mode:vertical-rl] rotate-180 whitespace-nowrap">Chat here</span>
+      </button>
+
+      {/* Phones and tablets: the same chat, as a tab resting on the bottom nav's top-left edge */}
+      <button
+        type="button"
+        onClick={() => {
+          setOpen(false);
+          setMessageOpen(true);
+        }}
+        aria-label={unread ? `Chat here, ${unread} new ${unread === 1 ? 'reply' : 'replies'}` : 'Chat here with our team'}
+        className="min-[1024px]:hidden fixed left-3 bottom-[calc(max(env(safe-area-inset-bottom),8px)+54px)] z-[41] flex items-center gap-1.5 h-8 pl-2.5 pr-3 rounded-t-xl bg-[#F2B705] text-[#002147] font-heading font-bold text-[12.5px] shadow-[0_-4px_14px_-6px_rgba(0,33,71,0.35),inset_0_1px_0_rgba(255,255,255,0.55)] border border-b-0 border-[#CC9704]/40 active:translate-y-0.5 transition-transform cursor-pointer pointer-events-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#002147]"
+      >
+        <MessageSquarePlus className="w-4 h-4" aria-hidden="true" />
+        Chat here
+        {unread > 0 && (
+          <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-[#C02E24] text-white text-[10px] font-bold grid place-items-center">
+            {unread > 9 ? '9+' : unread}
+          </span>
+        )}
+      </button>
+
       {messageOpen && (
         <Suspense fallback={null}>
           <ChatWidget onClose={() => setMessageOpen(false)} />

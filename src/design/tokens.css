@@ -51,14 +51,15 @@
   /* ========================================================================= */
   /* SEMANTIC TOKENS — LIGHT MODE (DEFAULT)                                    */
   /* ========================================================================= */
-  --bg:           var(--ink-50);
+  /* cool blue-grey page so white surfaces read as raised cards */
+  --bg:           #F1F4F9;
   --surface:      var(--ink-0);
-  --surface-2:    var(--ink-100);
+  --surface-2:    #EAF0F6;
   --surface-oxford: var(--ox-900);
   --text:         var(--ink-900);
   --text-muted:   var(--ink-600);
-  --line:         rgba(0, 33, 71, 0.08);
-  --line-strong:  rgba(0, 33, 71, 0.14);
+  --line:         rgba(0, 33, 71, 0.10);
+  --line-strong:  rgba(0, 33, 71, 0.17);
   --brand:        var(--ox-900);
   --on-brand:     var(--ink-0);
   --accent:       var(--gd-500);
@@ -80,8 +81,8 @@
   --oxford-deep:    var(--ox-900);
   --gold:           var(--gd-500);
   --gold-dark:      var(--gd-700);
-  --surface-muted:  var(--ink-100);
-  --surface-subtle: var(--ink-50);
+  --surface-muted:  #EAF0F6;
+  --surface-subtle: #F5F7FB;
   --text-secondary: var(--ink-700);
   --green-mid:      #16A34A;
   --green-dark:     #15803D;
@@ -123,10 +124,11 @@
   --clay-shade-md: inset -2px -2px 3px 0 rgba(0, 33, 71, 0.08);
   --clay-shade-lg: inset -3px -3px 5px 0 rgba(0, 33, 71, 0.1);
 
-  --clay-outer-xs: 0 2px 6px -1px rgba(0, 33, 71, 0.06), 0 1px 3px -1px rgba(0, 33, 71, 0.03);
-  --clay-outer-sm: 0 4px 12px -2px rgba(0, 33, 71, 0.08), 0 2px 5px -1px rgba(0, 33, 71, 0.04);
-  --clay-outer-md: 0 10px 24px -4px rgba(0, 33, 71, 0.1), 0 4px 8px -2px rgba(0, 33, 71, 0.05);
-  --clay-outer-lg: 0 20px 40px -6px rgba(0, 33, 71, 0.14), 0 8px 16px -3px rgba(0, 33, 71, 0.06);
+  /* layered: a tight contact shadow plus a soft, navy-tinted ambient one */
+  --clay-outer-xs: 0 1px 2px rgba(0, 33, 71, 0.08), 0 3px 8px -2px rgba(0, 33, 71, 0.10);
+  --clay-outer-sm: 0 1px 2px rgba(0, 33, 71, 0.07), 0 8px 20px -6px rgba(0, 33, 71, 0.16);
+  --clay-outer-md: 0 2px 4px rgba(0, 33, 71, 0.07), 0 14px 32px -10px rgba(0, 33, 71, 0.22);
+  --clay-outer-lg: 0 4px 8px rgba(0, 33, 71, 0.07), 0 26px 52px -14px rgba(0, 33, 71, 0.30);
   --clay-outer-press: 0 2px 5px -1px rgba(0, 33, 71, 0.08), 0 1px 2px -1px rgba(0, 33, 71, 0.04);
 
   /* Full Clay Surface Stacks */
@@ -138,7 +140,7 @@
   --shadow-press:   inset 2.5px 2.5px 5px 0 rgba(0, 33, 71, 0.14), inset -1px -1px 2px 0 rgba(255, 255, 255, 0.6), var(--clay-outer-press);
 
   /* Inset Well Depth (For text inputs, selects, depressed tracks) */
-  --clay-inset: none;
+  --clay-inset: inset 0 1px 2px rgba(0, 33, 71, 0.08), inset 0 0 0 1px rgba(0, 33, 71, 0.03);
   --clay-inset-focus: 0 0 0 3px rgba(47, 90, 143, 0.2);
 
   /* ========================================================================= */

@@ -15,7 +15,7 @@ interface MiniEstimatorSlotProps {
 
 export const MiniEstimatorSlot: React.FC<MiniEstimatorSlotProps> = ({ onNavigateToRates }) => {
   const [selectedDestId, setSelectedDestId] = useState<string>('dest-dxb');
-  const [weightKg, setWeightKg] = useState<number>(2.5);
+  const [weightKg, setWeightKg] = useState<number>(10);
 
   const { sheetRates, internationalRates, handlingRules, rateSettings } = useEstimatorData();
 

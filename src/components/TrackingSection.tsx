@@ -58,7 +58,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
 
     if (error || !data) {
       setErrorMessage(
-        error || `No active consignment found for "${clean}". Please verify your AWB or contact our 24/7 central dispatch.`
+        error || `No active consignment found for "${clean}". Please verify your AWB or call us on 057-591816.`
       );
       setCurrentShipment(null);
     } else {
