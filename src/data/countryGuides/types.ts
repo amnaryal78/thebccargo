@@ -90,7 +90,10 @@ export interface CountryGuide {
 
 /* ---------- Local-language packs (Korean for Korea, Arabic for the Gulf, ...) ---------- */
 
-export type LocalLangCode = 'ko' | 'ja' | 'zh' | 'ar' | 'ms' | 'de';
+export type LocalLangCode =
+  | 'ko' | 'ja' | 'zh' | 'ar' | 'ms' | 'de'
+  | 'fr' | 'es' | 'it' | 'pt' | 'pl' | 'ro' | 'el' | 'nl' | 'cs' | 'da' | 'hu' | 'sk' | 'sl' | 'sv'
+  | 'bg' | 'hr' | 'et' | 'fi' | 'lt' | 'lv' | 'mt' | 'fil';
 
 export interface LocalItem {
   title: string;
