@@ -22,7 +22,11 @@ export interface ChatThread {
   phone: string;
   needsReply: boolean;
   lastMessageAt: string;
+  createdAt: string;
   isGuest: boolean;
+  /** Latest message, for the list preview */
+  lastBody?: string;
+  lastSender?: 'customer' | 'staff';
 }
 
 export interface ChatProfile {
@@ -189,6 +193,18 @@ export async function fetchThreads(): Promise<{ threads: ChatThread[]; error: st
     .order('last_message_at', { ascending: false })
     .limit(300);
   if (error) return { threads: [], error: friendly(error.message) };
+  // newest message per thread, for the previews (one query, newest first)
+  const ids = (data || []).map((t: any) => t.id);
+  const latest = new Map<string, { body: string; sender: 'customer' | 'staff' }>();
+  if (ids.length) {
+    const { data: recent } = await supabase
+      .from('chat_messages')
+      .select('thread_id, body, sender, created_at')
+      .in('thread_id', ids)
+      .order('created_at', { ascending: false })
+      .limit(1000);
+    for (const m of recent || []) if (!latest.has(m.thread_id)) latest.set(m.thread_id, { body: m.body, sender: m.sender });
+  }
   return {
     threads: (data || []).map((t: any) => ({
       id: t.id,
@@ -198,7 +214,10 @@ export async function fetchThreads(): Promise<{ threads: ChatThread[]; error: st
       phone: t.phone,
       needsReply: t.needs_reply,
       lastMessageAt: t.last_message_at,
+      createdAt: t.created_at,
       isGuest: !t.user_id,
+      lastBody: latest.get(t.id)?.body,
+      lastSender: latest.get(t.id)?.sender,
     })),
     error: null,
   };

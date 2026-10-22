@@ -91,7 +91,7 @@ function AppContent() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] transition-colors">
       <BootSignal mark="app" />
-      <CustomCursor />
+      {!isAdminRoute && <CustomCursor />}
       {!isAdminRoute && (
         <Header
           onNavigate={handleNavigate}
