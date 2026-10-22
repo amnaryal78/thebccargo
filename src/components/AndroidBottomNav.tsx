@@ -66,8 +66,8 @@ export const AndroidBottomNav: React.FC<AndroidBottomNavProps> = ({
   useEffect(() => {
     if (!moreSheetOpen || !isAuthorizedAdmin) return;
     let alive = true;
-    import('../services/messageService')
-      .then((m) => m.countNewMessages())
+    import('../services/chatService')
+      .then((m) => m.countThreadsNeedingReply())
       .then((n) => alive && setNewMessages(n))
       .catch(() => alive && setNewMessages(null));
     return () => {
@@ -153,7 +153,7 @@ export const AndroidBottomNav: React.FC<AndroidBottomNavProps> = ({
                   )}
                 </span>
                 <span className="min-w-0 leading-tight">
-                  <span className="block font-heading font-bold text-sm">Customer messages</span>
+                  <span className="block font-heading font-bold text-sm">Customer chats</span>
                   <span className="block text-[12px] text-white/70">
                     {newMessages === null ? 'Read and reply' : newMessages === 0 ? 'All replied' : `${newMessages} waiting for a reply`}
                   </span>

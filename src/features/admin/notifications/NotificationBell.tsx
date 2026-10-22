@@ -29,7 +29,7 @@ export const NotificationBell: React.FC<{ align?: 'left' | 'right' }> = ({ align
         onClick={() => setOpen((o) => !o)}
         aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
         aria-expanded={open}
-        className="relative p-2 rounded-xl bg-[#071A33] hover:bg-[#0B2445] text-white transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
+        className="relative p-2 rounded-xl bg-[#EEF3F9] hover:bg-[#D6E1EF] text-[#002147] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (

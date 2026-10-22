@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Phone, 
-  Mail, 
-  Search, 
+  Mail,
   ChevronDown, 
   PackageCheck,
   User as UserIcon,
@@ -24,10 +23,8 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   onNavigate,
   activeSection,
-  onQuickTrack,
   onOpenBooking,
 }) => {
-  const [headerQuery, setHeaderQuery] = useState('');
   const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -42,45 +39,36 @@ export const Header: React.FC<HeaderProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleHeaderTrackSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (headerQuery.trim()) {
-      onQuickTrack(headerQuery.trim());
-      setHeaderQuery('');
-    }
-  };
-
   const mainNavItems = [
     { id: 'home', label: 'Home' },
     { id: 'rates', label: 'Rates' },
-    { id: 'track', label: 'Track' },
+    { id: 'about', label: 'About' },
+    { id: 'how-to-ship', label: 'How to ship' },
     { id: 'services', label: 'Services' },
     { id: 'blogs', label: 'Blog' },
-    { id: 'about', label: 'About' },
   ];
 
   const moreSubItems = [
-    { id: 'how-to-ship', label: 'How to Ship' },
+    { id: 'track', label: 'Track parcel' },
     { id: 'contact', label: 'Contact' },
     { id: 'careers', label: 'Careers' },
     { id: 'faq', label: 'FAQ' },
     { id: 'policies', label: 'Policies' },
   ];
 
-  const isMoreActive = ['how-to-ship', 'contact', 'careers', 'faq', 'policies'].includes(activeSection);
+  const isMoreActive = moreSubItems.some((i) => i.id === activeSection);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-[var(--line)] transition-all duration-300">
       {/* 1. Top Industrial Dispatch Bar (Desktop only, collapses on scroll) */}
       <div
-        className={`hidden lg:flex bg-[#002147] text-[#F6F6F4] px-6 lg:px-12 items-center justify-between text-xs font-mono tracking-wider border-b border-[#123562] transition-all duration-200 overflow-hidden ${
+        className={`hidden lg:flex bg-[#EEF3F9] text-[#002147] px-6 lg:px-12 items-center justify-between text-xs border-b border-[var(--line)] transition-all duration-200 overflow-hidden ${
           isScrolled ? 'h-0 py-0 opacity-0' : 'h-8 py-1 opacity-100'
         }`}
       >
         <div className="flex items-center gap-3">
-          <span className="w-2 h-2 rounded-xs bg-[#F2B705]" aria-hidden="true" />
-          <span className="font-bold text-[11px] uppercase tracking-widest text-[#F6F6F4]">
-            The BC Cargo &amp; Courier Pvt. Ltd. • Nepal Multimodal Linehaul
+          <span className="font-semibold text-[12px] text-[#002147]">
+            The BC Cargo &amp; Courier Pvt. Ltd., Hetauda, Nepal
           </span>
         </div>
 
@@ -89,22 +77,22 @@ export const Header: React.FC<HeaderProps> = ({
             href="https://maps.app.goo.gl/pYyv4DPf69xwDV9J7"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#FAC623] hover:underline whitespace-nowrap"
+            className="text-[#8A6200] font-semibold hover:underline whitespace-nowrap"
           >
-            Hetauda Central Terminal Map
+            Find our office
           </a>
           <a
             href="tel:+977057591816"
-            className="flex items-center gap-1.5 hover:text-[#FAC623] transition-colors whitespace-nowrap"
+            className="flex items-center gap-1.5 hover:text-[#8A6200] transition-colors whitespace-nowrap"
           >
-            <Phone className="w-3.5 h-3.5 text-[#F2B705] shrink-0" />
+            <Phone className="w-3.5 h-3.5 text-[#8A6200] shrink-0" />
             <span className="whitespace-nowrap font-mono">057-591816 / 9855019485</span>
           </a>
           <a
             href="mailto:thebccargo@gmail.com"
-            className="flex items-center gap-1.5 hover:text-[#FAC623] transition-colors whitespace-nowrap"
+            className="flex items-center gap-1.5 hover:text-[#8A6200] transition-colors whitespace-nowrap"
           >
-            <Mail className="w-3.5 h-3.5 text-[#F2B705] shrink-0" />
+            <Mail className="w-3.5 h-3.5 text-[#8A6200] shrink-0" />
             <span className="whitespace-nowrap">thebccargo@gmail.com</span>
           </a>
         </div>
@@ -135,7 +123,7 @@ export const Header: React.FC<HeaderProps> = ({
                 key={item.id}
                 type="button"
                 onClick={() => onNavigate(item.id)}
-                className={`min-h-[44px] px-3.5 py-2 rounded-[var(--r-sm)] text-xs font-heading font-bold uppercase tracking-wider transition-colors cursor-pointer relative whitespace-nowrap shrink-0 ${
+                className={`min-h-[44px] px-3.5 py-2 rounded-[var(--r-sm)] text-[13px] font-heading font-bold transition-colors cursor-pointer relative whitespace-nowrap shrink-0 ${
                   isActive
                     ? 'text-[#002147] bg-[var(--surface-2)]'
                     : 'text-[var(--text-muted)] hover:text-[#002147] hover:bg-[var(--surface-2)]'
@@ -162,7 +150,7 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={() => setAboutDropdownOpen(!aboutDropdownOpen)}
               aria-expanded={aboutDropdownOpen}
-              className={`min-h-[44px] px-3.5 py-2 rounded-[var(--r-sm)] text-xs font-heading font-bold uppercase tracking-wider transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+              className={`min-h-[44px] px-3.5 py-2 rounded-[var(--r-sm)] text-[13px] font-heading font-bold transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                 isMoreActive
                   ? 'text-[#002147] bg-[var(--surface-2)]'
                   : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]'
@@ -182,9 +170,9 @@ export const Header: React.FC<HeaderProps> = ({
                       setAboutDropdownOpen(false);
                       onNavigate(sub.id);
                     }}
-                    className={`w-full text-left px-3.5 py-2 rounded-[var(--r-sm)] text-xs font-heading font-bold uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap ${
+                    className={`w-full text-left px-3.5 py-2 rounded-[var(--r-sm)] text-[13px] font-heading font-semibold transition-colors cursor-pointer whitespace-nowrap ${
                       activeSection === sub.id
-                        ? 'bg-[#002147] text-white shadow-hard-xs'
+                        ? 'bg-[#FFF9E0] text-[#002147]'
                         : 'text-[var(--text)] hover:bg-[var(--surface-2)]'
                     }`}
                   >
@@ -198,19 +186,6 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Right Actions: Header Track Form, Booking CTA, Theme Switch */}
         <div className="flex items-center gap-1 min-[400px]:gap-2.5 sm:gap-3 shrink-0">
-          {/* Quick Track Input in Header (Desktop Only) */}
-          <form onSubmit={handleHeaderTrackSubmit} className="hidden xl:flex items-center relative">
-            <input
-              type="text"
-              value={headerQuery}
-              onChange={(e) => setHeaderQuery(e.target.value)}
-              placeholder="Track AWB (e.g. BC-90214)"
-              aria-label="Track Waybill Number"
-              className="w-48 h-10 pl-8 pr-3 bg-[var(--surface-2)] border border-[var(--line)] rounded-[var(--r-sm)] clay-inset text-xs font-mono text-[var(--text)] placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#002147] focus:border-transparent transition-all"
-            />
-            <Search className="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-2.5 pointer-events-none" />
-          </form>
-
           {/* Staff Login / Profile Status */}
           {user ? (
             <div className="relative">

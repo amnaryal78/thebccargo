@@ -39,9 +39,14 @@ export const DestinationPanel: React.FC<DestinationPanelProps> = ({
           <img
             src={flagUrl(iso2, 80)}
             alt=""
-            width={44}
-            height={31}
-            className="w-11 h-[31px] rounded-[4px] object-cover border border-[var(--line)] shrink-0"
+            width={45}
+            height={30}
+            loading="lazy"
+            decoding="async"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+            className="w-[45px] h-[30px] rounded-[4px] object-cover ring-1 ring-black/10 shadow-sm bg-[#EEF3F9] shrink-0"
           />
         )}
         <div className="min-w-0">

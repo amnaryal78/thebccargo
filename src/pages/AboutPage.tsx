@@ -5,6 +5,7 @@ import { Phone, MessageCircle, Navigation, UserRound, ExternalLink, Calculator, 
 import { SEOHead } from '../components/SEOHead';
 import { Modal } from '../design/primitives/Modal';
 import { Spotlight } from '../components/ui/spotlight';
+import { Cta3D } from '../components/ui/Cta3D';
 import { StoryJourney } from '../components/about/StoryJourney';
 
 const CONTACTS = [
@@ -37,10 +38,16 @@ const TEAM: Member[] = [
   {
     slug: 'ramesh-aryal',
     name: 'Ramesh Aryal',
-    role: 'Founder and owner',
+    role: 'Founder & Owner',
     photo: '/team/ramesh-aryal.jpg',
-    duties: ['Managing clients', 'Answering calls', 'Handling the office', 'Packaging products', 'Creating bills'],
-    highlights: ['Clients', 'Office', 'Packing', 'Billing'],
+    duties: [
+      'Sets the business strategy, prices and services',
+      'Builds and keeps relationships with clients and overseas partners',
+      'Oversees daily operations at the Hetauda office',
+      'Makes sure every parcel meets our service standard',
+      'Leads and develops the team',
+    ],
+    highlights: ['Strategy', 'Client relationships', 'Team leadership'],
   },
   {
     slug: 'ayush-aryal',
@@ -131,14 +138,12 @@ export const AboutPage: React.FC = () => {
               tell you where your parcel is.
             </p>
             <div className="flex flex-wrap gap-3 pt-1">
-              <Link to="/rates" className={CTA_PRIMARY}>
-                <Calculator className="w-4 h-4 shrink-0" aria-hidden="true" />
-                <span>Check price</span>
-              </Link>
-              <Link to="/contact" className={CTA_OUTLINE}>
-                <span>Contact us</span>
-                <ArrowRight className="w-4 h-4 shrink-0" aria-hidden="true" />
-              </Link>
+              <Cta3D to="/rates" icon={<Calculator aria-hidden="true" />}>
+                Check price
+              </Cta3D>
+              <Cta3D to="/contact" tone="light" icon={<ArrowRight aria-hidden="true" />}>
+                Contact us
+              </Cta3D>
             </div>
           </header>
 
@@ -256,14 +261,12 @@ export const AboutPage: React.FC = () => {
           </ul>
 
           <div className="flex flex-wrap gap-3">
-            <a href="tel:+977057591816" className={CTA_PRIMARY}>
-              <Phone className="w-4 h-4 shrink-0" aria-hidden="true" />
-              <span>Call now</span>
-            </a>
-            <Link to="/rates" className={CTA_OUTLINE}>
-              <Calculator className="w-4 h-4 shrink-0" aria-hidden="true" />
-              <span>Check price</span>
-            </Link>
+            <Cta3D href="tel:+977057591816" icon={<Phone aria-hidden="true" />}>
+              Call now
+            </Cta3D>
+            <Cta3D to="/rates" tone="light" icon={<Calculator aria-hidden="true" />}>
+              Check price
+            </Cta3D>
           </div>
         </div>
       </section>

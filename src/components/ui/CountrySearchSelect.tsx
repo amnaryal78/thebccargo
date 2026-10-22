@@ -106,7 +106,6 @@ export const CountrySearchSelect: React.FC<CountrySearchSelectProps> = ({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
-        aria-invalid={!!error}
         className={`min-h-[48px] w-full flex items-center justify-between gap-2 px-4 rounded-[var(--r-sm)] border bg-[var(--surface)] text-left text-sm text-[var(--text)] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705] ${
           error ? 'border-red-500' : 'border-[var(--line)]'
         }`}

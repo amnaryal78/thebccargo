@@ -4,6 +4,7 @@ import { RouteLocation } from './route-data';
 import { Button } from '../../design/primitives/Button';
 import { Input } from '../../design/primitives/Input';
 import { Search, ArrowRight, ShieldCheck, Clock, BookOpen, Handshake } from 'lucide-react';
+import { Cta3D } from '../ui/Cta3D';
 
 interface RouteTableHeroProps {
   onNavigate: (page: string) => void;
@@ -58,25 +59,12 @@ export const RouteTableHero: React.FC<RouteTableHeroProps> = ({
 
           {/* Three actions: Price, Become a partner, How to ship (text link) */}
           <div className="flex flex-wrap items-center gap-3 pt-1">
-            <Button
-              variant="primary"
-              size="lg"
-              magnetic
-              onClick={() => handleGetEstimate()}
-              rightIcon={<ArrowRight className="w-4 h-4 shrink-0" />}
-              className="text-xs sm:text-sm"
-            >
-              Price
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => onNavigate('become-a-partner')}
-              leftIcon={<Handshake className="w-4 h-4 shrink-0" />}
-              className="text-xs sm:text-sm"
-            >
-              Become a Partner
-            </Button>
+            <Cta3D onClick={() => handleGetEstimate()} icon={<ArrowRight aria-hidden="true" />}>
+              Check price
+            </Cta3D>
+            <Cta3D tone="light" onClick={() => onNavigate('become-a-partner')} icon={<Handshake aria-hidden="true" />}>
+              Become a partner
+            </Cta3D>
             <button
               type="button"
               onClick={() => onNavigate('how-to-ship')}

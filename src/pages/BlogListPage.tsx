@@ -70,26 +70,17 @@ export const BlogListPage: React.FC = () => {
         {/* HEADER SECTION */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-[var(--line)] pb-8">
           <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-[var(--surface)] border border-[var(--line-strong)] rounded-[var(--r-xs)]">
-              <span className="w-2 h-2 rounded-full bg-[var(--gold)]" />
-              <span className="font-mono text-xs font-bold uppercase tracking-wider text-[var(--oxford-deep)]">
-                Logistics &amp; Customs Knowledge Base
-              </span>
-            </div>
             <h1 className="font-heading font-extrabold text-3xl sm:text-5xl text-[var(--text)] tracking-tight leading-tight">
               Blog &amp; Cargo Guides
             </h1>
             <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
-              Operational documentation requirements, air cargo security standards, tariff classifications, and trade protocols curated by licensed customs brokers.
+              Plain guides from our Hetauda office on packing, weight, customs and tracking, so your parcel leaves Nepal without surprises.
             </p>
           </div>
 
-          <div className="p-3 bg-[var(--surface)] border border-[var(--line)] rounded-[var(--r-sm)] shadow-hard-xs font-mono text-xs text-right self-start md:self-end">
-            <span className="text-[var(--text-muted)] block">PUBLISHED DISPATCHES</span>
-            <span className="font-bold text-lg text-[var(--oxford-deep)]">
-              {blogs.length} Official Articles
-            </span>
-          </div>
+          <p className="text-sm font-semibold text-[var(--text-muted)] self-start md:self-end">
+            {blogs.length} {blogs.length === 1 ? 'guide' : 'guides'}
+          </p>
         </div>
 
         {/* SEARCH & CATEGORY CHIPS BAR */}

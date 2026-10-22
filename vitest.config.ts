@@ -9,6 +9,9 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts'],
+    // Tests must never write to the live Supabase project: blank the credentials so every
+    // service takes its offline path. (Earlier runs left test bookings/inquiries in production.)
+    env: { VITE_SUPABASE_URL: '', VITE_SUPABASE_ANON_KEY: '' },
   },
   resolve: {
     alias: {

@@ -1,7 +1,61 @@
 import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Bot, MessageCircle, MessageSquarePlus, MapPin, Plus } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
-const MessageUsModal = lazy(() => import('./MessageUsModal').then((m) => ({ default: m.MessageUsModal })));
+const ChatWidget = lazy(() => import('./chat/ChatWidget').then((m) => ({ default: m.ChatWidget })));
+
+const CHAT_ACTIVE_KEY = 'bc_chat_active';
+const SEEN_KEY = 'bc_chat_seen';
+const readKey = (k: string) => {
+  try {
+    return localStorage.getItem(k);
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * While the chat is closed, checks for staff replies every 30 s, but only on devices that have
+ * started a chat. Shows an unread count and a browser notification (if allowed).
+ * The chat code is loaded on demand, so visitors who never chat download nothing extra.
+ */
+function useChatReplies(chatOpen: boolean): number {
+  const { user } = useAuth();
+  const [unread, setUnread] = useState(0);
+  const notified = useRef(0);
+
+  useEffect(() => {
+    if (chatOpen) {
+      setUnread(0);
+      notified.current = 0;
+      return;
+    }
+    if (!readKey(CHAT_ACTIVE_KEY)) return;
+    let alive = true;
+    const check = async () => {
+      const [svc, note] = await Promise.all([import('../services/chatService'), import('../lib/chatNotify')]);
+      const threadId = user ? await svc.findMyThread(user.id) : null;
+      if (user && !threadId) return;
+      const list = await svc.fetchChat(threadId, !!user);
+      const seen = readKey(SEEN_KEY) || '1970-01-01';
+      const fresh = list.filter((m) => m.sender === 'staff' && m.createdAt > seen);
+      if (!alive) return;
+      setUnread(fresh.length);
+      if (fresh.length > notified.current) {
+        notified.current = fresh.length;
+        void note.showReplyNotification(fresh[fresh.length - 1].body);
+      }
+    };
+    void check().catch(() => undefined);
+    const id = window.setInterval(() => void check().catch(() => undefined), 30_000);
+    return () => {
+      alive = false;
+      window.clearInterval(id);
+    };
+  }, [chatOpen, user]);
+
+  return unread;
+}
 
 const ACTION_BASE =
   'w-12 h-12 rounded-[var(--r-md)] border shadow-hard flex items-center justify-center transition-all duration-[var(--t-fast)] hover:-translate-y-1 active:translate-y-0.5 active:shadow-press shrink-0 cursor-pointer motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705] focus-visible:ring-offset-2';
@@ -11,6 +65,14 @@ export const StickyContactButtons: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [messageOpen, setMessageOpen] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
+  const unread = useChatReplies(messageOpen);
+
+  // A tapped reply notification opens the chat.
+  useEffect(() => {
+    const openChat = () => setMessageOpen(true);
+    window.addEventListener('bc-open-chat', openChat);
+    return () => window.removeEventListener('bc-open-chat', openChat);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -120,7 +182,7 @@ export const StickyContactButtons: React.FC = () => {
           className="hidden lg:group-hover:inline-flex absolute right-14 px-2.5 py-1 rounded-[var(--r-xs)] bg-[#002147] text-white border border-white/20 text-xs font-mono font-bold shadow-hard-xs whitespace-nowrap transition-opacity duration-200 pointer-events-none"
           aria-hidden="true"
         >
-          Message
+          Chat
         </span>
         <button
           type="button"
@@ -128,11 +190,16 @@ export const StickyContactButtons: React.FC = () => {
             setOpen(false);
             setMessageOpen(true);
           }}
-          className={`${ACTION_BASE} bg-[#002147] text-white border-white/20 hover:bg-[#F2B705] hover:text-[#002147] hover:border-[#FAC623]`}
-          title="Send us a message"
-          aria-label="Send us a message"
+          className={`relative ${ACTION_BASE} bg-[#002147] text-white border-white/20 hover:bg-[#F2B705] hover:text-[#002147] hover:border-[#FAC623]`}
+          title="Chat with us"
+          aria-label={unread ? `Chat with us, ${unread} new ${unread === 1 ? 'reply' : 'replies'}` : 'Chat with us'}
         >
           <MessageSquarePlus className="w-5 h-5 shrink-0" />
+          {unread > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-[#C02E24] text-white text-[11px] font-bold grid place-items-center ring-2 ring-white">
+              {unread > 9 ? '9+' : unread}
+            </span>
+          )}
         </button>
       </div>
 
@@ -151,7 +218,7 @@ export const StickyContactButtons: React.FC = () => {
       </button>
       {messageOpen && (
         <Suspense fallback={null}>
-          <MessageUsModal onClose={() => setMessageOpen(false)} />
+          <ChatWidget onClose={() => setMessageOpen(false)} />
         </Suspense>
       )}
     </aside>
