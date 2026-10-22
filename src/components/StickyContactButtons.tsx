@@ -71,28 +71,6 @@ export const StickyContactButtons: React.FC = () => {
           </button>
         </div>
 
-        {/* Message us (name + phone form, replies shown to signed-in users) */}
-        <div className="group relative flex items-center">
-          <span
-            className="hidden lg:group-hover:inline-flex absolute right-14 px-2.5 py-1 rounded-[var(--r-xs)] bg-[#002147] text-white border border-white/20 text-xs font-mono font-bold shadow-hard-xs whitespace-nowrap transition-opacity duration-200 pointer-events-none"
-            aria-hidden="true"
-          >
-            Message
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              setOpen(false);
-              setMessageOpen(true);
-            }}
-            className={`${ACTION_BASE} bg-[#002147] text-white border-white/20 hover:bg-[#F2B705] hover:text-[#002147] hover:border-[#FAC623]`}
-            title="Send us a message"
-            aria-label="Send us a message"
-          >
-            <MessageSquarePlus className="w-5 h-5 shrink-0" />
-          </button>
-        </div>
-
         {/* 2. WhatsApp Button */}
         <div className="group relative flex items-center">
           <span
@@ -134,6 +112,28 @@ export const StickyContactButtons: React.FC = () => {
             <MapPin className="w-5 h-5 shrink-0 text-[#F2B705] group-hover:text-[#002147]" />
           </a>
         </div>
+      </div>
+
+      {/* Message us: always visible, sits just above the plus button (not inside its menu) */}
+      <div className="group relative flex items-center">
+        <span
+          className="hidden lg:group-hover:inline-flex absolute right-14 px-2.5 py-1 rounded-[var(--r-xs)] bg-[#002147] text-white border border-white/20 text-xs font-mono font-bold shadow-hard-xs whitespace-nowrap transition-opacity duration-200 pointer-events-none"
+          aria-hidden="true"
+        >
+          Message
+        </span>
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(false);
+            setMessageOpen(true);
+          }}
+          className={`${ACTION_BASE} bg-[#002147] text-white border-white/20 hover:bg-[#F2B705] hover:text-[#002147] hover:border-[#FAC623]`}
+          title="Send us a message"
+          aria-label="Send us a message"
+        >
+          <MessageSquarePlus className="w-5 h-5 shrink-0" />
+        </button>
       </div>
 
       {/* Mobile/tablet FAB: expands the three actions above it */}

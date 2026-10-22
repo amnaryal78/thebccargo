@@ -1,30 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plane, Truck, Receipt, Phone, MessageCircle, Navigation, UserRound } from 'lucide-react';
+import { Phone, MessageCircle, Navigation, UserRound } from 'lucide-react';
 import { SEOHead } from '../components/SEOHead';
 import { Button } from '../design/primitives/Button';
 import { Modal } from '../design/primitives/Modal';
 import { Spotlight } from '../components/ui/spotlight';
-import { LimitedText } from '../components/about/LimitedText';
 import { StoryJourney } from '../components/about/StoryJourney';
-
-const WHAT_WE_DO = [
-  {
-    Icon: Plane,
-    title: 'Air cargo and courier',
-    text: 'We send parcels and cargo by air from Kathmandu to countries around the world.',
-  },
-  {
-    Icon: Truck,
-    title: 'Road and sea cargo',
-    text: 'Bigger loads travel by truck and ship. We book the space and follow it to the end.',
-  },
-  {
-    Icon: Receipt,
-    title: 'Electronic Bill & Tracking',
-    text: 'You will receive an electronic bill with a tracking number later, which you can use to track your product. We also save your bill in our database, so you will get an extra discount on your repeat shipments with us.',
-  },
-];
 
 const CONTACTS = [
   { Icon: Phone, label: 'Call us', value: '057-591816', href: 'tel:+977057591816', external: false },
@@ -130,27 +111,6 @@ export const AboutPage: React.FC = () => {
               </Link>
             </div>
           </header>
-
-          <section className="space-y-5" aria-labelledby="what-we-do">
-            <h2 id="what-we-do" className="font-heading font-extrabold text-2xl tracking-tight">What we do</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
-              {WHAT_WE_DO.map(({ Icon, title, text }) => (
-                <Spotlight
-                  key={title}
-                  intensity="normal"
-                  className="h-full p-6 bg-[var(--surface)] border border-[var(--line)] rounded-[var(--r-md)] shadow-hard-sm overflow-hidden"
-                >
-                  <div className="flex flex-col gap-3 h-full">
-                    <span className="w-10 h-10 rounded-[var(--r-xs)] bg-[var(--surface-muted)] border border-[var(--line)] text-[var(--oxford-deep)] flex items-center justify-center shrink-0">
-                      <Icon className="w-5 h-5" aria-hidden="true" />
-                    </span>
-                    <h3 className="font-heading font-bold text-lg leading-snug md:min-h-[3.25rem]">{title}</h3>
-                    <LimitedText text={text} lines={3} />
-                  </div>
-                </Spotlight>
-              ))}
-            </div>
-          </section>
 
           <section className="space-y-5" aria-labelledby="our-team">
             <h2 id="our-team" className="font-heading font-extrabold text-2xl tracking-tight">Our team</h2>

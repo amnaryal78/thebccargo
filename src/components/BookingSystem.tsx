@@ -13,9 +13,6 @@ import {
   CheckCircle2,
   FileText,
   AlertCircle,
-  Truck,
-  Plane,
-  Ship,
   Box,
   DollarSign
 } from 'lucide-react';
@@ -332,43 +329,6 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
               <span className="px-2.5 py-1 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-xs font-mono font-bold text-[var(--text)] shadow-hard-xs">
                 Stage 1 / 4
               </span>
-            </div>
-
-            {/* Service Mode Selector */}
-            <div>
-              <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1.5">
-                Primary Transport Mode *
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[
-                  { id: 'air', label: 'Air Freight Express', desc: 'Hetauda HQ & TIA Gateway departure to 190+ countries', icon: Plane },
-                  { id: 'overland', label: 'Cross-Border Road', desc: 'Container linehaul to India & border dry ports', icon: Truck },
-                  { id: 'ocean', label: 'Ocean Container', desc: 'Intermodal rail & sea container shipping', icon: Ship },
-                ].map((mode) => {
-                  const Icon = mode.icon;
-                  const isSelected = serviceMode === mode.id;
-                  return (
-                    <button
-                      key={mode.id}
-                      type="button"
-                      onClick={() => setServiceMode(mode.id as ServiceMode)}
-                      className={`p-4 text-left rounded-lg border transition-all duration-[var(--t-fast)] cursor-pointer shadow-sm hover:border-slate-400 hover:-translate-y-0.5 active:translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--gold)] flex flex-col justify-between ${
-                        isSelected
-                          ? 'bg-[var(--oxford-deep)] text-white border-transparent font-bold shadow-hard-sm'
-                          : 'bg-white text-[var(--text)] border-slate-200'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-heading font-bold text-xs uppercase tracking-wider">{mode.label}</span>
-                        <Icon className="w-4 h-4 shrink-0" />
-                      </div>
-                      <span className={`text-[11px] mt-1 ${isSelected ? 'text-white/80' : 'text-slate-600'}`}>
-                        {mode.desc}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
             </div>
 
             {/* Pickup & Destination Details */}
