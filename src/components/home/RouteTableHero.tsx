@@ -1,14 +1,10 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { canRender3D } from '../../lib/device-capability';
-import { RouteTable2D } from './RouteTable2D';
+import React, { useState } from 'react';
+import { RouteJourney } from './RouteJourney';
 import { RouteLocation } from './route-data';
 import { Button } from '../../design/primitives/Button';
 import { Input } from '../../design/primitives/Input';
 import { Search, ArrowRight, ShieldCheck, Clock, BookOpen, Handshake } from 'lucide-react';
-
-const RouteTable3DLazy = lazy(() =>
-  import('./RouteTable3D').then((m) => ({ default: m.RouteTable3D }))
-);
+import { Cta3D } from '../ui/Cta3D';
 
 interface RouteTableHeroProps {
   onNavigate: (page: string) => void;
@@ -19,16 +15,7 @@ export const RouteTableHero: React.FC<RouteTableHeroProps> = ({
   onNavigate,
   onSearchTrack,
 }) => {
-  const [use3D, setUse3D] = useState(true);
   const [trackingNumber, setTrackingNumber] = useState('');
-
-  useEffect(() => {
-    // Tactical 3D Globe is lightweight SVG; supported across mobile & desktop unless reduced motion is active
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-    setUse3D(!prefersReducedMotion);
-  }, []);
 
   const handleTrackSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,30 +54,17 @@ export const RouteTableHero: React.FC<RouteTableHeroProps> = ({
 
           {/* Operational logistics copy */}
           <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed max-w-xl">
-            Fast, safe cargo and courier from Hetauda to 190+ countries. We handle customs and you can track every parcel.
+            Fast, safe cargo and courier from Hetauda to countries worldwide. We handle customs and you can track every parcel.
           </p>
 
           {/* Three actions: Price, Become a partner, How to ship (text link) */}
           <div className="flex flex-wrap items-center gap-3 pt-1">
-            <Button
-              variant="primary"
-              size="lg"
-              magnetic
-              onClick={() => handleGetEstimate()}
-              rightIcon={<ArrowRight className="w-4 h-4 shrink-0" />}
-              className="text-xs sm:text-sm"
-            >
-              Price
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => onNavigate('become-a-partner')}
-              leftIcon={<Handshake className="w-4 h-4 shrink-0" />}
-              className="text-xs sm:text-sm"
-            >
-              Become a Partner
-            </Button>
+            <Cta3D onClick={() => handleGetEstimate()} icon={<ArrowRight aria-hidden="true" />}>
+              Check price
+            </Cta3D>
+            <Cta3D tone="light" onClick={() => onNavigate('become-a-partner')} icon={<Handshake aria-hidden="true" />}>
+              Become a partner
+            </Cta3D>
             <button
               type="button"
               onClick={() => onNavigate('how-to-ship')}
@@ -143,21 +117,9 @@ export const RouteTableHero: React.FC<RouteTableHeroProps> = ({
           </div>
         </div>
 
-        {/* Right Column: Interactive Route Table (2D Android / 3D Desktop) */}
-        <div className="lg:col-span-7 w-full flex flex-col">
-          {use3D ? (
-            <Suspense fallback={<RouteTable2D onGetEstimate={handleGetEstimate} onBookPickup={handleBookPickup} />}>
-              <RouteTable3DLazy
-                onGetEstimate={handleGetEstimate}
-                onBookPickup={handleBookPickup}
-              />
-            </Suspense>
-          ) : (
-            <RouteTable2D
-              onGetEstimate={handleGetEstimate}
-              onBookPickup={handleBookPickup}
-            />
-          )}
+        {/* Right Column: animated Nepal -> destination journeys (no globe: nothing captures touch scrolling) */}
+        <div className="lg:col-span-7 w-full min-w-0 flex flex-col">
+          <RouteJourney onGetEstimate={handleGetEstimate} onBookPickup={handleBookPickup} />
         </div>
 
       </div>

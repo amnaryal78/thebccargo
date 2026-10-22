@@ -67,7 +67,7 @@ export const PartnerSlider: React.FC = () => {
       badge: 'Postal & Cargo Gateway',
       brandBg: '#002D62',
       brandText: '#FFD700',
-      description: 'Global 190+ country diplomatic and parcel express network'
+      description: 'International parcel express network'
     },
     {
       name: 'SF Express',

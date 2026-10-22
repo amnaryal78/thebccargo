@@ -299,7 +299,7 @@ export async function processChatMessage(
       return {
         id: `bot-${Date.now()}`,
         sender: 'assistant',
-        text: 'We only pick up shipments within Nepal. We deliver worldwide to 190+ countries. We do not pick up from outside Nepal.',
+        text: 'We only pick up shipments within Nepal. We deliver worldwide. We do not pick up from outside Nepal.',
         timestamp: new Date().toISOString(),
         actions: [ACTION_WHATSAPP, ACTION_PRICE],
       };

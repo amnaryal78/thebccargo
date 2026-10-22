@@ -4,6 +4,45 @@ Purpose: durable, low-token project memory for coding-agent sessions. Keep entri
 
 ## Latest Entry
 
+### 2026-10-23 — SEO audit + truthfulness pass (local only, NOT pushed) (Claude Code)
+- **Found:** prerender published fabricated job pages (JobPosting), 3 non-existent articles with an invented author, unverified claims (220+/190+, #B-409, SLA, "since 2012"); client JSON-LD re-added geo/postal/priceRange/08-19h hours; client SEO overwrote prerendered titles and `/track`+`/book` kept `/contact`'s canonical.
+- **Now:** one metadata source (`src/data/pageMeta.ts`, `business.ts`, services from `servicesData.ts`), prerender + pages read it. 301s for old corridor/rates/career/blog URLs (vercel.json + App.tsx). Sitemap/prerender include published Supabase posts. `seo:check` now fails on unverified claims/JobPosting/duplicate h1/redirected sitemap URLs.
+- **Verified:** tsc clean, 205/205 tests, build + seo:check + budget pass, browser sweep of 16 routes. **Not verified:** Lighthouse, Rich Results Test, Vercel redirects live.
+- **Open:** see `SEO_AUDIT.md` section 6 (owner facts: #B-409 still in footer/bills/chatbot, service catalog claims, delivery times). Checklist: `docs/SEO_CHECKLIST.md`.
+
+### 2026-10-22 (evening) — Local languages for all non-English destinations (Claude Code)
+- Added 22 packs in `src/data/countryGuides/local/` (fr es it pt pl ro el nl cs da hu sk sl sv bg hr et fi lt lv mt fil) via the shared `local/eu.ts` helper: 26 more guides, 38 in total. English-speaking routes (UK, USA, Canada, Australia, New Zealand, Ireland) have no extra button. Machine-written, not native-reviewed.
+
+### 2026-10-22 (later) — Guide fixes: images, 3D globe, local languages, pickup rule (Claude Code)
+- **Images:** flags now self-hosted (`public/flags/*.svg`, `components/ui/Flag.tsx`, `flagUrl()`); `BlogCover` shows a branded cover when a post image fails; CSP `img-src` now allows `*.gstatic.com` (blog covers are Google image links). The old `public/flags/*.png` were never committed, so the live site never had them.
+- **Guide page:** hero is a lazy Three.js globe (`Globe3D.tsx`, land mask in `landMask.ts`, flat SVG map as fallback); journey number circles no longer sit inside the animated box (that caused the jump); prices on hero/cards are the per-kg rate for 20 kg+ (10 kg+ if the sheet has no 20+ row); home page shows 6 main routes only.
+- **Local languages:** `src/data/countryGuides/local/{ko,ja,zh,ms,ar,de}.ts` cover Korea, Japan, Taiwan, Hong Kong, Malaysia, UAE, Saudi, Qatar, Kuwait, Bahrain, Germany, Austria. Not yet native-reviewed. Add more by writing a pack and listing the slug in `localLangs.ts`.
+- **Pickup rule (owner policy):** free only in Hetauda and Birgunj for parcels above 20 kg, else Rs 200 (`estimator/pickup.ts`, used by the estimator and guide text).
+- **Services card:** "Air cargo" is now "Safe courier to every country".
+
+### 2026-10-22 — Country shipping guides, 43 countries (local only, NOT pushed) (Claude Code)
+- **Built:** `/blogs/nepal-to-<country>` guides from typed bilingual content in `src/data/countryGuides/` (no schema change). Page in `src/features/countryGuides/`; `/blogs/:slug` goes through `BlogSlugPage` (guide or Supabase post). Prices only from `fetchSheetRates` + `calculateSheetShipmentQuote`; no prices or transit days in content (enforced by `tests/country-guides.test.ts`).
+- **SEO:** prerender + sitemap load guides via `scripts/country-guides.mjs` (jiti, installed with Tailwind). 43 prerendered pages with Article + FAQPage JSON-LD.
+- **Verified:** tsc clean, 200/200 tests, build + budget pass, browser check of Korea/UK/Japan at 360px and 1440px, EN/NE switch, meat toggle rules, old posts still render.
+- **Open:** Malaysia is in both "Gulf Country" and "Malasiya" sheet groups (estimator picks whichever row comes first). Prerender still lists 3 old blog slugs that are not in the DB.
+
+### 2026-10-20 — SEO / AI-search / a11y audit (local only, NOT pushed) (Claude Code)
+- **Done locally:** real 404s (vercel.json explicit SPA rewrites + dist/404.html noindex), public/llms.txt, robots.txt AI-bot allows, sitemap adds /how-to-ship + git-based lastmod, BreadcrumbList on all pages + WebSite on home, richer crawlable prerender fallback (internal links), titles <=60 chars, Korea 10d / Japan 15d aligned in landing data + meta, heading-order/contrast/label fixes, tests/seo-static.test.ts.
+- **Verified:** tsc clean, 189/189 tests, seo-check passes, local Lighthouse mobile a11y/BP/SEO 100 on 6 pages, desktop 100/100/100/100.
+- **Not verified:** vercel.json 404 rewrites only testable after deploy. Publish only when the owner says so.
+
+### 2026-10-20 — Globe replaced by animated route journey (Claude Code)
+- **Why:** the 3D globe captured touch gestures and disturbed scrolling on Android. Removed TacticalGlobe3D, RouteTable3D, RouteTable2D, dotted-map assets and the CDN world-atlas data.
+- **Now:** src/components/home/RouteJourney.tsx + route-journey.css (7 s CSS loop per country: truck -> parcel -> plane arc -> landing + delivered tick, then fade, next country). Countries = SHOWN_COUNTRIES (journey-data.ts). Delivery time chip uses route-data transitTime (3-5 business days etc.), not a fixed 10/15 days. Chips, list view and DestinationPanel kept. Flags for the 20 shown countries are self-hosted in public/flags (flagUrl in data/countries.ts).
+- **Perf (live):** home mobile 93-95, desktop 100.
+
+### 2026-10-20 — Deploy to Vercel + PageSpeed pass + boot loader (Claude Code)
+- **Deploy:** Vercel project "thebccargo" builds GitHub repo amnaryal78/thebccargo (main). This local repo has NO git remote; pushes were made by committing a tree on top of origin/main (no force). Only build/runtime files go to that repo (no docs/, bc-cargo-docs/, QA scripts, CLAUDE.md). Dashboard domain redirect must be www -> apex (a stale apex -> www rule caused a redirect loop). vercel.json: cleanUrls false (Google verification .html must not redirect), SPA rewrite destination "/" (not /index.html), long cache headers for static media.
+- **Auth:** Supabase Auth Site URL must be https://thebccargo.com (it was http://localhost:3000, so Google login bounced to localhost). Not changeable from code.
+- **Boot loader:** index.html paints a branded cargo-journey overlay (#bc-boot); src/boot/* reports real progress (app, route, fonts) and removes it. Prerendered #root is hidden (html.bc-booting) until ready to avoid layout shift. RouteLoader replaces the old spinner for route changes.
+- **Perf (Lighthouse, live):** home mobile 66 -> 93-94, desktop 97 -> 100. Wins: React jsx-runtime no longer drags framer-motion into the entry (vite codeSplitting groups), Supabase client + home sections + chatbot lazy, runtime dotted-map (394 KB) replaced by static PNG mask, globe deferred to interaction/6s and self-hosted data, main.tsx paints loader then imports ./bootstrap, responsive logo webp, optimised PNG icons, font preload.
+- **Open:** inner pages /rates and /faq score 83-86 on mobile (LCP 3.6-3.9 s sim). Lab Speed Index (~4.2 s) is inflated by the loader staying up until ready. Supabase reviews query returns HTTP 400 (pre-existing).
+
 ### 2026-10-18 — Pre-launch SEO/content audit + shipment form (Claude Code)
 - **Removed:** demo INITIAL_SHIPMENTS tracking fallback (fake AWBs), cursor-chip claims "15% off", "Free doorstep pickup", "Customs License #B-409" default.
 - **Prerender:** one description per page (was duplicated), HTML-escaped meta, crawlable h1+summary+links fallback in #root, JSON-LD contact fixed to School Road -4 / 057-591816 / thebccargo@gmail.com, unverified geo/hours/postal/priceRange dropped.

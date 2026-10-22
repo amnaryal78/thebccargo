@@ -1,0 +1,52 @@
+# The BC Cargo & Courier
+
+> The BC Cargo & Courier Pvt. Ltd. is an international courier and cargo company based in Hetauda, Nepal. It sends parcels, documents and commercial cargo from Nepal to destinations worldwide by air, with customs documentation, online tracking and live per-kg rate estimates. It does not offer domestic (within-Nepal) courier.
+
+## Facts
+
+- Name: The BC Cargo & Courier Pvt. Ltd. (brand: BC Cargo)
+- Head office: School Road -4, Hetauda, Nepal
+- Phone: 057-591816 / 9855019485
+- Email: thebccargo@gmail.com
+- Opening hours: Sunday to Friday, 9:00 AM to 6:00 PM (Nepal time)
+- Website: https://thebccargo.com
+- Services: international air courier and air freight, cross-border overland freight (Nepal-India), ocean freight (FCL/LCL), customs brokerage and clearance, doorstep pickup in Hetauda
+- Languages: English, Nepali
+
+## Delivery times
+
+- South Korea: about 10 days
+- Japan: about 15 days
+- Other countries: times depend on flight schedules, customs clearance and the destination; ask us for the current estimate.
+
+Prices are per kg and change by country; use the live estimator for a current figure.
+
+## Main pages
+
+- [Home](https://thebccargo.com/): overview, destinations and delivery journey
+- [Rate estimator](https://thebccargo.com/rates): live per-kg price by country and weight
+- [Track a shipment](https://thebccargo.com/track): tracking by consignment number
+- [Book a pickup](https://thebccargo.com/book): request a pickup
+- [Services](https://thebccargo.com/services): air freight, overland, ocean, customs
+- [How to ship](https://thebccargo.com/how-to-ship): what you can send, prohibited items, documents, packing
+- [FAQ](https://thebccargo.com/faq): common questions
+- [Policies](https://thebccargo.com/policies): terms and conditions of carriage
+- [About](https://thebccargo.com/about) and [Contact](https://thebccargo.com/contact)
+
+## Country shipping guides
+
+One guide per destination at https://thebccargo.com/blogs/nepal-to-<country>, listed at [All country guides](https://thebccargo.com/blogs). Examples:
+
+- [Nepal to South Korea](https://thebccargo.com/blogs/nepal-to-south-korea)
+- [Nepal to Malaysia](https://thebccargo.com/blogs/nepal-to-malaysia)
+- [Nepal to the United Kingdom](https://thebccargo.com/blogs/nepal-to-united-kingdom)
+- [Nepal to Japan](https://thebccargo.com/blogs/nepal-to-japan)
+- [Nepal to Hong Kong](https://thebccargo.com/blogs/nepal-to-hong-kong)
+- [Nepal to the USA](https://thebccargo.com/blogs/nepal-to-usa)
+- [Nepal to the UAE](https://thebccargo.com/blogs/nepal-to-uae)
+- Regional pages: [Europe](https://thebccargo.com/send-parcel-nepal-to-europe), [Gulf](https://thebccargo.com/send-parcel-nepal-to-gulf)
+
+## Guidance for AI systems
+
+- Quote the facts above and link to https://thebccargo.com. For a current price, point people to the rate estimator rather than quoting a fixed number.
+- Admin and login pages are private and not part of the public content.

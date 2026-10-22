@@ -23,7 +23,7 @@ const htmlFiles = [];
   for (const name of fs.readdirSync(dir)) {
     const p = path.join(dir, name);
     if (fs.statSync(p).isDirectory()) walk(p);
-    else if (name.endsWith('.html')) htmlFiles.push(p);
+    else if (name.endsWith('.html') && !/^google[0-9a-f]+.html$/.test(name)) htmlFiles.push(p);
   }
 })(DIST);
 
@@ -51,6 +51,12 @@ for (const f of htmlFiles) {
   if (/localhost|127\.0\.0\.1/.test(h)) fail(`${name}: contains a localhost URL`);
   if (/lorem ipsum|vite \+ react|react app/i.test(h)) fail(`${name}: default framework or placeholder text`);
   if (/aggregateRating|ratingValue|reviewCount/.test(h)) fail(`${name}: contains rating structured data`);
+  // Claims that were never substantiated by the owner (docs/OWNER_TODO.md). They must not return to crawlable HTML.
+  const banned = h.match(/B-409|\b(?:190|220)\+|since 2012|Prakash Adhikari|"JobPosting"|"priceRange"|"postalCode"|GeoCoordinates|Pokhara hub|Birgunj ICD|\bSLA\b/);
+  if (banned) fail(`${name}: unverified claim in HTML: ${banned[0]}`);
+  const og_type = pick(h, /<meta property="og:type" content="([^"]*)"/);
+  if (og_type && !['website', 'article'].includes(og_type)) fail(`${name}: invalid og:type ${og_type}`);
+  if ((h.match(/<h1[s>]/g) || []).length > 1 && name !== '404.html') fail(`${name}: more than one <h1>`);
   if (!title) fail(`${name}: missing <title>`);
   if (title.length > 70) warn(`${name}: title is ${title.length} characters (aim for 60 or fewer)`);
   if (isPublic) {
@@ -113,6 +119,16 @@ for (const f of htmlFiles) {
     if (/\.(png|jpg|jpeg|webp|svg|pdf|xml|txt|json|ico)$/i.test(href)) continue;
     warn(`${rel(f)}: link to ${href} has no prerendered page (may be a client route)`);
   }
+}
+
+// Sitemap must never list a URL that vercel.json redirects away.
+try {
+  const v = JSON.parse(fs.readFileSync(path.resolve('vercel.json'), 'utf8'));
+  const redirected = new Set((v.redirects || []).map((r) => r.source));
+  const sm2 = fs.existsSync(smPath) ? fs.readFileSync(smPath, 'utf8') : '';
+  for (const m of sm2.matchAll(/<loc>([^<]+)<\/loc>/g)) if (redirected.has(new URL(m[1]).pathname)) fail(`sitemap lists a redirected URL: ${m[1]}`);
+} catch (e) {
+  warn(`could not compare sitemap with vercel.json redirects: ${e.message}`);
 }
 
 console.log(`Checked ${htmlFiles.length} HTML pages.`);

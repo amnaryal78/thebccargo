@@ -14,6 +14,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { DEFAULT_FAQS, FaqItem } from '../components/FaqSection';
 import { SEOHead } from '../components/SEOHead';
 import { Spotlight } from '../components/ui/spotlight';
+import { PAGE_META } from '../data/pageMeta';
 
 const CATEGORIZED_FAQS: FaqItem[] = [
   ...DEFAULT_FAQS.map((f, i) => ({
@@ -25,7 +26,7 @@ const CATEGORIZED_FAQS: FaqItem[] = [
     id: 'FAQ-7',
     category: 'Customs & Air Freight',
     question: 'How does customs clearance work for export from Nepal?',
-    answer: 'Every commercial shipment leaving Nepal passes through the Department of Customs. Our licensed in-house customs brokers (License #B-409) submit the required electronic declarations (Pragyapan Patra) directly through the ASYCUDA World system, ensuring rapid export approval at TIA Kathmandu or Birgunj Dry Port without procedural hold-ups.'
+    answer: 'Every commercial shipment leaving Nepal passes through the Department of Customs. Our in-house customs team submits the required electronic declarations (Pragyapan Patra) directly through the ASYCUDA World system, ensuring rapid export approval at TIA Kathmandu or Birgunj Dry Port without procedural hold-ups.'
   },
   {
     id: 'FAQ-8',
@@ -115,8 +116,8 @@ export const FaqPage: React.FC = () => {
   return (
     <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full flex flex-col gap-10">
       <SEOHead
-        title="Frequently Asked Questions (FAQ) | The BC Cargo & Courier"
-        description="Comprehensive answers to common questions regarding customs brokerage, cargo rates, package tracking, dimensional weight, and transit times across Nepal and 220+ destinations."
+        title={PAGE_META['/faq'].title}
+        description={PAGE_META['/faq'].description}
         jsonLd={faqSchema}
       />
 
@@ -130,7 +131,7 @@ export const FaqPage: React.FC = () => {
           Frequently Asked Questions
         </h1>
         <p className="text-sm sm:text-base text-[var(--text-secondary)]">
-          Everything you need to know about air waybills, customs documents (#B-409), dimensional weight, freight billing, and tracking your package.
+          Everything you need to know about air waybills, customs documents, dimensional weight, freight billing, and tracking your package.
         </p>
       </div>
 
@@ -188,9 +189,9 @@ export const FaqPage: React.FC = () => {
         {filteredFaqs.length === 0 ? (
           <div className="p-10 text-center flex flex-col items-center gap-3 bg-[var(--surface)] rounded-[var(--r-md)] border border-[var(--line)] shadow-hard-sm">
             <FileQuestion className="w-10 h-10 text-[var(--text-muted)]" />
-            <h4 className="font-heading font-bold text-base text-[var(--text)]">
+            <h2 className="font-heading font-bold text-base text-[var(--text)]">
               No Questions Found
-            </h4>
+            </h2>
             <p className="text-xs text-[var(--text-secondary)] max-w-md">
               No FAQs matched "{searchQuery}". Try different keywords or contact our dispatch team directly on WhatsApp or telephone.
             </p>
@@ -246,9 +247,9 @@ export const FaqPage: React.FC = () => {
             <PhoneCall className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="font-heading font-bold text-base sm:text-lg text-[var(--text)]">
+            <h2 className="font-heading font-bold text-base sm:text-lg text-[var(--text)]">
               Still have specific cargo questions?
-            </h4>
+            </h2>
             <p className="text-xs text-[var(--text-secondary)] mt-0.5">
               Our central operations team at School Road -4, Hetauda is available 6 days a week.
             </p>

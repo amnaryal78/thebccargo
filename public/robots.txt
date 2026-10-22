@@ -8,5 +8,19 @@ Disallow: /admin
 Disallow: /login
 Disallow: /_kit
 
+# AI search and answer engines are welcome to read the public pages (see also /llms.txt)
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /admin
+Disallow: /login
+Disallow: /_kit
+
 # Official Sitemap Location
 Sitemap: https://thebccargo.com/sitemap.xml

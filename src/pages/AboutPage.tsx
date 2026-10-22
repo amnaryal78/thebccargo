@@ -1,30 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plane, Truck, Receipt, Phone, MessageCircle, Navigation, UserRound } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { Phone, MessageCircle, Navigation, UserRound, ExternalLink, Calculator, ArrowRight } from 'lucide-react';
 import { SEOHead } from '../components/SEOHead';
-import { Button } from '../design/primitives/Button';
 import { Modal } from '../design/primitives/Modal';
 import { Spotlight } from '../components/ui/spotlight';
-import { LimitedText } from '../components/about/LimitedText';
+import { Cta3D } from '../components/ui/Cta3D';
 import { StoryJourney } from '../components/about/StoryJourney';
-
-const WHAT_WE_DO = [
-  {
-    Icon: Plane,
-    title: 'Air cargo and courier',
-    text: 'We send parcels and cargo by air from Kathmandu to countries around the world.',
-  },
-  {
-    Icon: Truck,
-    title: 'Road and sea cargo',
-    text: 'Bigger loads travel by truck and ship. We book the space and follow it to the end.',
-  },
-  {
-    Icon: Receipt,
-    title: 'Electronic Bill & Tracking',
-    text: 'You will receive an electronic bill with a tracking number later, which you can use to track your product. We also save your bill in our database, so you will get an extra discount on your repeat shipments with us.',
-  },
-];
+import { PAGE_META } from '../data/pageMeta';
 
 const CONTACTS = [
   { Icon: Phone, label: 'Call us', value: '057-591816', href: 'tel:+977057591816', external: false },
@@ -45,16 +28,27 @@ interface Member {
   /** Put a photo at public/team/<slug>.jpg and it shows up here automatically. */
   photo: string;
   duties: string[];
+  /** Short labels shown on the team card; the full duties are in the profile. */
+  highlights: string[];
   qualification?: string[];
+  phone?: { label: string; href: string };
+  portfolio?: string;
 }
 
 const TEAM: Member[] = [
   {
     slug: 'ramesh-aryal',
     name: 'Ramesh Aryal',
-    role: 'Founder and owner',
+    role: 'Founder & Owner',
     photo: '/team/ramesh-aryal.jpg',
-    duties: ['Managing clients', 'Answering calls', 'Handling the office', 'Packaging products', 'Creating bills'],
+    duties: [
+      'Sets the business strategy, prices and services',
+      'Builds and keeps relationships with clients and overseas partners',
+      'Oversees daily operations at the Hetauda office',
+      'Makes sure every parcel meets our service standard',
+      'Leads and develops the team',
+    ],
+    highlights: ['Strategy', 'Client relationships', 'Team leadership'],
   },
   {
     slug: 'ayush-aryal',
@@ -68,6 +62,9 @@ const TEAM: Member[] = [
       'Managing electronic data',
       'Finance report',
     ],
+    highlights: ['Website & apps', 'Database', 'Social media', 'Finance'],
+    phone: { label: '9823716862', href: 'tel:+9779823716862' },
+    portfolio: 'https://dumarwana.vercel.app',
     qualification: [
       'Studying Grade 12 at NRMV Simara',
       'Deep knowledge of computers and technology',
@@ -79,14 +76,14 @@ const TEAM: Member[] = [
 /** Shows the member's photo, or their initials until a photo is added. */
 const Avatar: React.FC<{ member: Member; size: 'md' | 'lg' }> = ({ member, size }) => {
   const [failed, setFailed] = useState(false);
-  const box = size === 'lg' ? 'w-28 h-28 text-3xl' : 'w-16 h-16 text-xl';
+  const box = size === 'lg' ? 'w-28 h-28 text-3xl rounded-full' : 'w-24 h-24 sm:w-28 sm:h-28 text-2xl rounded-[var(--r-md)]';
   const initials = member.name
     .split(' ')
     .map((n) => n[0])
     .join('');
   return failed ? (
     <span
-      className={`${box} rounded-full bg-[var(--oxford-deep,#002147)] text-[var(--gold)] font-heading font-extrabold flex items-center justify-center shrink-0`}
+      className={`${box} bg-[var(--oxford-deep,#002147)] text-[var(--gold)] font-heading font-extrabold flex items-center justify-center shrink-0`}
       aria-hidden="true"
     >
       {initials}
@@ -96,19 +93,39 @@ const Avatar: React.FC<{ member: Member; size: 'md' | 'lg' }> = ({ member, size 
       src={member.photo}
       alt={member.name}
       onError={() => setFailed(true)}
-      className={`${box} rounded-full object-cover border border-[var(--line)] shrink-0`}
+      width={112}
+      height={112}
+      loading="lazy"
+      decoding="async"
+      className={`${box} object-cover border border-[var(--line-strong)] shadow-[0_8px_20px_-12px_rgba(0,33,71,0.45)] shrink-0`}
     />
   );
 };
 
+/** Shared CTA styles: real links styled as buttons (no button nested inside a link). */
+const CTA_PRIMARY =
+  'inline-flex items-center justify-center gap-2 min-h-[48px] px-6 rounded-[var(--r-sm)] bg-[var(--gold)] text-[#002147] font-heading font-extrabold text-sm whitespace-nowrap shadow-[0_4px_0_#002147] hover:bg-[#FAC623] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none transition-all motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#002147] focus-visible:ring-offset-2';
+const CTA_OUTLINE =
+  'inline-flex items-center justify-center gap-2 min-h-[48px] px-6 rounded-[var(--r-sm)] border-2 border-[#002147]/30 bg-white/60 text-[#002147] font-heading font-extrabold text-sm whitespace-nowrap hover:border-[#002147] hover:bg-white active:scale-[0.98] transition-all motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705] focus-visible:ring-offset-2';
+
 export const AboutPage: React.FC = () => {
   const [open, setOpen] = useState<Member | null>(null);
+  const reduce = !!useReducedMotion();
+  const reveal = (i: number) =>
+    reduce
+      ? {}
+      : {
+          initial: { opacity: 0, y: 18 },
+          whileInView: { opacity: 1, y: 0 },
+          viewport: { once: true, amount: 0.3 },
+          transition: { duration: 0.55, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] as const },
+        };
 
   return (
     <div className="w-full bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)]">
       <SEOHead
-        title="About Us | The BC Cargo & Courier"
-        description="The BC Cargo & Courier (The Black Coffee Cargo & Courier) sends parcels and cargo from Hetauda, Nepal to countries around the world."
+        title={PAGE_META['/about'].title}
+        description={PAGE_META['/about'].description}
       />
 
       <div className="px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 pb-16 sm:pb-20">
@@ -122,57 +139,77 @@ export const AboutPage: React.FC = () => {
               tell you where your parcel is.
             </p>
             <div className="flex flex-wrap gap-3 pt-1">
-              <Link to="/rates">
-                <Button variant="primary">Price</Button>
-              </Link>
-              <Link to="/contact">
-                <Button variant="outline">Contact us</Button>
-              </Link>
+              <Cta3D to="/rates" icon={<Calculator aria-hidden="true" />}>
+                Check price
+              </Cta3D>
+              <Cta3D to="/contact" tone="light" icon={<ArrowRight aria-hidden="true" />}>
+                Contact us
+              </Cta3D>
             </div>
           </header>
 
-          <section className="space-y-5" aria-labelledby="what-we-do">
-            <h2 id="what-we-do" className="font-heading font-extrabold text-2xl tracking-tight">What we do</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
-              {WHAT_WE_DO.map(({ Icon, title, text }) => (
-                <Spotlight
-                  key={title}
-                  intensity="normal"
-                  className="h-full p-6 bg-[var(--surface)] border border-[var(--line)] rounded-[var(--r-md)] shadow-hard-sm overflow-hidden"
-                >
-                  <div className="flex flex-col gap-3 h-full">
-                    <span className="w-10 h-10 rounded-[var(--r-xs)] bg-[var(--surface-muted)] border border-[var(--line)] text-[var(--oxford-deep)] flex items-center justify-center shrink-0">
-                      <Icon className="w-5 h-5" aria-hidden="true" />
-                    </span>
-                    <h3 className="font-heading font-bold text-lg leading-snug md:min-h-[3.25rem]">{title}</h3>
-                    <LimitedText text={text} lines={3} />
-                  </div>
-                </Spotlight>
-              ))}
-            </div>
-          </section>
-
           <section className="space-y-5" aria-labelledby="our-team">
             <h2 id="our-team" className="font-heading font-extrabold text-2xl tracking-tight">Our team</h2>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {TEAM.map((m) => (
-                <li key={m.slug}>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {TEAM.map((m, i) => (
+                <motion.li key={m.slug} {...reveal(i)}>
                   <Spotlight
                     intensity="normal"
-                    className="p-5 bg-[var(--surface)] border border-[var(--line)] rounded-[var(--r-md)] shadow-hard-sm overflow-hidden"
+                    className="h-full bg-[var(--surface)] border border-[var(--line)] rounded-[var(--r-md)] shadow-hard-sm overflow-hidden"
                   >
-                    <div className="flex flex-wrap items-center gap-4 w-full">
-                      <Avatar member={m} size="md" />
-                      <div className="min-w-0 flex-1 basis-40">
-                        <p className="font-heading font-bold text-lg leading-tight">{m.name}</p>
-                        <p className="text-sm text-[var(--text-muted)]">{m.role}</p>
+                    <article className="flex flex-col gap-4 p-5 h-full">
+                      <div className="flex items-start gap-3.5 sm:gap-4">
+                        <div className="relative shrink-0">
+                          <Avatar member={m} size="md" />
+                          <span aria-hidden="true" className="absolute -bottom-1 left-3 right-3 h-1 rounded-full bg-[var(--gold)]" />
+                        </div>
+                        <div className="min-w-0 flex-1 pt-1">
+                          <h3 className="font-heading font-extrabold text-xl leading-tight text-[#002147]">{m.name}</h3>
+                          <p className="mt-0.5 text-sm font-semibold text-[var(--gold-dark)]">{m.role}</p>
+                          <ul className="mt-3 flex flex-wrap gap-1.5" aria-label={`What ${m.name.split(' ')[0]} looks after`}>
+                            {m.highlights.map((d) => (
+                              <li key={d} className="px-2 py-0.5 rounded-full bg-[#EEF3F9] text-[11.5px] font-medium text-[#123562] leading-snug">
+                                {d}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => setOpen(m)} leftIcon={<UserRound className="w-4 h-4" />}>
-                        View profile
-                      </Button>
-                    </div>
+                      <div className="mt-auto flex flex-wrap items-center gap-2 pt-3 border-t border-[var(--line)]">
+                        <button
+                          type="button"
+                          onClick={() => setOpen(m)}
+                          className="inline-flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-[var(--r-sm)] border border-[#002147]/25 text-[#002147] text-sm font-heading font-bold hover:border-[#002147] hover:bg-[#EEF3F9] active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
+                        >
+                          <UserRound className="w-4 h-4" aria-hidden="true" />
+                          <span>View profile</span>
+                        </button>
+                        {m.portfolio && (
+                          <a
+                            href={m.portfolio}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-[var(--r-sm)] bg-[#002147] text-white text-sm font-heading font-bold hover:bg-[#123562] active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705] focus-visible:ring-offset-2"
+                          >
+                            <span>Portfolio</span>
+                            <ExternalLink className="w-3.5 h-3.5 text-[#F2B705]" aria-hidden="true" />
+                            <span className="sr-only">(opens in a new tab)</span>
+                          </a>
+                        )}
+                        {m.phone && (
+                          <a
+                            href={m.phone.href}
+                            aria-label={`Call ${m.name}`}
+                            className="inline-flex items-center gap-1.5 min-h-[40px] px-2.5 rounded-[var(--r-sm)] text-sm font-mono text-[#002147] hover:bg-[#EEF3F9] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
+                          >
+                            <Phone className="w-4 h-4 text-[var(--gold-dark)]" aria-hidden="true" />
+                            <span>{m.phone.label}</span>
+                          </a>
+                        )}
+                      </div>
+                    </article>
                   </Spotlight>
-                </li>
+                </motion.li>
               ))}
             </ul>
           </section>
@@ -199,8 +236,8 @@ export const AboutPage: React.FC = () => {
           </h2>
 
           <ul className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {CONTACTS.map(({ Icon, label, value, href, external }) => (
-              <li key={label}>
+            {CONTACTS.map(({ Icon, label, value, href, external }, i) => (
+              <motion.li key={label} {...reveal(i)}>
                 <Spotlight
                   intensity="normal"
                   className="rounded-[var(--r-md)] border border-[#D5DEEA] bg-white shadow-sm overflow-hidden"
@@ -220,21 +257,17 @@ export const AboutPage: React.FC = () => {
                     </span>
                   </a>
                 </Spotlight>
-              </li>
+              </motion.li>
             ))}
           </ul>
 
           <div className="flex flex-wrap gap-3">
-            <a href="tel:+977057591816">
-              <Button variant="primary" size="lg" magnetic leftIcon={<Phone className="w-5 h-5" />}>
-                Call now
-              </Button>
-            </a>
-            <Link to="/rates">
-              <Button variant="outline" size="lg" className="!text-[#002147] !border-[#002147]/40">
-                Check price
-              </Button>
-            </Link>
+            <Cta3D href="tel:+977057591816" icon={<Phone aria-hidden="true" />}>
+              Call now
+            </Cta3D>
+            <Cta3D to="/rates" tone="light" icon={<Calculator aria-hidden="true" />}>
+              Check price
+            </Cta3D>
           </div>
         </div>
       </section>
@@ -258,6 +291,23 @@ export const AboutPage: React.FC = () => {
                 ))}
               </ul>
             </div>
+
+            {(open.phone || open.portfolio) && (
+              <div className="flex flex-wrap gap-2">
+                {open.phone && (
+                  <a href={open.phone.href} className={CTA_OUTLINE}>
+                    <Phone className="w-4 h-4 shrink-0" aria-hidden="true" />
+                    <span>{open.phone.label}</span>
+                  </a>
+                )}
+                {open.portfolio && (
+                  <a href={open.portfolio} target="_blank" rel="noopener noreferrer" className={CTA_PRIMARY}>
+                    <span>View portfolio</span>
+                    <ExternalLink className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  </a>
+                )}
+              </div>
+            )}
 
             {open.qualification && (
               <div>

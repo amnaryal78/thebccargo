@@ -10,8 +10,11 @@ import { Footer } from './components/Footer';
 import { CustomCursor } from './components/CustomCursor';
 import { AndroidBottomNav } from './components/AndroidBottomNav';
 import { StickyContactButtons } from './components/StickyContactButtons';
+import { RouteLoader } from './components/RouteLoader';
+import { BootSignal } from './boot/BootSignal';
 
 // Code-Split Lazy Loaded Page & Section Components for Core Web Vitals Optimization
+const MessagesPage = lazy(() => import('./pages/MessagesPage').then(m => ({ default: m.MessagesPage })));
 const TrackingSection = lazy(() => import('./components/TrackingSection').then(m => ({ default: m.TrackingSection })));
 const BookingSystem = lazy(() => import('./components/BookingSystem').then(m => ({ default: m.BookingSystem })));
 const ServicesSuite = lazy(() => import('./components/ServicesSuite').then(m => ({ default: m.ServicesSuite })));
@@ -21,7 +24,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m
 const RatesPage = lazy(() => import('./pages/RatesPage').then(m => ({ default: m.RatesPage })));
 const ServiceDetailPage = lazy(() => import('./pages/ServiceDetailPage').then(m => ({ default: m.ServiceDetailPage })));
 const BlogListPage = lazy(() => import('./pages/BlogListPage').then(m => ({ default: m.BlogListPage })));
-const BlogPostPage = lazy(() => import('./pages/BlogPostPage').then(m => ({ default: m.BlogPostPage })));
+const BlogSlugPage = lazy(() => import('./pages/BlogSlugPage').then(m => ({ default: m.BlogSlugPage })));
 const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
 const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
 const PoliciesPage = lazy(() => import('./pages/PoliciesPage').then(m => ({ default: m.PoliciesPage })));
@@ -36,12 +39,6 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ defa
 const DesignKitPage = lazy(() => import('./pages/DesignKitPage').then(m => ({ default: m.DesignKitPage })));
 const CountryLandingPage = lazy(() => import('./pages/country/CountryLandingPage').then(m => ({ default: m.CountryLandingPage })));
 
-const RouteLoadingFallback = () => (
-  <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
-    <div className="w-8 h-8 border-3 border-[#002147] border-t-transparent rounded-full animate-spin" />
-    <span className="text-xs font-mono text-[var(--text-muted)] tracking-wider">Loading The BC Cargo...</span>
-  </div>
-);
 
 function AppContent() {
   const navigate = useNavigate();
@@ -93,7 +90,8 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] transition-colors">
-      <CustomCursor />
+      <BootSignal mark="app" />
+      {!isAdminRoute && <CustomCursor />}
       {!isAdminRoute && (
         <Header
           onNavigate={handleNavigate}
@@ -104,7 +102,7 @@ function AppContent() {
       )}
 
       <main className={`flex-1 ${!isAdminRoute ? 'pt-24 pb-20 lg:pb-0' : ''}`}>
-        <Suspense fallback={<RouteLoadingFallback />}>
+        <Suspense fallback={<RouteLoader />}>
           <Routes>
             <Route
               path="/"
@@ -151,13 +149,13 @@ function AppContent() {
             {/* Rates Routes */}
             <Route path="/rates" element={<RatesPage />} />
             <Route path="/rates/national" element={<Navigate to="/rates" replace />} />
-            <Route path="/rates/international" element={<RatesPage />} />
+            
             <Route path="/rates/calculator" element={<Navigate to="/rates" replace />} />
-            <Route path="/rates/rfq" element={<RatesPage />} />
+            
 
             {/* Knowledge Base & Blog Routes */}
             <Route path="/blogs" element={<BlogListPage />} />
-            <Route path="/blogs/:slug" element={<BlogPostPage />} />
+            <Route path="/blogs/:slug" element={<BlogSlugPage />} />
 
             {/* Dedicated Public Information Pages */}
             <Route path="/about" element={<AboutPage />} />
@@ -168,19 +166,32 @@ function AppContent() {
             <Route path="/become-a-partner" element={<BecomePartnerPage />} />
 
             {/* Top Country Corridor SEO Landing Pages */}
-            <Route path="/send-parcel-nepal-to-south-korea" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-south-korea" />} />
-            <Route path="/send-parcel-nepal-to-malaysia" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-malaysia" />} />
-            <Route path="/send-parcel-nepal-to-uk" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-uk" />} />
-            <Route path="/send-parcel-nepal-to-japan" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-japan" />} />
             <Route path="/send-parcel-nepal-to-europe" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-europe" />} />
             <Route path="/send-parcel-nepal-to-gulf" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-gulf" />} />
-            <Route path="/send-parcel-nepal-to-hong-kong" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-hong-kong" />} />
-            <Route path="/send-parcel-nepal-to-usa" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-usa" />} />
             <Route path="/send-parcel-nepal-to-:corridor" element={<CountryLandingPage />} />
+
+            {/* Permanent redirects (mirrors vercel.json): consolidated or removed pages */}
+            <Route path="/send-parcel-nepal-to-south-korea" element={<Navigate to="/blogs/nepal-to-south-korea" replace />} />
+            <Route path="/send-parcel-nepal-to-malaysia" element={<Navigate to="/blogs/nepal-to-malaysia" replace />} />
+            <Route path="/send-parcel-nepal-to-uk" element={<Navigate to="/blogs/nepal-to-united-kingdom" replace />} />
+            <Route path="/send-parcel-nepal-to-japan" element={<Navigate to="/blogs/nepal-to-japan" replace />} />
+            <Route path="/send-parcel-nepal-to-hong-kong" element={<Navigate to="/blogs/nepal-to-hong-kong" replace />} />
+            <Route path="/send-parcel-nepal-to-usa" element={<Navigate to="/blogs/nepal-to-usa" replace />} />
+            <Route path="/rates/international" element={<Navigate to="/rates" replace />} />
+            <Route path="/rates/rfq" element={<Navigate to="/rates" replace />} />
+            <Route path="/careers/customs-broker-specialist" element={<Navigate to="/careers" replace />} />
+            <Route path="/careers/air-cargo-operations-lead" element={<Navigate to="/careers" replace />} />
+            <Route path="/careers/cross-border-fleet-dispatcher" element={<Navigate to="/careers" replace />} />
+            <Route path="/careers/warehouse-sortation-supervisor" element={<Navigate to="/careers" replace />} />
+            <Route path="/blogs/nepal-air-cargo-customs-guide-2026" element={<Navigate to="/blogs" replace />} />
+            <Route path="/blogs/kolkata-dry-port-rail-transit-guide" element={<Navigate to="/blogs" replace />} />
+            <Route path="/blogs/cold-chain-pharma-logistics-nepal" element={<Navigate to="/blogs" replace />} />
 
             {/* Careers Routes */}
             <Route path="/careers" element={<CareersPage />} />
             <Route path="/careers/:slug" element={<CareerDetailPage />} />
+
+            <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
 
             {/* Protected Admin Portal Routes */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
@@ -199,6 +210,7 @@ function AppContent() {
             {/* Fallback 404 Route */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
+          <BootSignal mark="route" />
         </Suspense>
       </main>
 

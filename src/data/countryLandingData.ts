@@ -27,9 +27,9 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     rateGroup: 'Korea',
     headline: 'Send Parcel from Hetauda & Nepal to South Korea',
     subheadline: 'Fast, secure air cargo and courier service from our Hetauda Central Hub to Seoul, Busan, Incheon, and across South Korea. Live per-kg rates, box packaging, and customs clearing.',
-    metaTitle: 'Cargo & Parcel Service from Hetauda Nepal to South Korea | BC Cargo',
-    metaDescription: 'Send parcel and commercial cargo from Hetauda and Nepal to South Korea. Doorstep pickup in Hetauda, fast air freight via Incheon (ICN), transparent live tariffs, and customs assistance.',
-    transitTime: '3–5 business days',
+    metaTitle: 'Send Parcel from Hetauda Nepal to South Korea | BC Cargo',
+    metaDescription: 'Send parcels and cargo from Hetauda, Nepal to South Korea. Doorstep pickup, air freight via Incheon, about 10 days delivery, live tariffs and customs help.',
+    transitTime: '10 days',
     departureFrequency: 'Daily scheduled air departures',
     originHub: 'School Road -4, Hetauda, Nepal',
     packingRules: [
@@ -57,7 +57,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
       },
       {
         question: 'How long does air cargo take from Hetauda to Seoul or Busan?',
-        answer: 'Air cargo generally reaches South Korea within 3 to 5 business days after customs departure, followed by local Korean courier delivery to your recipient’s door.',
+        answer: 'Air cargo generally reaches South Korea in about 10 days after customs departure, followed by local Korean courier delivery to your recipient’s door.',
       },
       {
         question: 'What are the charges for sending packages to South Korea?',
@@ -119,7 +119,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     rateGroup: 'UK',
     headline: 'Send Parcel & Cargo from Hetauda & Nepal to United Kingdom',
     subheadline: 'Priority air courier from Hetauda to London, Birmingham, Manchester, Edinburgh, and across Great Britain. Certified compliance and meat packaging available.',
-    metaTitle: 'Air Cargo & Parcel Service from Hetauda to UK | The BC Cargo',
+    metaTitle: 'Send Parcel from Hetauda Nepal to the UK | BC Cargo',
     metaDescription: 'Send personal packages, legal documents, dry foods, and commercial goods from Hetauda Nepal to the UK. 3–5 day delivery to London and nationwide.',
     transitTime: '3–5 business days',
     departureFrequency: 'Daily air departures',
@@ -158,9 +158,9 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     rateGroup: 'Japan',
     headline: 'Air Cargo & Courier from Hetauda & Nepal to Japan',
     subheadline: 'Fast air transport for personal items, student necessities, and commercial samples from Hetauda Central Hub to Tokyo, Osaka, Nagoya, and Fukuoka.',
-    metaTitle: 'Send Parcel from Hetauda Nepal to Japan | The BC Cargo',
-    metaDescription: 'Send parcel and courier from Hetauda and Nepal to Japan. Fast 3–5 business day delivery to Tokyo and all prefectures. Live sheet pricing and customs clearance.',
-    transitTime: '3–5 business days',
+    metaTitle: 'Send Parcel from Hetauda Nepal to Japan | BC Cargo',
+    metaDescription: 'Send parcels and courier from Hetauda, Nepal to Japan. About 15 days delivery to Tokyo and all prefectures. Live pricing and customs clearance.',
+    transitTime: '15 days',
     departureFrequency: 'Daily flight connections via Tokyo Narita (NRT)',
     originHub: 'School Road -4, Hetauda, Nepal',
     packingRules: [
@@ -177,7 +177,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     faqs: [
       {
         question: 'What is the transit time from Hetauda to Tokyo?',
-        answer: 'Air cargo generally arrives at Tokyo Narita or Haneda in 3 to 5 business days, clearing customs swiftly.',
+        answer: 'Air cargo generally arrives at Tokyo Narita or Haneda in about 15 days, clearing customs swiftly.',
       },
       {
         question: 'Is meat allowed to Japan?',
@@ -195,9 +195,9 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     rateGroup: 'Europe',
     headline: 'Send Cargo & Courier from Hetauda & Nepal to Europe',
     subheadline: 'Comprehensive air logistics connecting Hetauda to Germany, France, Italy, Spain, Netherlands, Portugal, Poland, and the entire European Union.',
-    metaTitle: 'Cargo & Parcel Service from Hetauda Nepal to Europe | BC Cargo',
+    metaTitle: 'Send Cargo from Hetauda Nepal to Europe | BC Cargo',
     metaDescription: 'Send personal and commercial cargo from Hetauda to Europe (EU). Fast customs-cleared air freight to Frankfurt, Paris, Rome, Madrid, and across the EU.',
-    transitTime: '4–6 business days',
+    transitTime: 'Ask for current estimate',
     departureFrequency: 'Daily air freight departures',
     originHub: 'School Road -4, Hetauda, Nepal',
     packingRules: [
@@ -232,9 +232,9 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     rateGroup: 'Gulf',
     headline: 'Fast Parcel Service from Hetauda & Nepal to UAE & Gulf',
     subheadline: 'Affordable, scheduled air courier from Hetauda Central Hub to Dubai, Abu Dhabi, Sharjah, Qatar, Saudi Arabia, Bahrain, and Oman.',
-    metaTitle: 'Send Courier from Hetauda Nepal to Dubai UAE & Gulf | BC Cargo',
-    metaDescription: 'Fast courier service from Hetauda to Dubai, UAE, Qatar, and Gulf region. Low per-kg tariffs, 2–4 business days delivery, and complete tracking.',
-    transitTime: '2–4 business days',
+    metaTitle: 'Send Courier from Hetauda Nepal to Dubai & Gulf | BC Cargo',
+    metaDescription: 'Fast courier service from Hetauda to Dubai, UAE, Qatar, and Gulf region. Live per-kg rates and complete tracking.',
+    transitTime: 'Ask for current estimate',
     departureFrequency: 'Daily direct flights to Dubai and Doha',
     originHub: 'School Road -4, Hetauda, Nepal',
     packingRules: [
@@ -250,7 +250,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     faqs: [
       {
         question: 'How long does a package take from Hetauda to Dubai?',
-        answer: 'Air cargo to Dubai and Abu Dhabi usually delivers within 2 to 4 business days.',
+        answer: 'Delivery time to Dubai and Abu Dhabi depends on flights and customs. Ask us for the current estimate before you ship.',
       },
       {
         question: 'Can I send homemade pickles to Dubai?',
@@ -268,7 +268,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     rateGroup: 'Hong Kong',
     headline: 'Express Air Cargo from Hetauda & Nepal to Hong Kong',
     subheadline: 'Priority air freight connecting Hetauda to Hong Kong Island, Kowloon, and New Territories with meat compliance support and fast customs entry.',
-    metaTitle: 'Air Cargo from Hetauda Nepal to Hong Kong | The BC Cargo',
+    metaTitle: 'Air Cargo from Hetauda Nepal to Hong Kong | BC Cargo',
     metaDescription: 'Send courier and air freight from Hetauda Nepal to Hong Kong. Direct flights, special meat compliance rate, fast 2–4 day delivery, and online tracking.',
     transitTime: '2–4 business days',
     departureFrequency: 'Daily flights via Hong Kong International Airport (HKG)',
@@ -305,7 +305,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     rateGroup: 'USA',
     headline: 'Air Cargo & Courier from Hetauda & Nepal to USA',
     subheadline: 'Fast, trackable air freight from Hetauda to New York, California, Texas, and all 50 US states. FDA prior notice support and certified export packaging.',
-    metaTitle: 'Send Parcel from Hetauda Nepal to USA | The BC Cargo',
+    metaTitle: 'Send Parcel from Hetauda Nepal to USA | BC Cargo',
     metaDescription: 'Send parcel and commercial air cargo from Hetauda Nepal to the United States. 4–6 day delivery nationwide with tracking, customs assistance, and live sheet rates.',
     transitTime: '4–6 business days',
     departureFrequency: 'Daily air cargo manifests',
@@ -330,7 +330,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
       },
       {
         question: 'How do I send commercial goods or handicrafts from Hetauda to America?',
-        answer: 'Our customs brokerage team (License #B-409) assists with commercial export declarations, certificate of origin, and courier linehaul direct to US ports.',
+        answer: 'Our customs brokerage team assists with commercial export declarations, certificate of origin, and courier linehaul direct to US ports.',
       },
     ],
     sampleWeightKg: 20,

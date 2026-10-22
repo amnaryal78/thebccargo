@@ -1,3 +1,5 @@
+import { CountrySearchSelect } from './ui/CountrySearchSelect';
+import { COUNTRIES } from '../data/countries';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
@@ -11,9 +13,6 @@ import {
   CheckCircle2,
   FileText,
   AlertCircle,
-  Truck,
-  Plane,
-  Ship,
   Box,
   DollarSign
 } from 'lucide-react';
@@ -22,10 +21,14 @@ import { submitBooking } from '../services/bookingService';
 import { TurnstileWidget } from './TurnstileWidget';
 import { Stepper, StepItem } from '../design/primitives/Stepper';
 import { Button } from '../design/primitives/Button';
+import { Seo } from './SEOHead';
+import { PAGE_META } from '../data/pageMeta';
 
 interface BookingSystemProps {
   onBookingSuccess?: (bookingRef: string, newShipment?: any) => void;
 }
+
+const BOOKING_COUNTRY_OPTIONS = COUNTRIES.filter((c) => c.iso2 !== 'NP').map((c) => ({ value: c.name, label: c.name }));
 
 const BOOKING_STEPS: StepItem[] = [
   { id: 'route', label: 'Route & Mode' },
@@ -214,6 +217,7 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
 
   return (
     <section className="w-full py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto transition-colors">
+      <Seo title={PAGE_META['/book'].title} description={PAGE_META['/book'].description} />
       <div className="flex flex-col gap-8">
         
         {/* Header */}
@@ -330,43 +334,6 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
               </span>
             </div>
 
-            {/* Service Mode Selector */}
-            <div>
-              <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1.5">
-                Primary Transport Mode *
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[
-                  { id: 'air', label: 'Air Freight Express', desc: 'Hetauda HQ & TIA Gateway departure to 190+ countries', icon: Plane },
-                  { id: 'overland', label: 'Cross-Border Road', desc: 'Container linehaul to India & border dry ports', icon: Truck },
-                  { id: 'ocean', label: 'Ocean Container', desc: 'Intermodal rail & sea container shipping', icon: Ship },
-                ].map((mode) => {
-                  const Icon = mode.icon;
-                  const isSelected = serviceMode === mode.id;
-                  return (
-                    <button
-                      key={mode.id}
-                      type="button"
-                      onClick={() => setServiceMode(mode.id as ServiceMode)}
-                      className={`p-4 text-left rounded-lg border transition-all duration-[var(--t-fast)] cursor-pointer shadow-sm hover:border-slate-400 hover:-translate-y-0.5 active:translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--gold)] flex flex-col justify-between ${
-                        isSelected
-                          ? 'bg-[var(--oxford-deep)] text-white border-transparent font-bold shadow-hard-sm'
-                          : 'bg-white text-[var(--text)] border-slate-200'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-heading font-bold text-xs uppercase tracking-wider">{mode.label}</span>
-                        <Icon className="w-4 h-4 shrink-0" />
-                      </div>
-                      <span className={`text-[11px] mt-1 ${isSelected ? 'text-white/80' : 'text-slate-600'}`}>
-                        {mode.desc}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* Pickup & Destination Details */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -400,16 +367,17 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
-                  Destination Country *
-                </label>
-                <input
-                  type="text"
-                  value={destinationCountry}
-                  onChange={(e) => setDestinationCountry(e.target.value)}
-                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-                  placeholder="e.g. Germany, United States, UAE, India"
+                <CountrySearchSelect
+                  label="Destination Country"
                   required
+                  placeholder="Search destination country"
+                  options={
+                    !destinationCountry || BOOKING_COUNTRY_OPTIONS.some((o) => o.value === destinationCountry)
+                      ? BOOKING_COUNTRY_OPTIONS
+                      : [{ value: destinationCountry, label: destinationCountry }, ...BOOKING_COUNTRY_OPTIONS]
+                  }
+                  value={destinationCountry}
+                  onChange={setDestinationCountry}
                 />
               </div>
 

@@ -4,6 +4,7 @@ import {
   ChevronDown, 
   PhoneCall 
 } from 'lucide-react';
+import { Cta3D } from './ui/Cta3D';
 import { Spotlight } from './ui/spotlight';
 
 
@@ -21,7 +22,7 @@ export const DEFAULT_FAQS: FaqItem[] = [
   },
   {
     question: 'What documents do I need to send items outside Nepal?',
-    answer: 'To send personal gifts or items abroad, you only need your ID, a list of what is inside the box, and the receiver’s address. For businesses sending goods for sale, our licensed customs brokers (License #B-409) will help you prepare and file all required paperwork quickly.'
+    answer: 'To send personal gifts or items abroad, you only need your ID, a list of what is inside the box, and the receiver’s address. For businesses sending goods for sale, our customs team will help you prepare and file all required paperwork quickly.'
   },
   {
     question: 'How is box size and weight calculated?',
@@ -116,21 +117,18 @@ export const FaqSection: React.FC<FaqSectionProps> = ({
               <PhoneCall className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-heading font-bold text-sm sm:text-base text-slate-900">
+              <h3 className="font-heading font-bold text-sm sm:text-base text-slate-900">
                 Have a question or need help sending a package?
-              </h4>
+              </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Our customer support team is available 24/7 to help you.
+                Call us Sunday to Friday, 9 am to 6 pm, or chat with us any time.
               </p>
             </div>
           </div>
 
-          <a
-            href="tel:+977057591816"
-            className="min-h-[44px] px-5 py-2.5 inline-flex items-center justify-center rounded-[var(--r-sm)] bg-[#002147] hover:bg-[#F2B705] hover:text-[#002147] hover:border-[#FAC623] hover:shadow-[0_4px_16px_rgba(242,183,5,0.35)] text-white font-semibold text-xs uppercase tracking-wider transition-all shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 shrink-0 whitespace-nowrap cursor-pointer border border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
-          >
-            Call: 057-591816
-          </a>
+          <Cta3D href="tel:+977057591816" icon={<PhoneCall aria-hidden="true" />}>
+            Call 057-591816
+          </Cta3D>
         </Spotlight>
 
       </div>

@@ -46,7 +46,7 @@ describe('Phase 4 — Hetauda, Country Landing Pages, and SEO Prerendering', () 
     // Assert key SEO and operational details
     expect(html).toContain('Send Parcel from Hetauda &amp; Nepal to South Korea');
     expect(html).toContain('School Road -4, Hetauda');
-    expect(html).toContain('3–5 business days');
+    expect(html).toContain('10 days');
     expect(html).toContain('Price');
     expect(html).toContain('Chat');
     expect(html).toContain('Customs Restrictions for South Korea');
@@ -54,17 +54,25 @@ describe('Phase 4 — Hetauda, Country Landing Pages, and SEO Prerendering', () 
     expect(html).toContain('Frequently Asked Questions');
   });
 
-  it('includes all 8 country corridor routes in the sitemap', () => {
+  it('keeps only regional corridor pages in the sitemap; single-country corridors 301 to their guide', () => {
     const sitemapPaths = SITEMAP_ROUTES.map((r) => r.path);
-
-    expect(sitemapPaths).toContain('/send-parcel-nepal-to-south-korea');
-    expect(sitemapPaths).toContain('/send-parcel-nepal-to-malaysia');
-    expect(sitemapPaths).toContain('/send-parcel-nepal-to-uk');
-    expect(sitemapPaths).toContain('/send-parcel-nepal-to-japan');
     expect(sitemapPaths).toContain('/send-parcel-nepal-to-europe');
     expect(sitemapPaths).toContain('/send-parcel-nepal-to-gulf');
-    expect(sitemapPaths).toContain('/send-parcel-nepal-to-hong-kong');
-    expect(sitemapPaths).toContain('/send-parcel-nepal-to-usa');
+    const vercel = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../vercel.json'), 'utf8'));
+    const redirects = new Map<string, string>(vercel.redirects.map((r: { source: string; destination: string }) => [r.source, r.destination]));
+    const moved: Record<string, string> = {
+      '/send-parcel-nepal-to-south-korea': '/blogs/nepal-to-south-korea',
+      '/send-parcel-nepal-to-malaysia': '/blogs/nepal-to-malaysia',
+      '/send-parcel-nepal-to-uk': '/blogs/nepal-to-united-kingdom',
+      '/send-parcel-nepal-to-japan': '/blogs/nepal-to-japan',
+      '/send-parcel-nepal-to-hong-kong': '/blogs/nepal-to-hong-kong',
+      '/send-parcel-nepal-to-usa': '/blogs/nepal-to-usa'
+    };
+    for (const [from, to] of Object.entries(moved)) {
+      expect(redirects.get(from), from).toBe(to);
+      expect(sitemapPaths, from).not.toContain(from);
+      expect(sitemapPaths, to).toContain(to);
+    }
   });
 
   it('asserts that dist/ contains static HTML with real text and JSON-LD when built', () => {

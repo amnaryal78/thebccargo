@@ -21,6 +21,7 @@ import { calculateSheetShipmentQuote } from '../../features/estimator/engine';
 import { NotFoundPage } from '../NotFoundPage';
 import { Card3D } from '../../design/primitives/Card3D';
 import { Spotlight } from '../../components/ui/spotlight';
+import { PAGE_META } from '../../data/pageMeta';
 
 interface CountryLandingPageProps {
   forcedSlug?: string;
@@ -115,8 +116,8 @@ export const CountryLandingPage: React.FC<CountryLandingPageProps> = ({ forcedSl
   return (
     <div className="w-full bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] transition-colors">
       <SEOHead
-        title={country.metaTitle}
-        description={country.metaDescription}
+        title={PAGE_META[`/${country.slug}`]?.title ?? country.metaTitle}
+        description={PAGE_META[`/${country.slug}`]?.description ?? country.metaDescription}
         canonicalUrl={`https://thebccargo.com/${country.slug}`}
         jsonLd={schemas}
         keywords={[
@@ -356,7 +357,7 @@ export const CountryLandingPage: React.FC<CountryLandingPageProps> = ({ forcedSl
       <section className="bg-white border-t border-b border-slate-200 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-left space-y-6">
           <div className="max-w-2xl space-y-2">
-            <span className="text-xs font-mono font-bold text-[#F2B705] uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-[#8A6200] uppercase tracking-wider">
               Central Operations Hub
             </span>
             <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#002147]">

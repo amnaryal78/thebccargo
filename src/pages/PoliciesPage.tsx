@@ -12,6 +12,7 @@ import {
 import { Button } from '../design/primitives/Button';
 import { SEOHead } from '../components/SEOHead';
 import { Spotlight } from '../components/ui/spotlight';
+import { PAGE_META } from '../data/pageMeta';
 
 interface PolicySection {
   id: string;
@@ -220,8 +221,8 @@ export const PoliciesPage: React.FC = () => {
   return (
     <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full flex flex-col gap-10">
       <SEOHead
-        title="Terms of Carriage, Cargo Liability & Privacy Policies | BC Cargo"
-        description="Official trading terms, cargo liability limits under Montreal Convention, customs broker policies (#B-409), and claims resolution procedures for The BC Cargo & Courier."
+        title={PAGE_META['/policies'].title}
+        description={PAGE_META['/policies'].description}
       />
 
       {/* Header */}

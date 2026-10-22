@@ -8,6 +8,7 @@ import { Button } from '../design/primitives/Button';
 import { ServicesHero } from './services/ServicesHero';
 import { ServiceCard } from './services/ServiceCard';
 import { ServiceCompare } from './services/ServiceCompare';
+import { PAGE_META } from '../data/pageMeta';
 
 type Filter = 'all' | 'air' | 'overland' | 'ocean' | 'customs';
 
@@ -73,8 +74,8 @@ export const ServicesSuite: React.FC = () => {
   return (
     <div className="w-full bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
       <SEOHead
-        title="Freight & Logistics Services | The BC Cargo & Courier"
-        description="International air cargo, cross-border road freight, ocean shipping and licensed customs clearance from Nepal."
+        title={PAGE_META['/services'].title}
+        description={PAGE_META['/services'].description}
       />
 
       <div className="max-w-7xl mx-auto space-y-14 sm:space-y-20">
