@@ -1,27 +1,61 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Globe } from 'lucide-react';
-import { COUNTRY_GUIDES, REGION_LABEL, type GuideRegion } from '../../data/countryGuides';
-import { calculateSheetShipmentQuote } from '../estimator/engine';
-import { useGuideRates, npr } from './useGuideRates';
+import { COUNTRY_GUIDES, REGION_LABEL, getCountryGuide, type GuideRegion } from '../../data/countryGuides';
+import { Flag } from '../../components/ui/Flag';
+import { useGuideRates, bulkRate, npr } from './useGuideRates';
 import './country-guide.css';
 
 const REGIONS = (['asia', 'middle-east', 'europe', 'north-america', 'oceania'] as GuideRegion[]).filter((r) =>
   COUNTRY_GUIDES.some((g) => g.region === r)
 );
 
-/** Searchable country-guide cards with region filters; the "from" price is today's 1 kg total. */
-export const CountryGuideGrid: React.FC<{ query?: string; limit?: number; showFilters?: boolean }> = ({
-  query = '',
-  limit,
-  showFilters = true,
-}) => {
+/** The routes most senders ask about, shown on the home page. */
+const MAIN_SLUGS = [
+  'nepal-to-south-korea',
+  'nepal-to-japan',
+  'nepal-to-united-kingdom',
+  'nepal-to-australia',
+  'nepal-to-usa',
+  'nepal-to-uae',
+];
+
+/** Short names for the compact cards. */
+const SHORT: Record<string, string> = { 'nepal-to-south-korea': 'Korea', 'nepal-to-united-kingdom': 'UK', 'nepal-to-usa': 'USA', 'nepal-to-uae': 'UAE' };
+
+/** Short price line: today's per-kg rate for big parcels, from the live sheet. */
+const PriceLine: React.FC<{ country: string; rates: ReturnType<typeof useGuideRates>; compact?: boolean }> = ({ country, rates, compact }) => {
+  const b = rates.status === 'ready' ? bulkRate(rates.rates, country) : null;
+  if (b && compact) {
+    return (
+      <span className="text-[13px] text-[var(--text-muted)] whitespace-nowrap">
+        <strong className="text-[var(--text)]">{npr(b.perKg)}</strong>/kg <span className="text-[12px]">for {b.minKg} kg+</span>
+      </span>
+    );
+  }
+  if (b) {
+    return (
+      <span className="text-[13px] text-[var(--text-muted)]">
+        From <strong className="text-[var(--text)]">{npr(b.perKg)}</strong>/kg for {b.minKg} kg+
+      </span>
+    );
+  }
+  if (rates.status === 'loading') return <span className="inline-block h-3.5 w-28 rounded bg-[var(--line)] animate-pulse align-middle" />;
+  return <span className="text-[13px] text-[var(--text-muted)]">Ask us for today&rsquo;s price</span>;
+};
+
+/**
+ * Country guide cards. `compact` is the home-page version: only the main routes, flag + name + price.
+ * The full version (blog page) has search, region filters and a one-line description.
+ */
+export const CountryGuideGrid: React.FC<{ query?: string; compact?: boolean }> = ({ query = '', compact = false }) => {
   const [region, setRegion] = useState<GuideRegion | 'all'>('all');
   const rates = useGuideRates();
 
   const list = useMemo(() => {
+    if (compact) return MAIN_SLUGS.map((s) => getCountryGuide(s)!).filter(Boolean);
     const q = query.trim().toLowerCase();
-    const found = COUNTRY_GUIDES.filter(
+    return COUNTRY_GUIDES.filter(
       (g) =>
         (region === 'all' || g.region === region) &&
         (!q ||
@@ -31,8 +65,7 @@ export const CountryGuideGrid: React.FC<{ query?: string; limit?: number; showFi
           g.rateCountry.toLowerCase().includes(q) ||
           g.cities.some((c) => c.toLowerCase().includes(q)))
     );
-    return limit ? found.slice(0, limit) : found;
-  }, [query, region, limit]);
+  }, [query, region, compact]);
 
   if (query && list.length === 0) return null;
 
@@ -47,10 +80,10 @@ export const CountryGuideGrid: React.FC<{ query?: string; limit?: number; showFi
             Where can we ship?
           </h2>
           <p className="mt-1 text-[15px] text-[var(--text-secondary)]">
-            Simple guides for sending parcels from Nepal, one country at a time. English and नेपाली.
+            {compact ? 'Our main routes. Tap one for prices and rules.' : 'Simple guides for sending parcels from Nepal, one country at a time. English and नेपाली.'}
           </p>
         </div>
-        {showFilters && (
+        {!compact && (
           <div role="group" aria-label="Filter by region" className="flex flex-wrap gap-2">
             {(['all', ...REGIONS] as const).map((r) => (
               <button
@@ -71,44 +104,30 @@ export const CountryGuideGrid: React.FC<{ query?: string; limit?: number; showFi
         )}
       </div>
 
-      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {list.map((g) => {
-          const q = rates.status === 'ready' ? calculateSheetShipmentQuote({ destination: g.rateCountry, actualWeightKg: 1 }, rates.rates) : null;
-          return (
-            <li key={g.slug}>
-              <Link
-                to={`/blogs/${g.slug}`}
-                className="cg-card cg-lift group flex flex-col h-full rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--line)] p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)]"
-              >
-                <span className="flex items-center gap-3">
-                  <img
-                    src={`https://flagcdn.com/w80/${g.code}.png`}
-                    alt=""
-                    width={36}
-                    height={24}
-                    loading="lazy"
-                    className="rounded-[3px] border border-[var(--line)] object-cover"
-                  />
-                  <span className="min-w-0">
-                    <span className="block font-heading font-bold text-[16px] leading-tight text-[var(--text)]">Nepal to {g.name.en}</span>
-                    <span className="block text-[13px] text-[var(--text-muted)]">{g.name.ne}</span>
+      <ul className={compact ? 'grid grid-cols-2 lg:grid-cols-3 gap-3' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3'}>
+        {list.map((g) => (
+          <li key={g.slug}>
+            <Link
+              to={`/blogs/${g.slug}`}
+              className={`cg-card cg-lift group flex flex-col h-full rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--line)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] ${compact ? 'p-3.5 gap-2' : 'p-4'}`}
+            >
+              <span className="flex items-center gap-3">
+                <Flag code={g.code} width={compact ? 32 : 36} />
+                <span className="min-w-0">
+                  <span className="block font-heading font-bold text-[16px] leading-tight text-[var(--text)]">
+                    {compact ? SHORT[g.slug] ?? g.name.en : `Nepal to ${g.name.en}`}
                   </span>
-                  <ArrowRight className="ml-auto w-4 h-4 shrink-0 text-[var(--text-muted)] transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                  {!compact && <span className="block text-[13px] text-[var(--text-muted)]">{g.name.ne}</span>}
                 </span>
-                <span className="mt-3 text-[14px] leading-snug text-[var(--text-secondary)]">{g.blurb.en}</span>
-                <span className="mt-auto pt-3 text-[13px] text-[var(--text-muted)]">
-                  {q?.allowed ? (
-                    <>From <strong className="text-[var(--text)]">{npr(q.totalNpr)}</strong> for 1 kg</>
-                  ) : rates.status === 'loading' ? (
-                    <span className="inline-block h-3.5 w-24 rounded bg-[var(--line)] animate-pulse align-middle" />
-                  ) : (
-                    'Ask us for today’s price'
-                  )}
-                </span>
-              </Link>
-            </li>
-          );
-        })}
+                <ArrowRight className="ml-auto w-4 h-4 shrink-0 text-[var(--text-muted)] transition-transform group-hover:translate-x-1" aria-hidden="true" />
+              </span>
+              {!compact && <span className="mt-3 text-[14px] leading-snug text-[var(--text-secondary)]">{g.blurb.en}</span>}
+              <span className={compact ? '' : 'mt-auto pt-3'}>
+                <PriceLine country={g.rateCountry} rates={rates} compact={compact} />
+              </span>
+            </Link>
+          </li>
+        ))}
       </ul>
     </section>
   );

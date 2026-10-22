@@ -4,6 +4,8 @@
  * Live Google Sheet rate calculation and packaging logic for BC Cargo.
  */
 
+import { HOME_PICKUP_FEE_NPR } from './pickup';
+
 import {
   calculateVolumetricWeight,
   getChargeableWeight,
@@ -707,7 +709,7 @@ export function calculateEstimate(
       });
     }
 
-    const pickupFeeNpr = input.doorstepPickup ? 500 : 0;
+    const pickupFeeNpr = input.doorstepPickup ? HOME_PICKUP_FEE_NPR : 0;
     const totalNpr = sheetQuote.totalNpr + pickupFeeNpr;
 
     return {

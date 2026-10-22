@@ -3,18 +3,21 @@ import { Calculator, MessageCircle, Package } from 'lucide-react';
 import type { SheetRateItem } from '../../services/ratesService';
 import { calculateSheetShipmentQuote, isMeatAllowedForCountry } from '../estimator/engine';
 import { Cta3D } from '../../components/ui/Cta3D';
-import type { CountryGuide, Lang } from '../../data/countryGuides';
-import { T } from './ui';
+import type { CountryGuide } from '../../data/countryGuides';
+import type { UiBundle } from './ui';
 import { npr } from './useGuideRates';
 import { WHATSAPP } from './contact';
 
 /** Country-locked calculator. All maths is the estimator engine's; this only collects inputs. */
-export const GuideEstimator: React.FC<{ guide: CountryGuide; rates: SheetRateItem[]; rateGroup: string; lang: Lang }> = ({
+export const GuideEstimator: React.FC<{ guide: CountryGuide; englishName: string; rates: SheetRateItem[]; rateGroup: string; k: 'en' | 'ne'; ui: UiBundle }> = ({
   guide,
+  englishName,
   rates,
   rateGroup,
-  lang,
+  k,
+  ui,
 }) => {
+  const T = ui.T;
   const id = useId();
   const [kg, setKg] = useState(guide.exampleKg);
   const [liquid, setLiquid] = useState(false);
@@ -39,7 +42,7 @@ export const GuideEstimator: React.FC<{ guide: CountryGuide; rates: SheetRateIte
     [guide.rateCountry, kg, liquid, medicine, meat, meatOk, meatKg, rates]
   );
 
-  const L = (b: { en: string; ne: string }) => b[lang];
+  const L = (b: { en: string; ne: string }) => b[k];
   const rows: [string, number][] = [
     [`${L(T.shipping)} (${q.totalWeightKg} kg)`, q.baseShippingCharge],
     [`${L(T.boxes)} × ${q.boxCount}`, q.boxCharge],
@@ -48,7 +51,7 @@ export const GuideEstimator: React.FC<{ guide: CountryGuide; rates: SheetRateIte
     [L(T.meatFee), q.meatCharge],
   ];
   const wa = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
-    `Hello BC Cargo, I want to send about ${kg} kg to ${guide.name.en}.${q.allowed ? ` Your website estimate shows ${npr(q.totalNpr)}.` : ''}`
+    `Hello BC Cargo, I want to send about ${kg} kg to ${englishName}.${q.allowed ? ` Your website estimate shows ${npr(q.totalNpr)}.` : ''}`
   )}`;
 
   const check = (label: string, on: boolean, set: (v: boolean) => void, disabled = false, note?: string) => (
@@ -140,7 +143,7 @@ export const GuideEstimator: React.FC<{ guide: CountryGuide; rates: SheetRateIte
         )}
         <p className="mt-3 text-[13px] leading-relaxed text-[var(--text-muted)]">{L(T.calcNote)}</p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Cta3D to={`/book?dest=${encodeURIComponent(guide.name.en)}&weight=${kg}`} icon={<Package className="w-4 h-4" />}>
+          <Cta3D to={`/book?dest=${encodeURIComponent(englishName)}&weight=${kg}`} icon={<Package className="w-4 h-4" />}>
             {L(T.book)}
           </Cta3D>
           <Cta3D tone="light" href={wa} newTab icon={<MessageCircle className="w-4 h-4" />}>

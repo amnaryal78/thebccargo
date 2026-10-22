@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useReducedMotion } from 'framer-motion';
-import { COUNTRY_GUIDES, type CountryGuide, type Lang } from '../../data/countryGuides';
+import { COUNTRY_GUIDES, type CountryGuide } from '../../data/countryGuides';
 
 /** Hetauda, where every parcel starts. */
 const ORIGIN = { lat: 27.43, lon: 85.03 };
@@ -10,7 +10,7 @@ const ORIGIN = { lat: 27.43, lon: 85.03 };
  * and one arc from Hetauda to this guide's hub. Positions are real (equirectangular), so
  * Korea and Canada look as near or far as they are. No map tiles, no extra requests.
  */
-export const RouteMap: React.FC<{ guide: CountryGuide; lang: Lang }> = ({ guide, lang }) => {
+export const RouteMap: React.FC<{ guide: CountryGuide; originLabel: string; destLabel: string; ariaLabel: string }> = ({ guide, originLabel, destLabel, ariaLabel }) => {
   const reduce = useReducedMotion();
 
   const geo = useMemo(() => {
@@ -55,7 +55,7 @@ export const RouteMap: React.FC<{ guide: CountryGuide; lang: Lang }> = ({ guide,
       viewBox={`${minX} ${minY} ${W} ${H}`}
       className="cg-map w-full h-auto"
       role="img"
-      aria-label={lang === 'en' ? `Route from Hetauda, Nepal to ${guide.hub.city.en}, ${guide.name.en}` : `हेटौंडा, नेपालदेखि ${guide.hub.city.ne}, ${guide.name.ne} सम्मको रुट`}
+      aria-label={ariaLabel}
     >
       {lines.map((l, i) => (
         <line key={i} {...l} stroke="currentColor" strokeOpacity="0.08" strokeWidth={unit * 0.15} />
@@ -82,10 +82,10 @@ export const RouteMap: React.FC<{ guide: CountryGuide; lang: Lang }> = ({ guide,
       <circle cx={t.x} cy={t.y} r={unit * 2.6} fill="var(--gold)" fillOpacity="0.22" className={reduce ? '' : 'cg-pulse'} />
       <circle cx={t.x} cy={t.y} r={unit * 1.4} fill="var(--gold)" stroke="currentColor" strokeWidth={unit * 0.4} />
       <text x={o.x} y={o.y + unit * 5} textAnchor="middle" fontSize={unit * 3.4} fontWeight="700" fill="currentColor">
-        {lang === 'en' ? 'Hetauda' : 'हेटौंडा'}
+        {originLabel}
       </text>
       <text x={t.x} y={t.y - unit * 3.4} textAnchor="middle" fontSize={unit * 3.4} fontWeight="700" fill="currentColor">
-        {guide.hub.city[lang]}
+        {destLabel}
       </text>
     </svg>
   );

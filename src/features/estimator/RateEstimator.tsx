@@ -1,7 +1,7 @@
 import { useAuth } from '../../context/AuthContext';
 import React, { useState, useMemo, useEffect, useRef, useId } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { HOME_PICKUP_FEE_NPR, PICKUP_AREAS, OTHER_AREA, type HandoverMethod } from './pickup';
+import { HOME_PICKUP_FEE_NPR, PICKUP_AREAS, PICKUP_POLICY_EN, OTHER_AREA, pickupFeeFor, type HandoverMethod } from './pickup';
 import { useEstimatorData } from './useEstimatorData';
 import {
   calculateBoxCount,
@@ -348,7 +348,7 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
   }, [sheetRates, selectedCountry, weightKg, overMax, hasLiquid, hasMedicine, hasMeat, meatKg, isReseller]);
 
   const homePickupOk = handover === 'home' && (PICKUP_AREAS as readonly string[]).includes(pickupArea);
-  const pickupFee = homePickupOk ? HOME_PICKUP_FEE_NPR : 0;
+  const pickupFee = homePickupOk ? pickupFeeFor(pickupArea, weightKg) : 0;
   const quoteResult: SheetQuoteResult | null = useMemo(() => {
     if (!baseQuote) return null;
     if (!pickupFee) return baseQuote;
@@ -405,7 +405,7 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
       `• Destination: ${quoteResult.destinationName}`,
       `• Weight: ${quoteResult.totalWeightKg} kg (${quoteResult.boxCount} boxes)`,
       itemsSummary ? `• Contents: ${itemsSummary}` : '• Contents: General Cargo',
-      homePickupOk ? `• Pickup: From home, ${pickupArea} (+Rs ${HOME_PICKUP_FEE_NPR})` : '• Pickup: I will bring it to your office',
+      homePickupOk ? `• Pickup: From home, ${pickupArea} (${pickupFee ? `+Rs ${pickupFee}` : 'free'})` : '• Pickup: I will bring it to your office',
       `• Total Quote: Rs ${quoteResult.totalNpr.toLocaleString()} NPR`,
       `I would like to book this shipment from Hetauda/Nepal.`,
     ].join('\n');
@@ -770,7 +770,7 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
                   {(
                     [
                       { id: 'office', title: 'Bring to our office', hint: 'School Road -4, Hetauda', price: 'No extra charge', Icon: Building2 },
-                      { id: 'home', title: 'Pick up from home', hint: 'We collect it from you', price: `+ Rs ${nf(HOME_PICKUP_FEE_NPR)}`, Icon: Home },
+                      { id: 'home', title: 'Pick up from home', hint: 'We collect it from you', price: `Free over 20 kg in Hetauda/Birgunj, else + Rs ${nf(HOME_PICKUP_FEE_NPR)}`, Icon: Home },
                     ] as const
                   ).map((opt) => {
                     const active = handover === opt.id;
@@ -845,7 +845,7 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
                         <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
                         <span>
                           {homePickupOk
-                            ? `Pickup available in ${pickupArea}. Rs ${nf(HOME_PICKUP_FEE_NPR)} is added to your price.`
+                            ? `Pickup available in ${pickupArea}. ${pickupFee ? `Rs ${nf(pickupFee)} is added to your price.` : 'It is free for this parcel.'} ${PICKUP_POLICY_EN}`
                             : pickupArea === OTHER_AREA
                             ? 'Home pickup is not available in your area. Please bring the parcel to our office.'
                             : 'Home pickup is only for Hetauda, Simara, Birgunj, Chitwan and Kathmandu.'}

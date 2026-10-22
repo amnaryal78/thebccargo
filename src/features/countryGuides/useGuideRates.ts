@@ -61,3 +61,12 @@ export function groupPrices(rates: SheetRateItem[], country: string): GroupPrice
 }
 
 export const npr = (n: number) => `Rs ${Math.round(n).toLocaleString('en-IN')}`;
+
+/** Per-kg price for big parcels (20 kg and above, else 10 kg and above), straight from the sheet. */
+export function bulkRate(rates: SheetRateItem[], country: string): { perKg: number; minKg: number } | null {
+  const g = groupPrices(rates, country);
+  if (!g) return null;
+  if (g.per20 != null) return { perKg: g.per20, minKg: 20 };
+  if (g.per10 != null) return { perKg: g.per10, minKg: 10 };
+  return null;
+}

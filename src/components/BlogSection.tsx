@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Card } from '../design/primitives';
 import { Spotlight } from './ui/spotlight';
+import { BlogCover } from './ui/BlogCover';
 import { CountryGuideGrid } from '../features/countryGuides/CountryGuideGrid';
 import { COUNTRY_GUIDES } from '../data/countryGuides';
 
@@ -56,7 +57,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onNavigate }) => {
 
   const guides = (
     <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full border-t border-[var(--line)]">
-      <CountryGuideGrid limit={8} showFilters={false} />
+      <CountryGuideGrid compact />
       <a
         href="/blogs#country-guides"
         onClick={(e) => {
@@ -123,11 +124,11 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onNavigate }) => {
               <div>
                 {/* Cover Image */}
                 <div className="relative w-full h-48 overflow-hidden bg-slate-100">
-                  <img
-                    src={post.coverImageUrl || 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1200&q=80'}
+                  <BlogCover
+                    src={post.coverImageUrl}
                     alt={post.coverImageAlt || post.title}
+                    label={post.category}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
                   />
                   <div className="absolute top-3 left-3 px-3 py-1 rounded-[var(--r-xs)] bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-mono font-bold uppercase tracking-wider border border-white/10 shadow-sm">
                     {post.category}

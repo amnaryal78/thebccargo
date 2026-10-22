@@ -4,7 +4,7 @@ import { FAR_GUIDES } from './farRoutes';
 import { GULF_GUIDES } from './gulf';
 import { EUROPE_GUIDES } from './europe';
 
-export type { CountryGuide, GuideRegion, GuideSectionId, Bi, Lang } from './types';
+export type { CountryGuide, GuideRegion, GuideSectionId, Bi, Lang, LocalGuide, LocalUi, LocalPack, LocalLangCode } from './types';
 
 /** Every country guide, flagship routes first. */
 export const COUNTRY_GUIDES: CountryGuide[] = [...ASIA_GUIDES, ...GULF_GUIDES, ...EUROPE_GUIDES, ...FAR_GUIDES];

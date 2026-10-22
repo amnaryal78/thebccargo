@@ -1,4 +1,5 @@
-import type { Bi, GuideSectionId } from '../../data/countryGuides';
+import type { Bi, GuideRegion, GuideSectionId } from '../../data/countryGuides';
+import { PICKUP_POLICY_EN, PICKUP_POLICY_NE } from '../estimator/pickup';
 
 /** Labels shared by every guide page. Country text lives in src/data/countryGuides. */
 
@@ -19,6 +20,17 @@ export const T = {
   onThisPage: { en: 'On this page', ne: 'यस पेजमा' },
   from: { en: 'From', ne: 'देखि' },
   forOneKg: { en: 'for a 1 kg parcel, box included', ne: '१ केजी पार्सल, बाकससहित' },
+  perKgBulk: { en: 'per kg, for {kg} kg and above', ne: '{kg} केजी वा बढीमा प्रति केजी' },
+  perKgShort: { en: '/kg for {kg} kg+', ne: '/केजी ({kg} केजी+)' },
+  home: { en: 'Home', ne: 'गृहपृष्ठ' },
+  guidesCrumb: { en: 'Guides', ne: 'गाइड' },
+  dropOff: { en: 'Drop-off', ne: 'बुझाउने ठाउँ' },
+  officeAddr: { en: 'School Road -4, Hetauda', ne: 'स्कुल रोड -४, हेटौंडा' },
+  nepalWord: { en: 'NEPAL', ne: 'नेपाल' },
+  hetaudaWord: { en: 'Hetauda', ne: 'हेटौंडा' },
+  delivered: { en: 'Delivered', ne: 'डेलिभरी' },
+  customsOf: { en: '{country} customs', ne: '{country} भन्सार' },
+  askTodayPrice: { en: 'Ask us for today’s price', ne: 'आजको मूल्य हामीसँग सोध्नुहोस्' },
   priceLoading: { en: 'Checking today’s price', ne: 'आजको मूल्य हेर्दै' },
   priceUnavailable: {
     en: 'Current price unavailable. Message us for the latest rate.',
@@ -109,8 +121,8 @@ export const JOURNEY_STEPS: { title: Bi; body: Bi }[] = [
   {
     title: { en: 'Drop off or pickup', ne: 'बुझाउने वा लिन आउने' },
     body: {
-      en: 'Bring it to School Road -4, Hetauda, or we collect from home in {areas} for {fee}.',
-      ne: 'हेटौंडा स्कुल रोड -४ मा ल्याउनुहोस्, वा {areas} मा {fee} मा घरबाटै लिन आउँछौं।',
+      en: 'Bring it to School Road -4, Hetauda, or ask us to collect it from home. {policy}',
+      ne: 'हेटौंडा स्कुल रोड -४ मा ल्याउनुहोस्, वा घरबाटै लिन आउन भन्नुहोस्। {policy}',
     },
   },
   {
@@ -160,8 +172,8 @@ export const COMMON_FAQS: { q: Bi; a: Bi }[] = [
   {
     q: { en: 'Where do I drop off my parcel? Is pickup available?', ne: 'पार्सल कहाँ बुझाउने? घरबाट लिन आउनुहुन्छ?' },
     a: {
-      en: 'Our office is at School Road -4, Hetauda, open Sunday to Friday, 9 am to 6 pm. We also collect from home in {areas} for {fee}.',
-      ne: 'हाम्रो कार्यालय हेटौंडा स्कुल रोड -४ मा छ, आइतबारदेखि शुक्रबार बिहान ९ देखि साँझ ६ सम्म खुला। {areas} मा {fee} मा घरबाटै लिन पनि आउँछौं।',
+      en: 'Our office is at School Road -4, Hetauda, open Sunday to Friday, 9 am to 6 pm. We also collect from home. {policy}',
+      ne: 'हाम्रो कार्यालय हेटौंडा स्कुल रोड -४ मा छ, आइतबारदेखि शुक्रबार बिहान ९ देखि साँझ ६ सम्म खुला। घरबाटै लिन पनि आउँछौं। {policy}',
     },
   },
   {
@@ -172,6 +184,37 @@ export const COMMON_FAQS: { q: Bi; a: Bi }[] = [
     },
   },
 ];
+
+export const POLICY: Bi = { en: PICKUP_POLICY_EN, ne: PICKUP_POLICY_NE };
+
+/** Everything a guide page prints that is not country content. Local-language packs replace the whole bundle. */
+export interface UiBundle {
+  T: Record<keyof typeof T, Bi>;
+  sections: Record<GuideSectionId, Bi>;
+  journey: { title: Bi; body: Bi }[];
+  checklist: Bi[];
+  stages: Bi[];
+  faqs: { q: Bi; a: Bi }[];
+  regions: Record<GuideRegion, Bi>;
+  policy: Bi;
+}
+
+export const UI_BASE: UiBundle = {
+  T,
+  sections: SECTION_LABEL,
+  journey: JOURNEY_STEPS,
+  checklist: CHECKLIST,
+  stages: TRACK_STAGES,
+  faqs: COMMON_FAQS,
+  regions: {
+    asia: { en: 'Asia', ne: 'एसिया' },
+    'middle-east': { en: 'Middle East', ne: 'मध्यपूर्व' },
+    europe: { en: 'Europe', ne: 'युरोप' },
+    'north-america': { en: 'North America', ne: 'उत्तर अमेरिका' },
+    oceania: { en: 'Oceania', ne: 'ओसियानिया' },
+  },
+  policy: POLICY,
+};
 
 export const pick = (b: Bi, lang: 'en' | 'ne') => b[lang];
 export const fill = (s: string, vars: Record<string, string | number>) =>

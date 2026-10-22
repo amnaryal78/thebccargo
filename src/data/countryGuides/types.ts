@@ -87,3 +87,48 @@ export interface CountryGuide {
   faqs: GuideFaq[];
   order?: GuideSectionId[];
 }
+
+/* ---------- Local-language packs (Korean for Korea, Arabic for the Gulf, ...) ---------- */
+
+export type LocalLangCode = 'ko' | 'ja' | 'zh' | 'ar' | 'ms' | 'de';
+
+export interface LocalItem {
+  title: string;
+  note: string;
+}
+
+/** Translation of one guide. Arrays line up with the English guide, index for index. */
+export interface LocalGuide {
+  name: string;
+  city: string;
+  blurb: string;
+  hero: { title: string; lede: string };
+  intro: string[];
+  send: LocalItem[];
+  avoid: LocalItem[];
+  receiver: { lead: string; needs: string[]; tip: string };
+  arrival: { customs: string; delivery: string };
+  faqs: { q: string; a: string }[];
+}
+
+/** Page labels in the local language: same keys as the shared English/Nepali labels. */
+export interface LocalUi {
+  code: LocalLangCode;
+  /** Name of the language, written in that language (button label) */
+  label: string;
+  /** BCP 47 tag for the lang attribute and date formatting */
+  locale: string;
+  rtl?: boolean;
+  T: Record<string, string>;
+  sections: Record<GuideSectionId, string>;
+  journey: { title: string; body: string }[];
+  checklist: string[];
+  stages: string[];
+  faqs: { q: string; a: string }[];
+  regions: Record<GuideRegion, string>;
+}
+
+export interface LocalPack {
+  ui: LocalUi;
+  guides: Record<string, LocalGuide>;
+}

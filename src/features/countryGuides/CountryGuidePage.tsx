@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
@@ -7,38 +7,43 @@ import {
 } from 'lucide-react';
 import { SEOHead } from '../../components/SEOHead';
 import { Cta3D } from '../../components/ui/Cta3D';
+import { Flag } from '../../components/ui/Flag';
 import { calculateSheetShipmentQuote } from '../estimator/engine';
-import { HOME_PICKUP_FEE_NPR, PICKUP_AREAS } from '../estimator/pickup';
 import {
-  DEFAULT_SECTION_ORDER, REGION_LABEL, relatedGuides,
-  type CountryGuide, type GuideSectionId, type Lang, type Bi,
+  DEFAULT_SECTION_ORDER, relatedGuides,
+  type CountryGuide, type GuideSectionId, type Bi, type LocalPack,
 } from '../../data/countryGuides';
 import type { ItemIcon } from '../../data/countryGuides/types';
+import { LOCAL_LANG_OF, loadLocalPack } from '../../data/countryGuides/localLangs';
 import { RouteMap } from './RouteMap';
 import { GuideEstimator } from './GuideEstimator';
-import { useGuideRates, groupPrices, npr } from './useGuideRates';
-import { CHECKLIST, COMMON_FAQS, JOURNEY_STEPS, SECTION_LABEL, T, TRACK_STAGES, fill } from './ui';
+import { useGuideRates, groupPrices, bulkRate, npr } from './useGuideRates';
+import { UI_BASE, fill } from './ui';
+import { localizeGuide, localizeUi } from './localize';
 import { WHATSAPP } from './contact';
 import './country-guide.css';
+
+const Globe3D = lazy(() => import('./Globe3D'));
 
 const ICONS: Record<ItemIcon, React.ElementType> = {
   clothes: Shirt, documents: FileText, food: Soup, gift: Gift, medicine: Pill, personal: Flame,
   craft: Palette, samples: Boxes, meat: Drumstick, liquid: Droplet,
 };
 
+type PageLang = 'en' | 'ne' | 'local';
 const LANG_KEY = 'bc_guide_lang';
 const BASE_URL = 'https://thebccargo.com';
-const flagUrl = (code: string, w = 80) => `https://flagcdn.com/w${w}/${code}.png`;
 
-function useLang(): [Lang, (l: Lang) => void] {
-  const [lang, setLang] = useState<Lang>(() => {
+function useLang(): [PageLang, (l: PageLang) => void] {
+  const [lang, setLang] = useState<PageLang>(() => {
     try {
-      return sessionStorage.getItem(LANG_KEY) === 'ne' ? 'ne' : 'en';
+      const v = sessionStorage.getItem(LANG_KEY);
+      return v === 'ne' || v === 'local' ? v : 'en';
     } catch {
       return 'en';
     }
   });
-  const set = (l: Lang) => {
+  const set = (l: PageLang) => {
     setLang(l);
     try {
       sessionStorage.setItem(LANG_KEY, l);
@@ -61,7 +66,6 @@ function useReadingProgress(ids: string[]) {
         const max = document.documentElement.scrollHeight - window.innerHeight;
         const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
         if (bar.current) bar.current.style.transform = `scaleX(${p})`;
-        // the last section whose top has passed 30% of the viewport
         let current = ids[0];
         for (const id of ids) {
           const el = document.getElementById(id);
@@ -98,31 +102,58 @@ const Reveal: React.FC<{ children: React.ReactNode; className?: string; delay?: 
   );
 };
 
-const SectionHead: React.FC<{ n: number; title: string; kicker?: string }> = ({ n, title, kicker }) => (
+const SectionHead: React.FC<{ n: number; title: string }> = ({ n, title }) => (
   <header className="mb-5 sm:mb-6">
-    <p className="font-mono text-xs font-bold tracking-[0.12em] text-[var(--gold-dark)]">
-      {String(n).padStart(2, '0')}{kicker ? ` · ${kicker}` : ''}
-    </p>
+    <p className="font-mono text-xs font-bold tracking-[0.12em] text-[var(--gold-dark)]">{String(n).padStart(2, '0')}</p>
     <h2 className="mt-1 font-heading font-extrabold text-[26px] sm:text-[32px] leading-tight tracking-tight text-[var(--text)]">{title}</h2>
   </header>
 );
 
-export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) => {
-  const [lang, setLang] = useLang();
-  const L = (b: Bi) => b[lang];
+export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide: base }) => {
+  const [pageLang, setPageLang] = useLang();
+  const localInfo = LOCAL_LANG_OF[base.slug];
+  const lang: PageLang = pageLang === 'local' && !localInfo ? 'en' : pageLang;
+
+  // the local-language pack loads only when someone asks for it
+  const [pack, setPack] = useState<LocalPack | null>(null);
+  useEffect(() => {
+    if (lang !== 'local' || !localInfo || pack) return;
+    let alive = true;
+    loadLocalPack(localInfo.code)
+      .then((p) => alive && setPack(p))
+      .catch(() => alive && setPageLang('en'));
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang, localInfo, pack]);
+
+  const view = useMemo(() => {
+    const local = lang === 'local' && pack ? pack.guides[base.slug] : undefined;
+    if (local && pack) {
+      return { g: localizeGuide(base, local), ui: localizeUi(pack.ui), k: 'en' as const, htmlLang: pack.ui.locale, rtl: !!pack.ui.rtl };
+    }
+    return { g: base, ui: UI_BASE, k: (lang === 'ne' ? 'ne' : 'en') as 'en' | 'ne', htmlLang: lang === 'ne' ? 'ne' : 'en', rtl: false };
+  }, [lang, pack, base]);
+  const { g: guide, ui, k, htmlLang, rtl } = view;
+  const L = (b: Bi) => b[k];
+  const T = ui.T;
   const name = L(guide.name);
+
   const order = guide.order ?? DEFAULT_SECTION_ORDER;
   const ids = useMemo(() => order.map((s) => `cg-${s}`), [order]);
   const { bar, active } = useReadingProgress(ids);
   const [tocOpen, setTocOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [ticked, setTicked] = useState<boolean[]>(() => CHECKLIST.map(() => false));
+  const [ticked, setTicked] = useState<boolean[]>(() => UI_BASE.checklist.map(() => false));
+  const [globeFailed, setGlobeFailed] = useState(false);
+  const reduceMotion = !!useReducedMotion();
 
   const rates = useGuideRates();
   const prices = rates.status === 'ready' ? groupPrices(rates.rates, guide.rateCountry) : null;
+  const bulk = rates.status === 'ready' ? bulkRate(rates.rates, guide.rateCountry) : null;
   const quote = (kg: number) =>
     prices ? calculateSheetShipmentQuote({ destination: guide.rateCountry, actualWeightKg: kg }, rates.rates) : null;
-  const one = quote(1);
   const example = quote(guide.exampleKg);
 
   // Quick cards: only weights the live sheet actually prices.
@@ -135,18 +166,19 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
       .filter((c) => c.q.allowed);
   }, [prices, guide.rateCountry, rates.rates]);
 
-  const areas = PICKUP_AREAS.join(', ');
-  const fee = npr(HOME_PICKUP_FEE_NPR);
-  const vars = { country: name, areas, fee };
-  const wa = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hello BC Cargo, I want to send a parcel to ${guide.name.en}.`)}`;
-  const ratesHref = `/rates?dest=${encodeURIComponent(guide.name.en)}&weight=${guide.exampleKg}`;
-  const related = relatedGuides(guide, 3);
-  const allFaqs = [...guide.faqs, ...COMMON_FAQS];
+  const policy = L(ui.policy);
+  const vars = { country: name, policy };
+  const wa = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hello BC Cargo, I want to send a parcel to ${base.name.en}.`)}`;
+  const ratesHref = `/rates?dest=${encodeURIComponent(base.name.en)}&weight=${guide.exampleKg}`;
+  const related = relatedGuides(base, 3);
+  const allFaqs = [...guide.faqs, ...ui.faqs];
+  const dateLocale = lang === 'local' && pack ? pack.ui.locale : lang === 'ne' ? 'ne-NP' : 'en-GB';
+  const arrow = 'w-4 h-4 rtl:rotate-180';
 
   const share = async () => {
-    const url = `${BASE_URL}/blogs/${guide.slug}`;
+    const url = `${BASE_URL}/blogs/${base.slug}`;
     try {
-      if (navigator.share) await navigator.share({ title: guide.seo.title, url });
+      if (navigator.share) await navigator.share({ title: base.seo.title, url });
       else {
         await navigator.clipboard.writeText(url);
         setCopied(true);
@@ -157,30 +189,31 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
     }
   };
 
+  // structured data always describes the English page, which is what search engines index
   const jsonLd = [
     {
       '@context': 'https://schema.org',
       '@type': 'Article',
-      headline: guide.seo.title.split(' | ')[0],
-      description: guide.seo.description,
+      headline: base.seo.title.split(' | ')[0],
+      description: base.seo.description,
       inLanguage: ['en', 'ne'],
-      mainEntityOfPage: `${BASE_URL}/blogs/${guide.slug}`,
+      mainEntityOfPage: `${BASE_URL}/blogs/${base.slug}`,
       author: { '@type': 'Organization', name: 'The BC Cargo & Courier' },
       publisher: { '@type': 'Organization', name: 'The BC Cargo & Courier', logo: { '@type': 'ImageObject', url: `${BASE_URL}/icon-512.png` } },
     },
     {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      mainEntity: allFaqs.map((f) => ({
+      mainEntity: [...base.faqs, ...UI_BASE.faqs].map((f) => ({
         '@type': 'Question',
         name: f.q.en,
-        acceptedAnswer: { '@type': 'Answer', text: fill(f.a.en, { areas, fee }) },
+        acceptedAnswer: { '@type': 'Answer', text: fill(f.a.en, { policy: UI_BASE.policy.en }) },
       })),
     },
   ];
 
   const section = (id: GuideSectionId, n: number): React.ReactNode => {
-    const head = <SectionHead n={n} title={L(SECTION_LABEL[id])} />;
+    const head = <SectionHead n={n} title={L(ui.sections[id])} />;
     switch (id) {
       case 'intro':
         return (
@@ -195,9 +228,9 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
                 [L(T.currency), guide.currency],
                 [L(T.transit), L(T.transitValue)],
                 [L(T.tracking), L(T.trackingValue)],
-              ].map(([k, v]) => (
-                <div key={k} className="cg-card rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--line)] px-4 py-3">
-                  <dt className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{k}</dt>
+              ].map(([key, v]) => (
+                <div key={key} className="cg-card rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--line)] px-4 py-3">
+                  <dt className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{key}</dt>
                   <dd className="mt-1 text-[15px] font-semibold text-[var(--text)]">{v}</dd>
                 </div>
               ))}
@@ -206,20 +239,21 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
         );
       case 'journey': {
         const steps = [
-          ...JOURNEY_STEPS.map((s) => ({ title: L(s.title), body: fill(L(s.body), vars) })),
-          { title: lang === 'en' ? `${name} customs` : `${name} भन्सार`, body: L(guide.arrival.customs) },
-          { title: lang === 'en' ? 'Delivered' : 'डेलिभरी', body: L(guide.arrival.delivery) },
+          ...ui.journey.map((s) => ({ title: L(s.title), body: fill(L(s.body), vars) })),
+          { title: fill(L(T.customsOf), vars), body: L(guide.arrival.customs) },
+          { title: L(T.delivered), body: L(guide.arrival.delivery) },
         ];
         return (
           <>
             {head}
             <ol className="cg-journey relative space-y-3">
               {steps.map((s, i) => (
-                <li key={i} className="relative pl-14">
+                <li key={i} className="relative ps-14">
+                  {/* the number is not animated, so it never jumps; only the card fades in */}
+                  <span className="cg-journey-dot absolute start-0 top-1 grid place-items-center w-10 h-10 rounded-full font-mono font-bold text-sm" aria-hidden="true">
+                    {i + 1}
+                  </span>
                   <Reveal delay={Math.min(i, 4) * 0.04}>
-                    <span className="cg-journey-dot absolute left-0 top-1 grid place-items-center w-10 h-10 rounded-full font-mono font-bold text-sm" aria-hidden="true">
-                      {i + 1}
-                    </span>
                     <div className="cg-card rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--line)] px-4 py-3.5">
                       <h3 className="font-heading font-bold text-[17px] text-[var(--text)]">{s.title}</h3>
                       <p className="mt-1 text-[15px] leading-relaxed text-[var(--text-secondary)]">{s.body}</p>
@@ -301,9 +335,9 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
               <figure className="cg-label rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--line-strong)] overflow-hidden">
                 <figcaption className="flex items-center justify-between px-4 py-2 bg-[var(--oxford-deep)] text-white text-xs font-bold uppercase tracking-wider">
                   <span>{L(T.exampleAddress)}</span>
-                  <img src={flagUrl(guide.code, 40)} alt="" width={24} height={16} className="rounded-[2px]" loading="lazy" />
+                  <Flag code={guide.code} width={24} className="!border-white/30" />
                 </figcaption>
-                <address className="not-italic px-4 py-3.5 font-mono text-[13.5px] leading-[1.7] text-[var(--text)] break-words">
+                <address dir="ltr" className="not-italic text-left px-4 py-3.5 font-mono text-[13.5px] leading-[1.7] text-[var(--text)] break-words">
                   {guide.receiver.addressExample.map((line, i) => <div key={i}>{line}</div>)}
                 </address>
               </figure>
@@ -336,14 +370,14 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
                       <p className="font-heading font-bold text-[19px] text-[var(--text)]">{fill(L(T.planning), { kg: guide.exampleKg })}</p>
                       <p className="text-[15px] text-[var(--text-secondary)] max-w-[52ch]">{L(T.planningBody)}</p>
                     </div>
-                    <p className="font-heading font-extrabold text-[34px] leading-none tabular-nums text-[var(--oxford-deep)]">{npr(example.totalNpr)}</p>
+                    <p dir="ltr" className="font-heading font-extrabold text-[34px] leading-none tabular-nums text-[var(--oxford-deep)]">{npr(example.totalNpr)}</p>
                   </div>
                 )}
                 <ul className="cg-rates grid grid-cols-2 sm:grid-cols-5 gap-3">
                   {cards.map((c, i) => (
                     <li key={c.kg}>
                       <Reveal delay={i * 0.05} className="h-full">
-                        <div className={`cg-card cg-lift h-full rounded-[var(--r-md)] border px-3.5 py-3 ${c.kg === guide.exampleKg ? 'bg-[var(--oxford-deep)] text-white border-transparent' : 'bg-[var(--surface)] border-[var(--line)]'}`}>
+                        <div dir="ltr" className={`cg-card cg-lift h-full rounded-[var(--r-md)] border px-3.5 py-3 text-left ${c.kg === guide.exampleKg ? 'bg-[var(--oxford-deep)] text-white border-transparent' : 'bg-[var(--surface)] border-[var(--line)]'}`}>
                           <p className={`font-mono text-sm font-bold ${c.kg === guide.exampleKg ? 'text-[var(--gold)]' : 'text-[var(--gold-dark)]'}`}>{c.kg} kg</p>
                           <p className="mt-1 font-heading font-extrabold text-[22px] tabular-nums">{npr(c.q.totalNpr)}</p>
                           <p className={`text-xs ${c.kg === guide.exampleKg ? 'text-white/75' : 'text-[var(--text-muted)]'}`}>{L(T.boxIncluded)}</p>
@@ -362,11 +396,11 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
                 )}
                 {rates.updatedAt && (
                   <p className="mt-1 text-xs text-[var(--text-muted)]">
-                    {L(T.updated)}: {new Date(rates.updatedAt).toLocaleDateString(lang === 'ne' ? 'ne-NP' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    {L(T.updated)}: {new Date(rates.updatedAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric' })}
                   </p>
                 )}
                 <div className="mt-6">
-                  <GuideEstimator guide={guide} rates={rates.rates} rateGroup={prices.rateGroup} lang={lang} />
+                  <GuideEstimator guide={guide} englishName={base.name.en} rates={rates.rates} rateGroup={prices.rateGroup} k={k} ui={ui} />
                 </div>
               </>
             )}
@@ -378,13 +412,13 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
             {head}
             <p className="-mt-3 mb-4 text-sm text-[var(--text-muted)]">{L(T.checklistHint)}</p>
             <ul className="grid gap-2">
-              {CHECKLIST.map((c, i) => (
+              {ui.checklist.map((c, i) => (
                 <li key={i}>
                   <label className={`flex items-center gap-3 min-h-[52px] px-4 rounded-[var(--r-sm)] border cursor-pointer transition-colors ${ticked[i] ? 'bg-[var(--green-subtle)] border-[var(--green-mid)]' : 'bg-[var(--surface)] border-[var(--line)]'}`}>
                     <input
                       type="checkbox"
                       className="w-5 h-5 accent-[var(--green-dark)]"
-                      checked={ticked[i]}
+                      checked={ticked[i] ?? false}
                       onChange={(e) => setTicked((t) => t.map((v, j) => (j === i ? e.target.checked : v)))}
                     />
                     <span className={`text-[15.5px] ${ticked[i] ? 'text-[var(--text-muted)] line-through' : 'text-[var(--text)]'}`}>{L(c)}</span>
@@ -402,7 +436,7 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
               <p className="font-heading font-bold text-[19px] text-[var(--text)]">{L(T.trackTitle)}</p>
               <p className="mt-1 text-[15px] text-[var(--text-secondary)] max-w-[60ch]">{L(T.trackBody)}</p>
               <ol className="cg-stages mt-5 grid grid-cols-3 sm:grid-cols-6 gap-y-4">
-                {TRACK_STAGES.map((s, i) => (
+                {ui.stages.map((s, i) => (
                   <li key={i} className="relative flex flex-col items-center text-center gap-2">
                     <span className="cg-stage-dot relative z-[1] w-4 h-4 rounded-full" aria-hidden="true" />
                     <span className="text-[13px] font-semibold text-[var(--text)]">{i === 5 ? name : L(s)}</span>
@@ -435,17 +469,23 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
     }
   };
 
+  const langButtons: { id: PageLang; label: string; code: string }[] = [
+    { id: 'en', label: 'English', code: 'en' },
+    { id: 'ne', label: 'नेपाली', code: 'ne' },
+    ...(localInfo ? [{ id: 'local' as PageLang, label: localInfo.label, code: localInfo.code }] : []),
+  ];
   const LangSwitch = (
     <div role="group" aria-label="Language / भाषा" className="inline-flex p-1 rounded-full bg-[var(--surface)] border border-[var(--line)] shadow-[var(--clay-outer-xs)]">
-      {(['en', 'ne'] as Lang[]).map((l) => (
+      {langButtons.map((b) => (
         <button
-          key={l}
+          key={b.id}
           type="button"
-          onClick={() => setLang(l)}
-          aria-pressed={lang === l}
-          className={`min-h-[36px] px-4 rounded-full text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] ${lang === l ? 'bg-[var(--oxford-deep)] text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text)]'}`}
+          lang={b.code}
+          onClick={() => setPageLang(b.id)}
+          aria-pressed={lang === b.id}
+          className={`min-h-[36px] px-3.5 sm:px-4 rounded-full text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] ${lang === b.id ? 'bg-[var(--oxford-deep)] text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text)]'}`}
         >
-          {l === 'en' ? 'English' : 'नेपाली'}
+          {b.label}
         </button>
       ))}
     </div>
@@ -465,7 +505,7 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
                 className={`flex items-center gap-2.5 min-h-[40px] px-3 rounded-[var(--r-sm)] text-[14.5px] transition-colors ${on ? 'bg-[var(--surface)] text-[var(--text)] font-bold shadow-[var(--clay-outer-xs)]' : 'text-[var(--text-secondary)] hover:text-[var(--text)]'}`}
               >
                 <span className={`font-mono text-[11px] ${on ? 'text-[var(--gold-dark)]' : 'text-[var(--text-muted)]'}`}>{String(i + 1).padStart(2, '0')}</span>
-                {L(SECTION_LABEL[s])}
+                {L(ui.sections[s])}
               </a>
             </li>
           );
@@ -474,16 +514,20 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
     </nav>
   );
 
+  const originLabel = L(T.hetaudaWord);
+  const destLabel = L(guide.hub.city);
+  const routeAria = `${originLabel}, ${L(T.nepalWord)} → ${destLabel}, ${name}`;
+
   return (
-    <article lang={lang === 'ne' ? 'ne' : 'en'} className="cg-root w-full bg-[var(--bg)] text-[var(--text)]">
+    <article lang={htmlLang} dir={rtl ? 'rtl' : undefined} className="cg-root w-full bg-[var(--bg)] text-[var(--text)]">
       <SEOHead
-        title={guide.seo.title}
-        description={guide.seo.description}
-        canonicalUrl={`${BASE_URL}/blogs/${guide.slug}`}
+        title={base.seo.title}
+        description={base.seo.description}
+        canonicalUrl={`${BASE_URL}/blogs/${base.slug}`}
         ogType="article"
         jsonLd={jsonLd}
       />
-      <div className="fixed top-0 left-0 right-0 h-[3px] z-[60] pointer-events-none" aria-hidden="true">
+      <div className="fixed top-0 left-0 right-0 h-[3px] z-[60] pointer-events-none" aria-hidden="true" dir="ltr">
         <div ref={bar} className="h-full origin-left bg-[var(--gold)]" style={{ transform: 'scaleX(0)' }} />
       </div>
 
@@ -492,9 +536,9 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-10 sm:pt-8 sm:pb-14">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <nav aria-label="Breadcrumb" className="text-sm text-[var(--text-muted)]">
-              <Link to="/" className="hover:text-[var(--text)]">{lang === 'en' ? 'Home' : 'गृहपृष्ठ'}</Link>
+              <Link to="/" className="hover:text-[var(--text)]">{L(T.home)}</Link>
               <span aria-hidden="true"> / </span>
-              <Link to="/blogs" className="hover:text-[var(--text)]">{lang === 'en' ? 'Guides' : 'गाइड'}</Link>
+              <Link to="/blogs" className="hover:text-[var(--text)]">{L(T.guidesCrumb)}</Link>
               <span aria-hidden="true"> / </span>
               <span className="text-[var(--text)]">{name}</span>
             </nav>
@@ -503,14 +547,14 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
 
           <div className="mt-6 sm:mt-10 grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-8 lg:gap-12 items-center">
             <div>
-              <p className="inline-flex items-center gap-2 font-mono text-xs sm:text-sm font-bold tracking-[0.14em] text-[var(--gold-dark)]">
-                <img src={flagUrl('np', 40)} alt="" width={20} height={14} className="rounded-[2px]" />
-                {lang === 'en' ? 'NEPAL' : 'नेपाल'}
-                <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
-                <img src={flagUrl(guide.code, 40)} alt="" width={20} height={14} className="rounded-[2px]" />
-                {lang === 'en' ? guide.name.en.toUpperCase() : guide.name.ne}
+              <p className="inline-flex flex-wrap items-center gap-2 font-mono text-xs sm:text-sm font-bold tracking-[0.14em] uppercase text-[var(--gold-dark)]">
+                <Flag code="np" width={22} />
+                {L(T.nepalWord)}
+                <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" aria-hidden="true" />
+                <Flag code={guide.code} width={22} />
+                {name}
               </p>
-              <h1 className="mt-3 font-heading font-extrabold text-[34px] sm:text-[48px] lg:text-[56px] leading-[1.05] tracking-tight text-[var(--text)] text-balance">
+              <h1 className="mt-3 font-heading font-extrabold text-[34px] sm:text-[48px] lg:text-[56px] leading-[1.08] tracking-tight text-[var(--text)] text-balance">
                 {L(guide.hero.title)}
               </h1>
               <p className="mt-4 text-[17px] sm:text-[19px] leading-relaxed text-[var(--text-secondary)] max-w-[56ch]">{L(guide.hero.lede)}</p>
@@ -520,31 +564,44 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
               </div>
             </div>
 
-            <div className="cg-hero-card relative rounded-[var(--r-lg,20px)] bg-[var(--surface)] border border-[var(--line)] p-4 sm:p-5">
-              <div className="text-[var(--oxford-deep)]">
-                <RouteMap guide={guide} lang={lang} />
+            <div className="cg-hero-card relative rounded-[var(--r-lg,20px)] bg-[var(--surface)] border border-[var(--line)] p-3 sm:p-4">
+              <div className="cg-stage rounded-[var(--r-md)] overflow-hidden text-[var(--oxford-deep)]" dir="ltr">
+                {globeFailed ? (
+                  <RouteMap guide={guide} originLabel={originLabel} destLabel={destLabel} ariaLabel={routeAria} />
+                ) : (
+                  <Suspense fallback={<div className="w-full aspect-[5/4] sm:aspect-[16/11] cg-globe-skeleton" aria-hidden="true" />}>
+                    <Globe3D
+                      guide={guide}
+                      originLabel={originLabel}
+                      destLabel={destLabel}
+                      ariaLabel={routeAria}
+                      reducedMotion={reduceMotion}
+                      onFail={() => setGlobeFailed(true)}
+                    />
+                  </Suspense>
+                )}
               </div>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <div className="rounded-[var(--r-sm)] bg-[var(--surface-subtle)] border border-[var(--line)] px-3.5 py-3">
                   <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{L(T.from)}</p>
                   {rates.status === 'loading' ? (
                     <div className="mt-1.5 h-7 w-28 rounded bg-[var(--line)] animate-pulse" aria-label={L(T.priceLoading)} />
-                  ) : one?.allowed ? (
+                  ) : bulk ? (
                     <>
-                      <p className="font-heading font-extrabold text-[24px] tabular-nums text-[var(--oxford-deep)]">{npr(one.totalNpr)}</p>
-                      <p className="text-xs text-[var(--text-muted)]">{L(T.forOneKg)}</p>
+                      <p dir="ltr" className="font-heading font-extrabold text-[24px] tabular-nums text-[var(--oxford-deep)] text-start">{npr(bulk.perKg)}</p>
+                      <p className="text-xs text-[var(--text-muted)]">{fill(L(T.perKgBulk), { kg: bulk.minKg })}</p>
                     </>
                   ) : (
                     <p className="mt-1 text-[13px] text-[var(--text)]">{L(T.priceUnavailable)}</p>
                   )}
                 </div>
                 <div className="rounded-[var(--r-sm)] bg-[var(--surface-subtle)] border border-[var(--line)] px-3.5 py-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{lang === 'en' ? 'Drop-off' : 'बुझाउने ठाउँ'}</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{L(T.dropOff)}</p>
                   <p className="mt-0.5 flex items-start gap-1.5 text-[14px] font-semibold text-[var(--text)]">
                     <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-[var(--gold-dark)]" aria-hidden="true" />
-                    {lang === 'en' ? 'School Road -4, Hetauda' : 'स्कुल रोड -४, हेटौंडा'}
+                    {L(T.officeAddr)}
                   </p>
-                  <p className="text-xs text-[var(--text-muted)]">{REGION_LABEL[guide.region][lang]}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{L(ui.regions[guide.region])}</p>
                 </div>
               </div>
             </div>
@@ -566,7 +623,7 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
             >
               <span className="flex items-center gap-2"><ListTree className="w-4 h-4" aria-hidden="true" />{L(T.onThisPage)}</span>
               <span className="flex items-center gap-2 text-sm font-semibold text-[var(--text-muted)] truncate">
-                {L(SECTION_LABEL[(active?.replace('cg-', '') || order[0]) as GuideSectionId])}
+                {L(ui.sections[(active?.replace('cg-', '') || order[0]) as GuideSectionId])}
                 <ChevronDown className={`w-4 h-4 transition-transform ${tocOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
               </span>
             </button>
@@ -614,7 +671,7 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
             <h2 id="cg-related" className="font-heading font-extrabold text-[22px] sm:text-[26px] text-[var(--text)] mb-4">{L(T.related)}</h2>
             <ul className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {related.map((g) => {
-                const p = prices && rates.status === 'ready' ? calculateSheetShipmentQuote({ destination: g.rateCountry, actualWeightKg: 1 }, rates.rates) : null;
+                const b = rates.status === 'ready' ? bulkRate(rates.rates, g.rateCountry) : null;
                 return (
                   <li key={g.slug}>
                     <Link
@@ -622,14 +679,14 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
                       className="cg-card cg-lift group flex flex-col h-full rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--line)] p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)]"
                     >
                       <span className="flex items-center gap-2.5">
-                        <img src={flagUrl(g.code, 80)} alt="" width={32} height={21} loading="lazy" className="rounded-[3px] border border-[var(--line)]" />
-                        <span className="font-heading font-bold text-[16px] text-[var(--text)]">{g.name[lang]}</span>
-                        <ArrowRight className="ml-auto w-4 h-4 text-[var(--text-muted)] transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                        <Flag code={g.code} width={32} />
+                        <span className="font-heading font-bold text-[16px] text-[var(--text)]">{g.name[k === 'ne' ? 'ne' : 'en']}</span>
+                        <ArrowRight className="ms-auto w-4 h-4 text-[var(--text-muted)] transition-transform group-hover:translate-x-1 rtl:rotate-180" aria-hidden="true" />
                       </span>
-                      <span className="mt-2 text-[14px] leading-snug text-[var(--text-secondary)]">{g.blurb[lang]}</span>
-                      {p?.allowed && (
-                        <span className="mt-auto pt-3 text-[13px] text-[var(--text-muted)]">
-                          {L(T.from)} <strong className="text-[var(--text)]">{npr(p.totalNpr)}</strong> · 1 kg
+                      <span className="mt-2 text-[14px] leading-snug text-[var(--text-secondary)]">{g.blurb[k === 'ne' ? 'ne' : 'en']}</span>
+                      {b && (
+                        <span dir="ltr" className="mt-auto pt-3 text-[13px] text-[var(--text-muted)] text-start">
+                          {L(T.from)} <strong className="text-[var(--text)]">{npr(b.perKg)}</strong>{fill(L(T.perKgShort), { kg: b.minKg })}
                         </span>
                       )}
                     </Link>
@@ -638,7 +695,7 @@ export const CountryGuidePage: React.FC<{ guide: CountryGuide }> = ({ guide }) =
               })}
             </ul>
             <Link to="/blogs#country-guides" className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-[var(--gold-dark)] hover:underline">
-              {L(T.allGuides)} <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              {L(T.allGuides)} <ArrowRight className={arrow} aria-hidden="true" />
             </Link>
           </section>
         </div>

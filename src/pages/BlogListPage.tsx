@@ -5,6 +5,7 @@ import { SEOHead } from '../components/SEOHead';
 import { Button } from '../design/primitives/Button';
 import { RegistrationCorners } from '../design/icons';
 import { Spotlight } from '../components/ui/spotlight';
+import { BlogCover } from '../components/ui/BlogCover';
 import { CountryGuideGrid } from '../features/countryGuides/CountryGuideGrid';
 import { 
   BookOpen, 
@@ -146,9 +147,15 @@ export const BlogListPage: React.FC = () => {
                 key={blog.id}
                 intensity="subtle"
                 elevateOnHover
-                className="p-6 h-full bg-[var(--surface)] border border-[var(--line)] rounded-xl shadow-sm flex flex-col justify-between hover:border-[var(--oxford-deep)] transition-all duration-[var(--t-normal)] group"
+                className="h-full bg-[var(--surface)] border border-[var(--line)] rounded-xl shadow-sm flex flex-col justify-between hover:border-[var(--oxford-deep)] transition-all duration-[var(--t-normal)] group overflow-hidden"
               >
-                <div className="space-y-3">
+                <BlogCover
+                  src={blog.coverImageUrl}
+                  alt={blog.coverImageAlt || blog.title}
+                  label={blog.category}
+                  className="w-full h-44 object-cover"
+                />
+                <div className="p-6 space-y-3 flex-1">
                   <div className="flex items-center justify-between text-[11px] font-mono text-[var(--text-muted)]">
                     <span className="px-2 py-0.5 rounded bg-[var(--surface-muted)] border border-[var(--line)] font-bold uppercase text-[var(--gold-dark)]">
                       {blog.category}
@@ -170,7 +177,7 @@ export const BlogListPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="pt-4 mt-6 border-t border-[var(--line)] flex items-center justify-between text-xs font-mono">
+                <div className="mx-6 mb-6 pt-4 border-t border-[var(--line)] flex items-center justify-between text-xs font-mono">
                   <span className="text-[var(--text-muted)]">
                     By {blog.authorName}
                   </span>
