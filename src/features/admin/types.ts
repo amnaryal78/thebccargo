@@ -19,7 +19,8 @@ export interface RolePermissions {
 }
 
 export function getRolePermissions(role: AdminRole | null): RolePermissions {
-  if (!role) {
+  // Resellers only get the storefront price view; they have no admin permissions at all.
+  if (!role || role === 'reseller') {
     return {
       canViewDashboard: false,
       canManageShipments: false,

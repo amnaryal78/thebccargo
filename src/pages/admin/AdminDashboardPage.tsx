@@ -10,6 +10,7 @@ import { HowToShipAdminTab } from '../../features/admin/how-to-ship/HowToShipAdm
 import { RatesTab } from '../../features/admin/rates/RatesTab';
 import { BlogsTab } from '../../features/admin/blogs/BlogsTab';
 import { CareersTab } from '../../features/admin/careers/CareersTab';
+import { MessagesInbox } from '../../features/messages/MessagesInbox';
 import { UsersTab } from '../../features/admin/users/UsersTab';
 import { BookingsTab } from '../../features/admin/bookings/BookingsTab';
 import { FeedbackTab } from '../../features/admin/feedback/FeedbackTab';
@@ -24,6 +25,7 @@ export const AdminDashboardPage: React.FC = () => {
         <Route path="shipments" element={<ShipmentsTab />} />
         <Route path="shipments/:id" element={<ShipmentEditorPage />} />
         <Route path="inquiries" element={<InquiriesTab />} />
+        <Route path="messages" element={<MessagesInbox />} />
         <Route path="bookings" element={<BookingsTab />} />
         <Route path="feedback" element={<FeedbackTab />} />
         <Route path="notifications" element={<NotificationsTab />} />

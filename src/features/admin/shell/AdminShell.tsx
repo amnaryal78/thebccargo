@@ -40,6 +40,7 @@ const navItems: NavItem[] = [
   { to: '/admin/shipments', label: 'Shipments', icon: Package },
   { to: '/admin/notifications', label: 'Notifications', icon: Bell, kinds: ['inquiry', 'partner', 'booking', 'review', 'job_application'] },
   { to: '/admin/inquiries', label: 'Inquiries & Partners', icon: MessageSquare, kinds: ['inquiry', 'partner'] },
+  { to: '/admin/messages', label: 'Customer Messages', icon: MessageSquare },
   { to: '/admin/bookings', label: 'Bookings', icon: Package, kinds: ['booking'] },
   { to: '/admin/feedback', label: 'Feedback', icon: Star, kinds: ['review'] },
   { to: '/admin/handling-rules', label: 'Handling Rules', icon: AlertTriangle },

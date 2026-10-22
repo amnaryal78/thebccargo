@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
-export type UserRoleType = 'super_admin' | 'admin' | 'editor' | 'operations' | 'support' | 'read_only';
+export type UserRoleType = 'super_admin' | 'admin' | 'editor' | 'operations' | 'support' | 'read_only' | 'reseller';
 
 export interface UserRoleRecord {
   id: string;

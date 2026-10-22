@@ -1,3 +1,5 @@
+import { CountrySearchSelect } from './ui/CountrySearchSelect';
+import { COUNTRIES } from '../data/countries';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
@@ -26,6 +28,8 @@ import { Button } from '../design/primitives/Button';
 interface BookingSystemProps {
   onBookingSuccess?: (bookingRef: string, newShipment?: any) => void;
 }
+
+const BOOKING_COUNTRY_OPTIONS = COUNTRIES.filter((c) => c.iso2 !== 'NP').map((c) => ({ value: c.name, label: c.name }));
 
 const BOOKING_STEPS: StepItem[] = [
   { id: 'route', label: 'Route & Mode' },
@@ -400,16 +404,17 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
-                  Destination Country *
-                </label>
-                <input
-                  type="text"
-                  value={destinationCountry}
-                  onChange={(e) => setDestinationCountry(e.target.value)}
-                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-                  placeholder="e.g. Germany, United States, UAE, India"
+                <CountrySearchSelect
+                  label="Destination Country"
                   required
+                  placeholder="Search destination country"
+                  options={
+                    !destinationCountry || BOOKING_COUNTRY_OPTIONS.some((o) => o.value === destinationCountry)
+                      ? BOOKING_COUNTRY_OPTIONS
+                      : [{ value: destinationCountry, label: destinationCountry }, ...BOOKING_COUNTRY_OPTIONS]
+                  }
+                  value={destinationCountry}
+                  onChange={setDestinationCountry}
                 />
               </div>
 

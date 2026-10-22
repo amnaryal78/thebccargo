@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { DESTINATIONS } from './route-data';
 import { useEstimatorData } from '../../features/estimator/useEstimatorData';
 import { calculateEstimate, ShipmentType } from '../../features/estimator/engine';
+import { CountrySearchSelect } from '../ui/CountrySearchSelect';
 import { Button } from '../../design/primitives/Button';
 import { Input } from '../../design/primitives/Input';
 import { Counter } from '../../design/primitives/Counter';
@@ -75,21 +76,18 @@ export const MiniEstimatorSlot: React.FC<MiniEstimatorSlotProps> = ({ onNavigate
             {/* Destination & Weight Inputs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label htmlFor="mini-dest-select" className="block text-[11px] font-mono font-semibold uppercase text-[var(--text-muted)] mb-1">
-                  Destination Corridor
-                </label>
-                <select
-                  id="mini-dest-select"
-                  value={selectedDest?.id}
-                  onChange={(e) => setSelectedDestId(e.target.value)}
-                  className="w-full h-10 px-3 bg-[var(--surface)] text-[var(--text)] border border-[var(--line)] rounded-[var(--r-xs)] text-xs font-sans focus:outline-none focus:border-[var(--oxford-deep)] clay-inset"
-                >
-                  {availableDestinations.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.flag ? `${d.flag} ` : ''}{d.name} ({d.code})
-                    </option>
-                  ))}
-                </select>
+                <CountrySearchSelect
+                  label="Destination Corridor"
+                  placeholder="Search destination"
+                  options={availableDestinations.map((d) => ({
+                    value: d.id,
+                    label: `${d.name} (${d.code})`,
+                    hint: d.code,
+                    flag: d.flag,
+                  }))}
+                  value={selectedDest?.id || ''}
+                  onChange={setSelectedDestId}
+                />
               </div>
 
               <div>

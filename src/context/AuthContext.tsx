@@ -48,7 +48,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { checkUserAdminStatus } = await loadAuthService();
       const authResult = await checkUserAdminStatus(usr.id, usr.email || '');
       setRole(authResult.role);
-      setIsAuthorizedAdmin(authResult.isAuthorized);
+      // Resellers sign in with Google but only get the reseller price view, never the admin area.
+      setIsAuthorizedAdmin(authResult.isAuthorized && authResult.role !== 'reseller');
       setActive(authResult.active);
       setAuthReason(authResult.reason);
     } catch (err) {

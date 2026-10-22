@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Home, Calculator, Search, PackageCheck, Menu, X, Phone, MessageSquare } from 'lucide-react';
+import { Home, Calculator, Info, BookOpen, Menu, Phone, MessageSquare } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { BottomSheet } from '../design/primitives/BottomSheet';
 
 interface AndroidBottomNavProps {
@@ -14,20 +15,22 @@ export const AndroidBottomNav: React.FC<AndroidBottomNavProps> = ({
   onOpenBooking,
 }) => {
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
+  const { isAuthorizedAdmin } = useAuth();
 
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'rates', label: 'Rates', icon: Calculator },
-    { id: 'track', label: 'Track', icon: Search },
-    { id: 'book', label: 'Book', icon: PackageCheck, isAction: true },
+    { id: 'about', label: 'About', icon: Info },
+    { id: 'how-to-ship', label: 'How to Ship', icon: BookOpen },
     { id: 'more', label: 'More', icon: Menu, isAction: true },
   ];
 
   const moreLinks = [
-    { id: 'how-to-ship', label: 'How to Ship' },
+    ...(isAuthorizedAdmin ? [{ id: 'messages', label: 'Messages (reply to customers)' }] : []),
+    { id: 'track', label: 'Track' },
+    { id: 'book', label: 'Book' },
     { id: 'become-a-partner', label: 'Become a Partner' },
     { id: 'services', label: 'Services' },
-    { id: 'about', label: 'About' },
     { id: 'contact', label: 'Contact' },
     { id: 'blogs', label: 'Blog' },
     { id: 'careers', label: 'Careers' },
@@ -49,6 +52,10 @@ export const AndroidBottomNav: React.FC<AndroidBottomNavProps> = ({
 
   const handleSubItemClick = (id: string) => {
     setMoreSheetOpen(false);
+    if (id === 'book') {
+      onOpenBooking();
+      return;
+    }
     onNavigate(id);
   };
 

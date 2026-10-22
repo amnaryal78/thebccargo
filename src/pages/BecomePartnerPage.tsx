@@ -7,6 +7,7 @@ import { Select } from '../design/primitives/Select';
 import { Spotlight } from '../components/ui/spotlight';
 import { TurnstileWidget } from '../components/TurnstileWidget';
 import { submitInquiry } from '../services/inquiryService';
+import { CountrySearchSelect } from '../components/ui/CountrySearchSelect';
 import { COUNTRIES, COUNTRY_BY_ISO2, flagUrl } from '../data/countries';
 
 type Origin = 'nepal' | 'outside';
@@ -244,12 +245,13 @@ export const BecomePartnerPage: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <Select
+                <CountrySearchSelect
                   label="Country"
                   required
-                  options={countryOptions}
+                  placeholder="Choose your country"
+                  options={countryOptions.filter((o) => o.value)}
                   value={form.country}
-                  onChange={(e) => set('country', e.target.value)}
+                  onChange={(v) => set('country', v)}
                   error={errors.country}
                 />
               )}

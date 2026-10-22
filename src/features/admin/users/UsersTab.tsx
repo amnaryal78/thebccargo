@@ -133,6 +133,7 @@ export const UsersTab: React.FC = () => {
           <div><strong className="text-slate-900">editor:</strong> Blog CMS, AI fixer, careers</div>
           <div><strong className="text-slate-900">support:</strong> Customer inquiries, read status</div>
           <div><strong className="text-slate-900">read_only:</strong> Inspection only, 0 mutations</div>
+          <div><strong className="text-slate-900">reseller:</strong> Sees rates +Rs 50/kg. No admin access</div>
         </div>
       </div>
 
@@ -242,6 +243,7 @@ export const UsersTab: React.FC = () => {
                   <option value="support">support (Inquiries &amp; Quotes)</option>
                   <option value="read_only">read_only (View Only)</option>
                   <option value="admin">admin (Full Ops &amp; Tariffs)</option>
+                  <option value="reseller">reseller (Rate view +Rs 50/kg, no admin access)</option>
                 </select>
               </div>
 

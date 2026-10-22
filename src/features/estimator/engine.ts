@@ -58,6 +58,8 @@ export const LIQUID_FEE_PER_BOX_NPR = 600;
 export const MEDICINE_FEE_PER_BOX_NPR = 600;
 export const MEAT_FEE_EUROPE_UK_PER_KG = 600;
 export const MEAT_FEE_HONG_KONG_PER_KG = 1100;
+/** Extra shown to signed-in resellers, per kg of total weight. */
+export const RESELLER_MARKUP_PER_KG_NPR = 50;
 
 export interface SheetShipmentInput {
   destination: string; // country name, code, or rate group (e.g. 'United Kingdom', 'Korea', 'UK')
@@ -68,6 +70,8 @@ export interface SheetShipmentInput {
   medicineBoxCount?: number;
   hasMeat?: boolean;
   meatKg?: number;
+  /** Reseller price view: adds RESELLER_MARKUP_PER_KG_NPR per kg to the shipping charge. */
+  isReseller?: boolean;
 }
 
 export interface BoxBreakdownItem {
@@ -91,6 +95,8 @@ export interface SheetQuoteResult {
   liquidCharge: number;
   medicineCharge: number;
   meatCharge: number;
+  /** Already included in baseShippingCharge and totalNpr. */
+  resellerMarkupNpr?: number;
   totalNpr: number;
   /** Extra charge when we collect from the sender's home (already included in totalNpr). */
   pickupFeeNpr?: number;
@@ -471,6 +477,9 @@ export function calculateSheetShipmentQuote(
     });
   });
 
+  const resellerMarkupNpr = input.isReseller ? Math.round(totalWeight * RESELLER_MARKUP_PER_KG_NPR) : 0;
+  baseShippingCharge += resellerMarkupNpr;
+
   // Box charges: Rs 1,000 per box
   const boxCharge = boxCount * BOX_CHARGE_NPR;
 
@@ -520,6 +529,7 @@ export function calculateSheetShipmentQuote(
     liquidCharge,
     medicineCharge,
     meatCharge,
+    resellerMarkupNpr: resellerMarkupNpr || undefined,
     totalNpr,
     meatBlocked,
     meatBlockedReason,

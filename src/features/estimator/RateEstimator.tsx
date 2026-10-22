@@ -1,3 +1,4 @@
+import { useAuth } from '../../context/AuthContext';
 import React, { useState, useMemo, useEffect, useRef, useId } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { HOME_PICKUP_FEE_NPR, PICKUP_AREAS, OTHER_AREA, type HandoverMethod } from './pickup';
@@ -195,6 +196,8 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
   onSelectEstimate,
 }) => {
   const reduce = !!useReducedMotion();
+  const { role, active } = useAuth();
+  const isReseller = role === 'reseller' && active;
   const { sheetRates, loading, rateError, rateSource, lastUpdated, isOffline, refetch } = useEstimatorData();
 
   // 1. Country
@@ -338,10 +341,11 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
         hasMedicine,
         hasMeat,
         meatKg: hasMeat ? meatKg : 0,
+        isReseller,
       },
       sheetRates
     );
-  }, [sheetRates, selectedCountry, weightKg, overMax, hasLiquid, hasMedicine, hasMeat, meatKg]);
+  }, [sheetRates, selectedCountry, weightKg, overMax, hasLiquid, hasMedicine, hasMeat, meatKg, isReseller]);
 
   const homePickupOk = handover === 'home' && (PICKUP_AREAS as readonly string[]).includes(pickupArea);
   const pickupFee = homePickupOk ? HOME_PICKUP_FEE_NPR : 0;

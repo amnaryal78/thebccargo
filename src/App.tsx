@@ -14,6 +14,7 @@ import { RouteLoader } from './components/RouteLoader';
 import { BootSignal } from './boot/BootSignal';
 
 // Code-Split Lazy Loaded Page & Section Components for Core Web Vitals Optimization
+const MessagesPage = lazy(() => import('./pages/MessagesPage').then(m => ({ default: m.MessagesPage })));
 const TrackingSection = lazy(() => import('./components/TrackingSection').then(m => ({ default: m.TrackingSection })));
 const BookingSystem = lazy(() => import('./components/BookingSystem').then(m => ({ default: m.BookingSystem })));
 const ServicesSuite = lazy(() => import('./components/ServicesSuite').then(m => ({ default: m.ServicesSuite })));
@@ -178,6 +179,8 @@ function AppContent() {
             {/* Careers Routes */}
             <Route path="/careers" element={<CareersPage />} />
             <Route path="/careers/:slug" element={<CareerDetailPage />} />
+
+            <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
 
             {/* Protected Admin Portal Routes */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
