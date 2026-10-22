@@ -6,6 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { loadCountryGuides } from './country-guides.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,6 +71,10 @@ export const SITEMAP_ROUTES = [
   { path: '/how-to-ship', changefreq: 'monthly', priority: 0.7, lastmod: CURRENT_DATE },
   { path: '/policies', changefreq: 'monthly', priority: 0.5, lastmod: CURRENT_DATE }
 ];
+
+for (const g of await loadCountryGuides()) {
+  SITEMAP_ROUTES.push({ path: `/blogs/${g.slug}`, changefreq: 'weekly', priority: 0.85, lastmod: CURRENT_DATE });
+}
 
 export function generateSitemapXml() {
   const urls = SITEMAP_ROUTES.map((r) => {

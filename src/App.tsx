@@ -24,7 +24,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m
 const RatesPage = lazy(() => import('./pages/RatesPage').then(m => ({ default: m.RatesPage })));
 const ServiceDetailPage = lazy(() => import('./pages/ServiceDetailPage').then(m => ({ default: m.ServiceDetailPage })));
 const BlogListPage = lazy(() => import('./pages/BlogListPage').then(m => ({ default: m.BlogListPage })));
-const BlogPostPage = lazy(() => import('./pages/BlogPostPage').then(m => ({ default: m.BlogPostPage })));
+const BlogSlugPage = lazy(() => import('./pages/BlogSlugPage').then(m => ({ default: m.BlogSlugPage })));
 const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
 const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
 const PoliciesPage = lazy(() => import('./pages/PoliciesPage').then(m => ({ default: m.PoliciesPage })));
@@ -155,7 +155,7 @@ function AppContent() {
 
             {/* Knowledge Base & Blog Routes */}
             <Route path="/blogs" element={<BlogListPage />} />
-            <Route path="/blogs/:slug" element={<BlogPostPage />} />
+            <Route path="/blogs/:slug" element={<BlogSlugPage />} />
 
             {/* Dedicated Public Information Pages */}
             <Route path="/about" element={<AboutPage />} />

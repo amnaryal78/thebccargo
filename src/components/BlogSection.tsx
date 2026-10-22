@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { Card } from '../design/primitives';
 import { Spotlight } from './ui/spotlight';
+import { CountryGuideGrid } from '../features/countryGuides/CountryGuideGrid';
+import { COUNTRY_GUIDES } from '../data/countryGuides';
 
 
 // Pointer-following light animation helper
@@ -52,9 +54,27 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onNavigate }) => {
     return () => { isMounted = false; };
   }, []);
 
-  if (!loading && blogs.length === 0) return null;
+  const guides = (
+    <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full border-t border-[var(--line)]">
+      <CountryGuideGrid limit={8} showFilters={false} />
+      <a
+        href="/blogs#country-guides"
+        onClick={(e) => {
+          e.preventDefault();
+          onNavigate('blogs');
+        }}
+        className="mt-5 inline-flex items-center gap-1.5 min-h-[44px] text-sm font-bold text-[var(--gold-dark)] hover:underline"
+      >
+        See all {COUNTRY_GUIDES.length} country guides <ArrowRight className="w-4 h-4" aria-hidden="true" />
+      </a>
+    </section>
+  );
+
+  if (!loading && blogs.length === 0) return guides;
 
   return (
+    <>
+    {guides}
     <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full border-t border-slate-200">
       
       {/* Section Header */}
@@ -165,5 +185,6 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onNavigate }) => {
       </div>
 
     </section>
+    </>
   );
 };

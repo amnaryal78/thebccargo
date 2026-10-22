@@ -5,6 +5,7 @@ import { SEOHead } from '../components/SEOHead';
 import { Button } from '../design/primitives/Button';
 import { RegistrationCorners } from '../design/icons';
 import { Spotlight } from '../components/ui/spotlight';
+import { CountryGuideGrid } from '../features/countryGuides/CountryGuideGrid';
 import { 
   BookOpen, 
   Calendar, 
@@ -92,7 +93,7 @@ export const BlogListPage: React.FC = () => {
               <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-3.5" />
               <input
                 type="text"
-                placeholder="Search trade guides or regulations..."
+                placeholder="Search guides or a country (Korea, UK...)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full h-11 pl-9 pr-4 bg-[var(--surface-muted)] text-[var(--text)] border border-[var(--line)] rounded-[var(--r-xs)] font-sans text-xs focus:outline-none focus:border-[var(--oxford-deep)] clay-inset"
@@ -119,6 +120,9 @@ export const BlogListPage: React.FC = () => {
 
           </div>
         </section>
+
+        {/* COUNTRY GUIDES (content files, live prices) */}
+        <CountryGuideGrid query={searchQuery} />
 
         {/* ARTICLES GRID */}
         {loading ? (

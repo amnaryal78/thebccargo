@@ -7,6 +7,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { loadCountryGuides } from './country-guides.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -578,6 +579,34 @@ function fallbackBody(routePath, meta) {
   return `<main style="max-width:720px;margin:0 auto;padding:24px;font-family:system-ui,sans-serif;color:#121211"><h1>${heading}</h1><p>${esc(meta.description)}</p><nav aria-label="Main">${links}</nav>${more}<p>The BC Cargo &amp; Courier Pvt. Ltd., School Road -4, Hetauda, Nepal. Phone 057-591816.</p></main>`;
 }
 
+/** Country guides: unique head tags, Article + FAQPage JSON-LD and a readable English body per guide. */
+function addCountryGuides(guides) {
+  for (const g of guides) {
+    const url = `${BASE_URL}/blogs/${g.slug}`;
+    const faqs = [...g.faqs];
+    const li = (items) => items.map((i) => `<li><strong>${esc(i.title.en)}</strong>: ${esc(i.note.en)}</li>`).join('');
+    ROUTE_METADATA[`/blogs/${g.slug}`] = {
+      title: g.seo.title,
+      description: g.seo.description,
+      ogType: 'article',
+      ogImage: `${BASE_URL}/og-banner.png`,
+      jsonLd: [
+        {
+          '@context': 'https://schema.org', '@type': 'Article',
+          headline: g.seo.title.split(' | ')[0], description: g.seo.description, inLanguage: ['en', 'ne'], mainEntityOfPage: url,
+          author: { '@type': 'Organization', name: 'The BC Cargo & Courier' },
+          publisher: { '@type': 'Organization', name: 'The BC Cargo & Courier', logo: { '@type': 'ImageObject', url: `${BASE_URL}/icon-512.png` } }
+        },
+        {
+          '@context': 'https://schema.org', '@type': 'FAQPage',
+          mainEntity: faqs.map((x) => ({ '@type': 'Question', name: x.q.en, acceptedAnswer: { '@type': 'Answer', text: x.a.en } }))
+        }
+      ],
+      bodyHtml: `<main style="max-width:720px;margin:0 auto;padding:24px;font-family:system-ui,sans-serif;color:#121211"><p>Nepal to ${esc(g.name.en)}</p><h1>${esc(g.hero.title.en)}</h1><p>${esc(g.hero.lede.en)}</p>${g.intro.map((p) => `<p>${esc(p.en)}</p>`).join('')}<h2>What you can send</h2><ul>${li(g.send)}</ul><h2>What not to send</h2><ul>${li(g.avoid)}</ul><h2>What the receiver needs</h2><p>${esc(g.receiver.lead.en)}</p><ul>${g.receiver.needs.map((r) => `<li>${esc(r.en)}</li>`).join('')}</ul><p>${esc(g.receiver.tip.en)}</p><h2>Price</h2><p>Live prices by weight are on this page and on our <a href="/rates">rates page</a>.</p><h2>Questions</h2>${faqs.map((x) => `<h3>${esc(x.q.en)}</h3><p>${esc(x.a.en)}</p>`).join('')}<p><a href="/blogs">All country guides</a> · <a href="/track">Track a parcel</a></p><p>The BC Cargo &amp; Courier Pvt. Ltd., School Road -4, Hetauda, Nepal. Phone 057-591816.</p></main>`
+    };
+  }
+}
+
 export function prerender() {
   const indexHtmlPath = path.join(DIST_DIR, 'index.html');
   if (!fs.existsSync(indexHtmlPath)) {
@@ -675,4 +704,5 @@ export function prerender() {
   console.log(`[PRERENDER] Successfully generated ${renderedCount} static HTML pages in dist/!`);
 }
 
+addCountryGuides(await loadCountryGuides());
 prerender();
