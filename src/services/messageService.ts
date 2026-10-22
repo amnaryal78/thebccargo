@@ -81,6 +81,16 @@ export async function fetchAllMessages(): Promise<{ messages: CustomerMessage[];
   return { messages: (data || []).map(toMessage), error: null };
 }
 
+/** How many messages still need a reply (staff only; RLS returns 0 rows to everyone else). */
+export async function countNewMessages(): Promise<number> {
+  if (!isSupabaseConfigured) return 0;
+  const { count, error } = await supabase
+    .from('customer_messages')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'new');
+  return error ? 0 : count ?? 0;
+}
+
 export async function replyToMessage(id: string, reply: string, staffEmail: string): Promise<{ ok: boolean; error: string | null }> {
   const text = reply.trim();
   if (!text) return { ok: false, error: 'Write a reply first.' };

@@ -3,7 +3,6 @@ import {
   Ban,
   Beef,
   BookOpen,
-  Box,
   CheckCircle2,
   Droplets,
   FileText,
@@ -19,6 +18,7 @@ import {
   Wheat,
 } from 'lucide-react';
 import type { HowToShipItem, HowToShipSection } from '../../types/howToShip';
+import { ShipStepAnimation, type AnimKind } from './anim/ShipAnimations';
 
 /**
  * How each guide step is drawn. The words always come from the saved guide (Supabase);
@@ -221,20 +221,7 @@ const BringBody: React.FC<{ items: HowToShipItem[] }> = ({ items }) => {
 };
 
 /* ---------- Step: how to pack ---------- */
-const PackBox: React.FC = () => (
-  <svg viewBox="0 0 160 150" className="w-full max-w-[180px] h-auto mx-auto" aria-hidden="true">
-    <ellipse cx="80" cy="132" rx="62" ry="9" fill="#002147" opacity="0.14" />
-    <polygon points="14,48 80,24 146,48 80,74" fill="#F2B705" />
-    <polygon points="14,48 80,74 80,128 14,102" fill="#123562" />
-    <polygon points="146,48 80,74 80,128 146,102" fill="#002147" />
-    <polygon points="62,31 98,31 112,38 76,46" fill="#fff" fillOpacity="0.6" />
-    <polygon points="72,74 88,74 88,128 72,128" fill="#F2B705" />
-    <rect x="30" y="82" width="26" height="14" rx="2" fill="#F6F6F4" opacity="0.9" transform="skewY(24)" />
-  </svg>
-);
-
 const PackBody: React.FC<{ items: HowToShipItem[] }> = ({ items }) => (
-  <div className="grid grid-cols-1 md:grid-cols-[1fr_200px] gap-6 items-start">
     <ol className="relative list-none m-0 p-0 space-y-4">
       {items.map((item, i) => (
         <li key={i} className="relative flex gap-4">
@@ -250,10 +237,6 @@ const PackBody: React.FC<{ items: HowToShipItem[] }> = ({ items }) => (
         </li>
       ))}
     </ol>
-    <div className="hidden md:block pt-2">
-      <PackBox />
-    </div>
-  </div>
 );
 
 /* ---------- Step: customs and tax ---------- */
@@ -308,18 +291,48 @@ const PlainBody: React.FC<{ items: HowToShipItem[] }> = ({ items }) => (
   </ul>
 );
 
+/** Step text plus its small illustration: above the list on phones and tablets, beside it from laptop width. */
+const WithAnim: React.FC<{ kind: AnimKind; children: React.ReactNode }> = ({ kind, children }) => (
+  <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_248px] gap-5 lg:gap-7 items-start">
+    <div className="lg:order-2 lg:sticky lg:top-28">
+      <ShipStepAnimation kind={kind} />
+    </div>
+    <div className="min-w-0 lg:order-1">{children}</div>
+  </div>
+);
+
 export const StepBody: React.FC<{ section: HowToShipSection; whatsappHref: string }> = ({ section, whatsappHref }) => {
   switch (kindOf(section)) {
     case 'send':
-      return <SendBody items={section.items} />;
+      return (
+        <WithAnim kind="send">
+          <SendBody items={section.items} />
+        </WithAnim>
+      );
     case 'rules':
-      return <RulesBody items={section.items} />;
+      return (
+        <WithAnim kind="rules">
+          <RulesBody items={section.items} />
+        </WithAnim>
+      );
     case 'banned':
-      return <BannedBody section={section} whatsappHref={whatsappHref} />;
+      return (
+        <WithAnim kind="banned">
+          <BannedBody section={section} whatsappHref={whatsappHref} />
+        </WithAnim>
+      );
     case 'bring':
-      return <BringBody items={section.items} />;
+      return (
+        <WithAnim kind="bring">
+          <BringBody items={section.items} />
+        </WithAnim>
+      );
     case 'pack':
-      return <PackBody items={section.items} />;
+      return (
+        <WithAnim kind="pack">
+          <PackBody items={section.items} />
+        </WithAnim>
+      );
     case 'customs':
       return <CustomsBody items={section.items} />;
     default:

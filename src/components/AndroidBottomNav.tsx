@@ -1,5 +1,25 @@
-import React, { useState } from 'react';
-import { Home, Calculator, Info, BookOpen, Menu, Phone, MessageSquare } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import {
+  Home,
+  Calculator,
+  Info,
+  BookOpen,
+  Menu,
+  Phone,
+  MessageSquare,
+  Search,
+  PackagePlus,
+  Truck,
+  Mail,
+  Handshake,
+  Newspaper,
+  Briefcase,
+  HelpCircle,
+  FileText,
+  Inbox,
+  LayoutDashboard,
+  ChevronRight,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { BottomSheet } from '../design/primitives/BottomSheet';
 
@@ -25,18 +45,35 @@ export const AndroidBottomNav: React.FC<AndroidBottomNavProps> = ({
     { id: 'more', label: 'More', icon: Menu, isAction: true },
   ];
 
-  const moreLinks = [
-    ...(isAuthorizedAdmin ? [{ id: 'messages', label: 'Messages (reply to customers)' }] : []),
-    { id: 'track', label: 'Track' },
-    { id: 'book', label: 'Book' },
-    { id: 'become-a-partner', label: 'Become a Partner' },
-    { id: 'services', label: 'Services' },
-    { id: 'contact', label: 'Contact' },
-    { id: 'blogs', label: 'Blog' },
-    { id: 'careers', label: 'Careers' },
-    { id: 'faq', label: 'FAQ' },
-    { id: 'policies', label: 'Policies' },
+  // The things people come for, as big tiles
+  const primaryLinks = [
+    { id: 'track', label: 'Track parcel', icon: Search },
+    { id: 'book', label: 'Book pickup', icon: PackagePlus },
+    { id: 'services', label: 'Services', icon: Truck },
+    { id: 'contact', label: 'Contact', icon: Mail },
   ];
+  const moreLinks = [
+    { id: 'become-a-partner', label: 'Become a partner', icon: Handshake },
+    { id: 'blogs', label: 'Blog', icon: Newspaper },
+    { id: 'careers', label: 'Careers', icon: Briefcase },
+    { id: 'faq', label: 'FAQ', icon: HelpCircle },
+    { id: 'policies', label: 'Policies', icon: FileText },
+  ];
+
+  // Staff see how many customer messages are waiting. The service is loaded only for staff,
+  // so the Supabase client never lands in the main bundle for normal visitors.
+  const [newMessages, setNewMessages] = useState<number | null>(null);
+  useEffect(() => {
+    if (!moreSheetOpen || !isAuthorizedAdmin) return;
+    let alive = true;
+    import('../services/messageService')
+      .then((m) => m.countNewMessages())
+      .then((n) => alive && setNewMessages(n))
+      .catch(() => alive && setNewMessages(null));
+    return () => {
+      alive = false;
+    };
+  }, [moreSheetOpen, isAuthorizedAdmin]);
 
   const handleItemClick = (id: string, isAction?: boolean) => {
     if (id === 'book') {
@@ -98,44 +135,97 @@ export const AndroidBottomNav: React.FC<AndroidBottomNavProps> = ({
       </nav>
 
       {/* More Bottom Sheet */}
-      <BottomSheet
-        isOpen={moreSheetOpen}
-        onClose={() => setMoreSheetOpen(false)}
-        title="BC Cargo Directory"
-      >
-        <div className="flex flex-col gap-2">
-          {/* Quick Call & WhatsApp shortcuts in sheet */}
-          <div className="grid grid-cols-2 gap-2 mb-2">
+      <BottomSheet isOpen={moreSheetOpen} onClose={() => setMoreSheetOpen(false)} title="More">
+        <div className="flex flex-col gap-4">
+          {isAuthorizedAdmin && (
+            <div className="grid grid-cols-[1fr_auto] gap-2">
+              <button
+                type="button"
+                onClick={() => handleSubItemClick('messages')}
+                className="min-h-[56px] flex items-center gap-3 px-3.5 rounded-[var(--r-sm)] bg-[#002147] text-white text-left active:scale-[0.98] transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
+              >
+                <span className="relative w-9 h-9 rounded-xl bg-white/10 grid place-items-center shrink-0">
+                  <Inbox className="w-5 h-5 text-[#F2B705]" aria-hidden="true" />
+                  {!!newMessages && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-[#F2B705] text-[#002147] text-[11px] font-bold grid place-items-center">
+                      {newMessages > 99 ? '99+' : newMessages}
+                    </span>
+                  )}
+                </span>
+                <span className="min-w-0 leading-tight">
+                  <span className="block font-heading font-bold text-sm">Customer messages</span>
+                  <span className="block text-[12px] text-white/70">
+                    {newMessages === null ? 'Read and reply' : newMessages === 0 ? 'All replied' : `${newMessages} waiting for a reply`}
+                  </span>
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSubItemClick('admin')}
+                aria-label="Open admin panel"
+                className="min-h-[56px] w-14 grid place-items-center rounded-[var(--r-sm)] border border-[var(--line-strong)] text-[#002147] active:scale-[0.98] transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
+              >
+                <LayoutDashboard className="w-5 h-5" aria-hidden="true" />
+              </button>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-2">
+            {primaryLinks.map(({ id, label, icon: Icon }) => {
+              const active = activeSection === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => handleSubItemClick(id)}
+                  aria-current={active ? 'page' : undefined}
+                  className={`min-h-[76px] flex flex-col items-start justify-between gap-2 p-3 rounded-[var(--r-sm)] border text-left active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705] ${
+                    active ? 'bg-[#FFF9E0] border-[#F2B705]' : 'bg-[#EEF3F9] border-transparent hover:border-[#002147]/20'
+                  }`}
+                >
+                  <span className="w-8 h-8 rounded-lg bg-[#002147] text-[#F2B705] grid place-items-center">
+                    <Icon className="w-4 h-4" aria-hidden="true" />
+                  </span>
+                  <span className="font-heading font-bold text-sm text-[#002147]">{label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <ul className="flex flex-col rounded-[var(--r-sm)] border border-[var(--line)] overflow-hidden list-none m-0 p-0">
+            {moreLinks.map(({ id, label, icon: Icon }, i) => (
+              <li key={id} className={i > 0 ? 'border-t border-[var(--line)]' : ''}>
+                <button
+                  type="button"
+                  onClick={() => handleSubItemClick(id)}
+                  aria-current={activeSection === id ? 'page' : undefined}
+                  className="w-full min-h-[48px] px-3.5 flex items-center gap-3 text-left text-sm font-semibold text-[var(--text)] hover:bg-[var(--surface-2)] active:bg-[var(--surface-2)] transition-colors cursor-pointer focus-visible:outline-none focus-visible:bg-[var(--surface-2)]"
+                >
+                  <Icon className="w-4 h-4 text-[var(--gold-dark)] shrink-0" aria-hidden="true" />
+                  <span className="flex-1">{label}</span>
+                  <ChevronRight className="w-4 h-4 text-[var(--text-muted)]" aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <div className="grid grid-cols-2 gap-2">
             <a
               href="tel:+977057591816"
-              className="min-h-[44px] flex items-center justify-center gap-2 px-3 py-2 bg-[#002147] text-white rounded-[var(--r-sm)] border border-white/20 text-xs font-heading font-bold uppercase tracking-wider shadow-hard-sm hover:bg-[#F2B705] hover:text-[#002147] hover:border-[#FAC623] active:translate-y-0.5 transition-all whitespace-nowrap"
+              className="min-h-[48px] flex items-center justify-center gap-2 px-3 rounded-[var(--r-sm)] bg-[#002147] text-white text-sm font-heading font-bold active:scale-[0.98] transition-transform whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
             >
-              <Phone className="w-4 h-4 text-[#F2B705] shrink-0" />
-              <span className="whitespace-nowrap">Call Dispatch</span>
+              <Phone className="w-4 h-4 text-[#F2B705] shrink-0" aria-hidden="true" />
+              <span>Call office</span>
             </a>
             <a
               href="https://wa.me/9779855019485"
               target="_blank"
               rel="noopener noreferrer"
-              className="min-h-[44px] flex items-center justify-center gap-2 px-3 py-2 bg-[#F2B705] text-[#002147] rounded-[var(--r-sm)] border border-white/60 text-xs font-heading font-bold uppercase tracking-wider shadow-hard-sm hover:bg-[#002147] hover:text-[#FAC623] hover:border-[#123562] active:translate-y-0.5 transition-all whitespace-nowrap"
+              className="min-h-[48px] flex items-center justify-center gap-2 px-3 rounded-[var(--r-sm)] bg-[#F2B705] text-[#002147] text-sm font-heading font-bold active:scale-[0.98] transition-transform whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#002147]"
             >
-              <MessageSquare className="w-4 h-4 shrink-0" />
-              <span className="whitespace-nowrap">WhatsApp</span>
+              <MessageSquare className="w-4 h-4 shrink-0" aria-hidden="true" />
+              <span>WhatsApp</span>
             </a>
-          </div>
-
-          <div className="flex flex-col divide-y divide-[var(--line)] border border-[var(--line)] rounded-[var(--r-sm)] overflow-hidden">
-            {moreLinks.map((link) => (
-              <button
-                key={link.id}
-                type="button"
-                onClick={() => handleSubItemClick(link.id)}
-                className="w-full min-h-[44px] px-4 py-3 text-left text-xs font-heading font-bold uppercase tracking-wider text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors flex items-center justify-between cursor-pointer"
-              >
-                <span>{link.label}</span>
-                <span className="text-[var(--text-muted)] font-mono text-sm">→</span>
-              </button>
-            ))}
           </div>
         </div>
       </BottomSheet>

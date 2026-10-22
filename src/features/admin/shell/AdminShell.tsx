@@ -17,8 +17,10 @@ import {
   ExternalLink,
   BookOpen,
   Bell,
-  Star
+  Star,
+  Inbox,
 } from 'lucide-react';
+import { countNewMessages } from '../../../services/messageService';
 import { useAuth } from '../../../context/AuthContext';
 import { BcLogo } from '../../../components/BcLogo';
 import { getRolePermissions } from '../types';
@@ -33,24 +35,63 @@ interface NavItem {
   end?: boolean;
   /** Unread notifications of these kinds show as a count on the nav item. */
   kinds?: NotificationKind[];
+  /** Shows the count of customer messages still waiting for a reply. */
+  messages?: boolean;
 }
 
-const navItems: NavItem[] = [
-  { to: '/admin', label: 'Overview', icon: LayoutDashboard, end: true },
-  { to: '/admin/shipments', label: 'Shipments', icon: Package },
-  { to: '/admin/notifications', label: 'Notifications', icon: Bell, kinds: ['inquiry', 'partner', 'booking', 'review', 'job_application'] },
-  { to: '/admin/inquiries', label: 'Inquiries & Partners', icon: MessageSquare, kinds: ['inquiry', 'partner'] },
-  { to: '/admin/messages', label: 'Customer Messages', icon: MessageSquare },
-  { to: '/admin/bookings', label: 'Bookings', icon: Package, kinds: ['booking'] },
-  { to: '/admin/feedback', label: 'Feedback', icon: Star, kinds: ['review'] },
-  { to: '/admin/handling-rules', label: 'Handling Rules', icon: AlertTriangle },
-  { to: '/admin/how-to-ship', label: 'How to Ship', icon: BookOpen },
-  { to: '/admin/rates', label: 'Rates & CSV', icon: Receipt },
-  { to: '/admin/blogs', label: 'Blogs & AI Fixer', icon: FileText },
-  { to: '/admin/careers', label: 'Careers & Applicants', icon: Briefcase, kinds: ['job_application'] },
-  { to: '/admin/users', label: 'Users & Roles', icon: Users },
-  { to: '/admin/audit', label: 'Audit Logs', icon: Activity },
+const navGroups: { title: string; items: NavItem[] }[] = [
+  {
+    title: 'Operations',
+    items: [
+      { to: '/admin', label: 'Overview', icon: LayoutDashboard, end: true },
+      { to: '/admin/shipments', label: 'Shipments', icon: Package },
+      { to: '/admin/bookings', label: 'Bookings', icon: Package, kinds: ['booking'] },
+      { to: '/admin/notifications', label: 'Notifications', icon: Bell, kinds: ['inquiry', 'partner', 'booking', 'review', 'job_application'] },
+    ],
+  },
+  {
+    title: 'Customers',
+    items: [
+      { to: '/admin/messages', label: 'Customer messages', icon: Inbox, messages: true },
+      { to: '/admin/inquiries', label: 'Inquiries & partners', icon: MessageSquare, kinds: ['inquiry', 'partner'] },
+      { to: '/admin/feedback', label: 'Feedback', icon: Star, kinds: ['review'] },
+    ],
+  },
+  {
+    title: 'Content & pricing',
+    items: [
+      { to: '/admin/rates', label: 'Rates & CSV', icon: Receipt },
+      { to: '/admin/handling-rules', label: 'Handling rules', icon: AlertTriangle },
+      { to: '/admin/how-to-ship', label: 'How to ship', icon: BookOpen },
+      { to: '/admin/blogs', label: 'Blogs & AI fixer', icon: FileText },
+      { to: '/admin/careers', label: 'Careers & applicants', icon: Briefcase, kinds: ['job_application'] },
+    ],
+  },
+  {
+    title: 'System',
+    items: [
+      { to: '/admin/users', label: 'Users & roles', icon: Users },
+      { to: '/admin/audit', label: 'Audit logs', icon: Activity },
+    ],
+  },
 ];
+const navItems: NavItem[] = navGroups.flatMap((g) => g.items);
+
+/** Customer messages waiting for a reply, refreshed every minute and when you change page. */
+function useNewMessageCount(path: string): number {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    const load = () => countNewMessages().then((n) => alive && setCount(n)).catch(() => undefined);
+    load();
+    const id = window.setInterval(load, 60_000);
+    return () => {
+      alive = false;
+      window.clearInterval(id);
+    };
+  }, [path]);
+  return count;
+}
 
 const AdminShellInner: React.FC = () => {
   const { user, role, logout } = useAuth();
@@ -75,8 +116,9 @@ const AdminShellInner: React.FC = () => {
     };
   }, [location.pathname, markRead]);
 
-  const unreadFor = (kinds?: NotificationKind[]) =>
-    kinds ? notifications.filter((n) => !n.isRead && kinds.includes(n.kind)).length : 0;
+  const newMessages = useNewMessageCount(location.pathname);
+  const unreadFor = (item: NavItem) =>
+    item.messages ? newMessages : item.kinds ? notifications.filter((n) => !n.isRead && item.kinds!.includes(n.kind)).length : 0;
 
   const handleLogout = async () => {
     await logout();
@@ -134,34 +176,47 @@ const AdminShellInner: React.FC = () => {
           </button>
         </div>
 
-        {/* Navigation Links */}
-        <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                onClick={() => setMobileMenuOpen(false)}
-                className={({ isActive }) => `
-                  flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition-all
-                  ${isActive
-                    ? 'bg-[#F2B705] text-[#002147] shadow-sm font-extrabold translate-x-1'
-                    : 'text-slate-300 hover:bg-[#071A33] hover:text-white hover:translate-x-0.5'
-                  }
-                `}
-              >
-                <Icon className="w-4 h-4 shrink-0" />
-                <span className="truncate flex-1">{item.label}</span>
-                {unreadFor(item.kinds) > 0 && (
-                  <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center" aria-label={`${unreadFor(item.kinds)} unread`}>
-                    {unreadFor(item.kinds)}
-                  </span>
-                )}
-              </NavLink>
-            );
-          })}
+        {/* Navigation Links, grouped so the long list is easy to scan */}
+        <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-4" aria-label="Admin sections">
+          {navGroups.map((group) => (
+            <div key={group.title}>
+              <p className="px-3 pb-1 text-[11px] font-semibold text-slate-400">{group.title}</p>
+              <div className="space-y-0.5">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const unread = unreadFor(item);
+                  return (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      end={item.end}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={({ isActive }) => `
+                        flex items-center gap-3 min-h-[40px] px-3 rounded-xl text-[13px] font-heading font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]
+                        ${isActive
+                          ? 'bg-[#F2B705] text-[#002147] font-bold shadow-sm'
+                          : 'text-slate-200 hover:bg-[#071A33] hover:text-white'
+                        }
+                      `}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" />
+                      <span className="truncate flex-1">{item.label}</span>
+                      {unread > 0 && (
+                        <span
+                          className={`ml-auto min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center ${
+                            item.messages ? 'bg-white text-[#002147]' : 'bg-red-500 text-white'
+                          }`}
+                          aria-label={item.messages ? `${unread} waiting for a reply` : `${unread} unread`}
+                        >
+                          {unread > 99 ? '99+' : unread}
+                        </span>
+                      )}
+                    </NavLink>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* User Session & Status Card */}
@@ -209,41 +264,41 @@ const AdminShellInner: React.FC = () => {
       {/* ------------------------------------------------------------------ */}
       {/* MOBILE BOTTOM TAB BAR (Sticky for fast 360px navigation) */}
       {/* ------------------------------------------------------------------ */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#002147] border-t border-[#0B2445] px-2 py-1.5 flex items-center justify-around shadow-2xl">
-        <NavLink
-          to="/admin"
-          end
-          className={({ isActive }) => `flex flex-col items-center gap-0.5 text-[10px] font-mono font-bold uppercase ${isActive ? 'text-[#F2B705]' : 'text-slate-400'}`}
-        >
-          <LayoutDashboard className="w-4 h-4" />
-          <span>Home</span>
-        </NavLink>
-        <NavLink
-          to="/admin/shipments"
-          className={({ isActive }) => `flex flex-col items-center gap-0.5 text-[10px] font-mono font-bold uppercase ${isActive ? 'text-[#F2B705]' : 'text-slate-400'}`}
-        >
-          <Package className="w-4 h-4" />
-          <span>Cargo</span>
-        </NavLink>
-        <NavLink
-          to="/admin/inquiries"
-          className={({ isActive }) => `flex flex-col items-center gap-0.5 text-[10px] font-mono font-bold uppercase ${isActive ? 'text-[#F2B705]' : 'text-slate-400'}`}
-        >
-          <MessageSquare className="w-4 h-4" />
-          <span>Inquiry</span>
-        </NavLink>
-        <NavLink
-          to="/admin/rates"
-          className={({ isActive }) => `flex flex-col items-center gap-0.5 text-[10px] font-mono font-bold uppercase ${isActive ? 'text-[#F2B705]' : 'text-slate-400'}`}
-        >
-          <Receipt className="w-4 h-4" />
-          <span>Rates</span>
-        </NavLink>
+      <nav
+        aria-label="Admin quick navigation"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#002147] border-t border-[#0B2445] px-1 pt-1 pb-[max(env(safe-area-inset-bottom),4px)] grid grid-cols-5 shadow-2xl"
+      >
+        {[
+          { to: '/admin', label: 'Home', icon: LayoutDashboard, end: true },
+          { to: '/admin/shipments', label: 'Cargo', icon: Package },
+          { to: '/admin/messages', label: 'Messages', icon: Inbox, badge: newMessages },
+          { to: '/admin/inquiries', label: 'Inquiry', icon: MessageSquare },
+        ].map(({ to, label, icon: Icon, end, badge }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className={({ isActive }) =>
+              `relative min-h-[48px] flex flex-col items-center justify-center gap-0.5 rounded-lg text-[11px] font-semibold ${
+                isActive ? 'text-[#F2B705]' : 'text-slate-300'
+              }`
+            }
+          >
+            <Icon className="w-5 h-5" />
+            <span>{label}</span>
+            {!!badge && (
+              <span className="absolute top-0.5 left-1/2 ml-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#F2B705] text-[#002147] text-[10px] font-bold grid place-items-center">
+                {badge > 99 ? '99+' : badge}
+              </span>
+            )}
+          </NavLink>
+        ))}
         <button
+          type="button"
           onClick={() => setMobileMenuOpen(true)}
-          className="flex flex-col items-center gap-0.5 text-[10px] font-mono font-bold uppercase text-slate-400 hover:text-white"
+          className="min-h-[48px] flex flex-col items-center justify-center gap-0.5 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white cursor-pointer"
         >
-          <Menu className="w-4 h-4" />
+          <Menu className="w-5 h-5" />
           <span>More</span>
         </button>
       </nav>

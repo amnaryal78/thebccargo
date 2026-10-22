@@ -290,10 +290,40 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
           <div className="flex flex-col items-center sm:items-start gap-1 text-center sm:text-left">
             <p>© {new Date().getFullYear()} The BC Cargo &amp; Courier Pvt. Ltd. All rights reserved.</p>
-            <p>
-              This website is created by Ayush Aryal. Phone:{' '}
-              <a href="tel:+9779823716862" className="hover:text-[#002147] transition-colors">9823716862</a>
-            </p>
+            {/* Site credit: who built it, a direct line, and their portfolio */}
+            <div className="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-2 rounded-[var(--r-sm)] border border-[var(--line-strong)] bg-white/70 pl-1.5 pr-1.5 py-1.5">
+              <span className="flex items-center gap-2 min-w-0">
+                <img
+                  src="/team/ayush-aryal.jpg"
+                  alt=""
+                  width={28}
+                  height={28}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-7 h-7 rounded-full object-cover border border-[var(--line-strong)] shrink-0"
+                />
+                <span className="text-slate-700 leading-tight">
+                  Website by <strong className="font-semibold text-[#002147]">Ayush Aryal</strong>
+                </span>
+              </span>
+              <a
+                href="tel:+9779823716862"
+                className="inline-flex items-center gap-1.5 min-h-[32px] px-2 rounded-[var(--r-xs)] text-[#002147] font-mono hover:bg-[#EEF3F9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705] transition-colors"
+              >
+                <Phone className="w-3.5 h-3.5 shrink-0 text-[#8C6400]" aria-hidden="true" />
+                <span>9823716862</span>
+              </a>
+              <a
+                href="https://dumarwana.vercel.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 min-h-[32px] px-3 rounded-[var(--r-xs)] bg-[#002147] text-white font-heading font-bold hover:bg-[#123562] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705] focus-visible:ring-offset-1 transition-all whitespace-nowrap"
+              >
+                <span>View portfolio</span>
+                <ExternalLink className="w-3.5 h-3.5 shrink-0 text-[#F2B705]" aria-hidden="true" />
+                <span className="sr-only">(opens in a new tab)</span>
+              </a>
+            </div>
           </div>
 
           <button
