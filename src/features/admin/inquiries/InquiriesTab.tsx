@@ -14,12 +14,13 @@ import {
   UserCheck
 } from 'lucide-react';
 import { adminDataService } from '../services/adminDataService';
-import { AdminInquiry, getRolePermissions } from '../types';
+import { AdminInquiry } from '../types';
+import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
 
 export const InquiriesTab: React.FC = () => {
   const { role } = useAuth();
-  const permissions = getRolePermissions(role);
+  const permissions = useMyPermissions();
 
   const [inquiries, setInquiries] = useState<AdminInquiry[]>([]);
   const [loading, setLoading] = useState(true);

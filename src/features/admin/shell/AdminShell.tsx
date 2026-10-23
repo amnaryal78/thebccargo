@@ -11,17 +11,22 @@ import {
   Users,
   Activity,
   LogOut,
+  UserRound,
+  LogIn,
   ShieldCheck,
   Menu,
   X,
   ExternalLink,
   BookOpen,
   Bell,
-  Star
+  Star,
+  Inbox,
 } from 'lucide-react';
+import { countThreadsNeedingReply } from '../../../services/chatService';
 import { useAuth } from '../../../context/AuthContext';
 import { BcLogo } from '../../../components/BcLogo';
-import { getRolePermissions } from '../types';
+import type { RolePermissions } from '../types';
+import { useMyPermissions } from '../usePermissions';
 import { NotificationsProvider, useAdminNotifications } from '../notifications/NotificationsContext';
 import { NotificationBell } from '../notifications/NotificationBell';
 import type { NotificationKind } from '../notifications/notificationService';
@@ -33,30 +38,73 @@ interface NavItem {
   end?: boolean;
   /** Unread notifications of these kinds show as a count on the nav item. */
   kinds?: NotificationKind[];
+  /** Shows the count of customer messages still waiting for a reply. */
+  messages?: boolean;
+  /** Menu entry is hidden for roles without this permission. */
+  needs?: keyof RolePermissions;
 }
 
-const navItems: NavItem[] = [
-  { to: '/admin', label: 'Overview', icon: LayoutDashboard, end: true },
-  { to: '/admin/shipments', label: 'Shipments', icon: Package },
-  { to: '/admin/notifications', label: 'Notifications', icon: Bell, kinds: ['inquiry', 'partner', 'booking', 'review', 'job_application'] },
-  { to: '/admin/inquiries', label: 'Inquiries & Partners', icon: MessageSquare, kinds: ['inquiry', 'partner'] },
-  { to: '/admin/bookings', label: 'Bookings', icon: Package, kinds: ['booking'] },
-  { to: '/admin/feedback', label: 'Feedback', icon: Star, kinds: ['review'] },
-  { to: '/admin/handling-rules', label: 'Handling Rules', icon: AlertTriangle },
-  { to: '/admin/how-to-ship', label: 'How to Ship', icon: BookOpen },
-  { to: '/admin/rates', label: 'Rates & CSV', icon: Receipt },
-  { to: '/admin/blogs', label: 'Blogs & AI Fixer', icon: FileText },
-  { to: '/admin/careers', label: 'Careers & Applicants', icon: Briefcase, kinds: ['job_application'] },
-  { to: '/admin/users', label: 'Users & Roles', icon: Users },
-  { to: '/admin/audit', label: 'Audit Logs', icon: Activity },
+const navGroups: { title: string; items: NavItem[] }[] = [
+  {
+    title: 'Operations',
+    items: [
+      { to: '/admin', label: 'Overview', icon: LayoutDashboard, end: true },
+      { to: '/admin/shipments', label: 'Shipments', icon: Package },
+      { to: '/admin/bookings', label: 'Bookings', icon: Package, kinds: ['booking'] },
+      { to: '/admin/notifications', label: 'Notifications', icon: Bell, kinds: ['inquiry', 'partner', 'booking', 'review', 'job_application'] },
+    ],
+  },
+  {
+    title: 'Customers',
+    items: [
+      { to: '/admin/messages', label: 'Customer chats', icon: Inbox, messages: true },
+      { to: '/admin/inquiries', label: 'Inquiries & partners', icon: MessageSquare, kinds: ['inquiry', 'partner'] },
+      { to: '/admin/feedback', label: 'Feedback', icon: Star, kinds: ['review'] },
+    ],
+  },
+  {
+    title: 'Content & pricing',
+    items: [
+      { to: '/admin/rates', label: 'Rates & CSV', icon: Receipt, needs: 'canManageRates' },
+      { to: '/admin/handling-rules', label: 'Handling rules', icon: AlertTriangle, needs: 'canManageHandlingRules' },
+      { to: '/admin/how-to-ship', label: 'How to ship', icon: BookOpen, needs: 'canManageHowToShip' },
+      { to: '/admin/blogs', label: 'Blogs & AI fixer', icon: FileText, needs: 'canManageBlogs' },
+      { to: '/admin/careers', label: 'Careers & applicants', icon: Briefcase, kinds: ['job_application'], needs: 'canManageCareers' },
+    ],
+  },
+  {
+    title: 'System',
+    items: [
+      { to: '/admin/profile', label: 'My profile', icon: UserRound },
+      { to: '/admin/users', label: 'Users & roles', icon: Users, needs: 'canManageUsers' },
+      { to: '/admin/audit', label: 'Audit logs', icon: Activity, needs: 'canViewAuditLogs' },
+    ],
+  },
 ];
+const navItems: NavItem[] = navGroups.flatMap((g) => g.items);
+
+/** Customer messages waiting for a reply, refreshed every minute and when you change page. */
+function useNewMessageCount(path: string): number {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    const load = () => countThreadsNeedingReply().then((n) => alive && setCount(n)).catch(() => undefined);
+    load();
+    const id = window.setInterval(load, 60_000);
+    return () => {
+      alive = false;
+      window.clearInterval(id);
+    };
+  }, [path]);
+  return count;
+}
 
 const AdminShellInner: React.FC = () => {
   const { user, role, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const permissions = getRolePermissions(role);
+  const permissions = useMyPermissions();
   const { items: notifications, markRead } = useAdminNotifications();
   const notificationsRef = useRef(notifications);
   useEffect(() => {
@@ -74,109 +122,132 @@ const AdminShellInner: React.FC = () => {
     };
   }, [location.pathname, markRead]);
 
-  const unreadFor = (kinds?: NotificationKind[]) =>
-    kinds ? notifications.filter((n) => !n.isRead && kinds.includes(n.kind)).length : 0;
+  const newMessages = useNewMessageCount(location.pathname);
+  const unreadFor = (item: NavItem) =>
+    item.messages ? newMessages : item.kinds ? notifications.filter((n) => !n.isRead && item.kinds!.includes(n.kind)).length : 0;
 
   const handleLogout = async () => {
     await logout();
     navigate('/login', { replace: true });
   };
 
+  /** Ends this session and opens the sign-in page, so another Google account can be used. */
+  const handleSwitchAccount = async () => {
+    await logout();
+    navigate('/login', { replace: true });
+  };
+
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-[#F6F6F4] text-[#121211] font-body selection:bg-[#F2B705] selection:text-[#002147]">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[var(--bg)] text-[#121211] font-body selection:bg-[#F2B705] selection:text-[#002147]">
       
       {/* ------------------------------------------------------------------ */}
       {/* TOP BAR ON MOBILE (< 768px) */}
       {/* ------------------------------------------------------------------ */}
-      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-[#002147] text-white sticky top-0 z-40 border-b border-[#0B2445] shadow-md">
+      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white/95 backdrop-blur text-[#002147] sticky top-0 z-40 border-b border-[var(--line-strong)]">
         <div className="flex items-center gap-2">
           <BcLogo size="sm" variant="mark-only" />
-          <span className="font-heading font-black text-xs uppercase tracking-wider text-white">Operations</span>
+          <span className="font-heading font-extrabold text-sm text-[#002147]">Admin</span>
         </div>
         <div className="flex items-center gap-2">
         <NotificationBell align="right" />
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-lg bg-[#071A33] text-white hover:bg-[#0B2445] active:scale-95 transition-all cursor-pointer"
+          className="p-2 rounded-lg bg-[#EEF3F9] text-[#002147] hover:bg-[#D6E1EF] active:scale-95 transition-all cursor-pointer"
           aria-label="Toggle navigation"
         >
-          {mobileMenuOpen ? <X className="w-5 h-5 text-[#F2B705]" /> : <Menu className="w-5 h-5" />}
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
         </div>
       </header>
 
       {/* ------------------------------------------------------------------ */}
-      {/* DESKTOP SIDEBAR (Oxford Blue: #002147) */}
+      {/* SIDEBAR: light surface; colour is kept for the active item and counts */}
       {/* ------------------------------------------------------------------ */}
       {mobileMenuOpen && (
         <button type="button" aria-label="Close navigation" onClick={() => setMobileMenuOpen(false)} className="md:hidden fixed inset-0 z-40 bg-[#00152D]/60 cursor-default" />
       )}
       <aside className={`
-        fixed md:sticky top-0 left-0 h-screen z-50 md:z-30 w-64 md:w-60 lg:w-64 bg-[#002147] text-white flex flex-col justify-between border-r border-[#001A38] shadow-xl transition-transform duration-200 ease-in-out
+        fixed md:sticky top-0 left-0 h-[100dvh] z-50 md:z-30 w-64 md:w-60 lg:w-64 bg-white text-[#002147] flex flex-col justify-between border-r border-[var(--line-strong)] shadow-xl md:shadow-none transition-transform duration-200 ease-in-out
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         {/* Sidebar Header */}
-        <div className="p-4 border-b border-[#0B2445] flex items-center justify-between">
+        <div className="p-4 border-b border-[var(--line)] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <BcLogo size="md" variant="mark-only" />
             <div className="flex flex-col">
-              <span className="font-heading font-black text-xs uppercase tracking-widest text-white">Admin Desk</span>
-              <span className="text-[10px] font-mono text-[#F2B705] tracking-tight">Operations</span>
+              <span className="font-heading font-extrabold text-sm text-[#002147]">Admin desk</span>
+              <span className="text-[11px] text-[#8A6200]">The BC Cargo</span>
             </div>
           </div>
           <div className="hidden md:block"><NotificationBell /></div>
           <button
             onClick={() => setMobileMenuOpen(false)}
-            className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white"
+            className="md:hidden p-1.5 rounded-lg text-slate-500 hover:text-[#002147]"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Navigation Links */}
-        <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                onClick={() => setMobileMenuOpen(false)}
-                className={({ isActive }) => `
-                  flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition-all
-                  ${isActive
-                    ? 'bg-[#F2B705] text-[#002147] shadow-sm font-extrabold translate-x-1'
-                    : 'text-slate-300 hover:bg-[#071A33] hover:text-white hover:translate-x-0.5'
-                  }
-                `}
-              >
-                <Icon className="w-4 h-4 shrink-0" />
-                <span className="truncate flex-1">{item.label}</span>
-                {unreadFor(item.kinds) > 0 && (
-                  <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center" aria-label={`${unreadFor(item.kinds)} unread`}>
-                    {unreadFor(item.kinds)}
-                  </span>
-                )}
-              </NavLink>
-            );
-          })}
+        {/* Navigation Links, grouped so the long list is easy to scan */}
+        <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-4" aria-label="Admin sections">
+          {navGroups
+            .map((g) => ({ ...g, items: g.items.filter((i) => !i.needs || permissions[i.needs]) }))
+            .filter((g) => g.items.length > 0)
+            .map((group) => (
+            <div key={group.title}>
+              <p className="px-3 pb-1 text-[11px] font-semibold text-slate-500">{group.title}</p>
+              <div className="space-y-0.5">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const unread = unreadFor(item);
+                  return (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      end={item.end}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={({ isActive }) => `
+                        flex items-center gap-3 min-h-[40px] px-3 rounded-xl text-[13px] font-heading font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]
+                        ${isActive
+                          ? 'bg-[#FFF9E0] text-[#002147] font-bold shadow-[inset_3px_0_0_#F2B705]'
+                          : 'text-slate-700 hover:bg-[#EEF3F9] hover:text-[#002147]'
+                        }
+                      `}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" />
+                      <span className="truncate flex-1">{item.label}</span>
+                      {unread > 0 && (
+                        <span
+                          className={`ml-auto min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center ${
+                            item.messages ? 'bg-[#F2B705] text-[#002147]' : 'bg-red-500 text-white'
+                          }`}
+                          aria-label={item.messages ? `${unread} waiting for a reply` : `${unread} unread`}
+                        >
+                          {unread > 99 ? '99+' : unread}
+                        </span>
+                      )}
+                    </NavLink>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* User Session & Status Card */}
-        <div className="p-3 border-t border-[#0B2445] bg-[#001A38] space-y-2.5">
+        <div className="p-3 border-t border-[var(--line)] bg-[#F6F9FD] space-y-2.5">
           <div className="flex items-center justify-between gap-2">
             <div className="flex flex-col min-w-0">
-              <span className="text-xs font-semibold text-white truncate font-mono">
+              <span className="text-xs font-semibold text-[#002147] truncate font-mono">
                 {user?.email || 'Authenticated User'}
               </span>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md bg-[#F2B705]/20 text-[#F2B705] text-[10px] font-mono font-bold uppercase">
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md bg-[#FFF9E0] text-[#8A6200] text-[10px] font-mono font-bold uppercase">
                   <ShieldCheck className="w-3 h-3" />
                   {role || 'Staff'}
                 </span>
                 {permissions.isReadOnly && (
-                  <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 text-[9px] font-mono font-bold">
+                  <span className="px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 text-[9px] font-mono font-bold">
                     Read-Only
                   </span>
                 )}
@@ -186,20 +257,29 @@ const AdminShellInner: React.FC = () => {
             <button
               onClick={handleLogout}
               title="Sign Out"
-              className="p-2 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-300 hover:text-red-100 transition-colors cursor-pointer shrink-0"
+              className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 transition-colors cursor-pointer shrink-0"
               aria-label="Sign Out"
             >
               <LogOut className="w-4 h-4" />
             </button>
           </div>
 
+          <button
+            type="button"
+            onClick={handleSwitchAccount}
+            className="flex items-center justify-center gap-1.5 w-full min-h-[40px] rounded-lg bg-[var(--ox-900)] text-white text-xs font-bold hover:brightness-110 active:scale-[0.98] transition cursor-pointer"
+          >
+            <LogIn className="w-3.5 h-3.5" />
+            <span>Sign in with another account</span>
+          </button>
+
           <a
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg bg-[#071A33] hover:bg-[#0B2445] text-slate-300 hover:text-white text-[10px] font-mono uppercase tracking-wider transition-colors"
+            className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg bg-white border border-[var(--line-strong)] hover:border-[#002147]/40 text-slate-700 hover:text-[#002147] text-xs font-semibold transition-colors"
           >
-            <span>Public Site</span>
+            <span>Public site</span>
             <ExternalLink className="w-3 h-3" />
           </a>
         </div>
@@ -208,42 +288,42 @@ const AdminShellInner: React.FC = () => {
       {/* ------------------------------------------------------------------ */}
       {/* MOBILE BOTTOM TAB BAR (Sticky for fast 360px navigation) */}
       {/* ------------------------------------------------------------------ */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#002147] border-t border-[#0B2445] px-2 py-1.5 flex items-center justify-around shadow-2xl">
-        <NavLink
-          to="/admin"
-          end
-          className={({ isActive }) => `flex flex-col items-center gap-0.5 text-[10px] font-mono font-bold uppercase ${isActive ? 'text-[#F2B705]' : 'text-slate-400'}`}
-        >
-          <LayoutDashboard className="w-4 h-4" />
-          <span>Home</span>
-        </NavLink>
-        <NavLink
-          to="/admin/shipments"
-          className={({ isActive }) => `flex flex-col items-center gap-0.5 text-[10px] font-mono font-bold uppercase ${isActive ? 'text-[#F2B705]' : 'text-slate-400'}`}
-        >
-          <Package className="w-4 h-4" />
-          <span>Cargo</span>
-        </NavLink>
-        <NavLink
-          to="/admin/inquiries"
-          className={({ isActive }) => `flex flex-col items-center gap-0.5 text-[10px] font-mono font-bold uppercase ${isActive ? 'text-[#F2B705]' : 'text-slate-400'}`}
-        >
-          <MessageSquare className="w-4 h-4" />
-          <span>Inquiry</span>
-        </NavLink>
-        <NavLink
-          to="/admin/rates"
-          className={({ isActive }) => `flex flex-col items-center gap-0.5 text-[10px] font-mono font-bold uppercase ${isActive ? 'text-[#F2B705]' : 'text-slate-400'}`}
-        >
-          <Receipt className="w-4 h-4" />
-          <span>Rates</span>
-        </NavLink>
+      <nav
+        aria-label="Admin quick navigation"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur border-t border-[var(--line-strong)] px-1 pt-1 pb-[max(env(safe-area-inset-bottom),4px)] grid grid-cols-5 shadow-2xl"
+      >
+        {[
+          { to: '/admin', label: 'Home', icon: LayoutDashboard, end: true },
+          { to: '/admin/shipments', label: 'Cargo', icon: Package },
+          { to: '/admin/messages', label: 'Messages', icon: Inbox, badge: newMessages },
+          { to: '/admin/inquiries', label: 'Inquiries', icon: MessageSquare },
+        ].map(({ to, label, icon: Icon, end, badge }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className={({ isActive }) =>
+              `relative min-h-[48px] flex flex-col items-center justify-center gap-0.5 rounded-lg text-[11px] font-semibold ${
+                isActive ? 'text-[#002147] font-bold' : 'text-slate-500'
+              }`
+            }
+          >
+            <Icon className="w-5 h-5" />
+            <span>{label}</span>
+            {!!badge && (
+              <span className="absolute top-0.5 left-1/2 ml-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#F2B705] text-[#002147] text-[10px] font-bold grid place-items-center">
+                {badge > 99 ? '99+' : badge}
+              </span>
+            )}
+          </NavLink>
+        ))}
         <button
+          type="button"
           onClick={() => setMobileMenuOpen(true)}
-          className="flex flex-col items-center gap-0.5 text-[10px] font-mono font-bold uppercase text-slate-400 hover:text-white"
+          className="min-h-[48px] flex flex-col items-center justify-center gap-0.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-[#002147] cursor-pointer"
         >
-          <Menu className="w-4 h-4" />
-          <span>More</span>
+          <Menu className="w-5 h-5" />
+          <span>All pages</span>
         </button>
       </nav>
 

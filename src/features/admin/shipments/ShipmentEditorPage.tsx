@@ -4,7 +4,7 @@ import { AnimatePresence, motion, MotionConfig } from 'framer-motion';
 import { AlertTriangle, ArrowLeft, Calculator, Check, CircleAlert, CircleDot, FileText, Landmark, Lightbulb, Loader2, Lock, MapPin, Minus, Package, Pencil, Plus, Printer, Save, Scale, Send, ShieldCheck, Trash2, Wrench, X } from 'lucide-react';
 import { Spotlight } from '../../../components/ui/spotlight';
 import { adminDataService } from '../services/adminDataService';
-import { getRolePermissions } from '../types';
+import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
 import { COUNTRIES } from '../../../data/countries';
 import { useEstimatorData } from '../../estimator/useEstimatorData';
@@ -529,7 +529,7 @@ export const ShipmentEditorPage: React.FC = () => {
   const navigate = useNavigate();
   const [search] = useSearchParams();
   const { role } = useAuth();
-  const canEdit = getRolePermissions(role).canManageShipments;
+  const canEdit = useMyPermissions().canManageShipments;
   const { sheetRates } = useEstimatorData();
   const catalog = useItemCatalog();
 

@@ -10,7 +10,8 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { adminDataService } from '../services/adminDataService';
-import { AdminShipment, AdminMilestone, getRolePermissions } from '../types';
+import { AdminShipment, AdminMilestone } from '../types';
+import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { MilestonesModal } from './MilestonesModal';
@@ -18,7 +19,7 @@ import { ShipmentMobileCard } from './ShipmentMobileCard';
 
 export const ShipmentsTab: React.FC = () => {
   const { role } = useAuth();
-  const permissions = getRolePermissions(role);
+  const permissions = useMyPermissions();
 
   const [shipments, setShipments] = useState<AdminShipment[]>([]);
   const [loading, setLoading] = useState(true);

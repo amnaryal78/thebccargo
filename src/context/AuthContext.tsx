@@ -1,7 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { UserRoleType, checkUserAdminStatus } from '../services/authService';
+import type { User, Session } from '@supabase/supabase-js';
+import { isSupabaseConfigured } from '../lib/supabaseConfig';
+import type { UserRoleType } from '../services/authService';
+
+// The Supabase client (~55 KB gzip) is loaded on demand so it never delays the first paint.
+const loadSupabase = () => import('../lib/supabase').then((m) => m.supabase);
+const loadAuthService = () => import('../services/authService');
 
 export interface AuthContextType {
   user: User | null;
@@ -11,6 +15,8 @@ export interface AuthContextType {
   isAuthorizedAdmin: boolean;
   active: boolean;
   authReason: 'authorized' | 'deactivated' | 'not_found' | null;
+  /** Permission maps from custom roles assigned to this person (empty without the custom-roles migration). */
+  customPermissions: Record<string, boolean>[];
   loginWithGoogle: (redirectTo?: string) => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<void>;
@@ -26,6 +32,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthorizedAdmin, setIsAuthorizedAdmin] = useState(false);
   const [active, setActive] = useState(false);
   const [authReason, setAuthReason] = useState<'authorized' | 'deactivated' | 'not_found' | null>(null);
+  const [customPermissions, setCustomPermissions] = useState<Record<string, boolean>[]>([]);
 
   const evaluateAuthorization = async (currentSession: Session | null) => {
     if (!currentSession?.user) {
@@ -34,6 +41,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsAuthorizedAdmin(false);
       setActive(false);
       setAuthReason(null);
+      setCustomPermissions([]);
       return;
     }
 
@@ -41,11 +49,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(usr);
 
     try {
+      const { checkUserAdminStatus, fetchCustomRolePermissions } = await loadAuthService();
       const authResult = await checkUserAdminStatus(usr.id, usr.email || '');
       setRole(authResult.role);
-      setIsAuthorizedAdmin(authResult.isAuthorized);
+      // Resellers sign in with Google but only get the reseller price view, never the admin area.
+      setIsAuthorizedAdmin(authResult.isAuthorized && authResult.role !== 'reseller');
       setActive(authResult.active);
       setAuthReason(authResult.reason);
+      setCustomPermissions(authResult.isAuthorized ? await fetchCustomRolePermissions() : []);
     } catch (err) {
       console.warn('Failed to verify user authorization status:', err);
       setRole(null);
@@ -59,6 +70,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(true);
     try {
       if (isSupabaseConfigured) {
+        const supabase = await loadSupabase();
         const { data } = await supabase.auth.getSession();
         setSession(data?.session || null);
         await evaluateAuthorization(data?.session || null);
@@ -80,6 +92,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       try {
+        const supabase = await loadSupabase();
         const { data } = await supabase.auth.getSession();
         if (isMounted) {
           setSession(data?.session || null);
@@ -94,23 +107,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     initAuth();
 
+    let unsubscribe: (() => void) | undefined;
     if (isSupabaseConfigured) {
-      const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-        if (isMounted) {
-          setSession(newSession);
-          await evaluateAuthorization(newSession);
-          setLoading(false);
-        }
+      loadSupabase().then((supabase) => {
+        if (!isMounted) return;
+        const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+          if (isMounted) {
+            setSession(newSession);
+            await evaluateAuthorization(newSession);
+            setLoading(false);
+          }
+        });
+        unsubscribe = () => authListener.subscription.unsubscribe();
       });
-
-      return () => {
-        isMounted = false;
-        authListener.subscription.unsubscribe();
-      };
     }
 
     return () => {
       isMounted = false;
+      unsubscribe?.();
     };
   }, []);
 
@@ -123,6 +137,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const baseUrl = window.location.origin;
       const targetRedirect = `${baseUrl}/login${redirectTo ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`;
 
+      const supabase = await loadSupabase();
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -146,6 +161,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(true);
     try {
       if (isSupabaseConfigured) {
+        const supabase = await loadSupabase();
         await supabase.auth.signOut();
       }
     } catch (e) {
@@ -157,6 +173,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsAuthorizedAdmin(false);
       setActive(false);
       setAuthReason(null);
+      setCustomPermissions([]);
       localStorage.removeItem('bc_cargo_admin_user');
       setLoading(false);
     }
@@ -172,6 +189,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isAuthorizedAdmin,
         active,
         authReason,
+        customPermissions,
         loginWithGoogle,
         logout,
         refreshAuth

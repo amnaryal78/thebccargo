@@ -6,13 +6,14 @@ import {
   Search
 } from 'lucide-react';
 import { adminDataService } from '../services/adminDataService';
-import { AdminNationalRate, AdminInternationalRate, getRolePermissions } from '../types';
+import { AdminNationalRate, AdminInternationalRate } from '../types';
+import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
 import { CsvImporterSection } from './CsvImporterSection';
 
 export const RatesTab: React.FC = () => {
   const { role } = useAuth();
-  const permissions = getRolePermissions(role);
+  const permissions = useMyPermissions();
 
   const [activeSubtab, setActiveSubtab] = useState<'international' | 'csv'>('international');
   const [internationalRates, setInternationalRates] = useState<AdminInternationalRate[]>([]);

@@ -19,12 +19,12 @@ import { HowToShipData, HowToShipSection, HowToShipItem } from '../../../types/h
 import { fetchAdminHowToShip, saveHowToShip } from '../../../services/howToShipService';
 import { DEFAULT_HOW_TO_SHIP } from '../../../data/defaultHowToShip';
 import { useAuth } from '../../../context/AuthContext';
-import { getRolePermissions } from '../types';
+import { useMyPermissions } from '../usePermissions';
 import { Link } from 'react-router-dom';
 
 export const HowToShipAdminTab: React.FC = () => {
   const { user, role } = useAuth();
-  const permissions = getRolePermissions(role);
+  const permissions = useMyPermissions();
   const canEdit = permissions.canManageHowToShip && !permissions.isReadOnly;
 
   const [data, setData] = useState<HowToShipData>(DEFAULT_HOW_TO_SHIP);

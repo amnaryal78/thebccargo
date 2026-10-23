@@ -4,6 +4,12 @@ Purpose: durable, low-token project memory for coding-agent sessions. Keep entri
 
 ## Latest Entry
 
+### 2026-10-24 - Admin users/roles rework + staff profiles + custom roles (Claude Code, local only)
+- **Done:** `UsersTab` rewritten (remove access, inline base-role change, mobile cards, profile name/phone/title/photo, custom-role chips, People / Custom roles tabs). Nav hides pages a role cannot use. Effective permissions = base role + custom roles via `useMyPermissions()` (`mergePermissions` in `features/admin/types.ts`, tested in `tests/adminPermissions.test.ts`); all admin tabs now use the hook.
+- **Migration DRAFT, NOT applied:** `supabase/migrations/20261024000000_staff_profiles_custom_roles.sql` (profile columns, `admin_roles`, `user_role_assignments`, `get_my_admin_access()`, `admin-avatars` bucket). Until applied the app hides profile fields and shows "custom roles not switched on"; sign-in is unaffected.
+- **Limit:** custom-role permissions are enforced in the UI/routes only. DB RLS still follows the base enum role, so give custom-role-only staff base `read_only`.
+- **Verified:** tsc clean, 209/209 tests. **Not verified:** browser (needs Google sign-in), the SQL against a real database.
+
 ### 2026-10-23 — SEO audit + truthfulness pass (local only, NOT pushed) (Claude Code)
 - **Found:** prerender published fabricated job pages (JobPosting), 3 non-existent articles with an invented author, unverified claims (220+/190+, #B-409, SLA, "since 2012"); client JSON-LD re-added geo/postal/priceRange/08-19h hours; client SEO overwrote prerendered titles and `/track`+`/book` kept `/contact`'s canonical.
 - **Now:** one metadata source (`src/data/pageMeta.ts`, `business.ts`, services from `servicesData.ts`), prerender + pages read it. 301s for old corridor/rates/career/blog URLs (vercel.json + App.tsx). Sitemap/prerender include published Supabase posts. `seo:check` now fails on unverified claims/JobPosting/duplicate h1/redirected sitemap URLs.
