@@ -83,6 +83,86 @@ const MIME_TYPES = {
 };
 
 // ============================================================================
+// 3a. Shared request guards for the AI endpoints
+// ============================================================================
+// Only free models: the client cannot pick a paid model and spend the OpenRouter balance.
+const ALLOWED_AI_MODELS = new Set([
+  'google/gemma-4-26b-a4b-it:free',
+  'poolside/laguna-s-2.1:free',
+  'openrouter/free',
+  'meta-llama/llama-3-8b-instruct:free',
+  ...(process.env.DEFAULT_AI_MODEL ? [process.env.DEFAULT_AI_MODEL] : []),
+]);
+const FALLBACK_AI_MODEL = process.env.DEFAULT_AI_MODEL || 'google/gemma-4-26b-a4b-it:free';
+
+function pickModel(requested) {
+  return typeof requested === 'string' && ALLOWED_AI_MODELS.has(requested) ? requested : FALLBACK_AI_MODEL;
+}
+
+const clampText = (value, max) => (typeof value === 'string' ? value.slice(0, max) : '');
+
+function sendJson(res, status, obj) {
+  res.writeHead(status, { 'Content-Type': 'application/json', ...BASE_SECURITY_HEADERS });
+  res.end(JSON.stringify(obj));
+}
+
+/** Reads a JSON body up to maxBytes. Resolves null (after answering 400/413) when it is unusable. */
+function readJsonBody(req, res, maxBytes) {
+  return new Promise((resolve) => {
+    let size = 0;
+    const chunks = [];
+    let done = false;
+    const fail = (status, error) => {
+      if (done) return;
+      done = true;
+      sendJson(res, status, { error });
+      req.resume();
+      resolve(null);
+    };
+    req.on('data', (chunk) => {
+      if (done) return;
+      size += chunk.length;
+      if (size > maxBytes) return fail(413, 'Request is too large.');
+      chunks.push(chunk);
+    });
+    req.on('end', () => {
+      if (done) return;
+      try {
+        const parsed = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return fail(400, 'Invalid request.');
+        done = true;
+        resolve(parsed);
+      } catch {
+        fail(400, 'Invalid request.');
+      }
+    });
+    req.on('error', () => fail(400, 'Invalid request.'));
+  });
+}
+
+/**
+ * True when the request carries a Supabase session for active staff. Asks Supabase itself
+ * (`is_active_staff()` with the caller's JWT), so the server never has to trust the client.
+ */
+async function isStaffRequest(req) {
+  const match = /^Bearer\s+([A-Za-z0-9._-]+)$/.exec(req.headers.authorization || '');
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const anonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  if (!match || !url || !anonKey) return false;
+  try {
+    const r = await fetch(`${url}/rest/v1/rpc/is_active_staff`, {
+      method: 'POST',
+      headers: { apikey: anonKey, Authorization: `Bearer ${match[1]}`, 'Content-Type': 'application/json' },
+      body: '{}',
+      signal: AbortSignal.timeout(5000),
+    });
+    return r.ok && (await r.json()) === true;
+  } catch {
+    return false;
+  }
+}
+
+// ============================================================================
 // 3. AI Assistant Backend Proxy (/api/chat)
 // ============================================================================
 async function handleChatApi(req, res) {
@@ -91,14 +171,15 @@ async function handleChatApi(req, res) {
     return res.end(JSON.stringify({ error: 'Method Not Allowed' }));
   }
 
-  let body = '';
-  req.on('data', chunk => { body += chunk; });
-  req.on('end', async () => {
+  const payload = await readJsonBody(req, res, 32 * 1024);
+  if (!payload) return;
+  {
     try {
-      const payload = JSON.parse(body || '{}');
-      const userMessage = (payload.message || '').trim();
-      const settings = payload.settings || {};
-      const history = payload.history || [];
+      const userMessage = clampText(payload.message, 1000).trim();
+      const settings = payload.settings && typeof payload.settings === 'object' ? payload.settings : {};
+      const history = (Array.isArray(payload.history) ? payload.history : [])
+        .slice(-10)
+        .map(h => ({ sender: h && h.sender === 'user' ? 'user' : 'assistant', text: clampText(h && h.text, 1000) }));
 
       const WHATSAPP_ACTION = { label: 'WhatsApp', type: 'whatsapp', payload: '9779855019485' };
       const CALL_ACTION = { label: 'Call', type: 'call', payload: '+9779855019485' };
@@ -189,8 +270,10 @@ Strict Rules:
 8. Answer in the same language the user asks (Nepali, English, etc.).`;
 
       const openRouterKey = process.env.OPENROUTER_API_KEY;
-      const reqModel = settings.model || process.env.DEFAULT_AI_MODEL || 'google/gemma-4-26b-a4b-it:free';
-      const candidateModels = [reqModel, 'openrouter/auto', 'meta-llama/llama-3-8b-instruct:free'];
+      const reqModel = pickModel(settings.model);
+      // 'openrouter/auto' used to be here; it can route to paid models.
+      const candidateModels = [...new Set([reqModel, 'openrouter/free', 'meta-llama/llama-3-8b-instruct:free'])];
+      const maxTokens = Math.min(Math.max(Number(settings.maxTokens) || 300, 50), 400);
 
       if (openRouterKey) {
         for (const modelName of candidateModels) {
@@ -207,12 +290,13 @@ Strict Rules:
                 model: modelName,
                 messages: [
                   { role: 'system', content: systemPrompt },
-                  ...history.map(h => ({ role: h.sender === 'user' ? 'user' : 'assistant', content: h.text })),
+                  ...history.map(h => ({ role: h.sender, content: h.text })),
                   { role: 'user', content: userMessage }
                 ],
                 temperature: 0.1,
-                max_tokens: settings.maxTokens || 300
-              })
+                max_tokens: maxTokens
+              }),
+              signal: AbortSignal.timeout(20000)
             });
 
             if (openRouterRes.ok) {
@@ -239,10 +323,10 @@ Strict Rules:
       }));
 
     } catch (e) {
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ error: e.message }));
+      console.error('[SERVER] /api/chat failed:', e.message);
+      return sendJson(res, 500, { error: 'Chat is not available right now.' });
     }
-  });
+  }
 }
 
 // ============================================================================
@@ -254,11 +338,24 @@ async function handleFixBlogApi(req, res) {
     return res.end(JSON.stringify({ error: 'Method Not Allowed' }));
   }
 
-  let body = '';
-  req.on('data', chunk => { body += chunk; });
-  req.on('end', async () => {
+  // Staff only: without this anyone could use the OpenRouter key as a free AI proxy.
+  if (!(await isStaffRequest(req))) {
+    req.resume();
+    return sendJson(res, 401, { error: 'Sign in as staff to use the AI fixer.' });
+  }
+
+  const raw = await readJsonBody(req, res, 200 * 1024);
+  if (!raw) return;
+  {
     try {
-      const payload = JSON.parse(body || '{}');
+      const payload = {
+        title: clampText(raw.title, 300),
+        excerpt: clampText(raw.excerpt, 1000),
+        content: clampText(raw.content, 60000),
+        mode: ['grammar', 'formatting', 'full'].includes(raw.mode) ? raw.mode : 'full',
+        customRules: clampText(raw.customRules, 1000),
+        model: raw.model,
+      };
       const openRouterKey = process.env.OPENROUTER_API_KEY;
 
       if (!openRouterKey) {
@@ -273,7 +370,7 @@ async function handleFixBlogApi(req, res) {
         }));
       }
 
-      const modelToUse = payload.model || process.env.DEFAULT_AI_MODEL || 'google/gemma-4-26b-a4b-it:free';
+      const modelToUse = pickModel(payload.model);
       const systemPrompt = `You are an expert editorial assistant for The BC Cargo & Courier Service.
 Your task is to fix grammar, spelling, punctuation, and markdown formatting (H2/H3 headings, bold, italics, bullet lists) for the article.
 
@@ -319,13 +416,13 @@ Return ONLY the raw JSON object conforming to the schema.`;
             { role: 'user', content: userPrompt }
           ],
           temperature: 0.1
-        })
+        }),
+        signal: AbortSignal.timeout(60000)
       });
 
       if (!response.ok) {
-        const errText = await response.text();
-        res.writeHead(response.status, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ error: `AI provider error (${response.status}): ${errText}` }));
+        console.error('[SERVER] /api/fix-blog provider error:', response.status);
+        return sendJson(res, 502, { error: `AI provider error (${response.status}). Try again later.` });
       }
 
       const data = await response.json();
@@ -367,10 +464,10 @@ Return ONLY the raw JSON object conforming to the schema.`;
       }));
 
     } catch (err) {
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ error: err.message || 'AI Blog Fixer processing failed.' }));
+      console.error('[SERVER] /api/fix-blog failed:', err.message);
+      return sendJson(res, 500, { error: 'AI Blog Fixer processing failed.' });
     }
-  });
+  }
 }
 
 // ============================================================================
@@ -409,7 +506,7 @@ setInterval(() => {
 // 6. Security Headers Specification
 // ============================================================================
 const BASE_SECURITY_HEADERS = {
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://flagcdn.com https://*.supabase.co https://images.unsplash.com https://*.gstatic.com https://thebccargo.com; connect-src 'self' https://cdn.jsdelivr.net https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self';",
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://flagcdn.com https://*.supabase.co https://images.unsplash.com https://*.gstatic.com https://thebccargo.com; connect-src 'self' https://cdn.jsdelivr.net https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self';",
   'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
   'X-Content-Type-Options': 'nosniff',
@@ -456,11 +553,18 @@ function streamWithCompression(req, res, targetFile, headers, statusCode = 200) 
 // ============================================================================
 function serveStaticFile(req, res) {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-  let pathname = decodeURIComponent(parsedUrl.pathname);
+  let pathname;
+  try {
+    pathname = decodeURIComponent(parsedUrl.pathname);
+  } catch {
+    // A malformed escape such as /%E0%A4%A used to throw here and crash the process.
+    res.writeHead(400, { 'Content-Type': 'text/plain', ...BASE_SECURITY_HEADERS });
+    return res.end('Bad Request');
+  }
 
-  // Security check: prevent directory traversal
+  // Security check: prevent directory traversal (the separator stops "../dist-old" passing)
   const safePath = path.normalize(path.join(DIST_DIR, pathname));
-  if (!safePath.startsWith(DIST_DIR)) {
+  if (safePath !== DIST_DIR && !safePath.startsWith(DIST_DIR + path.sep)) {
     res.writeHead(403, { 'Content-Type': 'text/plain' });
     return res.end('Forbidden');
   }
@@ -546,7 +650,9 @@ const PERMANENT_REDIRECTS = {
 const server = http.createServer((req, res) => {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = parsedUrl.pathname;
-  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+  // First hop only: the raw header ("client, proxy, ...") made a new bucket per proxy chain.
+  // Direct calls to the Render origin can still spoof it; fronting proxies should overwrite it.
+  const clientIp = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '127.0.0.1';
 
   // 301 Permanent Redirects for legacy routes
   if (PERMANENT_REDIRECTS[pathname]) {

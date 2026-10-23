@@ -402,7 +402,8 @@ async function callRemoteChatApi(
     message: userQuery,
     history: history.slice(-6),
     settings,
-    turnstileToken: turnstileToken || 'dev_bypass_token',
+    // Only a real widget token; the server no longer accepts a placeholder.
+    turnstileToken: turnstileToken || undefined,
   };
 
   // 1. Try Supabase Edge Function 'chat'

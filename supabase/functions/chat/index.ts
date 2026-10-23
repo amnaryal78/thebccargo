@@ -45,9 +45,7 @@ async function verifyTurnstileToken(token?: string, remoteIp?: string): Promise<
   if (!token) {
     return false;
   }
-  if (token === 'dev_bypass_token' || token.length > 5 && !secretKey) {
-    return true;
-  }
+  // (A hard-coded 'dev_bypass_token' used to pass here even with the secret set.)
   try {
     const formData = new URLSearchParams();
     formData.append('secret', secretKey);
@@ -203,7 +201,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const { message, settings, history, turnstileToken } = payload;
-    const userMessage = (message || '').trim();
+    const userMessage = (typeof message === 'string' ? message : '').slice(0, 1000).trim();
 
     // Turnstile Check (if token provided or secret configured)
     if (turnstileToken) {
@@ -263,8 +261,11 @@ Strict Rules:
 7. If you do not know the answer, tell the user to message on WhatsApp (+977 9855019485).
 8. Answer in the same language the user asks (Nepali, English, etc.).`;
 
-      const reqModel = settings?.model || 'google/gemma-4-26b-a4b-it:free';
-      const candidateModels = [reqModel, 'openrouter/auto', 'meta-llama/llama-3.1-8b-instruct:free', 'google/gemma-2-9b-it:free'];
+      // Free models only: the caller cannot choose a paid model (OpenRouter auto-routing could pick one).
+      const freeModels = ['google/gemma-4-26b-a4b-it:free', 'meta-llama/llama-3.1-8b-instruct:free', 'google/gemma-2-9b-it:free', 'openrouter/free'];
+      const reqModel = freeModels.includes(settings?.model) ? settings.model : freeModels[0];
+      const candidateModels = [...new Set([reqModel, ...freeModels])];
+      const safeHistory = (Array.isArray(history) ? history : []).slice(-10);
 
       for (const model of candidateModels) {
         try {
@@ -280,9 +281,9 @@ Strict Rules:
               model,
               messages: [
                 { role: 'system', content: systemPrompt },
-                ...(history || []).map((h: any) => ({
-                  role: h.sender === 'user' ? 'user' : 'assistant',
-                  content: h.text,
+                ...safeHistory.map((h: any) => ({
+                  role: h?.sender === 'user' ? 'user' : 'assistant',
+                  content: typeof h?.text === 'string' ? h.text.slice(0, 1000) : '',
                 })),
                 { role: 'user', content: userMessage },
               ],

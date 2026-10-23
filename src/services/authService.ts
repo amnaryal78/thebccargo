@@ -96,13 +96,15 @@ export async function verifyMfaEnrollment(factorId: string, code: string): Promi
 
 
 /**
- * Checks database authorization for a Supabase authenticated user or email.
- * This calls the SECURITY DEFINER function `check_admin_authorization`.
+ * Checks staff authorization for the signed-in user via `check_admin_authorization`.
+ * Pass the current session's own id and email. Since migration 20261027 the database ignores
+ * these arguments and reads the session instead (they stay so the pre-20261027 function keeps
+ * working until that migration is applied). Signed-out callers are never authorized.
  */
 export async function checkUserAdminStatus(userId?: string, email?: string): Promise<AuthCheckResult> {
   const cleanEmail = (email || '').trim().toLowerCase();
 
-  if (!isSupabaseConfigured) {
+  if (!isSupabaseConfigured || !userId) {
     return {
       isAuthorized: false,
       role: null,
@@ -134,16 +136,8 @@ export async function checkUserAdminStatus(userId?: string, email?: string): Pro
 
   // 2. Direct Table Query Fallback
   try {
-    let query = supabase.from('user_roles').select('*');
-    if (userId) {
-      query = query.eq('user_id', userId);
-    } else if (cleanEmail) {
-      query = query.eq('email', cleanEmail);
-    } else {
-      return { isAuthorized: false, role: null, active: false, reason: 'not_found' };
-    }
-
-    const { data, error } = await query.maybeSingle();
+    // RLS ("Users read own role") limits this to the caller's own row.
+    const { data, error } = await supabase.from('user_roles').select('*').eq('user_id', userId).maybeSingle();
 
     if (!error && data) {
       const isAuth = Boolean(data.active);

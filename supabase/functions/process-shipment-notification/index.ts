@@ -6,6 +6,26 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+/** Only shipping staff (or a server call with the service-role key) may use this function. */
+async function isShippingStaff(req: Request): Promise<boolean> {
+  const authHeader = req.headers.get('Authorization') || '';
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+  if (serviceRoleKey && authHeader === `Bearer ${serviceRoleKey}`) return true;
+  const userClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY') || '', {
+    global: { headers: { Authorization: authHeader } },
+  });
+  const { data: userData } = await userClient.auth.getUser();
+  if (!userData?.user) return false;
+  const { data: roleRow } = await createClient(supabaseUrl, serviceRoleKey)
+    .from('user_roles')
+    .select('role, active')
+    .eq('user_id', userData.user.id)
+    .maybeSingle();
+  return !!roleRow && roleRow.active === true && ['super_admin', 'admin', 'operations'].includes(roleRow.role);
+}
+
+
 function renderTemplate(template: string, variables: Record<string, any>): string {
   let result = template;
   for (const [key, value] of Object.entries(variables)) {
@@ -24,6 +44,13 @@ serve(async (req) => {
     if (req.method !== 'POST') {
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {
         status: 405,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!(await isShippingStaff(req))) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }

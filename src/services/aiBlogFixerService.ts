@@ -25,11 +25,16 @@ export async function fixBlogContentWithAI(req: AiFixerRequest): Promise<AiFixer
   const modelToUse = req.model || 'google/gemma-4-26b-a4b-it:free';
 
   try {
-    // Route through server-side /api/fix-blog proxy to keep API keys strictly off the client
+    // Route through server-side /api/fix-blog proxy to keep API keys strictly off the client.
+    // The server only serves active staff, so send the session token for it to verify.
+    const { supabase } = await import('../lib/supabase');
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
     const response = await fetch('/api/fix-blog', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       },
       body: JSON.stringify({
         ...req,

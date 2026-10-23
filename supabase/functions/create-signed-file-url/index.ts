@@ -59,15 +59,11 @@ serve(async (req) => {
         .eq('user_id', userData.user.id)
         .maybeSingle();
 
-      if (roleRow && ['super_admin', 'admin', 'editor', 'operations', 'support'].includes(roleRow.role)) {
+      if (roleRow && roleRow.active === true && ['super_admin', 'admin', 'editor', 'operations', 'support'].includes(roleRow.role)) {
         isAuthorized = true;
       }
     }
-
-    // Dev mode check if header contains custom staff session token
-    if (!isAuthorized && authHeader && authHeader.includes('dev_admin_session')) {
-      isAuthorized = true;
-    }
+    // (A "dev_admin_session" header bypass used to live here: any caller could claim staff access.)
 
     if (!isAuthorized) {
       return new Response(
