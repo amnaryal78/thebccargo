@@ -2,6 +2,7 @@ import { supabase, isSupabaseConfigured } from '../../../lib/supabase';
 import {
   AdminProfileFields,
   AdminProfileRequest,
+  ResellerStats,
   ProfileField,
   AdminCustomRole,
   AdminShipment,
@@ -596,6 +597,32 @@ export const adminDataService = {
       if (ins.error) throw new AdminServiceError(ins.error.message, ins.error);
     }
     await this.logAction('set_role_assignments', `user_roles:${email ?? userRoleId}`, { custom_role_count: roleIds.length });
+  },
+
+  /** Active resellers, for the "Referred by" picker. */
+  async fetchResellers(): Promise<AdminUserRole[]> {
+    ensureConfigured();
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('*')
+      .eq('role', 'reseller')
+      .eq('active', true)
+      .order('email');
+    if (error) throw new AdminServiceError(error.message, error);
+    return data || [];
+  },
+
+  /** Order counts per reseller id. Empty (never throws) until the reseller-referral migration is applied. */
+  async fetchResellerStats(): Promise<Record<string, ResellerStats>> {
+    ensureConfigured();
+    const { data, error } = await supabase.rpc('get_reseller_stats');
+    if (error || !Array.isArray(data)) return {};
+    return Object.fromEntries(
+      data.map((r: any) => [
+        r.reseller_id,
+        { total_orders: Number(r.total_orders), completed_orders: Number(r.completed_orders), orders_this_month: Number(r.orders_this_month) },
+      ])
+    );
   },
 
   async deleteUserRole(id: string, email: string | null): Promise<void> {

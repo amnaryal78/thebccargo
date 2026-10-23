@@ -6,6 +6,7 @@ import { Spotlight } from '../components/ui/spotlight';
 import { TurnstileWidget } from '../components/TurnstileWidget';
 import { submitInquiry } from '../services/inquiryService';
 import { SEOHead } from '../components/SEOHead';
+import { PAGE_META } from '../data/pageMeta';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -65,8 +66,8 @@ export const ContactPage: React.FC = () => {
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-14 text-[var(--text)]">
       <SEOHead
-        title="Contact Us | The BC Cargo & Courier"
-        description="Call, message or visit The BC Cargo & Courier in Hetauda, Nepal."
+        title={PAGE_META['/contact'].title}
+        description={PAGE_META['/contact'].description}
       />
 
       <div className="max-w-5xl mx-auto flex flex-col gap-10">

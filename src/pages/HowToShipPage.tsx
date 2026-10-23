@@ -29,6 +29,7 @@ import { ScrollTimeline, TimelineItem } from '../components/story/ScrollTimeline
 import { ShipRouteHero } from '../components/howtoship/ShipRouteHero';
 import { ShipContact } from '../components/howtoship/ShipContact';
 import { StepBody, kindOf } from '../components/howtoship/StepBodies';
+import { PAGE_META } from '../data/pageMeta';
 
 const SECTION_ICONS: Record<string, React.ElementType> = {
   PackageCheck,
@@ -91,8 +92,8 @@ export const HowToShipPage: React.FC = () => {
   return (
     <div className="w-full bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] min-h-screen">
       <SEOHead
-        title="How to Ship | सामान पठाउनुअघि | The BC Cargo & Courier"
-        description="Simple bilingual guide on what you can send, restricted items, what to bring, and customs rules before shipping your parcel with The BC Cargo."
+        title={PAGE_META['/how-to-ship'].title}
+        description={PAGE_META['/how-to-ship'].description}
         canonicalUrl="https://thebccargo.com/how-to-ship"
         ogType="article"
       />

@@ -47,6 +47,81 @@
       "source": "/services/domestic-express-cargo",
       "destination": "/services",
       "permanent": true
+    },
+    {
+      "source": "/send-parcel-nepal-to-south-korea",
+      "destination": "/blogs/nepal-to-south-korea",
+      "permanent": true
+    },
+    {
+      "source": "/send-parcel-nepal-to-malaysia",
+      "destination": "/blogs/nepal-to-malaysia",
+      "permanent": true
+    },
+    {
+      "source": "/send-parcel-nepal-to-uk",
+      "destination": "/blogs/nepal-to-united-kingdom",
+      "permanent": true
+    },
+    {
+      "source": "/send-parcel-nepal-to-japan",
+      "destination": "/blogs/nepal-to-japan",
+      "permanent": true
+    },
+    {
+      "source": "/send-parcel-nepal-to-hong-kong",
+      "destination": "/blogs/nepal-to-hong-kong",
+      "permanent": true
+    },
+    {
+      "source": "/send-parcel-nepal-to-usa",
+      "destination": "/blogs/nepal-to-usa",
+      "permanent": true
+    },
+    {
+      "source": "/rates/international",
+      "destination": "/rates",
+      "permanent": true
+    },
+    {
+      "source": "/rates/rfq",
+      "destination": "/rates",
+      "permanent": true
+    },
+    {
+      "source": "/careers/customs-broker-specialist",
+      "destination": "/careers",
+      "permanent": true
+    },
+    {
+      "source": "/careers/air-cargo-operations-lead",
+      "destination": "/careers",
+      "permanent": true
+    },
+    {
+      "source": "/careers/cross-border-fleet-dispatcher",
+      "destination": "/careers",
+      "permanent": true
+    },
+    {
+      "source": "/careers/warehouse-sortation-supervisor",
+      "destination": "/careers",
+      "permanent": true
+    },
+    {
+      "source": "/blogs/nepal-air-cargo-customs-guide-2026",
+      "destination": "/blogs",
+      "permanent": true
+    },
+    {
+      "source": "/blogs/kolkata-dry-port-rail-transit-guide",
+      "destination": "/blogs",
+      "permanent": true
+    },
+    {
+      "source": "/blogs/cold-chain-pharma-logistics-nepal",
+      "destination": "/blogs",
+      "permanent": true
     }
   ],
   "rewrites": [

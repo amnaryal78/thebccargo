@@ -21,6 +21,8 @@ import { submitBooking } from '../services/bookingService';
 import { TurnstileWidget } from './TurnstileWidget';
 import { Stepper, StepItem } from '../design/primitives/Stepper';
 import { Button } from '../design/primitives/Button';
+import { Seo } from './SEOHead';
+import { PAGE_META } from '../data/pageMeta';
 
 interface BookingSystemProps {
   onBookingSuccess?: (bookingRef: string, newShipment?: any) => void;
@@ -215,6 +217,7 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
 
   return (
     <section className="w-full py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto transition-colors">
+      <Seo title={PAGE_META['/book'].title} description={PAGE_META['/book'].description} />
       <div className="flex flex-col gap-8">
         
         {/* Header */}

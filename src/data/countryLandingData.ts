@@ -197,7 +197,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     subheadline: 'Comprehensive air logistics connecting Hetauda to Germany, France, Italy, Spain, Netherlands, Portugal, Poland, and the entire European Union.',
     metaTitle: 'Send Cargo from Hetauda Nepal to Europe | BC Cargo',
     metaDescription: 'Send personal and commercial cargo from Hetauda to Europe (EU). Fast customs-cleared air freight to Frankfurt, Paris, Rome, Madrid, and across the EU.',
-    transitTime: '4–6 business days',
+    transitTime: 'Ask for current estimate',
     departureFrequency: 'Daily air freight departures',
     originHub: 'School Road -4, Hetauda, Nepal',
     packingRules: [
@@ -233,8 +233,8 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     headline: 'Fast Parcel Service from Hetauda & Nepal to UAE & Gulf',
     subheadline: 'Affordable, scheduled air courier from Hetauda Central Hub to Dubai, Abu Dhabi, Sharjah, Qatar, Saudi Arabia, Bahrain, and Oman.',
     metaTitle: 'Send Courier from Hetauda Nepal to Dubai & Gulf | BC Cargo',
-    metaDescription: 'Fast courier service from Hetauda to Dubai, UAE, Qatar, and Gulf region. Low per-kg tariffs, 2–4 business days delivery, and complete tracking.',
-    transitTime: '2–4 business days',
+    metaDescription: 'Fast courier service from Hetauda to Dubai, UAE, Qatar, and Gulf region. Live per-kg rates and complete tracking.',
+    transitTime: 'Ask for current estimate',
     departureFrequency: 'Daily direct flights to Dubai and Doha',
     originHub: 'School Road -4, Hetauda, Nepal',
     packingRules: [
@@ -250,7 +250,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     faqs: [
       {
         question: 'How long does a package take from Hetauda to Dubai?',
-        answer: 'Air cargo to Dubai and Abu Dhabi usually delivers within 2 to 4 business days.',
+        answer: 'Delivery time to Dubai and Abu Dhabi depends on flights and customs. Ask us for the current estimate before you ship.',
       },
       {
         question: 'Can I send homemade pickles to Dubai?',
@@ -330,7 +330,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
       },
       {
         question: 'How do I send commercial goods or handicrafts from Hetauda to America?',
-        answer: 'Our customs brokerage team (License #B-409) assists with commercial export declarations, certificate of origin, and courier linehaul direct to US ports.',
+        answer: 'Our customs brokerage team assists with commercial export declarations, certificate of origin, and courier linehaul direct to US ports.',
       },
     ],
     sampleWeightKg: 20,

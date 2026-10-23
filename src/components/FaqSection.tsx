@@ -22,7 +22,7 @@ export const DEFAULT_FAQS: FaqItem[] = [
   },
   {
     question: 'What documents do I need to send items outside Nepal?',
-    answer: 'To send personal gifts or items abroad, you only need your ID, a list of what is inside the box, and the receiver’s address. For businesses sending goods for sale, our licensed customs brokers (License #B-409) will help you prepare and file all required paperwork quickly.'
+    answer: 'To send personal gifts or items abroad, you only need your ID, a list of what is inside the box, and the receiver’s address. For businesses sending goods for sale, our customs team will help you prepare and file all required paperwork quickly.'
   },
   {
     question: 'How is box size and weight calculated?',

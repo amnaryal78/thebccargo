@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   LogIn
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { BcLogo } from './BcLogo';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../design/primitives/Button';
@@ -29,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  const { user, isAuthorizedAdmin, logout } = useAuth();
+  const { user, role, isAuthorizedAdmin, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -219,6 +220,16 @@ export const Header: React.FC<HeaderProps> = ({
                       <span>Admin Console</span>
                     </button>
                   )}
+                  {role === 'reseller' && (
+                    <Link
+                      to="/reseller"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="w-full text-left px-3 py-2 rounded-[var(--r-sm)] text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-2 hover:bg-[var(--surface-2)] text-[var(--text)]"
+                    >
+                      <UserIcon className="w-3.5 h-3.5 text-[#F2B705]" />
+                      <span>My reseller profile</span>
+                    </Link>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
@@ -233,7 +244,15 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               )}
             </div>
-          ) : null}
+          ) : (
+            <Link
+              to="/login"
+              className="h-9 px-2.5 rounded-[var(--r-sm)] border border-[var(--line)] bg-[var(--surface-2)] shadow-hard-xs text-xs font-mono flex items-center gap-1.5 text-[var(--text)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-press transition-all duration-[var(--t-fast)]"
+            >
+              <LogIn className="w-3.5 h-3.5 text-[#002147]" />
+              <span className="font-bold">Sign in</span>
+            </Link>
+          )}
 
           {/* Primary Action Button: Book */}
           <Button

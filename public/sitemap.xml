@@ -2,457 +2,367 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://thebccargo.com/</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/rates</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://thebccargo.com/rates/international</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://thebccargo.com/rates/rfq</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://thebccargo.com/track</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/book</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://thebccargo.com/send-parcel-nepal-to-south-korea</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://thebccargo.com/send-parcel-nepal-to-malaysia</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://thebccargo.com/send-parcel-nepal-to-uk</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://thebccargo.com/send-parcel-nepal-to-japan</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://thebccargo.com/send-parcel-nepal-to-europe</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <lastmod>2026-10-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/send-parcel-nepal-to-gulf</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://thebccargo.com/send-parcel-nepal-to-hong-kong</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://thebccargo.com/send-parcel-nepal-to-usa</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <lastmod>2026-10-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/services</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/services/international-air-freight</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/services/cross-border-overland</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/services/ocean-freight-intermodal</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/services/customs-brokerage-clearance</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/about</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/contact</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/careers</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://thebccargo.com/careers/customs-broker-specialist</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://thebccargo.com/careers/air-cargo-operations-lead</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://thebccargo.com/careers/cross-border-fleet-dispatcher</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://thebccargo.com/careers/warehouse-sortation-supervisor</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://thebccargo.com/blogs</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://thebccargo.com/blogs/nepal-air-cargo-customs-guide-2026</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://thebccargo.com/blogs/kolkata-dry-port-rail-transit-guide</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://thebccargo.com/blogs/cold-chain-pharma-logistics-nepal</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://thebccargo.com/faq</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/how-to-ship</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/policies</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-south-korea</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-japan</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-hong-kong</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-philippines</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-taiwan</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-malaysia</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-uae</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-saudi-arabia</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-qatar</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-kuwait</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-bahrain</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-united-kingdom</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-malta</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-cyprus</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-austria</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-germany</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-luxembourg</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-netherlands</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-czech-republic</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-denmark</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-france</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-monaco</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-hungary</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-italy</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-ireland</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-poland</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-slovakia</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-slovenia</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-spain</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-sweden</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-portugal</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-romania</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-greece</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-bulgaria</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-croatia</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-estonia</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-finland</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-lithuania</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-latvia</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-australia</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-new-zealand</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-usa</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thebccargo.com/blogs/nepal-to-canada</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

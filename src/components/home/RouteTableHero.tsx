@@ -54,7 +54,7 @@ export const RouteTableHero: React.FC<RouteTableHeroProps> = ({
 
           {/* Operational logistics copy */}
           <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed max-w-xl">
-            Fast, safe cargo and courier from Hetauda to 190+ countries. We handle customs and you can track every parcel.
+            Fast, safe cargo and courier from Hetauda to countries worldwide. We handle customs and you can track every parcel.
           </p>
 
           {/* Three actions: Price, Become a partner, How to ship (text link) */}

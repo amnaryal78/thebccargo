@@ -14,6 +14,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { DEFAULT_FAQS, FaqItem } from '../components/FaqSection';
 import { SEOHead } from '../components/SEOHead';
 import { Spotlight } from '../components/ui/spotlight';
+import { PAGE_META } from '../data/pageMeta';
 
 const CATEGORIZED_FAQS: FaqItem[] = [
   ...DEFAULT_FAQS.map((f, i) => ({
@@ -25,7 +26,7 @@ const CATEGORIZED_FAQS: FaqItem[] = [
     id: 'FAQ-7',
     category: 'Customs & Air Freight',
     question: 'How does customs clearance work for export from Nepal?',
-    answer: 'Every commercial shipment leaving Nepal passes through the Department of Customs. Our licensed in-house customs brokers (License #B-409) submit the required electronic declarations (Pragyapan Patra) directly through the ASYCUDA World system, ensuring rapid export approval at TIA Kathmandu or Birgunj Dry Port without procedural hold-ups.'
+    answer: 'Every commercial shipment leaving Nepal passes through the Department of Customs. Our in-house customs team submits the required electronic declarations (Pragyapan Patra) directly through the ASYCUDA World system, ensuring rapid export approval at TIA Kathmandu or Birgunj Dry Port without procedural hold-ups.'
   },
   {
     id: 'FAQ-8',
@@ -115,8 +116,8 @@ export const FaqPage: React.FC = () => {
   return (
     <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full flex flex-col gap-10">
       <SEOHead
-        title="Frequently Asked Questions (FAQ) | The BC Cargo & Courier"
-        description="Comprehensive answers to common questions regarding customs brokerage, cargo rates, package tracking, dimensional weight, and transit times across Nepal and 220+ destinations."
+        title={PAGE_META['/faq'].title}
+        description={PAGE_META['/faq'].description}
         jsonLd={faqSchema}
       />
 
@@ -130,7 +131,7 @@ export const FaqPage: React.FC = () => {
           Frequently Asked Questions
         </h1>
         <p className="text-sm sm:text-base text-[var(--text-secondary)]">
-          Everything you need to know about air waybills, customs documents (#B-409), dimensional weight, freight billing, and tracking your package.
+          Everything you need to know about air waybills, customs documents, dimensional weight, freight billing, and tracking your package.
         </p>
       </div>
 

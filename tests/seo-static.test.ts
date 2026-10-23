@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
+import { PAGE_META } from '../src/data/pageMeta';
 
 const root = path.resolve(__dirname, '..');
 const read = (p: string) => fs.readFileSync(path.join(root, p), 'utf8');
@@ -29,16 +30,24 @@ describe('technical SEO guards', () => {
     expect(llms).toContain('Japan: about 15 days');
   });
 
-  it('every prerendered title is 60 characters or fewer', () => {
-    const src = read('scripts/prerender.mjs');
-    const titles = [...src.matchAll(/^\s{4}title: '([^']+)'/gm)].map((m) => m[1]);
-    expect(titles.length).toBeGreaterThan(20);
-    for (const t of titles) expect(t.length, t).toBeLessThanOrEqual(60);
+  it('every static page title is 60 characters or fewer and every description is 70-160', () => {
+    const entries = Object.entries(PAGE_META);
+    expect(entries.length).toBeGreaterThan(10);
+    for (const [route, m] of entries) {
+      expect(m.title.length, `${route} title`).toBeLessThanOrEqual(60);
+      expect(m.description.length, `${route} description`).toBeGreaterThanOrEqual(70);
+      expect(m.description.length, `${route} description`).toBeLessThanOrEqual(160);
+    }
   });
 
-  it('the sitemap lists every prerendered route', () => {
+  it('static page metadata contains no unverified claims', () => {
+    for (const [route, m] of Object.entries(PAGE_META)) {
+      expect(m.title + ' ' + m.description, route).not.toMatch(/B-409|\b(?:190|220)\+|since 20\d\d|business days|SLA|licen[cs]ed/i);
+    }
+  });
+
+  it('the sitemap lists every static page', () => {
     const sitemap = read('public/sitemap.xml');
-    const routes = [...read('scripts/prerender.mjs').matchAll(/^ {2}'(\/[^']*)': \{/gm)].map((m) => m[1]);
-    for (const r of routes) expect(sitemap, r).toContain(`<loc>https://thebccargo.com${r}</loc>`);
+    for (const r of Object.keys(PAGE_META)) expect(sitemap, r).toContain(`<loc>https://thebccargo.com${r === '/' ? '/' : r}</loc>`);
   });
 });

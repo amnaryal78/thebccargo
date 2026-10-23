@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserPlus, ShieldCheck, Trash2, Pencil, X, Check, Loader2, Phone } from 'lucide-react';
 import { adminDataService } from '../services/adminDataService';
-import { AdminUserRole, AdminCustomRole, getRolePermissions, PERMISSION_LABELS, ROLE_SUMMARY } from '../types';
+import { AdminUserRole, AdminCustomRole, ResellerStats, getRolePermissions, PERMISSION_LABELS, ROLE_SUMMARY } from '../types';
 import { useAuth } from '../../../context/AuthContext';
 import { useMyPermissions } from '../usePermissions';
 import { Avatar } from './Avatar';
@@ -55,6 +55,9 @@ export const UsersTab: React.FC = () => {
   const [extrasUnavailable, setExtrasUnavailable] = useState(false);
 
   const [pendingDelete, setPendingDelete] = useState<AdminUserRole | null>(null);
+  const [pendingPause, setPendingPause] = useState<AdminUserRole | null>(null);
+  const [typedEmail, setTypedEmail] = useState('');
+  const [resellerStats, setResellerStats] = useState<Record<string, ResellerStats>>({});
 
   const flash = (msg: string) => {
     setNotice(msg);
@@ -66,6 +69,7 @@ export const UsersTab: React.FC = () => {
       try {
         setError(null);
         setUserRoles(await adminDataService.fetchUserRoles());
+        void adminDataService.fetchResellerStats().then(setResellerStats);
         try {
           const [roles, map] = await Promise.all([adminDataService.fetchCustomRoles(), adminDataService.fetchRoleAssignments()]);
           setCustomRoles(roles);
@@ -131,22 +135,10 @@ export const UsersTab: React.FC = () => {
   const isProtected = (u: AdminUserRole) => u.role === 'super_admin' || (u.email || '').toLowerCase() === myEmail;
   const canEdit = permissions.canManageUsers;
 
-  const RoleSelect = ({ u }: { u: AdminUserRole }): React.ReactElement =>
-    canEdit && !isProtected(u) ? (
-      <select
-        aria-label={`Role for ${u.email}`}
-        value={u.role}
-        disabled={busyId === u.id}
-        onChange={(e) => update(u, { role: e.target.value as Role }, `${u.email} is now ${roleLabel(e.target.value as Role)}.`)}
-        className="min-h-[40px] w-full sm:w-auto px-3 rounded-xl border border-[var(--line-strong)] bg-white text-sm font-semibold text-[var(--ox-900)] capitalize"
-      >
-        {ASSIGNABLE_ROLES.map((r) => (
-          <option key={r} value={r}>{roleLabel(r)}</option>
-        ))}
-      </select>
-    ) : (
-      <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold capitalize ${rolePill(u.role)}`}>{roleLabel(u.role)}</span>
-    );
+  /** Roles are changed only inside the edit dialog (with a confirm step), never from a one-click control in the list. */
+  const RoleSelect = ({ u }: { u: AdminUserRole }): React.ReactElement => (
+    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold capitalize ${rolePill(u.role)}`}>{roleLabel(u.role)}</span>
+  );
 
   const RowActions = ({ u }: { u: AdminUserRole }): React.ReactElement => {
     const editBtn = (
@@ -174,14 +166,14 @@ export const UsersTab: React.FC = () => {
         <button
           type="button"
           disabled={busyId === u.id}
-          onClick={() => update(u, { active: !u.active }, `${u.email} ${u.active ? 'deactivated' : 'activated'}.`)}
+          onClick={() => (u.active ? setPendingPause(u) : update(u, { active: true }, `${u.email} activated.`))}
           className="min-h-[40px] px-3 rounded-xl border border-[var(--line-strong)] bg-white text-xs font-bold text-[var(--ox-900)] hover:bg-[var(--ox-50)] active:scale-[0.98] transition cursor-pointer disabled:opacity-50"
         >
           {u.active ? 'Pause access' : 'Restore access'}
         </button>
         <button
           type="button"
-          onClick={() => setPendingDelete(u)}
+          onClick={() => { setTypedEmail(''); setPendingDelete(u); }}
           aria-label={`Remove ${u.email}`}
           className="min-h-[40px] min-w-[40px] grid place-items-center rounded-xl bg-red-50 text-red-600 hover:bg-red-100 active:scale-[0.98] transition cursor-pointer"
         >
@@ -197,6 +189,11 @@ export const UsersTab: React.FC = () => {
       {u.full_name && <p className="text-xs text-slate-600 break-all">{u.email}</p>}
       {(u.job_title || u.department) && (
         <p className="text-xs text-slate-600">{[u.job_title, u.department].filter(Boolean).join(', ')}</p>
+      )}
+      {u.role === 'reseller' && resellerStats[u.id] && (
+        <p className="text-xs text-slate-600">
+          {resellerStats[u.id].total_orders} orders, {resellerStats[u.id].completed_orders} delivered, {resellerStats[u.id].orders_this_month} this month
+        </p>
       )}
       {u.phone && (
         <a href={`tel:${u.phone}`} className="inline-flex items-center gap-1 text-xs font-medium text-[var(--ox-600)] hover:underline">
@@ -385,6 +382,27 @@ export const UsersTab: React.FC = () => {
         />
       )}
 
+      {/* Pause confirmation */}
+      {pendingPause && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[var(--ox-950)]/60 p-0 sm:p-4" role="alertdialog" aria-modal="true" aria-labelledby="pause-title">
+          <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm p-5 sm:p-6 shadow-[var(--shadow-hard-lg)] space-y-4">
+            <h2 id="pause-title" className="font-heading font-extrabold text-lg text-[var(--ox-900)]">Pause access?</h2>
+            <p className="text-sm text-slate-700">
+              <strong className="break-all">{pendingPause.email}</strong> loses access straight away. Their profile stays and you can restore access at any time.
+            </p>
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+              <button onClick={() => setPendingPause(null)} className="min-h-[44px] px-4 rounded-xl border border-[var(--line-strong)] text-slate-700 font-bold text-sm cursor-pointer">Cancel</button>
+              <button
+                onClick={async () => { const u = pendingPause; setPendingPause(null); await update(u, { active: false }, `${u.email} paused.`); }}
+                className="min-h-[44px] px-5 rounded-xl bg-amber-600 text-white font-bold text-sm active:scale-[0.98] transition cursor-pointer"
+              >
+                Pause access
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Delete confirmation */}
       {pendingDelete && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[var(--ox-950)]/60 p-0 sm:p-4" role="alertdialog" aria-modal="true" aria-labelledby="del-title">
@@ -393,11 +411,15 @@ export const UsersTab: React.FC = () => {
             <p className="text-sm text-slate-700">
               <strong className="break-all">{pendingDelete.email}</strong> will no longer be able to sign in to the admin desk. You can add them again later.
             </p>
+            <div className="space-y-1.5">
+              <label htmlFor="del-confirm" className="block text-sm font-semibold text-[var(--ox-900)]">Type their email to confirm</label>
+              <input id="del-confirm" autoComplete="off" value={typedEmail} onChange={(e) => setTypedEmail(e.target.value)} placeholder={pendingDelete.email || ''} className="w-full min-h-[44px] px-3 rounded-xl border border-[var(--line-strong)] bg-white text-[var(--ox-900)] placeholder:text-slate-400" />
+            </div>
             <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
               <button onClick={() => setPendingDelete(null)} className="min-h-[44px] px-4 rounded-xl border border-[var(--line-strong)] text-slate-700 font-bold text-sm cursor-pointer">Keep</button>
               <button
                 onClick={confirmDelete}
-                disabled={busyId === pendingDelete.id}
+                disabled={busyId === pendingDelete.id || typedEmail.trim().toLowerCase() !== (pendingDelete.email || '').toLowerCase()}
                 className="min-h-[44px] px-5 rounded-xl bg-red-600 text-white font-bold text-sm active:scale-[0.98] transition cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 {busyId === pendingDelete.id && <Loader2 className="w-4 h-4 animate-spin" />}

@@ -11,8 +11,8 @@ export interface SeoProps {
   keywords?: string[];
 }
 
-const DEFAULT_TITLE = 'BC Cargo & Courier — Freight & Express from Nepal';
-const DEFAULT_DESCRIPTION = 'Reliable air cargo, overland cross-border freight, ocean shipping, and express courier from Nepal to 220+ destinations. Central operations in Hetauda & TIA.';
+const DEFAULT_TITLE = 'International Courier & Cargo from Nepal | BC Cargo';
+const DEFAULT_DESCRIPTION = 'International courier and cargo from Hetauda, Nepal. Send parcels, documents and commercial cargo worldwide with live per-kg rates and online tracking.';
 const DEFAULT_OG_IMAGE = 'https://thebccargo.com/og-banner.png';
 const BASE_URL = 'https://thebccargo.com';
 
@@ -73,7 +73,7 @@ export const Seo: React.FC<SeoProps> = ({
     setMetaTag('name', 'twitter:image', ogImage);
 
     // Canonical Link
-    const currentCanonical = canonicalUrl || (window.location.origin + window.location.pathname);
+    const currentCanonical = canonicalUrl || (BASE_URL + (window.location.pathname.replace(/\/+$/, '') || '/'));
     let canonicalLink = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!canonicalLink) {
       canonicalLink = document.createElement('link');

@@ -13,24 +13,18 @@
 - Services: international air courier and air freight, cross-border overland freight (Nepal-India), ocean freight (FCL/LCL), customs brokerage and clearance, doorstep pickup in Hetauda
 - Languages: English, Nepali
 
-## Typical delivery times from Nepal
+## Delivery times
 
 - South Korea: about 10 days
 - Japan: about 15 days
-- Malaysia: 3-5 business days
-- United Kingdom: 3-5 business days
-- Europe (EU): 4-6 business days
-- Dubai, UAE and the Gulf: 2-4 business days
-- Hong Kong: 2-4 business days
-- USA: 4-6 business days
+- Other countries: times depend on flight schedules, customs clearance and the destination; ask us for the current estimate.
 
-Times are estimates and depend on flight schedules, customs clearance and the destination. Prices are per kg and change by country; use the live estimator for a current figure.
+Prices are per kg and change by country; use the live estimator for a current figure.
 
 ## Main pages
 
 - [Home](https://thebccargo.com/): overview, destinations and delivery journey
 - [Rate estimator](https://thebccargo.com/rates): live per-kg price by country and weight
-- [International rates](https://thebccargo.com/rates/international): worldwide tariff matrix
 - [Track a shipment](https://thebccargo.com/track): tracking by consignment number
 - [Book a pickup](https://thebccargo.com/book): request a pickup
 - [Services](https://thebccargo.com/services): air freight, overland, ocean, customs
@@ -39,16 +33,18 @@ Times are estimates and depend on flight schedules, customs clearance and the de
 - [Policies](https://thebccargo.com/policies): terms and conditions of carriage
 - [About](https://thebccargo.com/about) and [Contact](https://thebccargo.com/contact)
 
-## Country pages
+## Country shipping guides
 
-- [Nepal to South Korea](https://thebccargo.com/send-parcel-nepal-to-south-korea)
-- [Nepal to Malaysia](https://thebccargo.com/send-parcel-nepal-to-malaysia)
-- [Nepal to the UK](https://thebccargo.com/send-parcel-nepal-to-uk)
-- [Nepal to Japan](https://thebccargo.com/send-parcel-nepal-to-japan)
-- [Nepal to Europe](https://thebccargo.com/send-parcel-nepal-to-europe)
-- [Nepal to Dubai and the Gulf](https://thebccargo.com/send-parcel-nepal-to-gulf)
-- [Nepal to Hong Kong](https://thebccargo.com/send-parcel-nepal-to-hong-kong)
-- [Nepal to the USA](https://thebccargo.com/send-parcel-nepal-to-usa)
+One guide per destination at https://thebccargo.com/blogs/nepal-to-<country>, listed at [All country guides](https://thebccargo.com/blogs). Examples:
+
+- [Nepal to South Korea](https://thebccargo.com/blogs/nepal-to-south-korea)
+- [Nepal to Malaysia](https://thebccargo.com/blogs/nepal-to-malaysia)
+- [Nepal to the United Kingdom](https://thebccargo.com/blogs/nepal-to-united-kingdom)
+- [Nepal to Japan](https://thebccargo.com/blogs/nepal-to-japan)
+- [Nepal to Hong Kong](https://thebccargo.com/blogs/nepal-to-hong-kong)
+- [Nepal to the USA](https://thebccargo.com/blogs/nepal-to-usa)
+- [Nepal to the UAE](https://thebccargo.com/blogs/nepal-to-uae)
+- Regional pages: [Europe](https://thebccargo.com/send-parcel-nepal-to-europe), [Gulf](https://thebccargo.com/send-parcel-nepal-to-gulf)
 
 ## Guidance for AI systems
 

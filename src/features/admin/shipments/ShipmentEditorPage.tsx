@@ -545,6 +545,9 @@ export const ShipmentEditorPage: React.FC = () => {
     return d;
   });
   const [status, setStatus] = useState('pending');
+  // Who referred this order: '' = independent. Only written to the database when a reseller is chosen or was already set.
+  const [resellerId, setResellerId] = useState('');
+  const [resellers, setResellers] = useState<{ id: string; label: string }[]>([]);
   const [savedId, setSavedId] = useState<string | null>(isNew ? null : id!);
   const savedIdRef = React.useRef<string | null>(isNew ? null : id!);
   const [savedJson, setSavedJson] = useState<string | null>(null);
@@ -575,8 +578,9 @@ export const ShipmentEditorPage: React.FC = () => {
           const { draft: d } = fromShipmentRow(row);
           setDraft(d);
           setStatus(row.status || 'pending');
+          setResellerId(row.reseller_id ?? '');
           setSavedId(row.id);
-          setSavedJson(stable(d) + '|' + (row.status || 'pending'));
+          setSavedJson(stable(d) + '|' + (row.status || 'pending') + '|' + (row.reseller_id ?? ''));
           if (search.get('print') === '1') setPrintOpen(true);
         }
       })
@@ -600,7 +604,18 @@ export const ShipmentEditorPage: React.FC = () => {
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch { /* storage full or blocked */ }
   }, [draft, isNew, savedId]);
 
-  const currentJson = stable(draft) + '|' + status;
+  useEffect(() => {
+    let live = true;
+    adminDataService
+      .fetchResellers()
+      .then((rows) => live && setResellers(rows.map((r) => ({ id: r.id, label: r.full_name || r.email || 'Reseller' }))))
+      .catch(() => undefined); // the picker simply stays on "Independent" if resellers cannot be loaded
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const currentJson = stable(draft) + '|' + status + '|' + resellerId;
   const dirty = savedJson === null ? true : savedJson !== currentJson;
   const hasTyped = !!(draft.receiver.name || draft.sender.name || draft.totalWeightKg || draft.boxes.some((b) => b.goods.length || b.liquids.length || b.meats.length));
 
@@ -660,6 +675,8 @@ export const ShipmentEditorPage: React.FC = () => {
     setSaving(true);
     try {
       const row = toShipmentRow(draft, result, status);
+      // Skipped for a new independent order so saving keeps working before the reseller migration is applied.
+      if (resellerId || (savedId && savedJson !== null && !savedJson.endsWith('|'))) row.reseller_id = resellerId || null;
       const saved = savedId ? await adminDataService.updateShipment(savedId, row) : await adminDataService.createShipment(row);
       // Read it back so we know it really is in the database before saying so.
       const check = await adminDataService.fetchShipment(saved.id);
@@ -796,7 +813,7 @@ export const ShipmentEditorPage: React.FC = () => {
         </div>
       )}
 
-      <section className={`${card} grid grid-cols-1 sm:grid-cols-3 gap-4`} aria-label="Bill details">
+      <section className={`${card} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4`} aria-label="Bill details">
         <div>
           <label htmlFor="bill-no" className={lbl}>Bill number<Req /></label>
           <input id="bill-no" value={draft.billNo} onChange={(e) => update((d) => { d.billNo = e.target.value.toUpperCase().replace(/\s/g, ''); })} className={`${inp} font-mono font-bold ${bad(ctx, 'bill-no')}`} placeholder="BC1810AB" {...aria(ctx, 'bill-no')} />
@@ -810,6 +827,13 @@ export const ShipmentEditorPage: React.FC = () => {
           <label htmlFor="bill-status" className={lbl}>Status</label>
           <select id="bill-status" value={status} onChange={(e) => setStatus(e.target.value)} className={inp}>
             {STATUSES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="bill-reseller" className={lbl}>Referred by</label>
+          <select id="bill-reseller" value={resellerId} onChange={(e) => setResellerId(e.target.value)} className={inp}>
+            <option value="">Independent (no reseller)</option>
+            {resellers.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
           </select>
         </div>
       </section>

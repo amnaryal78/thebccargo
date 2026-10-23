@@ -62,7 +62,7 @@ export const MiniEstimatorSlot: React.FC<MiniEstimatorSlotProps> = ({ onNavigate
               Calculate International Cargo Rates
             </h3>
             <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
-              Transparent rate quotes from Hetauda Central Hub and Nepal to 190+ global destinations. Live Google Sheet tariffs, box counts, and handling rules applied automatically.
+              Transparent rate quotes from Hetauda Central Hub and Nepal to countries worldwide. Live Google Sheet tariffs, box counts, and handling rules applied automatically.
             </p>
             <div className="pt-2 flex items-center gap-2 text-xs font-mono text-[var(--text-muted)]">
               <ShieldCheck className="w-4 h-4 text-[var(--green-mid,#16A34A)]" />

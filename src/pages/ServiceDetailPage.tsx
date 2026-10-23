@@ -75,7 +75,7 @@ export const ServiceDetailPage: React.FC = () => {
   return (
     <div className="w-full bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] py-8 sm:py-12 px-4 sm:px-6 lg:px-8 transition-colors">
       <SEOHead
-        title={`${service.title} | The BC Cargo & Courier`}
+        title={service.seoTitle}
         description={service.seoDescription}
       />
 

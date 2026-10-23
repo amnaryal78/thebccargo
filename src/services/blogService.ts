@@ -135,7 +135,7 @@ Nepal applies customs tariffs based on 8-digit national tariff lines. Incorrect 
 Under WTO valuation principles adopted by Nepal Department of Customs, the primary basis for valuation is the transaction value—the price actually paid or payable for goods when sold for export to Nepal, adjusted for freight, insurance, and handling charges (CIF).
 
 ### 3. Broker Assistance
-BC Cargo's dedicated brokerage team operates under license #B-409 to verify classifications prior to cargo arrival, minimizing clearance turnaround times to under 24 hours.`,
+BC Cargo's dedicated brokerage team operates to verify classifications prior to cargo arrival, minimizing clearance turnaround times to under 24 hours.`,
     coverImageUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
     coverImageAlt: 'Customs declaration papers and valuation documents',
     authorName: 'The BC Cargo team',

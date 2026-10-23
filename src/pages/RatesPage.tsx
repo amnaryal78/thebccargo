@@ -1,6 +1,8 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { RateEstimator } from '../features/estimator/RateEstimator';
+import { Seo } from '../components/SEOHead';
+import { PAGE_META } from '../data/pageMeta';
 
 export const RatesPage: React.FC = () => {
   const location = useLocation();
@@ -10,22 +12,13 @@ export const RatesPage: React.FC = () => {
   const destParam = searchParams.get('dest') || searchParams.get('code') || '';
   const weightParam = parseFloat(searchParams.get('weight') || '') || 10;
 
-  useEffect(() => {
-    document.title = 'International Rate Estimator | The BC Cargo & Courier';
-    let metaDesc = document.querySelector('meta[name="description"]');
-    if (!metaDesc) {
-      metaDesc = document.createElement('meta');
-      metaDesc.setAttribute('name', 'description');
-      document.head.appendChild(metaDesc);
-    }
-    metaDesc.setAttribute(
-      'content',
-      'Calculate transparent door-to-port and doorstep courier freight rates from Nepal with instant volumetric weights and handling fees.'
-    );
-  }, []);
-
   return (
     <div className="w-full bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] py-6 sm:py-8 px-4 sm:px-6 lg:px-8 transition-colors">
+      <Seo
+        title={PAGE_META['/rates'].title}
+        description={PAGE_META['/rates'].description}
+        canonicalUrl="https://thebccargo.com/rates"
+      />
       <div className="max-w-7xl mx-auto space-y-4">
         <header className="max-w-6xl mx-auto space-y-1.5">
           <h1 className="font-heading font-extrabold text-3xl sm:text-4xl tracking-tight text-[#002147]">Shipping price</h1>

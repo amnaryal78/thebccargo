@@ -22,6 +22,8 @@ import { Shipment, Milestone } from '../types';
 import { fetchPublicTracking } from '../services/trackingService';
 import { Button } from '../design/primitives/Button';
 import { Spotlight } from './ui/spotlight';
+import { Seo } from './SEOHead';
+import { PAGE_META } from '../data/pageMeta';
 
 interface TrackingSectionProps {
   shipment?: Shipment | null;
@@ -121,6 +123,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
 
   return (
     <section className="w-full py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto transition-colors">
+      <Seo title={PAGE_META['/track'].title} description={PAGE_META['/track'].description} />
       <div className="flex flex-col gap-8">
         
         {/* Header */}

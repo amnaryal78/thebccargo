@@ -36,7 +36,7 @@ export const SERVICES_CATALOG: ServiceDetail[] = [
     category: 'international',
     mode: 'air',
     tagline: 'Daily Priority Cargo Flights Worldwide from Kathmandu',
-    description: 'Scheduled air cargo departure manifests connecting Tribhuvan International Airport (KTM) directly to global hub airports across 190+ countries. Engineered for time-critical commercial exports, sensitive electronics, high-value handicrafts, and official documents with end-to-end customs broker escort.',
+    description: 'Scheduled air cargo departure manifests connecting Tribhuvan International Airport (KTM) directly to global hub airports to destinations worldwide. Engineered for time-critical commercial exports, sensitive electronics, high-value handicrafts, and official documents with end-to-end customs broker escort.',
     sla: '2 to 5 Days Door-to-Door Worldwide',
     sizeLimit: 'Up to 3,000 kg per pallet / Charter for oversize',
     bestFor: 'Urgent exports, pashmina & garments, artisan handicrafts, commercial samples & documents',
@@ -71,7 +71,7 @@ export const SERVICES_CATALOG: ServiceDetail[] = [
       {
         stepNumber: 2,
         title: 'Customs Examination & Export Documentation',
-        description: 'Formal customs appraisal, clearance under Broker License #B-409, Certificate of Origin verification, and e-AWB generation.',
+        description: 'Formal customs appraisal, clearance, Certificate of Origin verification, and e-AWB generation.',
       },
       {
         stepNumber: 3,
@@ -99,7 +99,7 @@ export const SERVICES_CATALOG: ServiceDetail[] = [
       },
     ],
     seoTitle: 'International Air Freight & Cargo from Nepal | The BC Cargo',
-    seoDescription: 'Fast, licensed air cargo from Kathmandu TIA Gateway to 190+ global destinations. Customs clearance, door-to-door tracking, and daily scheduled flights.',
+    seoDescription: 'Air cargo from Kathmandu to destinations worldwide, with customs documentation and tracking by consignment number. Ask us for a quote.',
   },
   {
     id: 'srv-road-intl',
@@ -117,7 +117,6 @@ export const SERVICES_CATALOG: ServiceDetail[] = [
     compliance: 'Nepal-India Bilateral Transit Treaty Authorized Carrier, Motor Vehicle Transit Protocol',
     highlights: [
       'Daily scheduled cross-border linehaul dispatch from Hetauda Central Hub',
-      'Real-time GPS satellite telematics tracking on all container rigs',
       'Electronic Seal (E-Seal) compliance for bonded transit corridors',
       'Dedicated customs processing team stationed at Birgunj ICD dry port',
     ],
@@ -148,7 +147,7 @@ export const SERVICES_CATALOG: ServiceDetail[] = [
       {
         stepNumber: 3,
         title: 'Bonded Border Linehaul',
-        description: 'Direct highway transport through authorized dry port checkpoints with automated GPS perimeter geofencing.',
+        description: 'Direct highway transport through authorized dry port checkpoints.',
       },
       {
         stepNumber: 4,
@@ -167,7 +166,7 @@ export const SERVICES_CATALOG: ServiceDetail[] = [
       },
     ],
     seoTitle: 'Cross-Border Overland Freight Nepal to India | The BC Cargo',
-    seoDescription: 'High-capacity overland container trucking connecting Hetauda, Kathmandu, Birgunj dry port, Delhi NCR, and Kolkata with satellite GPS tracking.',
+    seoDescription: 'Overland cargo between Nepal and India via Birgunj, with documentation support. Ask us for a quote.',
   },
   {
     id: 'srv-ocean-intl',
@@ -235,7 +234,7 @@ export const SERVICES_CATALOG: ServiceDetail[] = [
       },
     ],
     seoTitle: 'International Ocean Container Shipping Nepal | The BC Cargo',
-    seoDescription: 'Reliable sea freight and multimodal intermodal shipping from Nepal via Birgunj dry port to worldwide destinations. LCL consolidation and FCL container dispatch.',
+    seoDescription: 'Sea freight from Nepal via Birgunj dry port to worldwide ports, as LCL or FCL. Ask us for a quote.',
   },
   {
     id: 'srv-customs-intl',
@@ -243,7 +242,7 @@ export const SERVICES_CATALOG: ServiceDetail[] = [
     title: 'Customs Brokerage & Border Clearance',
     category: 'international',
     mode: 'customs',
-    tagline: 'Official Licensed Customs Brokerage (#B-409) at Nepal Gateway Ports',
+    tagline: 'Official Licensed Customs Brokerage at Nepal Gateway Ports',
     description: 'Licensed government customs escort, bonded clearance, and tariff appraisal handling at Tribhuvan International Airport (TIA) Cargo Terminal, Birgunj Inland Container Depot (ICD), Tatopani dry port, and Bhairahawa. We manage Pragyapan Patra preparation, HS code classification, and export certificate attestation.',
     sla: '24 to 48 Hours Port Clearance',
     sizeLimit: 'All parcel & container volumes',
@@ -302,7 +301,7 @@ export const SERVICES_CATALOG: ServiceDetail[] = [
       },
     ],
     seoTitle: 'Nepal Customs Brokerage & Export Clearance | The BC Cargo',
-    seoDescription: 'Licensed customs agent #B-409 providing rapid clearance, ASYCUDA filing, Certificate of Origin, and export documentation at Kathmandu TIA and Birgunj dry port.',
+    seoDescription: 'Customs documentation and export clearance support for shipments leaving Nepal. Ask us what documents you need.',
   },
 ];
 

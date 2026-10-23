@@ -21,6 +21,7 @@ import { calculateSheetShipmentQuote } from '../../features/estimator/engine';
 import { NotFoundPage } from '../NotFoundPage';
 import { Card3D } from '../../design/primitives/Card3D';
 import { Spotlight } from '../../components/ui/spotlight';
+import { PAGE_META } from '../../data/pageMeta';
 
 interface CountryLandingPageProps {
   forcedSlug?: string;
@@ -115,8 +116,8 @@ export const CountryLandingPage: React.FC<CountryLandingPageProps> = ({ forcedSl
   return (
     <div className="w-full bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] transition-colors">
       <SEOHead
-        title={country.metaTitle}
-        description={country.metaDescription}
+        title={PAGE_META[`/${country.slug}`]?.title ?? country.metaTitle}
+        description={PAGE_META[`/${country.slug}`]?.description ?? country.metaDescription}
         canonicalUrl={`https://thebccargo.com/${country.slug}`}
         jsonLd={schemas}
         keywords={[

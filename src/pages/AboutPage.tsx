@@ -7,6 +7,7 @@ import { Modal } from '../design/primitives/Modal';
 import { Spotlight } from '../components/ui/spotlight';
 import { Cta3D } from '../components/ui/Cta3D';
 import { StoryJourney } from '../components/about/StoryJourney';
+import { PAGE_META } from '../data/pageMeta';
 
 const CONTACTS = [
   { Icon: Phone, label: 'Call us', value: '057-591816', href: 'tel:+977057591816', external: false },
@@ -123,8 +124,8 @@ export const AboutPage: React.FC = () => {
   return (
     <div className="w-full bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)]">
       <SEOHead
-        title="About Us | The BC Cargo & Courier"
-        description="The BC Cargo & Courier (The Black Coffee Cargo & Courier) sends parcels and cargo from Hetauda, Nepal to countries around the world."
+        title={PAGE_META['/about'].title}
+        description={PAGE_META['/about'].description}
       />
 
       <div className="px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 pb-16 sm:pb-20">

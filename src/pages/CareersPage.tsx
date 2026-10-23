@@ -5,6 +5,7 @@ import { fetchJobs, JobPosting } from '../services/careersService';
 import { SEOHead } from '../components/SEOHead';
 import { Button } from '../design/primitives/Button';
 import { Spotlight } from '../components/ui/spotlight';
+import { PAGE_META } from '../data/pageMeta';
 
 export const CareersPage: React.FC = () => {
   const [jobs, setJobs] = useState<JobPosting[]>([]);
@@ -27,8 +28,8 @@ export const CareersPage: React.FC = () => {
   return (
     <div className="w-full bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
       <SEOHead
-        title="Careers | The BC Cargo & Courier"
-        description="Open jobs at The BC Cargo & Courier in Nepal."
+        title={PAGE_META['/careers'].title}
+        description={PAGE_META['/careers'].description}
       />
 
       <div className="max-w-4xl mx-auto space-y-8">

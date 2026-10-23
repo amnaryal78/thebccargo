@@ -6,6 +6,8 @@ import { HomeServicePicker } from './home/HomeServicePicker';
 import { LazyMount, IdleMount } from './home/LazyMount';
 import { Button } from '../design/primitives/Button';
 import { PackageCheck, Phone } from 'lucide-react';
+import { organizationJsonLd, websiteJsonLd } from '../data/business';
+import { PAGE_META } from '../data/pageMeta';
 
 // Below-the-fold sections are code-split; LazyMount only fetches them as they near the viewport.
 const HowItWorksTimeline = lazy(() => import('./home/HowItWorksTimeline').then((m) => ({ default: m.HowItWorksTimeline })));
@@ -21,50 +23,7 @@ interface LandingPageProps {
   activeShipment?: Shipment;
 }
 
-const HOME_SCHEMAS = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'The BC Cargo & Courier',
-    url: 'https://thebccargo.com',
-    logo: 'https://thebccargo.com/icon-512.png',
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '057-591816',
-      contactType: 'Customer Service & Dispatch',
-      areaServed: ['NP', 'IN', 'US', 'GB', 'DE', 'AE', 'AU', 'JP'],
-      availableLanguage: ['English', 'Nepali']
-    }
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    name: 'The BC Cargo & Courier - Hetauda Central HQ',
-    image: 'https://thebccargo.com/og-banner.png',
-    telephone: '057-591816',
-    email: 'thebccargo@gmail.com',
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: 'School Road -4',
-      addressLocality: 'Hetauda',
-      addressRegion: 'Bagmati Province',
-      postalCode: '44107',
-      addressCountry: 'NP'
-    },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: 27.4287,
-      longitude: 85.0331
-    },
-    openingHoursSpecification: {
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      opens: '08:00',
-      closes: '19:00'
-    },
-    priceRange: '$$'
-  }
-];
+const HOME_SCHEMAS = [organizationJsonLd(), websiteJsonLd()];
 
 export const LandingPage: React.FC<LandingPageProps> = ({
   onNavigate,
@@ -73,8 +32,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   return (
     <div className="w-full flex flex-col bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] transition-colors">
       <Seo
-        title="BC Cargo & Courier — Freight & Express Courier from Nepal"
-        description="Reliable air cargo, overland cross-border freight, ocean shipping, and express courier from Nepal to 220+ destinations. Central operations in Hetauda & TIA."
+        title={PAGE_META['/'].title}
+        description={PAGE_META['/'].description}
         canonicalUrl="https://thebccargo.com/"
         jsonLd={HOME_SCHEMAS}
         keywords={[

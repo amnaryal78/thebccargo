@@ -55,8 +55,14 @@ export const PersonDialog: React.FC<Props> = ({ person, customRoles, assignedRol
     setPreview(URL.createObjectURL(f));
   };
 
+  // Changing someone's existing base role is deliberate: they must type their email to confirm.
+  const roleChanged = !isNew && !lockRole && !!person && role !== person.role;
+  const [typedEmail, setTypedEmail] = useState('');
+  const confirmOk = !roleChanged || typedEmail.trim().toLowerCase() === (person?.email ?? '').toLowerCase();
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!confirmOk) return;
     setBusy(true);
     setError(null);
     try {
@@ -133,6 +139,15 @@ export const PersonDialog: React.FC<Props> = ({ person, customRoles, assignedRol
                 {ASSIGNABLE_ROLES.map((r) => <option key={r} value={r}>{roleLabel(r)}</option>)}
               </select>
               <p className="text-xs text-slate-600">{ROLE_SUMMARY[role]}</p>
+              {roleChanged && (
+                <div role="alert" className="p-3 rounded-2xl bg-amber-50 border border-amber-300 space-y-2">
+                  <p className="text-sm text-amber-900">
+                    You are changing the role from <strong className="capitalize">{roleLabel(person!.role)}</strong> to <strong className="capitalize">{roleLabel(role)}</strong>. This changes what they can open straight away.
+                  </p>
+                  <label htmlFor="p-role-confirm" className="block text-xs font-semibold text-amber-900">Type {person!.email} to confirm</label>
+                  <input id="p-role-confirm" autoComplete="off" value={typedEmail} onChange={(e) => setTypedEmail(e.target.value)} className={input} />
+                </div>
+              )}
             </>
           )}
         </div>
@@ -161,7 +176,7 @@ export const PersonDialog: React.FC<Props> = ({ person, customRoles, assignedRol
 
         <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
           <button type="button" onClick={onClose} className="min-h-[44px] px-4 rounded-xl border border-[var(--line-strong)] text-slate-700 font-bold text-sm cursor-pointer">Cancel</button>
-          <button type="submit" disabled={busy} className="min-h-[44px] px-5 rounded-xl bg-[var(--ox-900)] text-white font-bold text-sm active:scale-[0.98] transition cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2">
+          <button type="submit" disabled={busy || !confirmOk} className="min-h-[44px] px-5 rounded-xl bg-[var(--ox-900)] text-white font-bold text-sm active:scale-[0.98] transition cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2">
             {busy && <Loader2 className="w-4 h-4 animate-spin" />}{isNew ? 'Give access' : 'Save changes'}
           </button>
         </div>

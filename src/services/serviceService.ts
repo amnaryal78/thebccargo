@@ -35,7 +35,7 @@ export const DEFAULT_SERVICES: ServiceItem[] = [
     title: 'Customs & Clearance Support',
     slug: 'customs-and-clearance-support',
     category: 'Worldwide',
-    description: 'Government-licensed customs brokerage (#B-409) for stress-free export/import clearance.',
+    description: 'Government-licensed customs brokerage for stress-free export/import clearance.',
     features: ['Licensed Customs Broker #B-409', 'ASYCUDA World Pre-Filing', 'Commercial Duty Guidance'],
     iconName: 'FileCheck'
   }

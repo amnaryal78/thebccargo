@@ -140,7 +140,7 @@ async function handleChatApi(req, res) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         if (lowerMsg.includes('london') || lowerMsg.includes('usa') || lowerMsg.includes('korea') || lowerMsg.includes('uk') || lowerMsg.includes('dubai') || lowerMsg.includes('australia') || lowerMsg.includes('outside nepal')) {
           return res.end(JSON.stringify({
-            reply: 'We only pick up shipments within Nepal. We deliver worldwide to 190+ countries. We do not pick up from outside Nepal.',
+            reply: 'We only pick up shipments within Nepal. We deliver worldwide. We do not pick up from outside Nepal.',
             actions: [WHATSAPP_ACTION, PRICE_ACTION]
           }));
         }
@@ -181,7 +181,7 @@ async function handleChatApi(req, res) {
 Strict Rules:
 1. Talk ONLY about cargo, shipping, and BC Cargo. Reject non-cargo questions politely.
 2. Use short, easy words. Be concise.
-3. Pickup is ONLY within Nepal (doorstep pickup anywhere in Nepal). Delivery is worldwide to 190+ countries.
+3. Pickup is ONLY within Nepal (doorstep pickup anywhere in Nepal). Delivery is worldwide.
 4. Meat is ONLY accepted for Europe, UK, and Hong Kong. Prohibited everywhere else.
 5. Prices come ONLY from the live rates function. NEVER guess or invent a price.
 6. Booking and tracking need a human: tell the user to contact WhatsApp (+977 9855019485).

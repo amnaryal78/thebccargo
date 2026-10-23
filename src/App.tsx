@@ -35,6 +35,7 @@ const CareersPage = lazy(() => import('./pages/CareersPage').then(m => ({ defaul
 const CareerDetailPage = lazy(() => import('./pages/CareerDetailPage').then(m => ({ default: m.CareerDetailPage })));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage').then(m => ({ default: m.AdminLoginPage })));
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
+const ResellerProfilePage = lazy(() => import('./pages/ResellerProfilePage').then(m => ({ default: m.ResellerProfilePage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const DesignKitPage = lazy(() => import('./pages/DesignKitPage').then(m => ({ default: m.DesignKitPage })));
 const CountryLandingPage = lazy(() => import('./pages/country/CountryLandingPage').then(m => ({ default: m.CountryLandingPage })));
@@ -149,9 +150,9 @@ function AppContent() {
             {/* Rates Routes */}
             <Route path="/rates" element={<RatesPage />} />
             <Route path="/rates/national" element={<Navigate to="/rates" replace />} />
-            <Route path="/rates/international" element={<RatesPage />} />
+            
             <Route path="/rates/calculator" element={<Navigate to="/rates" replace />} />
-            <Route path="/rates/rfq" element={<RatesPage />} />
+            
 
             {/* Knowledge Base & Blog Routes */}
             <Route path="/blogs" element={<BlogListPage />} />
@@ -166,21 +167,33 @@ function AppContent() {
             <Route path="/become-a-partner" element={<BecomePartnerPage />} />
 
             {/* Top Country Corridor SEO Landing Pages */}
-            <Route path="/send-parcel-nepal-to-south-korea" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-south-korea" />} />
-            <Route path="/send-parcel-nepal-to-malaysia" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-malaysia" />} />
-            <Route path="/send-parcel-nepal-to-uk" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-uk" />} />
-            <Route path="/send-parcel-nepal-to-japan" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-japan" />} />
             <Route path="/send-parcel-nepal-to-europe" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-europe" />} />
             <Route path="/send-parcel-nepal-to-gulf" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-gulf" />} />
-            <Route path="/send-parcel-nepal-to-hong-kong" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-hong-kong" />} />
-            <Route path="/send-parcel-nepal-to-usa" element={<CountryLandingPage forcedSlug="send-parcel-nepal-to-usa" />} />
             <Route path="/send-parcel-nepal-to-:corridor" element={<CountryLandingPage />} />
+
+            {/* Permanent redirects (mirrors vercel.json): consolidated or removed pages */}
+            <Route path="/send-parcel-nepal-to-south-korea" element={<Navigate to="/blogs/nepal-to-south-korea" replace />} />
+            <Route path="/send-parcel-nepal-to-malaysia" element={<Navigate to="/blogs/nepal-to-malaysia" replace />} />
+            <Route path="/send-parcel-nepal-to-uk" element={<Navigate to="/blogs/nepal-to-united-kingdom" replace />} />
+            <Route path="/send-parcel-nepal-to-japan" element={<Navigate to="/blogs/nepal-to-japan" replace />} />
+            <Route path="/send-parcel-nepal-to-hong-kong" element={<Navigate to="/blogs/nepal-to-hong-kong" replace />} />
+            <Route path="/send-parcel-nepal-to-usa" element={<Navigate to="/blogs/nepal-to-usa" replace />} />
+            <Route path="/rates/international" element={<Navigate to="/rates" replace />} />
+            <Route path="/rates/rfq" element={<Navigate to="/rates" replace />} />
+            <Route path="/careers/customs-broker-specialist" element={<Navigate to="/careers" replace />} />
+            <Route path="/careers/air-cargo-operations-lead" element={<Navigate to="/careers" replace />} />
+            <Route path="/careers/cross-border-fleet-dispatcher" element={<Navigate to="/careers" replace />} />
+            <Route path="/careers/warehouse-sortation-supervisor" element={<Navigate to="/careers" replace />} />
+            <Route path="/blogs/nepal-air-cargo-customs-guide-2026" element={<Navigate to="/blogs" replace />} />
+            <Route path="/blogs/kolkata-dry-port-rail-transit-guide" element={<Navigate to="/blogs" replace />} />
+            <Route path="/blogs/cold-chain-pharma-logistics-nepal" element={<Navigate to="/blogs" replace />} />
 
             {/* Careers Routes */}
             <Route path="/careers" element={<CareersPage />} />
             <Route path="/careers/:slug" element={<CareerDetailPage />} />
 
             <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+            <Route path="/reseller" element={<ProtectedRoute><ResellerProfilePage /></ProtectedRoute>} />
 
             {/* Protected Admin Portal Routes */}
             <Route path="/admin/login" element={<AdminLoginPage />} />

@@ -7,6 +7,7 @@ import { RegistrationCorners } from '../design/icons';
 import { Spotlight } from '../components/ui/spotlight';
 import { BlogCover } from '../components/ui/BlogCover';
 import { CountryGuideGrid } from '../features/countryGuides/CountryGuideGrid';
+import { PAGE_META } from '../data/pageMeta';
 import { 
   BookOpen, 
   Calendar, 
@@ -63,8 +64,8 @@ export const BlogListPage: React.FC = () => {
   return (
     <div className="w-full bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] py-8 sm:py-12 px-4 sm:px-6 lg:px-8 transition-colors">
       <SEOHead
-        title="Customs, Export & Cargo Knowledge Base | The BC Cargo & Courier"
-        description="Comprehensive guides on customs clearance, air cargo compliance, volumetric calculations, and international freight from Nepal."
+        title={PAGE_META['/blogs'].title}
+        description={PAGE_META['/blogs'].description}
       />
 
       <div className="max-w-7xl mx-auto space-y-12">

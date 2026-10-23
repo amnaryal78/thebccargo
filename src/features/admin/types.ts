@@ -212,6 +212,8 @@ export interface AdminShipment {
   telemetry_temp: string | null;
   telemetry_eseal: string | null;
   battery_level: string | null;
+  /** user_roles.id of the reseller who referred this order; null = independent. Needs the reseller-referral migration. */
+  reseller_id?: string | null;
   sender_name?: string | null;
   sender_phone?: string | null;
   sender_email?: string | null;
@@ -355,7 +357,14 @@ export interface AdminUserRole {
   notes?: string | null;
 }
 
-export type AdminProfileFields = Pick<AdminUserRole, 'full_name' | 'phone' | 'job_title' | 'department' | 'avatar_url' | 'notes'>;
+/** Order counts per reseller. Completed = delivered; this month = Nepal calendar month. */
+export interface ResellerStats {
+  total_orders: number;
+  completed_orders: number;
+  orders_this_month: number;
+}
+
+export type AdminProfileFields =Pick<AdminUserRole, 'full_name' | 'phone' | 'job_title' | 'department' | 'avatar_url' | 'notes'>;
 
 export type ProfileField = 'full_name' | 'phone' | 'job_title' | 'department' | 'avatar_url';
 

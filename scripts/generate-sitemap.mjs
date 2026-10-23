@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadCountryGuides } from './country-guides.mjs';
+import { loadPublishedBlogs } from './published-blogs.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,20 +28,12 @@ export const SITEMAP_ROUTES = [
   // Primary Core Landing & Utilities
   { path: '/', changefreq: 'daily', priority: 1.0, lastmod: CURRENT_DATE },
   { path: '/rates', changefreq: 'weekly', priority: 0.9, lastmod: CURRENT_DATE },
-  { path: '/rates/international', changefreq: 'weekly', priority: 0.8, lastmod: CURRENT_DATE },
-  { path: '/rates/rfq', changefreq: 'weekly', priority: 0.8, lastmod: CURRENT_DATE },
   { path: '/track', changefreq: 'weekly', priority: 0.8, lastmod: CURRENT_DATE },
   { path: '/book', changefreq: 'weekly', priority: 0.8, lastmod: CURRENT_DATE },
 
-  // Top Country Corridors (Phase 4 High-Converting SEO Landing Pages)
-  { path: '/send-parcel-nepal-to-south-korea', changefreq: 'daily', priority: 0.95, lastmod: CURRENT_DATE },
-  { path: '/send-parcel-nepal-to-malaysia', changefreq: 'daily', priority: 0.95, lastmod: CURRENT_DATE },
-  { path: '/send-parcel-nepal-to-uk', changefreq: 'daily', priority: 0.95, lastmod: CURRENT_DATE },
-  { path: '/send-parcel-nepal-to-japan', changefreq: 'daily', priority: 0.95, lastmod: CURRENT_DATE },
-  { path: '/send-parcel-nepal-to-europe', changefreq: 'daily', priority: 0.95, lastmod: CURRENT_DATE },
-  { path: '/send-parcel-nepal-to-gulf', changefreq: 'daily', priority: 0.90, lastmod: CURRENT_DATE },
-  { path: '/send-parcel-nepal-to-hong-kong', changefreq: 'daily', priority: 0.90, lastmod: CURRENT_DATE },
-  { path: '/send-parcel-nepal-to-usa', changefreq: 'daily', priority: 0.90, lastmod: CURRENT_DATE },
+  // Regional pages without a single-country guide (single-country corridor URLs 301 to /blogs/nepal-to-<country>)
+  { path: '/send-parcel-nepal-to-europe', changefreq: 'monthly', priority: 0.6, lastmod: CURRENT_DATE },
+  { path: '/send-parcel-nepal-to-gulf', changefreq: 'monthly', priority: 0.6, lastmod: CURRENT_DATE },
 
   // Services Catalog & Details
   { path: '/services', changefreq: 'weekly', priority: 0.9, lastmod: CURRENT_DATE },
@@ -55,16 +48,9 @@ export const SITEMAP_ROUTES = [
 
   // Careers & Job Vacancies
   { path: '/careers', changefreq: 'weekly', priority: 0.7, lastmod: CURRENT_DATE },
-  { path: '/careers/customs-broker-specialist', changefreq: 'weekly', priority: 0.6, lastmod: CURRENT_DATE },
-  { path: '/careers/air-cargo-operations-lead', changefreq: 'weekly', priority: 0.6, lastmod: CURRENT_DATE },
-  { path: '/careers/cross-border-fleet-dispatcher', changefreq: 'weekly', priority: 0.6, lastmod: CURRENT_DATE },
-  { path: '/careers/warehouse-sortation-supervisor', changefreq: 'weekly', priority: 0.6, lastmod: CURRENT_DATE },
 
   // Blog Articles & Trade Knowledge
   { path: '/blogs', changefreq: 'daily', priority: 0.8, lastmod: CURRENT_DATE },
-  { path: '/blogs/nepal-air-cargo-customs-guide-2026', changefreq: 'monthly', priority: 0.75, lastmod: CURRENT_DATE },
-  { path: '/blogs/kolkata-dry-port-rail-transit-guide', changefreq: 'monthly', priority: 0.75, lastmod: CURRENT_DATE },
-  { path: '/blogs/cold-chain-pharma-logistics-nepal', changefreq: 'monthly', priority: 0.75, lastmod: CURRENT_DATE },
 
   // Legal & FAQ
   { path: '/faq', changefreq: 'monthly', priority: 0.7, lastmod: CURRENT_DATE },
@@ -74,6 +60,11 @@ export const SITEMAP_ROUTES = [
 
 for (const g of await loadCountryGuides()) {
   SITEMAP_ROUTES.push({ path: `/blogs/${g.slug}`, changefreq: 'weekly', priority: 0.85, lastmod: CURRENT_DATE });
+}
+
+for (const p of await loadPublishedBlogs()) {
+  const d = (p.updatedAt || p.publishedAt || '').slice(0, 10);
+  SITEMAP_ROUTES.push({ path: `/blogs/${p.slug}`, changefreq: 'monthly', priority: 0.7, lastmod: /^d{4}-d{2}-d{2}$/.test(d) ? d : CURRENT_DATE });
 }
 
 export function generateSitemapXml() {
