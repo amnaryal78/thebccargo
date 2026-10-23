@@ -130,7 +130,7 @@
       "destination": "https://thebccargo.onrender.com/api/:path*"
     },
     {
-      "source": "/:route(login|track|book|services|rates|blogs|about|contact|policies|how-to-ship|faq|become-a-partner|careers|admin|_kit)",
+      "source": "/:route(login|track|book|services|rates|blogs|about|contact|policies|how-to-ship|faq|become-a-partner|careers|admin|_kit|profile|messages|reseller)",
       "destination": "/"
     },
     {
