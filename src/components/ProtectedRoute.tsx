@@ -7,9 +7,11 @@ import { AccessRestricted } from './AccessRestricted';
 
 interface ProtectedRouteProps {
   children?: ReactNode;
+  /** Admin pages need the staff allowlist. Pass false for pages any signed-in customer may open (profile, messages). */
+  adminOnly?: boolean;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly = true }) => {
   const { session, user, loading, isAuthorizedAdmin } = useAuth();
   const location = useLocation();
 
@@ -51,7 +53,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   // 2. Authenticated but NOT an authorized admin -> Show Access Restricted screen
-  if (!isAuthorizedAdmin) {
+  if (adminOnly && !isAuthorizedAdmin) {
     return <AccessRestricted />;
   }
 

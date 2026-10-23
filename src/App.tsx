@@ -192,8 +192,8 @@ function AppContent() {
             <Route path="/careers" element={<CareersPage />} />
             <Route path="/careers/:slug" element={<CareerDetailPage />} />
 
-            <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/messages" element={<ProtectedRoute adminOnly={false}><MessagesPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute adminOnly={false}><ProfilePage /></ProtectedRoute>} />
             <Route path="/reseller" element={<Navigate to="/profile" replace />} />
 
             {/* Protected Admin Portal Routes */}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldAlert, ArrowLeft, LogOut, Mail } from 'lucide-react';
+import { ShieldAlert, ArrowLeft, LogOut, Mail, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { BcLogo } from './BcLogo';
 import { Card, Button } from '../design/primitives';
@@ -57,6 +57,15 @@ export const AccessRestricted: React.FC = () => {
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               <span>Return to Website</span>
+            </Button>
+
+            <Button
+              variant="secondary"
+              onClick={() => navigate('/profile')}
+              className="w-full"
+            >
+              <UserIcon className="w-4 h-4 mr-2" />
+              <span>View My Profile</span>
             </Button>
 
             <Button

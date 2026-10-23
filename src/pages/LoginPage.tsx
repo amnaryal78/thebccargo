@@ -17,15 +17,17 @@ export const LoginPage: React.FC = () => {
   // Extract redirect target safely
   const queryParams = new URLSearchParams(location.search);
   const rawRedirect = queryParams.get('redirect') || '';
-  const redirectTarget = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/';
+  // With no explicit destination, a freshly signed-in person lands on their profile.
+  const redirectTarget = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/profile';
 
   // Automatically handle logged-in user redirection
   useEffect(() => {
     if (!authLoading && session) {
-      if (isAuthorizedAdmin && redirectTarget.startsWith('/admin')) {
+      if (!redirectTarget.startsWith('/admin') || isAuthorizedAdmin) {
         navigate(redirectTarget, { replace: true });
-      } else if (!redirectTarget.startsWith('/admin')) {
-        navigate(redirectTarget, { replace: true });
+      } else {
+        // Signed in but not on the staff allowlist: send them to their profile instead of a dead end.
+        navigate('/profile', { replace: true });
       }
     }
   }, [session, isAuthorizedAdmin, authLoading, redirectTarget, navigate]);
