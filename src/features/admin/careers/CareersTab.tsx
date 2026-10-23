@@ -14,12 +14,13 @@ import {
   X
 } from 'lucide-react';
 import { adminDataService } from '../services/adminDataService';
-import { AdminCareer, AdminJobApplication, getRolePermissions } from '../types';
+import { AdminCareer, AdminJobApplication } from '../types';
+import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
 
 export const CareersTab: React.FC = () => {
   const { role } = useAuth();
-  const permissions = getRolePermissions(role);
+  const permissions = useMyPermissions();
 
   const [activeSubtab, setActiveSubtab] = useState<'openings' | 'applications'>('openings');
   const [careers, setCareers] = useState<AdminCareer[]>([]);

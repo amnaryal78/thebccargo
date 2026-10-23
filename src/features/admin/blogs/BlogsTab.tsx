@@ -8,14 +8,15 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { adminDataService } from '../services/adminDataService';
-import { AdminBlog, getRolePermissions } from '../types';
+import { AdminBlog } from '../types';
+import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
 import { fixBlogContentWithAI } from '../../../services/aiBlogFixerService';
 import { BlogEditorModal } from './BlogEditorModal';
 
 export const BlogsTab: React.FC = () => {
   const { role } = useAuth();
-  const permissions = getRolePermissions(role);
+  const permissions = useMyPermissions();
 
   const [blogs, setBlogs] = useState<AdminBlog[]>([]);
   const [loading, setLoading] = useState(true);

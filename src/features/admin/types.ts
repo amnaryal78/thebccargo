@@ -139,6 +139,50 @@ export function getRolePermissions(role: AdminRole | null): RolePermissions {
   }
 }
 
+/**
+ * Effective access = base role plus every custom role the person holds. Any grant wins;
+ * a person stays view-only only while none of their roles lets them change something.
+ */
+export function mergePermissions(base: RolePermissions, extras: Partial<RolePermissions>[]): RolePermissions {
+  if (!extras.length) return base;
+  const merged = { ...base };
+  let grantsWrite = false;
+  for (const extra of extras) {
+    for (const key of Object.keys(extra) as (keyof RolePermissions)[]) {
+      if (key === 'isReadOnly' || !extra[key]) continue;
+      merged[key] = true;
+      if (key.startsWith('canManage')) grantsWrite = true;
+    }
+  }
+  merged.isReadOnly = base.isReadOnly && !grantsWrite;
+  return merged;
+}
+
+/** Plain-language names for each permission flag, used to show what a role can open. */
+export const PERMISSION_LABELS: { key: keyof RolePermissions; label: string }[] = [
+  { key: 'canManageShipments', label: 'Shipments' },
+  { key: 'canManageMilestones', label: 'Tracking updates' },
+  { key: 'canManageInquiries', label: 'Inquiries' },
+  { key: 'canManageHandlingRules', label: 'Handling rules' },
+  { key: 'canManageRates', label: 'Rates' },
+  { key: 'canManageBlogs', label: 'Blogs' },
+  { key: 'canManageHowToShip', label: 'How to ship' },
+  { key: 'canManageCareers', label: 'Careers' },
+  { key: 'canManageSettings', label: 'Settings' },
+  { key: 'canManageUsers', label: 'Users & roles' },
+  { key: 'canViewAuditLogs', label: 'Audit logs' },
+];
+
+export const ROLE_SUMMARY: Record<AdminRole, string> = {
+  super_admin: 'Full control, including who gets access',
+  admin: 'Everything except managing users',
+  operations: 'Shipments, tracking updates and inquiries',
+  editor: 'Blogs, how-to-ship guides and careers',
+  support: 'Customer inquiries only',
+  read_only: 'Can look but not change anything',
+  reseller: 'Sees reseller rates. No admin access',
+};
+
 // Module Data Models
 export interface AdminShipment {
   id: string;
@@ -300,6 +344,47 @@ export interface AdminUserRole {
   email: string | null;
   role: AdminRole;
   active: boolean;
+  created_at: string;
+  updated_at: string;
+  // Profile fields (need the staff-profiles migration; absent until it is applied)
+  full_name?: string | null;
+  phone?: string | null;
+  job_title?: string | null;
+  department?: string | null;
+  avatar_url?: string | null;
+  notes?: string | null;
+}
+
+export type AdminProfileFields = Pick<AdminUserRole, 'full_name' | 'phone' | 'job_title' | 'department' | 'avatar_url' | 'notes'>;
+
+export type ProfileField = 'full_name' | 'phone' | 'job_title' | 'department' | 'avatar_url';
+
+export const PROFILE_FIELD_LABELS: Record<ProfileField, string> = {
+  full_name: 'Full name',
+  phone: 'Phone',
+  job_title: 'Job title',
+  department: 'Department',
+  avatar_url: 'Profile photo',
+};
+
+export interface AdminProfileRequest {
+  id: string;
+  user_role_id: string;
+  requester_email: string | null;
+  field: ProfileField;
+  new_value: string;
+  note: string | null;
+  status: 'pending' | 'approved' | 'declined';
+  decided_by: string | null;
+  decided_at: string | null;
+  created_at: string;
+}
+
+export interface AdminCustomRole {
+  id: string;
+  name: string;
+  description: string | null;
+  permissions: Partial<Record<keyof RolePermissions, boolean>>;
   created_at: string;
   updated_at: string;
 }

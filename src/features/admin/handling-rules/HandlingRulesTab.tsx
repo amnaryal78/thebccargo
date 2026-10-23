@@ -12,12 +12,13 @@ import {
   Info
 } from 'lucide-react';
 import { adminDataService } from '../services/adminDataService';
-import { AdminHandlingRule, getRolePermissions } from '../types';
+import { AdminHandlingRule } from '../types';
+import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
 
 export const HandlingRulesTab: React.FC = () => {
   const { role } = useAuth();
-  const permissions = getRolePermissions(role);
+  const permissions = useMyPermissions();
 
   const [rules, setRules] = useState<AdminHandlingRule[]>([]);
   const [loading, setLoading] = useState(true);

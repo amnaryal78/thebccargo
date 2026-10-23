@@ -11,6 +11,8 @@ import {
   Users,
   Activity,
   LogOut,
+  UserRound,
+  LogIn,
   ShieldCheck,
   Menu,
   X,
@@ -23,7 +25,8 @@ import {
 import { countThreadsNeedingReply } from '../../../services/chatService';
 import { useAuth } from '../../../context/AuthContext';
 import { BcLogo } from '../../../components/BcLogo';
-import { getRolePermissions } from '../types';
+import type { RolePermissions } from '../types';
+import { useMyPermissions } from '../usePermissions';
 import { NotificationsProvider, useAdminNotifications } from '../notifications/NotificationsContext';
 import { NotificationBell } from '../notifications/NotificationBell';
 import type { NotificationKind } from '../notifications/notificationService';
@@ -37,6 +40,8 @@ interface NavItem {
   kinds?: NotificationKind[];
   /** Shows the count of customer messages still waiting for a reply. */
   messages?: boolean;
+  /** Menu entry is hidden for roles without this permission. */
+  needs?: keyof RolePermissions;
 }
 
 const navGroups: { title: string; items: NavItem[] }[] = [
@@ -60,18 +65,19 @@ const navGroups: { title: string; items: NavItem[] }[] = [
   {
     title: 'Content & pricing',
     items: [
-      { to: '/admin/rates', label: 'Rates & CSV', icon: Receipt },
-      { to: '/admin/handling-rules', label: 'Handling rules', icon: AlertTriangle },
-      { to: '/admin/how-to-ship', label: 'How to ship', icon: BookOpen },
-      { to: '/admin/blogs', label: 'Blogs & AI fixer', icon: FileText },
-      { to: '/admin/careers', label: 'Careers & applicants', icon: Briefcase, kinds: ['job_application'] },
+      { to: '/admin/rates', label: 'Rates & CSV', icon: Receipt, needs: 'canManageRates' },
+      { to: '/admin/handling-rules', label: 'Handling rules', icon: AlertTriangle, needs: 'canManageHandlingRules' },
+      { to: '/admin/how-to-ship', label: 'How to ship', icon: BookOpen, needs: 'canManageHowToShip' },
+      { to: '/admin/blogs', label: 'Blogs & AI fixer', icon: FileText, needs: 'canManageBlogs' },
+      { to: '/admin/careers', label: 'Careers & applicants', icon: Briefcase, kinds: ['job_application'], needs: 'canManageCareers' },
     ],
   },
   {
     title: 'System',
     items: [
-      { to: '/admin/users', label: 'Users & roles', icon: Users },
-      { to: '/admin/audit', label: 'Audit logs', icon: Activity },
+      { to: '/admin/profile', label: 'My profile', icon: UserRound },
+      { to: '/admin/users', label: 'Users & roles', icon: Users, needs: 'canManageUsers' },
+      { to: '/admin/audit', label: 'Audit logs', icon: Activity, needs: 'canViewAuditLogs' },
     ],
   },
 ];
@@ -98,7 +104,7 @@ const AdminShellInner: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const permissions = getRolePermissions(role);
+  const permissions = useMyPermissions();
   const { items: notifications, markRead } = useAdminNotifications();
   const notificationsRef = useRef(notifications);
   useEffect(() => {
@@ -121,6 +127,12 @@ const AdminShellInner: React.FC = () => {
     item.messages ? newMessages : item.kinds ? notifications.filter((n) => !n.isRead && item.kinds!.includes(n.kind)).length : 0;
 
   const handleLogout = async () => {
+    await logout();
+    navigate('/login', { replace: true });
+  };
+
+  /** Ends this session and opens the sign-in page, so another Google account can be used. */
+  const handleSwitchAccount = async () => {
     await logout();
     navigate('/login', { replace: true });
   };
@@ -155,7 +167,7 @@ const AdminShellInner: React.FC = () => {
         <button type="button" aria-label="Close navigation" onClick={() => setMobileMenuOpen(false)} className="md:hidden fixed inset-0 z-40 bg-[#00152D]/60 cursor-default" />
       )}
       <aside className={`
-        fixed md:sticky top-0 left-0 h-screen z-50 md:z-30 w-64 md:w-60 lg:w-64 bg-white text-[#002147] flex flex-col justify-between border-r border-[var(--line-strong)] shadow-xl md:shadow-none transition-transform duration-200 ease-in-out
+        fixed md:sticky top-0 left-0 h-[100dvh] z-50 md:z-30 w-64 md:w-60 lg:w-64 bg-white text-[#002147] flex flex-col justify-between border-r border-[var(--line-strong)] shadow-xl md:shadow-none transition-transform duration-200 ease-in-out
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         {/* Sidebar Header */}
@@ -178,7 +190,10 @@ const AdminShellInner: React.FC = () => {
 
         {/* Navigation Links, grouped so the long list is easy to scan */}
         <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-4" aria-label="Admin sections">
-          {navGroups.map((group) => (
+          {navGroups
+            .map((g) => ({ ...g, items: g.items.filter((i) => !i.needs || permissions[i.needs]) }))
+            .filter((g) => g.items.length > 0)
+            .map((group) => (
             <div key={group.title}>
               <p className="px-3 pb-1 text-[11px] font-semibold text-slate-500">{group.title}</p>
               <div className="space-y-0.5">
@@ -249,6 +264,15 @@ const AdminShellInner: React.FC = () => {
             </button>
           </div>
 
+          <button
+            type="button"
+            onClick={handleSwitchAccount}
+            className="flex items-center justify-center gap-1.5 w-full min-h-[40px] rounded-lg bg-[var(--ox-900)] text-white text-xs font-bold hover:brightness-110 active:scale-[0.98] transition cursor-pointer"
+          >
+            <LogIn className="w-3.5 h-3.5" />
+            <span>Sign in with another account</span>
+          </button>
+
           <a
             href="/"
             target="_blank"
@@ -272,7 +296,7 @@ const AdminShellInner: React.FC = () => {
           { to: '/admin', label: 'Home', icon: LayoutDashboard, end: true },
           { to: '/admin/shipments', label: 'Cargo', icon: Package },
           { to: '/admin/messages', label: 'Messages', icon: Inbox, badge: newMessages },
-          { to: '/admin/inquiries', label: 'Inquiry', icon: MessageSquare },
+          { to: '/admin/inquiries', label: 'Inquiries', icon: MessageSquare },
         ].map(({ to, label, icon: Icon, end, badge }) => (
           <NavLink
             key={to}
@@ -299,7 +323,7 @@ const AdminShellInner: React.FC = () => {
           className="min-h-[48px] flex flex-col items-center justify-center gap-0.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-[#002147] cursor-pointer"
         >
           <Menu className="w-5 h-5" />
-          <span>More</span>
+          <span>All pages</span>
         </button>
       </nav>
 

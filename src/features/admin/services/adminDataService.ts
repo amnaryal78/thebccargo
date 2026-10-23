@@ -1,5 +1,9 @@
 import { supabase, isSupabaseConfigured } from '../../../lib/supabase';
 import {
+  AdminProfileFields,
+  AdminProfileRequest,
+  ProfileField,
+  AdminCustomRole,
   AdminShipment,
   AdminMilestone,
   AdminInquiry,
@@ -444,6 +448,161 @@ export const adminDataService = {
     if (error) throw new AdminServiceError(error.message, error);
     await this.logAction('save_user_role', `user_roles:${cleanEmail}`, { role: userRole.role, active: userRole.active });
     return data;
+  },
+
+  /** Creates or updates a person with their profile in one step. Profile fields are skipped when empty. */
+  async savePerson(person: { email: string; role: AdminUserRole['role']; active: boolean; profile: Partial<AdminProfileFields> }): Promise<AdminUserRole> {
+    const saved = await this.saveUserRole(person);
+    const filled = Object.fromEntries(Object.entries(person.profile).filter(([, v]) => typeof v === 'string' ? v.trim() !== '' : v != null));
+    return Object.keys(filled).length ? this.saveUserProfile(saved.id, saved.email, filled) : saved;
+  },
+
+  // Profile change requests (need the staff-profiles migration)
+  /** The signed-in person's own user_roles row, or null if not found. */
+  async fetchMyProfile(email: string): Promise<AdminUserRole | null> {
+    ensureConfigured();
+    const { data, error } = await supabase.from('user_roles').select('*').ilike('email', email.trim()).maybeSingle();
+    if (error) throw new AdminServiceError(error.message, error);
+    return data;
+  },
+
+  async fetchProfileRequests(onlyUserRoleId?: string): Promise<AdminProfileRequest[]> {
+    ensureConfigured();
+    let q = supabase.from('profile_change_requests').select('*').order('created_at', { ascending: false }).limit(200);
+    if (onlyUserRoleId) q = q.eq('user_role_id', onlyUserRoleId);
+    const { data, error } = await q;
+    if (error) throw new AdminServiceError(error.message, error);
+    return data || [];
+  },
+
+  /** Staff ask for a change; nothing on their profile changes until a super admin approves. */
+  async requestProfileChange(me: AdminUserRole, field: ProfileField, newValue: string, note: string): Promise<AdminProfileRequest> {
+    ensureConfigured();
+    const { data, error } = await supabase
+      .from('profile_change_requests')
+      .insert({ user_role_id: me.id, requester_email: me.email, field, new_value: newValue.trim(), note: note.trim() || null })
+      .select()
+      .single();
+    if (error) throw new AdminServiceError(error.message, error);
+    return data;
+  },
+
+  /** Uploads a proposed photo to the requester's own pending folder and returns its public URL. */
+  async uploadPendingAvatar(file: File, authUserId: string): Promise<string> {
+    ensureConfigured();
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new AdminServiceError('Photo must be a JPG, PNG or WebP image.');
+    if (file.size > 2 * 1024 * 1024) throw new AdminServiceError('Photo must be 2 MB or smaller.');
+    const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+    const path = `pending/${authUserId}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('admin-avatars').upload(path, file, { contentType: file.type });
+    if (error) throw new AdminServiceError(error.message, error);
+    return supabase.storage.from('admin-avatars').getPublicUrl(path).data.publicUrl;
+  },
+
+  /** Approving applies the change to the person's profile; declining leaves it untouched. */
+  async decideProfileRequest(req: AdminProfileRequest, approve: boolean, decidedBy: string): Promise<AdminProfileRequest> {
+    ensureConfigured();
+    if (approve) await this.saveUserProfile(req.user_role_id, req.requester_email, { [req.field]: req.new_value });
+    const { data, error } = await supabase
+      .from('profile_change_requests')
+      .update({ status: approve ? 'approved' : 'declined', decided_by: decidedBy, decided_at: new Date().toISOString() })
+      .eq('id', req.id)
+      .select()
+      .single();
+    if (error) throw new AdminServiceError(error.message, error);
+    await this.logAction(approve ? 'approve_profile_change' : 'decline_profile_change', `user_roles:${req.requester_email ?? req.user_role_id}`, { field: req.field });
+    return data;
+  },
+
+  /** Updates name, phone, photo and other profile fields for one person. */
+  async saveUserProfile(id: string, email: string | null, profile: Partial<AdminProfileFields>): Promise<AdminUserRole> {
+    ensureConfigured();
+    const clean = Object.fromEntries(
+      Object.entries(profile).map(([k, v]) => [k, typeof v === 'string' ? v.trim() || null : v]),
+    );
+    const { data, error } = await supabase
+      .from('user_roles')
+      .update({ ...clean, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw new AdminServiceError(error.message, error);
+    await this.logAction('save_user_profile', `user_roles:${email ?? id}`, { fields: Object.keys(clean) });
+    return data;
+  },
+
+  /** Uploads a profile photo and returns its public URL. JPG, PNG or WebP up to 2 MB. */
+  async uploadAvatar(file: File, userRoleId: string): Promise<string> {
+    ensureConfigured();
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      throw new AdminServiceError('Photo must be a JPG, PNG or WebP image.');
+    }
+    if (file.size > 2 * 1024 * 1024) throw new AdminServiceError('Photo must be 2 MB or smaller.');
+    const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+    const path = `${userRoleId}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('admin-avatars').upload(path, file, { contentType: file.type, upsert: true });
+    if (error) throw new AdminServiceError(error.message, error);
+    return supabase.storage.from('admin-avatars').getPublicUrl(path).data.publicUrl;
+  },
+
+  // Custom roles (need the staff-profiles migration)
+  async fetchCustomRoles(): Promise<AdminCustomRole[]> {
+    ensureConfigured();
+    const { data, error } = await supabase.from('admin_roles').select('*').order('name');
+    if (error) throw new AdminServiceError(error.message, error);
+    return data || [];
+  },
+
+  async saveCustomRole(role: { id?: string; name: string; description: string; permissions: AdminCustomRole['permissions'] }): Promise<AdminCustomRole> {
+    ensureConfigured();
+    const row = {
+      name: role.name.trim(),
+      description: role.description.trim() || null,
+      permissions: role.permissions,
+      updated_at: new Date().toISOString(),
+    };
+    const q = role.id
+      ? supabase.from('admin_roles').update(row).eq('id', role.id)
+      : supabase.from('admin_roles').insert(row);
+    const { data, error } = await q.select().single();
+    if (error) throw new AdminServiceError(error.message, error);
+    await this.logAction(role.id ? 'update_custom_role' : 'create_custom_role', `admin_roles:${row.name}`, { permissions: row.permissions });
+    return data;
+  },
+
+  async deleteCustomRole(id: string, name: string): Promise<void> {
+    ensureConfigured();
+    const { error } = await supabase.from('admin_roles').delete().eq('id', id);
+    if (error) throw new AdminServiceError(error.message, error);
+    await this.logAction('delete_custom_role', `admin_roles:${name}`, {});
+  },
+
+  /** Map of user_roles.id to the custom role ids that person holds. */
+  async fetchRoleAssignments(): Promise<Record<string, string[]>> {
+    ensureConfigured();
+    const { data, error } = await supabase.from('user_role_assignments').select('user_role_id, role_id');
+    if (error) throw new AdminServiceError(error.message, error);
+    const map: Record<string, string[]> = {};
+    for (const row of data || []) (map[row.user_role_id] ||= []).push(row.role_id);
+    return map;
+  },
+
+  async setRoleAssignments(userRoleId: string, email: string | null, roleIds: string[]): Promise<void> {
+    ensureConfigured();
+    const del = await supabase.from('user_role_assignments').delete().eq('user_role_id', userRoleId);
+    if (del.error) throw new AdminServiceError(del.error.message, del.error);
+    if (roleIds.length) {
+      const ins = await supabase.from('user_role_assignments').insert(roleIds.map((role_id) => ({ user_role_id: userRoleId, role_id })));
+      if (ins.error) throw new AdminServiceError(ins.error.message, ins.error);
+    }
+    await this.logAction('set_role_assignments', `user_roles:${email ?? userRoleId}`, { custom_role_count: roleIds.length });
+  },
+
+  async deleteUserRole(id: string, email: string | null): Promise<void> {
+    ensureConfigured();
+    const { error } = await supabase.from('user_roles').delete().eq('id', id);
+    if (error) throw new AdminServiceError(error.message, error);
+    await this.logAction('delete_user_role', `user_roles:${email ?? id}`, {});
   },
 
   // ---------------------------------------------------------------------------

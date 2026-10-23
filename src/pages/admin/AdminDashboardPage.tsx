@@ -12,6 +12,7 @@ import { BlogsTab } from '../../features/admin/blogs/BlogsTab';
 import { CareersTab } from '../../features/admin/careers/CareersTab';
 import { MessagesInbox } from '../../features/messages/MessagesInbox';
 import { UsersTab } from '../../features/admin/users/UsersTab';
+import { MyProfilePage } from '../../features/admin/users/MyProfilePage';
 import { BookingsTab } from '../../features/admin/bookings/BookingsTab';
 import { FeedbackTab } from '../../features/admin/feedback/FeedbackTab';
 import { NotificationsTab } from '../../features/admin/notifications/NotificationsTab';
@@ -35,6 +36,7 @@ export const AdminDashboardPage: React.FC = () => {
         <Route path="blogs" element={<BlogsTab />} />
         <Route path="careers" element={<CareersTab />} />
         <Route path="users" element={<UsersTab />} />
+        <Route path="profile" element={<MyProfilePage />} />
         <Route path="audit" element={<AuditLogTab />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Route>
