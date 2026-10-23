@@ -35,7 +35,7 @@ const CareersPage = lazy(() => import('./pages/CareersPage').then(m => ({ defaul
 const CareerDetailPage = lazy(() => import('./pages/CareerDetailPage').then(m => ({ default: m.CareerDetailPage })));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage').then(m => ({ default: m.AdminLoginPage })));
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
-const ResellerProfilePage = lazy(() => import('./pages/ResellerProfilePage').then(m => ({ default: m.ResellerProfilePage })));
+const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const DesignKitPage = lazy(() => import('./pages/DesignKitPage').then(m => ({ default: m.DesignKitPage })));
 const CountryLandingPage = lazy(() => import('./pages/country/CountryLandingPage').then(m => ({ default: m.CountryLandingPage })));
@@ -193,7 +193,8 @@ function AppContent() {
             <Route path="/careers/:slug" element={<CareerDetailPage />} />
 
             <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
-            <Route path="/reseller" element={<ProtectedRoute><ResellerProfilePage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/reseller" element={<Navigate to="/profile" replace />} />
 
             {/* Protected Admin Portal Routes */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
