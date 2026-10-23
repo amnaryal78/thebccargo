@@ -4,6 +4,7 @@ import { fetchMyAccountProfile, type AccountProfile } from '../services/accountS
 import { useAuth } from '../context/AuthContext';
 import { Avatar } from '../features/admin/users/Avatar';
 import { SEOHead } from '../components/SEOHead';
+import { ResellerDashboard } from '../features/reseller/ResellerDashboard';
 
 const Stat: React.FC<{ label: string; value: number | null }> = ({ label, value }) => (
   <div className="p-3 sm:p-4 rounded-2xl bg-[var(--surface-subtle)] text-center min-w-0">
@@ -36,11 +37,12 @@ export const ProfilePage: React.FC = () => {
   const started = profile?.started_at || user?.created_at || null;
   const counts = profile !== null;
   const roleText = profile?.role ? profile.role.replace('_', ' ') : 'Customer';
+  const isReseller = profile?.role === 'reseller';
 
   return (
     <main className="min-h-[70vh] pt-28 pb-16 px-4">
       <SEOHead title="My profile | The BC Cargo" description="Your profile and order summary." noindex />
-      <div className="max-w-xl mx-auto">
+      <div className={`${isReseller ? 'max-w-4xl' : 'max-w-xl'} mx-auto space-y-5`}>
         {loading ? (
           <div className="flex justify-center py-16" aria-busy="true"><Loader2 className="w-6 h-6 animate-spin text-[var(--ox-900)]" /></div>
         ) : (
@@ -57,16 +59,21 @@ export const ProfilePage: React.FC = () => {
               <li className="flex items-center gap-2"><Phone className="w-4 h-4 shrink-0" />{profile?.phone || 'No phone on file'}</li>
               {started && <li className="flex items-center gap-2"><CalendarDays className="w-4 h-4 shrink-0" />Member since {new Date(started).toLocaleDateString()}</li>}
             </ul>
+            {!isReseller && (
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
               <Stat label="Total orders" value={counts ? profile.total_orders : null} />
               <Stat label="Delivered" value={counts ? profile.completed_orders : null} />
               <Stat label="This month" value={counts ? profile.orders_this_month : null} />
             </div>
+            )}
             <p className="text-xs text-slate-600">
-              Orders are matched by your sign-in email. To change your name, phone or photo, contact The BC Cargo team.
+              {isReseller
+                ? 'Orders booked under your name appear below. To change your name, phone or photo, contact The BC Cargo team.'
+                : 'Orders are matched by your sign-in email. To change your name, phone or photo, contact The BC Cargo team.'}
             </p>
           </div>
         )}
+        {!loading && isReseller && <ResellerDashboard />}
       </div>
     </main>
   );

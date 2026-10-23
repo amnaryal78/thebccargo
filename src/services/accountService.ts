@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import type { ResellerOrder } from '../features/reseller/commission';
 
 export interface AccountProfile {
   email: string | null;
@@ -34,4 +35,23 @@ export async function fetchMyAccountProfile(): Promise<AccountProfile | null> {
     completed_orders: Number(d.completed_orders ?? 0),
     orders_this_month: Number(d.orders_this_month ?? 0),
   };
+}
+
+/**
+ * The signed-in reseller's own orders with weight and commission (computed by the database).
+ * Throws when the call fails so the dashboard can show an error instead of a misleading zero.
+ */
+export async function fetchMyResellerOrders(): Promise<ResellerOrder[]> {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase.rpc('get_my_reseller_orders');
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+    id: String(r.id),
+    tracking_number: String(r.tracking_number ?? ''),
+    created_at: String(r.created_at ?? ''),
+    destination: String(r.destination ?? ''),
+    status: String(r.status ?? ''),
+    weight_kg: Number(r.weight_kg ?? 0),
+    commission_npr: Number(r.commission_npr ?? 0),
+  }));
 }
