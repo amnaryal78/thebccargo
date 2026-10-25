@@ -4,6 +4,7 @@
  *  - Box sheet: one per box; the list may run long, so the page grows (A5 width, auto length).
  * Layout and CSS follow the formats supplied by The BC Cargo. Every user-typed value is HTML-escaped.
  */
+import qrcode from 'qrcode-generator';
 import { amountInWords, fmtMoney, liquidName, money, type BillDraft, type BillResult } from './model';
 
 export interface BillSnapshot {
@@ -17,8 +18,8 @@ export const COMPANY = {
   address: 'School Road, Hetauda-4, Nepal',
   phone: '+977-9855019485',
   email: 'info@thebccargo.com',
-  pan: 'Pending',
-  trackUrl: 'https://thebccargo.com',
+  pan: '625251704',
+  trackUrl: 'https://thebccargo.com/track',
 };
 
 const esc = (v: unknown): string =>
@@ -80,7 +81,7 @@ td.val { padding: 2px 10px 2px 0; font-size: 8.5px; color: #102033; font-weight:
 .footer-section { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 2px solid #0B1F3A; }
 .signature-label { font-size: 8px; color: #52657A; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
 .signature-line { width: 120px; border-top: 1px solid #102033; margin-top: 24px; }
-.qr-container { text-align: center; } .qr-container img { width: 48px; height: 48px; border: 1px solid #d6e0ea; border-radius: 4px; }
+.qr-container { text-align: center; } .qr-container svg { display: block; margin: 0 auto; width: 64px; height: 64px; }
 .qr-label { font-size: 7.5px; color: #718399; margin-top: 1px; } .qr-url { font-size: 7px; color: #718399; }
 .terms { text-align: center; font-size: 8px; color: #718399; margin-top: 4px; padding-top: 4px; border-top: 1px solid #d6e0ea; }
 .no-print { text-align: center; padding: 10px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 12px; }
@@ -100,12 +101,15 @@ export function buildCustomerBillHtml({ draft: d, result: r }: BillSnapshot): st
 <td>${i + 1}</td><td class='left'>${esc(l.description)}</td><td>${esc(l.qty)}</td><td class='right'>${esc(l.weight)}</td><td class='right'>${esc(l.rate)}</td><td class='right'>${fmtMoney(l.amount)}</td></tr>`
     )
     .join('');
-  const qr = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`${COMPANY.trackUrl}/#track?t=${d.billNo}`)}`;
-  const party = (title: string, cls: string, p: BillDraft['sender'], withAddress: boolean) => `<td><table class='${cls}'><tbody>
+  const qrCode = qrcode(0, 'M');
+  qrCode.addData(COMPANY.trackUrl);
+  qrCode.make();
+  const qr = qrCode.createSvgTag({ cellSize: 2, margin: 2, scalable: true });
+  const party = (title: string, cls: string, p: BillDraft['sender'], alwaysAddress: boolean) => `<td><table class='${cls}'><tbody>
 <tr><td class='title-cell' colspan='2'>${title}</td></tr>
 <tr><td class='lbl'>Name:</td><td class='val'>${esc(p.name)}</td></tr>
 <tr><td class='lbl'>Phone:</td><td class='val'>${esc(p.phone)}</td></tr>
-${withAddress && p.address ? `<tr><td class='lbl'>Address:</td><td class='val'>${esc(p.address)}</td></tr>` : ''}
+${alwaysAddress || p.address.trim() ? `<tr><td class='lbl'>Address:</td><td class='val'>${esc(p.address.trim() || '-')}</td></tr>` : ''}
 <tr><td class='lbl'>Country:</td><td class='val'>${esc(p.country)}</td></tr>
 </tbody></table></td>`;
 
@@ -132,7 +136,7 @@ ${party('SENDER', 'sender-table', d.sender, false)}${party('RECEIVER', 'receiver
 <div class='insurance-banner'>Value of item, Upto <strong>Rs. ${fmtMoney(d.valueUpToNpr).replace(/\.00$/, '')}</strong></div></div>
 <div class='summary-right'><div class='total-label'>Grand Total</div><div class='total-amount'><span class='currency'>Rs.</span> ${fmtMoney(r.total)}</div></div></div>
 <div class='footer-section'><div><div class='signature-label'>Authorized Signature</div><div class='signature-line'></div></div>
-<div class='qr-container'><img src='${esc(qr)}' alt='QR code to track this bill' width='48' height='48'><div class='qr-label'>Scan to Track</div><div class='qr-url'>${esc(COMPANY.trackUrl)}</div></div></div>
+<div class='qr-container'>${qr}<div class='qr-label'>Scan to Track</div><div class='qr-url'>${esc(COMPANY.trackUrl)}</div></div></div>
 <div class='terms'>Thank you for choosing <strong>The BC Cargo</strong> &bull; Fast &amp; Reliable Cargo Services</div>
 </div></body></html>`;
 }
