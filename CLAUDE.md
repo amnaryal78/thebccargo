@@ -1,36 +1,38 @@
-# CLAUDE.md — The BC Cargo & Courier
+# The BC Cargo & Courier
 
-Read `AGENTS.md` first (project contract; still in force). This file is the short repeat-use summary. Details: `docs/AI_ARCHITECTURE.md`, `docs/DESIGN_SYSTEM.md`, `docs/QA.md`. Log work in `docs/AI_WORKLOG.md` (newest first, no secrets).
-
-## Identity
-International-only courier/cargo site, Nepal -> world (HQ Hetauda). No domestic courier features. `national_rates` table exists but is dormant; do not revive it. Supabase is the single source of truth (no local DB; browser localStorage is cache only).
+International-only courier site, Nepal -> world (HQ Hetauda). No domestic features; `national_rates` is dormant, do not revive. Supabase is the single source of truth (localStorage = cache only).
 
 ## Stack
-Vite 8 + React 19 + TS + React Router 7 + Tailwind 4 + Framer Motion + three.js. `server.js` = zero-dep Node server (static `dist/`, `/api/health`, `/api/chat`, `/api/fix-blog` OpenRouter proxy, CSP). Supabase: Postgres+RLS, Auth (Google OAuth + `user_roles` allowlist), Edge Functions in `supabase/functions/`.
+Vite 8, React 19, TS, React Router 7, Tailwind 4, Framer Motion, three.js. `server.js` = zero-dep Node server (static `dist/`, `/api/health`, `/api/chat`, `/api/fix-blog` OpenRouter proxy, CSP). Supabase: Postgres+RLS, Auth (Google OAuth + `user_roles` allowlist), Edge Functions in `supabase/functions/` (only `rates` deployed).
 
-## Commands (run via `node node_modules/...`; path contains `&`, `.bin` shims break on Windows)
-`npm run dev` (port 3000) | `typecheck` | `lint` (eslint) | `test` (vitest) | `build` (vite + prerender) | `budget` | `sitemap`
-Order before finishing: targeted test -> typecheck -> test -> build.
+## Commands
+Run via `node node_modules/...` (path contains `&`; `.bin` shims break on Windows). Scripts: `dev` (port 3000), `typecheck`, `lint` (eslint), `test` (vitest), `build` (vite + prerender), `budget`, `sitemap`.
+Before finishing: targeted test, typecheck, test, build. `tests/prerender.test.ts` needs a fresh `dist/` (run build first).
 
 ## Where things are
-- Routes: `src/App.tsx`; admin routes `src/pages/admin/AdminDashboardPage.tsx`; admin features `src/features/admin/*`
-- Data layer: `src/services/*` (only place that talks to Supabase); client `src/lib/supabase.ts`
-- Estimator engine `src/features/estimator/engine.ts`; rates `src/services/ratesService.ts`
-- Design: `src/design/tokens.css`, `src/design/primitives/`, `src/components/ui/` (Card3D, spotlight), `src/index.css`
-- Tests `tests/*.test.ts`; scripts `scripts/` (prerender, sitemap, contrast, bundle budget)
+- Routes `src/App.tsx`; admin `src/pages/admin/AdminDashboardPage.tsx`, `src/features/admin/*`
+- Data layer `src/services/*` (only place that talks to Supabase); client `src/lib/supabase.ts`
+- Estimator `src/features/estimator/engine.ts`; rates `src/services/ratesService.ts`
+- Design `src/design/tokens.css` (truth), `src/design/primitives/`, `src/components/ui/`
+- Tests `tests/*.test.ts`; scripts `scripts/`
+- Details: `docs/AI_ARCHITECTURE.md`, `docs/DESIGN_SYSTEM.md`, `docs/QA.md`. History: `docs/archive/`.
 
-## Rules (highlights)
-- Never print/read `.env` values. Never put service-role/OpenRouter keys in `src/`.
-- No schema/RLS/auth changes, deploys or migrations applied to live Supabase without explicit approval. Repo migrations must stay in sync with live (see AI_ARCHITECTURE drift list).
-- Do not weaken/skip tests. Do not run git reset/checkout/clean/rebase/force-push.
-- Brand: Oxford blue `#002147` + golden yellow `#F2B705`, Claymorphism (soft molded radius, inset highlight/shade, top-left light). Use tokens, not new colours. `docs/02_DESIGN.md` is OUTDATED (describes flat/hard-shadow style); `tokens.css` is truth.
+## Rules
+- Never print/read `.env` values. No service-role/OpenRouter keys in `src/`.
+- No schema/RLS/auth changes, deploys, or migrations on live Supabase without explicit approval. Repo migrations must match live (see AI_ARCHITECTURE drift list).
+- Never weaken/skip tests. Never run git reset/checkout/clean/rebase/force-push. Commit only when asked.
+- Brand: Oxford blue `#002147`, golden yellow `#F2B705`, Claymorphism. Use tokens, not new colours.
 - UI changes: check light/dark, mobile/desktop, hover/focus/disabled, reduced motion.
+- Fix root cause, keep existing behavior, search all callers before changing shared code. No new dependency for what current tools do.
+- Report only what ran: list checks run, failed, and not run.
 
-## Git
-Branch `phase-0-cleanup`, ~176 uncommitted changes (incl. deletions of `bc-cargo-docs/docs/*`, some `ui/*`). Checkpoint-commit only when the user asks.
+## Backup and cleanup
+- Before changing any file in a task, run `backup.bat` once (`& "<project>\backup.bat"`; quote it, path has `&`). Copies source to `..\production_project_backups\<timestamp>`, keeps newest 10. Skip for read-only tasks.
+- Scratch files go in the session scratchpad. Delete temp artifacts you created when done; never delete files you did not create without asking.
+- After meaningful work add a short entry (no secrets) to the top of `docs/AI_WORKLOG.md`.
 
-## Android direction
-Plan for a native app on the same Supabase backend: auth, tracking (`get_public_shipment` RPC), rates, bookings via typed contracts/Edge Functions. Do not couple to web UI code. See AI_ARCHITECTURE "Android readiness".
+## Android
+Native app planned on the same Supabase backend (auth, `get_public_shipment` RPC, rates, bookings via typed contracts/Edge Functions). Do not couple to web UI code.
 
-## Known open risks (see AI_ARCHITECTURE)
-Live RLS: anon write on `blogs` and `sheet_rates_cache`; "staff" policies = any authenticated user; anon-executable SECURITY DEFINER RPCs. Only edge function `rates` deployed.
+## Open risks (live RLS)
+Anon write on `blogs` and `sheet_rates_cache`; "staff" policies = any authenticated user; anon-executable SECURITY DEFINER RPCs.
