@@ -1,4 +1,4 @@
-import { SheetQuoteResult } from './engine';
+import { BOX_CHARGE_NPR, SheetQuoteResult } from './engine';
 import { numberToWords } from '../../utils/numberToWords';
 
 /**
@@ -80,7 +80,7 @@ export const buildBillPdf = (quote: SheetQuoteResult, date: string): Blob => {
       rate: quote.totalWeightKg >= 10 ? fmt(quote.baseShippingCharge / quote.totalWeightKg) : '-',
       amt: fmt(quote.baseShippingCharge),
     },
-    { desc: 'Custom box charge (max 20 kg per box)', qty: boxes, wt: '-', rate: '1,000.00', amt: fmt(quote.boxCharge) },
+    { desc: 'Custom box charge (max 20 kg per box)', qty: boxes, wt: '-', rate: fmt(BOX_CHARGE_NPR), amt: fmt(quote.boxCharge) },
   ];
   if ((quote.pickupFeeNpr ?? 0) > 0)
     rows.push({ desc: `Home pickup charge${quote.pickupArea ? ` (${quote.pickupArea})` : ''}`, qty: '1', wt: '-', rate: fmt(quote.pickupFeeNpr ?? 0), amt: fmt(quote.pickupFeeNpr ?? 0) });

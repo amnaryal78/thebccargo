@@ -55,7 +55,7 @@ export const DEFAULT_RATE_SETTINGS: RateSettings = {
 // ============================================================================
 
 export const BOX_MAX_WEIGHT_KG = 20;
-export const BOX_CHARGE_NPR = 1000;
+export const BOX_CHARGE_NPR = 1100;
 export const LIQUID_FEE_PER_BOX_NPR = 600;
 export const MEDICINE_FEE_PER_BOX_NPR = 600;
 export const MEAT_FEE_EUROPE_UK_PER_KG = 600;
@@ -240,7 +240,7 @@ export function getMeatRatePerKg(countryOrGroup: string): number {
 /**
  * Common alternative names and sheet listing spellings
  */
-const COUNTRY_NAME_ALIASES: Record<string, string[]> = {
+export const COUNTRY_NAME_ALIASES: Record<string, string[]> = {
   'australia': ['australia', 'aus', 'syd'],
   'austria': ['austria', 'eu a', 'eu b', 'at', 'aut', 'vie'],
   'bahrain': ['bharain', 'bahrain', 'gulf country', 'gulf', 'bah'],
@@ -482,7 +482,7 @@ export function calculateSheetShipmentQuote(
   const resellerMarkupNpr = input.isReseller ? Math.round(totalWeight * RESELLER_MARKUP_PER_KG_NPR) : 0;
   baseShippingCharge += resellerMarkupNpr;
 
-  // Box charges: Rs 1,000 per box
+  // Box charges: Rs 1,100 per box
   const boxCharge = boxCount * BOX_CHARGE_NPR;
 
   // Liquid fee: Rs 600 per box that has liquid

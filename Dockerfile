@@ -24,6 +24,7 @@ ENV HOST=0.0.0.0
 # Copy only server runtime files and compiled dist assets
 COPY package.json ./
 COPY server.js ./
+COPY server ./server
 COPY --from=builder /app/dist ./dist
 
 # Run as non-root user for container security

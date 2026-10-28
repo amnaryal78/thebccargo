@@ -1,7 +1,7 @@
 import React, { useId } from 'react';
 import { X, Printer, Download, ShieldCheck } from 'lucide-react';
 import { downloadBill } from './billPdf';
-import { SheetQuoteResult } from './engine';
+import { BOX_CHARGE_NPR, SheetQuoteResult } from './engine';
 import { numberToWords } from '../../utils/numberToWords';
 
 interface EstimateBillModalProps {
@@ -201,7 +201,7 @@ export const EstimateBillModal: React.FC<EstimateBillModalProps> = ({ quote, onC
                     {quote.boxCount} {quote.boxCount === 1 ? 'box' : 'boxes'}
                   </td>
                   <td className="border border-[#cbd5e1] p-1 text-right font-mono">0.00</td>
-                  <td className="border border-[#cbd5e1] p-1 text-right font-mono">1,000.00</td>
+                  <td className="border border-[#cbd5e1] p-1 text-right font-mono">{fmt(BOX_CHARGE_NPR)}</td>
                   <td className="border border-[#cbd5e1] p-1 text-right font-mono font-semibold">
                     {fmt(quote.boxCharge)}
                   </td>

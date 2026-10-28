@@ -61,7 +61,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
       },
       {
         question: 'What are the charges for sending packages to South Korea?',
-        answer: 'Rates are calculated live from our official sheet. Small parcels under 10 kg use half-kilogram step pricing, while shipments of 10 kg and above receive discounted per-kilogram wholesale rates (e.g. 10+ kg and 20+ kg tier discounts). Box packaging is Rs 1,000 per box.',
+        answer: 'Rates are calculated live from our official sheet. Small parcels under 10 kg use half-kilogram step pricing, while shipments of 10 kg and above receive discounted per-kilogram wholesale rates (e.g. 10+ kg and 20+ kg tier discounts). Box packaging is Rs 1,100 per box.',
       },
     ],
     sampleWeightKg: 10,

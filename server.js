@@ -5,7 +5,7 @@
  * - Zero external dependencies (runs directly with standard Node.js 18+)
  * - High-performance static file serving from ./dist with proper MIME types
  * - Client-side SPA routing fallback (serves index.html for React Router paths)
- * - Server-side /api/chat AI endpoint with OpenRouter proxy & strict BC Cargo guardrails
+ * - Server-side /api/chat AI endpoint (server/ai/): domain gate, intent routing, OpenRouter with model fallback
  * - Server-side /api/fix-blog endpoint for editorial assistant (keeps API keys off client)
  * - Security headers & optimized caching headers (immutable for hashed assets)
  * - Health check endpoint (/api/health)
@@ -16,6 +16,9 @@ import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
 import { fileURLToPath } from 'url';
+import { getAiConfig } from './server/ai/config.js';
+import { handleChat } from './server/ai/chatHandler.js';
+import { createRateLimiter } from './server/ai/rateLimit.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -163,122 +166,29 @@ async function isStaffRequest(req) {
 }
 
 // ============================================================================
-// 3. AI Assistant Backend Proxy (/api/chat)
+// 3. AI Assistant (/api/chat): pipeline lives in server/ai/
 // ============================================================================
-async function handleChatApi(req, res) {
+const aiConfig = getAiConfig();
+const chatAllowed = createRateLimiter(20, 60 * 1000); // chat is the expensive endpoint: 20 messages/min per IP
+
+async function handleChatApi(req, res, clientIp) {
   if (req.method !== 'POST') {
     res.writeHead(405, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({ error: 'Method Not Allowed' }));
   }
-
+  if (!chatAllowed(clientIp)) {
+    req.resume();
+    res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60', ...BASE_SECURITY_HEADERS });
+    return res.end(JSON.stringify({ type: 'error', retryable: true, reply: 'You are sending messages very quickly. Please wait a moment and try again.' }));
+  }
   const payload = await readJsonBody(req, res, 32 * 1024);
   if (!payload) return;
-  {
-    try {
-      const userMessage = clampText(payload.message, 1000).trim();
-      const settings = payload.settings && typeof payload.settings === 'object' ? payload.settings : {};
-      const toolResult = payload.toolResult && typeof payload.toolResult === 'object' ? JSON.stringify(payload.toolResult).slice(0, 3000) : '';
-      const history = (Array.isArray(payload.history) ? payload.history : [])
-        .slice(-10)
-        .map(h => ({ sender: h && h.sender === 'user' ? 'user' : 'assistant', text: clampText(h && h.text, 1000) }));
-
-      const WHATSAPP_ACTION = { label: 'WhatsApp', type: 'whatsapp', payload: '9779855019485' };
-      const CALL_ACTION = { label: 'Call', type: 'call', payload: '+9779855019485' };
-      const PRICE_ACTION = { label: 'Price', type: 'navigate', payload: 'rates' };
-
-      const lowerMsg = userMessage.toLowerCase();
-      const forbidden = [
-        'prime minister', 'president', 'write python', 'write code', 'medical advice',
-        'tell me a joke', 'recipe', 'movie', 'actor', 'system prompt', 'api key', 'secret key',
-        'crypto', 'bitcoin', 'stock market'
-      ];
-
-      if (forbidden.some(f => lowerMsg.includes(f))) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({
-          reply: settings.fallbackMessage || 'I only help with cargo, shipping, and BC Cargo services. For other inquiries, please message our team on WhatsApp at +977 9855019485 or call 057-591816.',
-          isFallback: true,
-          actions: [WHATSAPP_ACTION, CALL_ACTION]
-        }));
-      }
-
-      const systemPrompt = `You are "BC Cargo AI", the official customer service assistant for The BC Cargo & Courier (Govt License #B-409, School Road -4, Hetauda, Nepal, Phone: +977 9855019485 / 057-591816, WhatsApp: +977 9855019485).
-Strict Rules:
-1. Talk ONLY about cargo, shipping, and BC Cargo. Reject non-cargo questions politely.
-2. Use short, easy words. Be concise.
-3. Pickup is ONLY within Nepal. Home pickup is free in Hetauda, Pathlaiya, Jitpur and Simara for parcels over 20 kg (otherwise Rs 200). We also pick up in Birgunj, Chitwan and Kathmandu for Rs 200. From other places, please bring your parcel to our Hetauda office. Delivery is worldwide.
-4. Meat is ONLY accepted for Europe, UK, and Hong Kong. Prohibited everywhere else.
-5. Prices come ONLY from the get_quote tool. NEVER guess or invent a price. When the user asks for a price/rate/cost for a destination and weight, reply with ONLY this JSON and nothing else: {"tool":"get_quote","country":"<destination country>","weight_kg":<number>,"liquid":<true|false>,"medicine":<true|false>,"meat_kg":<number, 0 if none>}. If country or weight is missing, ask for it instead. Use earlier messages for context (e.g. "and for 12 kg?").
-6. Booking and live tracking need a human: tell the user to contact WhatsApp (+977 9855019485). Booking is done on our Book page or via staff.
-9. After a TOOL RESULT message, explain it in 2-4 short lines (destination, total weight, boxes, total in Rs). Use only the numbers in the result. If the result says unavailable, say so and send them to WhatsApp.
-10. Hours: Sunday to Friday, 9:00 AM to 6:00 PM NPT. Email: thebccargo@gmail.com.
-7. If you do not know the answer, tell the user to message on WhatsApp (+977 9855019485).
-8. Answer in the same language the user asks (Nepali, English, etc.).`;
-
-      const openRouterKey = process.env.OPENROUTER_API_KEY;
-      const reqModel = pickModel(settings.model);
-      // 'openrouter/auto' used to be here; it can route to paid models.
-      const candidateModels = [...new Set([reqModel, 'openrouter/free', 'meta-llama/llama-3-8b-instruct:free'])];
-      const maxTokens = Math.min(Math.max(Number(settings.maxTokens) || 300, 50), 400);
-
-      if (openRouterKey) {
-        for (const modelName of candidateModels) {
-          try {
-            const openRouterRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${openRouterKey}`,
-                'HTTP-Referer': 'https://thebccargo.com',
-                'X-Title': 'BC Cargo AI Assistant'
-              },
-              body: JSON.stringify({
-                model: modelName,
-                messages: [
-                  { role: 'system', content: systemPrompt },
-                  ...history.map(h => ({ role: h.sender, content: h.text })),
-                  { role: 'user', content: userMessage },
-                  ...(toolResult ? [{ role: 'system', content: `TOOL RESULT for get_quote (live rates, final prices): ${toolResult}` }] : [])
-                ],
-                temperature: 0.1,
-                max_tokens: maxTokens
-              }),
-              signal: AbortSignal.timeout(20000)
-            });
-
-            if (openRouterRes.ok) {
-              const data = await openRouterRes.json();
-              const aiText = data.choices?.[0]?.message?.content;
-              if (aiText) {
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                // The model asks for the live-rates tool; the browser runs it and calls back with toolResult.
-                const asked = !toolResult && aiText.match(/\{[^{}]*"tool"\s*:\s*"get_quote"[^{}]*\}/);
-                if (asked) {
-                  try { return res.end(JSON.stringify({ toolCall: JSON.parse(asked[0]) })); } catch { /* fall through to plain text */ }
-                }
-                return res.end(JSON.stringify({
-                  reply: aiText.trim(),
-                  actions: [WHATSAPP_ACTION, PRICE_ACTION]
-                }));
-              }
-            }
-          } catch (e) {
-            // Try next fallback model
-          }
-        }
-      }
-
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({
-        reply: 'Our AI assistant is not available right now. Please use the Rates page for prices, or message our team on WhatsApp +977 9855019485 or call 057-591816.',
-        isFallback: true,
-        actions: [PRICE_ACTION, WHATSAPP_ACTION, CALL_ACTION]
-      }));
-
-    } catch (e) {
-      console.error('[SERVER] /api/chat failed:', e.message);
-      return sendJson(res, 500, { error: 'Chat is not available right now.' });
-    }
+  try {
+    const { status, body } = await handleChat(payload, { config: aiConfig });
+    return sendJson(res, status, body);
+  } catch (e) {
+    console.error('[SERVER] /api/chat failed:', e.message);
+    return sendJson(res, 500, { type: 'error', retryable: true, reply: "I'm having trouble responding right now. Please try again in a moment, or contact BC Cargo directly." });
   }
 }
 
@@ -643,7 +553,7 @@ const server = http.createServer((req, res) => {
 
   // AI Chat Assistant endpoint
   if (pathname === '/api/chat') {
-    return handleChatApi(req, res);
+    return handleChatApi(req, res, clientIp);
   }
 
   // AI Blog Fixer endpoint
