@@ -177,6 +177,7 @@ async function handleChatApi(req, res) {
     try {
       const userMessage = clampText(payload.message, 1000).trim();
       const settings = payload.settings && typeof payload.settings === 'object' ? payload.settings : {};
+      const toolResult = payload.toolResult && typeof payload.toolResult === 'object' ? JSON.stringify(payload.toolResult).slice(0, 3000) : '';
       const history = (Array.isArray(payload.history) ? payload.history : [])
         .slice(-10)
         .map(h => ({ sender: h && h.sender === 'user' ? 'user' : 'assistant', text: clampText(h && h.text, 1000) }));
@@ -201,71 +202,16 @@ async function handleChatApi(req, res) {
         }));
       }
 
-      // Meat rule check
-      if (lowerMsg.includes('meat') || lowerMsg.includes('sukuti') || lowerMsg.includes('buff') || lowerMsg.includes('मासु')) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        if (lowerMsg.includes('uk') || lowerMsg.includes('united kingdom') || lowerMsg.includes('europe') || lowerMsg.includes('hong kong') || lowerMsg.includes('hkg')) {
-          return res.end(JSON.stringify({
-            reply: 'Meat items (including dried/sukuti) are allowed for Europe, UK, and Hong Kong under special export packaging. Prohibited for other destinations.',
-            actions: [WHATSAPP_ACTION, PRICE_ACTION]
-          }));
-        }
-        return res.end(JSON.stringify({
-          reply: 'Meat is accepted ONLY for Europe, UK, and Hong Kong. Meat shipments to USA, Australia, Gulf countries, Japan, Canada, and other destinations are strictly prohibited by customs.',
-          actions: [WHATSAPP_ACTION, PRICE_ACTION]
-        }));
-      }
-
-      // Pickup rule check
-      if (lowerMsg.includes('pickup') || lowerMsg.includes('pick up') || lowerMsg.includes('collect') || lowerMsg.includes('उठाउने')) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        if (lowerMsg.includes('london') || lowerMsg.includes('usa') || lowerMsg.includes('korea') || lowerMsg.includes('uk') || lowerMsg.includes('dubai') || lowerMsg.includes('australia') || lowerMsg.includes('outside nepal')) {
-          return res.end(JSON.stringify({
-            reply: 'We only pick up shipments within Nepal. We deliver worldwide. We do not pick up from outside Nepal.',
-            actions: [WHATSAPP_ACTION, PRICE_ACTION]
-          }));
-        }
-        return res.end(JSON.stringify({
-          reply: 'Yes! We provide doorstep pickup anywhere in Nepal (Hetauda, Kathmandu, Pokhara, Chitwan, Birgunj, and all districts). Consignments are dispatched internationally from Nepal.',
-          actions: [WHATSAPP_ACTION, PRICE_ACTION]
-        }));
-      }
-
-      // Booking inquiry
-      if (lowerMsg.includes('book') || lowerMsg.includes('booking') || lowerMsg.includes('बुकिङ')) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({
-          reply: 'Booking a shipment needs human staff to confirm customs paperwork and dispatch. Please message our team on WhatsApp or call our Hetauda office.',
-          actions: [WHATSAPP_ACTION, CALL_ACTION]
-        }));
-      }
-
-      // Tracking inquiry
-      if (lowerMsg.includes('track') || lowerMsg.includes('tracking')) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({
-          reply: 'Live tracking updates need human staff assistance. Please message our WhatsApp with your tracking code, or call us.',
-          actions: [WHATSAPP_ACTION, CALL_ACTION]
-        }));
-      }
-
-      // Rates inquiry
-      if (lowerMsg.includes('rate') || lowerMsg.includes('price') || lowerMsg.includes('cost') || lowerMsg.includes('how much') || lowerMsg.includes('भाडा')) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({
-          reply: 'Prices come strictly from our live rates tariff engine. Please click Price below to view exact live rates, or message our team on WhatsApp for a custom quotation.',
-          actions: [PRICE_ACTION, WHATSAPP_ACTION]
-        }));
-      }
-
       const systemPrompt = `You are "BC Cargo AI", the official customer service assistant for The BC Cargo & Courier (Govt License #B-409, School Road -4, Hetauda, Nepal, Phone: +977 9855019485 / 057-591816, WhatsApp: +977 9855019485).
 Strict Rules:
 1. Talk ONLY about cargo, shipping, and BC Cargo. Reject non-cargo questions politely.
 2. Use short, easy words. Be concise.
-3. Pickup is ONLY within Nepal (doorstep pickup anywhere in Nepal). Delivery is worldwide.
+3. Pickup is ONLY within Nepal. Home pickup is free in Hetauda, Pathlaiya, Jitpur and Simara for parcels over 20 kg (otherwise Rs 200). We also pick up in Birgunj, Chitwan and Kathmandu for Rs 200. From other places, please bring your parcel to our Hetauda office. Delivery is worldwide.
 4. Meat is ONLY accepted for Europe, UK, and Hong Kong. Prohibited everywhere else.
-5. Prices come ONLY from the live rates function. NEVER guess or invent a price.
-6. Booking and tracking need a human: tell the user to contact WhatsApp (+977 9855019485).
+5. Prices come ONLY from the get_quote tool. NEVER guess or invent a price. When the user asks for a price/rate/cost for a destination and weight, reply with ONLY this JSON and nothing else: {"tool":"get_quote","country":"<destination country>","weight_kg":<number>,"liquid":<true|false>,"medicine":<true|false>,"meat_kg":<number, 0 if none>}. If country or weight is missing, ask for it instead. Use earlier messages for context (e.g. "and for 12 kg?").
+6. Booking and live tracking need a human: tell the user to contact WhatsApp (+977 9855019485). Booking is done on our Book page or via staff.
+9. After a TOOL RESULT message, explain it in 2-4 short lines (destination, total weight, boxes, total in Rs). Use only the numbers in the result. If the result says unavailable, say so and send them to WhatsApp.
+10. Hours: Sunday to Friday, 9:00 AM to 6:00 PM NPT. Email: thebccargo@gmail.com.
 7. If you do not know the answer, tell the user to message on WhatsApp (+977 9855019485).
 8. Answer in the same language the user asks (Nepali, English, etc.).`;
 
@@ -291,7 +237,8 @@ Strict Rules:
                 messages: [
                   { role: 'system', content: systemPrompt },
                   ...history.map(h => ({ role: h.sender, content: h.text })),
-                  { role: 'user', content: userMessage }
+                  { role: 'user', content: userMessage },
+                  ...(toolResult ? [{ role: 'system', content: `TOOL RESULT for get_quote (live rates, final prices): ${toolResult}` }] : [])
                 ],
                 temperature: 0.1,
                 max_tokens: maxTokens
@@ -304,6 +251,11 @@ Strict Rules:
               const aiText = data.choices?.[0]?.message?.content;
               if (aiText) {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
+                // The model asks for the live-rates tool; the browser runs it and calls back with toolResult.
+                const asked = !toolResult && aiText.match(/\{[^{}]*"tool"\s*:\s*"get_quote"[^{}]*\}/);
+                if (asked) {
+                  try { return res.end(JSON.stringify({ toolCall: JSON.parse(asked[0]) })); } catch { /* fall through to plain text */ }
+                }
                 return res.end(JSON.stringify({
                   reply: aiText.trim(),
                   actions: [WHATSAPP_ACTION, PRICE_ACTION]
@@ -318,8 +270,9 @@ Strict Rules:
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify({
-        reply: `The BC Cargo Central HQ is at School Road -4, Hetauda, Nepal. We provide doorstep pickup across Nepal and worldwide express cargo delivery. How can we help you?`,
-        actions: [WHATSAPP_ACTION, PRICE_ACTION]
+        reply: 'Our AI assistant is not available right now. Please use the Rates page for prices, or message our team on WhatsApp +977 9855019485 or call 057-591816.',
+        isFallback: true,
+        actions: [PRICE_ACTION, WHATSAPP_ACTION, CALL_ACTION]
       }));
 
     } catch (e) {

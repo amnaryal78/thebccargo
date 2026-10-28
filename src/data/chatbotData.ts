@@ -9,7 +9,7 @@ import {
 export const DEFAULT_CHATBOT_SETTINGS: ChatbotSettings = {
   enabled: true,
   name: 'BC Cargo AI',
-  welcomeMessage: 'Hi! I’m BC Cargo AI. I can help with shipping rates, pickup across Nepal, delivery worldwide, and cargo guidelines.',
+  welcomeMessage: 'Hi! I’m BC Cargo AI. I can help with shipping rates, home pickup around Hetauda, delivery worldwide, and cargo guidelines.',
   inputPlaceholder: 'Ask about rates, doorstep pickup in Nepal, delivery countries...',
   fallbackMessage: 'I can only help with cargo, shipping, and BC Cargo services. For other inquiries, please message our team on WhatsApp at +977 9855019485 or call 057-591816.',
   maintenanceMessage: 'BC Cargo AI is currently unavailable. Please reach our Hetauda office at 057-591816 / 9855019485 or thebccargo@gmail.com.',
@@ -40,7 +40,7 @@ export const DEFAULT_KNOWLEDGE_BASE: KnowledgeItem[] = [
     id: 'k-pickup',
     title: 'Nepal Pickup Policy',
     category: 'pickup',
-    content: 'Pickup is ONLY available within Nepal. We offer doorstep pickup from any location in Nepal (Hetauda, Kathmandu, Pokhara, Chitwan, Birgunj, etc.). Consignments are dispatched internationally from Nepal to 190+ countries.',
+    content: 'Pickup is ONLY available within Nepal. Home pickup is free in Hetauda, Pathlaiya, Jitpur and Simara for parcels over 20 kg (otherwise Rs 200). We also pick up in Birgunj, Chitwan and Kathmandu for Rs 200. From other places, please bring your parcel to our Hetauda office. Consignments are dispatched internationally from Nepal to 190+ countries.',
     enabled: true,
     priority: 1,
     updatedAt: new Date().toISOString(),
@@ -114,7 +114,7 @@ export const DEFAULT_RULES: ChatbotRule[] = [
     id: 'r-pickup',
     name: 'Nepal Pickup Only',
     type: 'disallowed_claim',
-    content: 'Pickup is only within Nepal (doorstep pickup across Nepal). Delivery is worldwide.',
+    content: 'Pickup is only within Nepal. Home pickup is free in Hetauda, Pathlaiya, Jitpur and Simara for parcels over 20 kg (otherwise Rs 200). We also pick up in Birgunj, Chitwan and Kathmandu for Rs 200. From other places, please bring your parcel to our Hetauda office. Delivery is worldwide.',
     enabled: true,
   },
   {

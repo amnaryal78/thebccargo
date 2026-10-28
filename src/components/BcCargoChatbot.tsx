@@ -178,7 +178,7 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
               </div>
               <span className="text-[12px] text-slate-600 flex items-center gap-1.5 mt-0.5">
                 <ShieldCheck className="w-3 h-3 text-[#10B981]" />
-                Answers from BC Cargo's own guides and price list
+                AI assistant. Prices come from our live rates
               </span>
             </div>
           </div>
@@ -318,7 +318,7 @@ export const BcCargoChatbot: React.FC<BcCargoChatbotProps> = ({
           <div className="flex items-center justify-between px-2 pt-2 text-[11px] text-slate-500">
             <span className="flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-[#10B981]" />
-              Automatic answers. For anything important, call or chat with our team.
+              AI answers can be wrong. For anything important, call or chat with our team.
             </span>
             <span className="hidden sm:inline text-slate-500">
               Press Enter to send

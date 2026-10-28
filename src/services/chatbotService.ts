@@ -15,7 +15,8 @@ import {
   DEFAULT_TOOLS, 
   DEFAULT_SUGGESTIONS 
 } from '../data/chatbotData';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { fetchSheetRates } from './ratesService';
+import { calculateSheetShipmentQuote } from '../features/estimator/engine';
 
 const SETTINGS_KEY = 'bc_cargo_chatbot_settings';
 const KNOWLEDGE_KEY = 'bc_cargo_chatbot_knowledge';
@@ -197,41 +198,10 @@ const OUT_OF_SCOPE_KEYWORDS = [
   'poem', 'sing a song', 'joke'
 ];
 
-const IN_SCOPE_KEYWORDS = [
-  'bc cargo', 'cargo', 'courier', 'shipment', 'parcel', 'package', 'deliver',
-  'tracking', 'track', 'rate', 'price', 'cost', 'fee', 'charge', 'service',
-  'air freight', 'express', 'sea freight', 'ocean', 'truck', 'overland',
-  'pickup', 'hetauda', 'kathmandu', 'nepal', 'korea', 'japan', 'australia',
-  'usa', 'uk', 'dubai', 'uae', 'india', 'customs', 'contact', 'phone',
-  'email', 'address', 'office', 'location', 'document', 'box', 'send', 'book',
-  'awb', 'weight', 'kg', 'discount', 'offer', 'hours', 'time', 'broker',
-  'meat', 'sukuti', 'buff', 'liquid', 'medicine', 'pokhara', 'chitwan', 'birgunj'
-];
-
+/** Cheap pre-filter for obvious off-topic or injection attempts. Everything else is judged by the AI's own cargo-only rules. */
 export function isQueryInScope(query: string): boolean {
   const lower = query.toLowerCase().trim();
-  
-  // Check explicit prompt injection / out-of-scope keywords
-  for (const word of OUT_OF_SCOPE_KEYWORDS) {
-    if (lower.includes(word)) {
-      return false;
-    }
-  }
-
-  // Check if query contains any BC Cargo domain context
-  for (const word of IN_SCOPE_KEYWORDS) {
-    if (lower.includes(word)) {
-      return true;
-    }
-  }
-
-  // Short greetings are allowed
-  const greetings = ['hi', 'hello', 'namaste', 'hey', 'good morning', 'good afternoon', 'help', 'info', 'नमस्ते'];
-  if (greetings.some(g => lower === g || lower.startsWith(g + ' ') || lower.startsWith(g + '!'))) {
-    return true;
-  }
-
-  return false;
+  return !OUT_OF_SCOPE_KEYWORDS.some(word => lower.includes(word));
 }
 
 // ============================================================================
@@ -271,60 +241,6 @@ export async function processChatMessage(
 
   const lower = cleanQuery.toLowerCase();
 
-  // Rule 2: Meat policy (strict)
-  if (lower.includes('meat') || lower.includes('sukuti') || lower.includes('buff') || lower.includes('मासु')) {
-    updateStats(1, 0, 1);
-    if (lower.includes('uk') || lower.includes('united kingdom') || lower.includes('europe') || lower.includes('hong kong') || lower.includes('hkg')) {
-      return {
-        id: `bot-${Date.now()}`,
-        sender: 'assistant',
-        text: 'Meat items (including dried/sukuti) are allowed for Europe, UK, and Hong Kong under special export packaging. Prohibited for other destinations.',
-        timestamp: new Date().toISOString(),
-        actions: [ACTION_WHATSAPP, ACTION_PRICE],
-      };
-    }
-    return {
-      id: `bot-${Date.now()}`,
-      sender: 'assistant',
-      text: 'Meat is accepted ONLY for Europe, UK, and Hong Kong. Meat shipments to USA, Australia, Gulf countries, Japan, Canada, and other destinations are strictly prohibited by customs.',
-      timestamp: new Date().toISOString(),
-      actions: [ACTION_WHATSAPP, ACTION_PRICE],
-    };
-  }
-
-  // Rule 3: Pickup location (Nepal only; worldwide delivery)
-  if (lower.includes('pickup') || lower.includes('pick up') || lower.includes('collect') || lower.includes('उठाउने')) {
-    updateStats(1, 0, 1);
-    if (lower.includes('london') || lower.includes('usa') || lower.includes('korea') || lower.includes('uk') || lower.includes('dubai') || lower.includes('australia') || lower.includes('outside nepal')) {
-      return {
-        id: `bot-${Date.now()}`,
-        sender: 'assistant',
-        text: 'We only pick up shipments within Nepal. We deliver worldwide. We do not pick up from outside Nepal.',
-        timestamp: new Date().toISOString(),
-        actions: [ACTION_WHATSAPP, ACTION_PRICE],
-      };
-    }
-    return {
-      id: `bot-${Date.now()}`,
-      sender: 'assistant',
-      text: 'Yes! We provide doorstep pickup anywhere in Nepal (Hetauda, Kathmandu, Pokhara, Chitwan, Birgunj, and all 77 districts). Consignments are dispatched internationally from Nepal.',
-      timestamp: new Date().toISOString(),
-      actions: [ACTION_WHATSAPP, ACTION_PRICE],
-    };
-  }
-
-  // Rule 4: Booking & Tracking require human staff
-  if (lower.includes('book') || lower.includes('booking') || lower.includes('बुकिङ')) {
-    updateStats(1, 0, 1);
-    return {
-      id: `bot-${Date.now()}`,
-      sender: 'assistant',
-      text: 'Booking a shipment needs human staff to confirm customs paperwork and dispatch. Please message our team on WhatsApp or call our Hetauda office.',
-      timestamp: new Date().toISOString(),
-      actions: [ACTION_WHATSAPP, ACTION_CALL],
-    };
-  }
-
   const trackingMatch = cleanQuery.match(/(BC-\d+-[A-Z]+|NP-\d+-[A-Z]+)/i);
   if (trackingMatch || (lower.includes('track') && (lower.includes('bc-') || lower.includes('np-') || lower.includes('shipment')))) {
     const trackingCode = trackingMatch ? trackingMatch[1].toUpperCase() : '';
@@ -342,49 +258,61 @@ export async function processChatMessage(
     };
   }
 
-  // Rule 5: Rates inquiry - never guess prices; use live rates engine
-  if (lower.includes('rate') || lower.includes('price') || lower.includes('cost') || lower.includes('how much') || lower.includes('भाडा')) {
-    updateStats(1, 0, 1);
-    return {
-      id: `bot-${Date.now()}`,
-      sender: 'assistant',
-      text: 'Prices come strictly from our live rates tariff engine. Please click Price below to view exact live rates, or message our team on WhatsApp for a custom quotation.',
-      timestamp: new Date().toISOString(),
-      actions: [ACTION_PRICE, ACTION_WHATSAPP],
-    };
-  }
-
-  // Rule 6: Contact info inquiry
-  if (lower.includes('phone') || lower.includes('contact') || lower.includes('email') || lower.includes('whatsapp') || lower.includes('address') || lower.includes('located') || lower.includes('location') || lower.includes('office') || lower.includes('hetauda')) {
-    updateStats(1, 0, 1);
-    return {
-      id: `bot-${Date.now()}`,
-      sender: 'assistant',
-      text: '**The BC Cargo & Courier Contact Information:**\n\n• **Central HQ:** School Road -4, Hetauda, Nepal\n• **Phone:** 057-591816 / 9855019485\n• **WhatsApp:** +977-9855019485\n• **Email:** thebccargo@gmail.com\n• **Hours:** Sunday – Friday, 9:00 AM – 6:00 PM NPT',
-      timestamp: new Date().toISOString(),
-      actions: [ACTION_WHATSAPP, ACTION_CALL],
-    };
-  }
-
-  // Step 3: Remote AI Call (Supabase Edge Function 'chat' -> 'bc-cargo-chat' -> Server API /api/chat)
+  // Real AI (server /api/chat). It may ask for the live-rates tool, which runs here on the same engine as the Rates page.
   try {
-    const remoteResponse = await callRemoteChatApi(cleanQuery, history, settings, turnstileToken);
-    if (remoteResponse) {
+    let reply = await callRemoteChatApi(cleanQuery, history, settings, turnstileToken);
+    if (reply?.toolCall) {
+      const toolResult = await runQuoteTool(reply.toolCall);
+      updateStats(1, 0, 1);
+      reply = await callRemoteChatApi(cleanQuery, history, settings, turnstileToken, toolResult);
+    } else {
       updateStats(1, 0, 0);
-      return remoteResponse;
     }
+    if (reply?.text) return { ...reply, actions: reply.actions ?? [ACTION_PRICE, ACTION_WHATSAPP] };
   } catch (e) {
-    console.warn('Remote AI chat call failed, falling back:', e);
+    console.warn('AI chat call failed:', e);
   }
 
-  // Fallback: Safe polite response
-  updateStats(1, 0, 0);
+  // Honest fallback: say the AI is down, never pretend to answer.
+  updateStats(1, 1, 0);
   return {
     id: `bot-${Date.now()}`,
     sender: 'assistant',
-    text: 'I help with international cargo shipping, doorstep pickup across Nepal, and rates. For custom quotes, booking, or tracking, please message our team on WhatsApp.',
+    text: 'Our AI assistant is not available right now. Please use the Rates page for prices, or message our team on WhatsApp +977 9855019485 or call 057-591816.',
     timestamp: new Date().toISOString(),
-    actions: [ACTION_WHATSAPP, ACTION_PRICE],
+    isFallback: true,
+    actions: [ACTION_PRICE, ACTION_WHATSAPP, ACTION_CALL],
+  };
+}
+
+interface QuoteToolCall { country?: unknown; weight_kg?: unknown; liquid?: unknown; medicine?: unknown; meat_kg?: unknown }
+
+/** Runs the real Rates-page engine on live rates. Returns plain facts for the AI to explain. */
+export async function runQuoteTool(call: QuoteToolCall): Promise<Record<string, unknown>> {
+  const country = typeof call.country === 'string' ? call.country.trim().slice(0, 80) : '';
+  const weight = Number(call.weight_kg);
+  if (!country || !(weight > 0) || weight > 5000) return { available: false, reason: 'Need a destination country and a weight in kg.' };
+  const { rates } = await fetchSheetRates();
+  if (!rates.length) return { available: false, reason: 'Live rates are not loadable right now.' };
+  const meatKg = Math.max(0, Number(call.meat_kg) || 0);
+  const q = calculateSheetShipmentQuote(
+    { destination: country, actualWeightKg: weight, hasLiquid: call.liquid === true, hasMedicine: call.medicine === true, hasMeat: meatKg > 0, meatKg },
+    rates,
+  );
+  if (!q.allowed) return { available: false, reason: q.blockedReason };
+  if (q.meatBlocked) return { available: false, reason: q.meatBlockedReason };
+  return {
+    available: true,
+    destination: q.destinationName,
+    totalWeightKg: q.totalWeightKg,
+    boxes: q.boxCount,
+    shippingNpr: q.baseShippingCharge,
+    boxChargeNpr: q.boxCharge,
+    liquidNpr: q.liquidCharge,
+    medicineNpr: q.medicineCharge,
+    meatNpr: q.meatCharge,
+    totalNpr: q.totalNpr,
+    note: 'Excludes home pickup fee. Final price confirmed by staff.',
   };
 }
 
@@ -396,76 +324,31 @@ async function callRemoteChatApi(
   userQuery: string,
   history: ChatMessage[],
   settings: ChatbotSettings,
-  turnstileToken?: string
-): Promise<ChatMessage | null> {
-  const payload = {
-    message: userQuery,
-    history: history.slice(-6),
-    settings,
-    // Only a real widget token; the server no longer accepts a placeholder.
-    turnstileToken: turnstileToken || undefined,
+  turnstileToken?: string,
+  toolResult?: Record<string, unknown>
+): Promise<(ChatMessage & { toolCall?: QuoteToolCall }) | null> {
+  const response = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message: userQuery,
+      history: history.slice(-6),
+      settings,
+      // Only a real widget token; the server no longer accepts a placeholder.
+      turnstileToken: turnstileToken || undefined,
+      toolResult,
+    }),
+  });
+  if (!response.ok) return null;
+  const data = await response.json();
+  if (data?.toolCall) return { id: '', sender: 'assistant', text: '', timestamp: '', toolCall: data.toolCall };
+  if (!data?.reply) return null;
+  return {
+    id: `bot-${Date.now()}`,
+    sender: 'assistant',
+    text: data.reply,
+    timestamp: new Date().toISOString(),
+    isFallback: data.isFallback,
+    actions: data.actions,
   };
-
-  // 1. Try Supabase Edge Function 'chat'
-  if (isSupabaseConfigured) {
-    try {
-      const { data, error } = await supabase.functions.invoke('chat', { body: payload });
-      if (!error && data && data.reply) {
-        return {
-          id: `bot-${Date.now()}`,
-          sender: 'assistant',
-          text: data.reply,
-          timestamp: new Date().toISOString(),
-          isFallback: data.isFallback,
-          actions: data.actions || [ACTION_WHATSAPP, ACTION_PRICE],
-        };
-      }
-    } catch (_err) {
-      // Try next endpoint
-    }
-
-    // 2. Try Supabase Edge Function 'bc-cargo-chat'
-    try {
-      const { data, error } = await supabase.functions.invoke('bc-cargo-chat', { body: payload });
-      if (!error && data && data.reply) {
-        return {
-          id: `bot-${Date.now()}`,
-          sender: 'assistant',
-          text: data.reply,
-          timestamp: new Date().toISOString(),
-          isFallback: data.isFallback,
-          actions: data.actions || [ACTION_WHATSAPP, ACTION_PRICE],
-        };
-      }
-    } catch (_err) {
-      // Try next endpoint
-    }
-  }
-
-  // 3. Fallback to /api/chat (Server.js proxy)
-  try {
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data && data.reply) {
-        return {
-          id: `bot-${Date.now()}`,
-          sender: 'assistant',
-          text: data.reply,
-          timestamp: new Date().toISOString(),
-          isFallback: data.isFallback,
-          actions: data.actions || [ACTION_WHATSAPP, ACTION_PRICE],
-        };
-      }
-    }
-  } catch (_e) {
-    // API endpoint unavailable or client offline
-  }
-
-  return null;
 }

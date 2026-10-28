@@ -1,11 +1,15 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { 
   processChatMessage, 
   isQueryInScope, 
   getRules, 
   saveRule, 
-  getKnowledgeItems
+  getKnowledgeItems,
+  runQuoteTool
 } from '../src/services/chatbotService';
+
+vi.mock('../src/services/ratesService', () => ({ fetchSheetRates: vi.fn() }));
+const { fetchSheetRates } = vi.mocked(await import('../src/services/ratesService'));
 
 const storageMap = new Map<string, string>();
 const mockStorage = {
@@ -32,64 +36,48 @@ describe('Phase 7 — BC Cargo AI Assistant & Rules Engine', () => {
       expect(contact?.content).toContain('#B-409');
     });
 
-    it('returns official Hetauda contact details when asked for contact/phone/office', async () => {
-      const res = await processChatMessage('Where is your Hetauda office and what is your phone number?');
-      expect(res.text).toContain('School Road -4, Hetauda');
-      expect(res.text).toContain('9855019485');
-      expect(res.text).toContain('057-591816');
-      expect(res.text).toContain('thebccargo@gmail.com');
-      expect(res.actions?.some(a => a.type === 'whatsapp')).toBe(true);
-      expect(res.actions?.some(a => a.type === 'call')).toBe(true);
-    });
   });
 
-  describe('2. Live Rates Policy (Never Guess Prices)', () => {
-    it('refers to live rates tariff engine and does not fabricate prices for rate queries', async () => {
-      const res = await processChatMessage('How much to send 5 kg to Korea?');
-      // Must not fabricate arbitrary prices like "$8.50"
-      expect(res.text.toLowerCase()).toContain('live rates');
-      expect(res.actions?.some(a => a.label === 'Price' && a.payload === 'rates')).toBe(true);
-      expect(res.actions?.some(a => a.type === 'whatsapp')).toBe(true);
-    });
-  });
+  describe('2. Real AI with live-rates tool (no hardcoded answers)', () => {
+    const japan = { rate_group: 'japan', display_name: 'Japan', supported_countries: ['Japan'], weight_tier: 'standard' as const, weight_kg: 8, price_npr: 5000, currency: 'NPR', active: true };
 
-  describe('3. Pickup & Delivery Policy', () => {
-    it('confirms doorstep pickup anywhere in Nepal (e.g. Pokhara)', async () => {
+    it('runs the real engine for "8 kg to Japan": shipping + Rs 1,000 box charge', async () => {
+      fetchSheetRates.mockResolvedValue({ rates: [japan], rowCount: 1, updatedAt: '', source: 'live' });
+      const out = await runQuoteTool({ country: 'Japan', weight_kg: 8 });
+      expect(out).toMatchObject({ available: true, destination: 'Japan', boxes: 1, shippingNpr: 5000, totalNpr: 6000 });
+    });
+
+    it('refuses to invent a price when the country has no rate or input is missing', async () => {
+      fetchSheetRates.mockResolvedValue({ rates: [japan], rowCount: 1, updatedAt: '', source: 'live' });
+      expect(await runQuoteTool({ country: 'Atlantis', weight_kg: 8 })).toMatchObject({ available: false });
+      expect(await runQuoteTool({ country: 'Japan' })).toMatchObject({ available: false });
+      fetchSheetRates.mockResolvedValue({ rates: [], rowCount: 0, updatedAt: '', source: 'local_fallback' });
+      expect(await runQuoteTool({ country: 'Japan', weight_kg: 8 })).toMatchObject({ available: false });
+    });
+
+    it('AI asks for the tool, the tool result goes back, the AI reply is shown', async () => {
+      fetchSheetRates.mockResolvedValue({ rates: [japan], rowCount: 1, updatedAt: '', source: 'live' });
+      const fetchMock = vi.fn()
+        .mockResolvedValueOnce({ ok: true, json: async () => ({ toolCall: { tool: 'get_quote', country: 'Japan', weight_kg: 8 } }) })
+        .mockResolvedValueOnce({ ok: true, json: async () => ({ reply: 'Japan, 8 kg: Rs 6000.' }) });
+      vi.stubGlobal('fetch', fetchMock);
+      const res = await processChatMessage('what is the price for 8 kg for japan');
+      expect(res.text).toBe('Japan, 8 kg: Rs 6000.');
+      expect(JSON.parse(fetchMock.mock.calls[1][1].body).toolResult.totalNpr).toBe(6000);
+    });
+
+    it('says the AI is unavailable instead of faking an answer', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
       const res = await processChatMessage('Can you pick up from Pokhara?');
-      expect(res.text.toLowerCase()).toContain('doorstep pickup');
-      expect(res.text).toContain('Nepal');
-      expect(res.actions?.some(a => a.type === 'whatsapp')).toBe(true);
-    });
-
-    it('rejects pickup outside Nepal (e.g. London, USA)', async () => {
-      const res = await processChatMessage('Can you pick up a box from London?');
-      expect(res.text.toLowerCase()).toContain('only pick up shipments within nepal');
-      expect(res.text.toLowerCase()).toContain('deliver worldwide');
+      expect(res.isFallback).toBe(true);
+      expect(res.text).toContain('not available right now');
+      expect(res.text).not.toMatch(/Rss?d/);
     });
   });
 
-  describe('4. Meat Shipment Restrictions', () => {
-    it('accepts meat ONLY for Europe, UK, and Hong Kong', async () => {
-      const resUK = await processChatMessage('Can I ship meat to UK?');
-      expect(resUK.text.toLowerCase()).toContain('allowed for europe, uk, and hong kong');
-
-      const resUSA = await processChatMessage('Can I ship meat to USA?');
-      expect(resUSA.text.toLowerCase()).toContain('accepted only for europe, uk, and hong kong');
-      expect(resUSA.text.toLowerCase()).toContain('prohibited');
-    });
-  });
-
-  describe('5. Booking & Tracking Human Escalation', () => {
-    it('directs booking inquiries to human staff on WhatsApp', async () => {
-      const res = await processChatMessage('How do I book a shipment today?');
-      expect(res.text.toLowerCase()).toContain('human staff');
-      expect(res.text).toContain('WhatsApp');
-      expect(res.actions?.some(a => a.label === 'WhatsApp' && a.type === 'whatsapp')).toBe(true);
-    });
-
-    it('directs tracking inquiries to human staff or Track button', async () => {
+  describe('3. Human escalation and tracking button', () => {
+    it('offers the Track button for a tracking code', async () => {
       const res = await processChatMessage('Can you track my shipment BC-90214-HKG?');
-      expect(res.text.toLowerCase()).toContain('tracking');
       expect(res.actions?.some(a => a.label === 'Track')).toBe(true);
       expect(res.actions?.some(a => a.type === 'whatsapp')).toBe(true);
     });
@@ -101,7 +89,10 @@ describe('Phase 7 — BC Cargo AI Assistant & Rules Engine', () => {
       expect(isQueryInScope('Write python code to sort an array')).toBe(false);
       expect(isQueryInScope('Who is the prime minister?')).toBe(false);
 
+      const fetchMock = vi.fn();
+      vi.stubGlobal('fetch', fetchMock);
       const res = await processChatMessage('Tell me a joke');
+      expect(fetchMock).not.toHaveBeenCalled();
       expect(res.isFallback).toBe(true);
       expect(res.text.toLowerCase()).toContain('only help with cargo');
       expect(res.actions?.some(a => a.type === 'whatsapp')).toBe(true);
