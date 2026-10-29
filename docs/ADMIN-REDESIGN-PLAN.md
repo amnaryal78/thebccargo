@@ -370,7 +370,7 @@ Decided during phase 1:
 
 - **Migration `20261030000007_today_dashboard`:** `get_today_dashboard()` returns every Today figure in one call (counts only, Nepal day).
   - Chats go only to message staff, job applications to careers roles, and today's activity to audit-log readers; resellers and anonymous callers are refused.
-  - Tested on live in a rolled-back transaction with seeded data for operations, editor, support, analyst, reseller and anon. **Not applied yet.**
+  - Tested on live in a rolled-back transaction with seeded data for operations, editor, support, analyst, reseller and anon. **Applied to live 2026-10-30**; re-checked after applying (admin, operations, editor, support, analyst see their figures; reseller and anon refused).
   - Found: all 3 live shipments are open with no update for 3+ days.
 - **Today page** (`overview/AdminOverviewTab.tsx`) replaces the old overview (vanity totals, full-table downloads, all-caps cards).
   - **Greeting:** a sentence in Nepal time.
