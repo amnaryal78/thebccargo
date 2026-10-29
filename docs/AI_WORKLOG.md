@@ -4,7 +4,7 @@ Purpose: durable, low-token project memory for coding-agent sessions. Keep entri
 
 
 ## 2026-10-30 Admin phase 1 (security) on branch admin-redesign
-- 5 new migrations (user_roles super_admin-only + last-super-admin guard, server-set audit actor, shipment/tracking audit triggers, public insert defaults + per-email flood limit, notifications by role). Verified on live in rolled-back transactions; NOT applied. Client shipment audit calls removed (triggers replace them). tests/security-phase1.test.ts added.
+- 5 new migrations (user_roles super_admin-only + last-super-admin guard, server-set audit actor, shipment/tracking audit triggers, public insert defaults + per-email flood limit, notifications by role). Verified in rolled-back transactions, then APPLIED to live on owner approval (22/22 post-apply checks pass). Client shipment audit calls removed (triggers replace them). tests/security-phase1.test.ts added.
 
 ## 2026-10-30 Design foundation (brand #0B2D63 / #F2B632)
 - tokens.css rebuilt: new ox/gd scales, navy-tinted text, status + shipment-stage tokens, type/layout/radius/z tokens, .container-page/.section-y/.code-text. All #002147/#F2B705 hex in src, index.html, manifest, scripts replaced (bracket classes -> bg-ox-900 etc.). contrast-check synced, 32/32 pass.

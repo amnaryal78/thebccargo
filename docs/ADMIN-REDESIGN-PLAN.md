@@ -335,3 +335,5 @@ Decided during phase 1:
 - **F9 dropped:** revoking anon EXECUTE on `is_admin()` would break anonymous reads of `how_to_ship` (its ALL policy targets `public` and calls `is_admin()`).
 - **Bot protection** is a per-email flood limit only. Real Turnstile verification still needs the `submit-*` edge functions deployed with `TURNSTILE_SECRET_KEY` (owner action).
 - **New finding for phase 2:** the `user_role` enum has no `read_only`; the UI role cannot exist in the database. Also the shipment editor's reseller picker reads `user_roles`, which only super_admin/admin can, so it is empty for operations (pre-existing).
+
+**Applied to live 2026-10-30** (owner approved). Live history versions `20261029195052`–`20261029195127` (UTC stamps; repo files are `20261030000001`–`…05`). Post-apply role checks on live, in a rolled-back transaction, 22/22 as expected; no test rows left; 2 super_admins active.
