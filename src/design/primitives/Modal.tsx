@@ -60,7 +60,7 @@ export const Modal: React.FC<ModalProps> = ({
     >
       {/* Flat Dark Backdrop */}
       <div
-        className="fixed inset-0 bg-[#00152D]/80 backdrop-grayscale-20 transition-opacity"
+        className="fixed inset-0 bg-ox-950/70 backdrop-grayscale-20 transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -73,7 +73,7 @@ export const Modal: React.FC<ModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--surface-2)]">
           <div>
-            <h2 id="modal-title" className="font-heading font-extrabold text-base sm:text-lg uppercase tracking-tight">
+            <h2 id="modal-title" className="font-heading font-extrabold text-base sm:text-lg tracking-[-0.01em]">
               {title}
             </h2>
             {description && (
@@ -94,7 +94,7 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
 
         {/* Content Body */}
-        <div className="p-6 overflow-y-auto max-h-[70vh] text-sm leading-relaxed">
+        <div className="p-6 overflow-y-auto max-h-[70dvh] text-sm leading-relaxed">
           {children}
         </div>
 

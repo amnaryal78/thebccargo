@@ -17,15 +17,17 @@ export const LoginPage: React.FC = () => {
   // Extract redirect target safely
   const queryParams = new URLSearchParams(location.search);
   const rawRedirect = queryParams.get('redirect') || '';
-  const redirectTarget = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/';
+  // With no explicit destination, a freshly signed-in person lands on their profile.
+  const redirectTarget = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/profile';
 
   // Automatically handle logged-in user redirection
   useEffect(() => {
     if (!authLoading && session) {
-      if (isAuthorizedAdmin && redirectTarget.startsWith('/admin')) {
+      if (!redirectTarget.startsWith('/admin') || isAuthorizedAdmin) {
         navigate(redirectTarget, { replace: true });
-      } else if (!redirectTarget.startsWith('/admin')) {
-        navigate(redirectTarget, { replace: true });
+      } else {
+        // Signed in but not on the staff allowlist: send them to their profile instead of a dead end.
+        navigate('/profile', { replace: true });
       }
     }
   }, [session, isAuthorizedAdmin, authLoading, redirectTarget, navigate]);
@@ -60,7 +62,7 @@ export const LoginPage: React.FC = () => {
         {/* Back Link */}
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-[#002147] transition-colors self-start cursor-pointer"
+          className="inline-flex items-center gap-2 min-h-[44px] text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-ox-900 transition-colors self-start cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Return to Public Site</span>
@@ -98,7 +100,7 @@ export const LoginPage: React.FC = () => {
             >
               {oauthLoading || authLoading ? (
                 <>
-                  <Loader2 className="w-5 h-5 text-[#002147] animate-spin" />
+                  <Loader2 className="w-5 h-5 text-ox-900 animate-spin" />
                   <span>Connecting to Google...</span>
                 </>
               ) : (
@@ -126,15 +128,15 @@ export const LoginPage: React.FC = () => {
               )}
             </button>
 
-            <p className="text-[11px] text-center text-slate-400 font-mono">
-              Secure single sign-on powered by Supabase Auth &amp; Google Cloud OAuth.
+            <p className="text-[11px] text-center text-slate-400">
+              Sign in securely with your Google account.
             </p>
           </div>
 
           <div className="text-center border-t border-slate-100 pt-4">
-            <span className="text-[11px] text-slate-400 font-mono flex items-center justify-center gap-1.5">
+            <span className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              <span>Database Allowlist &amp; RBAC Access Control Active</span>
+              <span>Only approved accounts can sign in</span>
             </span>
           </div>
 

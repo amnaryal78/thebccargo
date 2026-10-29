@@ -32,7 +32,7 @@ export const INITIAL_BLOGS: BlogPost[] = [
     content: `Exporting commercial freight via air from Kathmandu requires strict adherence to Civil Aviation Authority of Nepal (CAAN) and international IATA aviation security standards.
 
 ### 1. Mandatory Export Documentation
-- **Customs Declaration (Pragyapan Patra)**: Issued by a licensed Nepalese customs broker under Broker Lic. #B-409.
+- **Customs Declaration (Pragyapan Patra)**: Issued by a licensed Nepalese customs broker.
 - **Commercial Invoice & Packing List**: Detailing piece counts, gross weight, net weight, and declared FOB value.
 - **PAN / EXIM Code Registration**: Verified tax identity for commercial exporters registered with the Department of Customs.
 - **Certificate of Origin**: Issued by the Federation of Nepalese Chambers of Commerce and Industry (FNCCI) or relevant district chamber.

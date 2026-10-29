@@ -11,7 +11,12 @@ async function verifyTurnstileToken(token: string, remoteIp?: string): Promise<b
   
   // If Turnstile secret key is not set (e.g. dev/testing environment), allow development test tokens
   if (!secretKey) {
-    console.warn('TURNSTILE_SECRET_KEY is not configured in environment. Dev bypass active.');
+    // Fail closed: a missing secret on a deployed function must not let bots through.
+    if (Deno.env.get('ALLOW_TURNSTILE_DEV_BYPASS') !== 'true') {
+      console.error('TURNSTILE_SECRET_KEY is not configured. Rejecting the request.');
+      return false;
+    }
+    console.warn('TURNSTILE_SECRET_KEY is not configured. ALLOW_TURNSTILE_DEV_BYPASS is on (dev only).');
     return token && token.length > 5;
   }
 

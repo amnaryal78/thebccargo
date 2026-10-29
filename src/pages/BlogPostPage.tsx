@@ -339,9 +339,9 @@ export const BlogPostPage: React.FC = () => {
                       <span className="font-mono text-[10px] uppercase text-[var(--gold-dark)] block font-bold">
                         {r.category}
                       </span>
-                      <h4 className="font-heading font-bold text-xs text-[var(--text)] group-hover:text-[var(--gold-dark)] transition-colors leading-snug">
+                      <h3 className="font-heading font-bold text-xs text-[var(--text)] group-hover:text-[var(--gold-dark)] transition-colors leading-snug">
                         {r.title}
-                      </h4>
+                      </h3>
                     </Link>
                   ))}
                 </div>

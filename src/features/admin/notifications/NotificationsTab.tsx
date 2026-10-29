@@ -37,7 +37,7 @@ export const NotificationsTab: React.FC = () => {
             aria-selected={filter === f}
             onClick={() => setFilter(f)}
             className={`px-3.5 py-1.5 rounded-full text-sm font-semibold border cursor-pointer ${
-              filter === f ? 'bg-[#F2B705] text-[#002147] border-transparent' : 'border-[#E2E2DE]'
+              filter === f ? 'bg-gd-500 text-ox-900 border-transparent' : 'border-[#E2E2DE]'
             }`}
           >
             {f === 'all' ? 'All' : 'Unread'}
@@ -56,7 +56,7 @@ export const NotificationsTab: React.FC = () => {
             <li
               key={n.id}
               className={`flex items-start gap-3 p-3.5 rounded-xl border ${
-                n.isRead ? 'border-[#E2E2DE] opacity-75' : 'border-[#F2B705] bg-[#F2B705]/10'
+                n.isRead ? 'border-[#E2E2DE] opacity-75' : 'border-gd-500 bg-gd-500/10'
               }`}
             >
               <Icon className="w-5 h-5 mt-0.5 shrink-0 text-[#8C6400]" />

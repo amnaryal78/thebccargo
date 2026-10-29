@@ -54,22 +54,22 @@ const todayIso = () => {
 };
 
 const inp =
-  'w-full min-w-0 min-h-[44px] px-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder:text-slate-500 transition-colors hover:border-[#002147]/50 focus:outline-none focus:border-[#002147] focus:ring-4 focus:ring-[#F2B705]/40 disabled:bg-slate-100 disabled:text-slate-500';
+  'w-full min-w-0 min-h-[44px] px-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder:text-slate-500 transition-colors hover:border-ox-900/50 focus:outline-none focus:border-ox-900 focus:ring-4 focus:ring-gd-500/40 disabled:bg-slate-100 disabled:text-slate-500';
 const lbl = 'block text-xs font-bold text-slate-700 mb-1.5';
 const btnPrimary =
-  'min-h-[44px] px-5 rounded-xl bg-[#002147] text-white font-bold text-sm inline-flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer transition-colors hover:bg-[#123562] hover:text-[#F2B705] active:bg-[#001A38] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#002147] disabled:hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F2B705]/70';
+  'min-h-[44px] px-5 rounded-xl bg-ox-900 text-white font-bold text-sm inline-flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer transition-colors hover:bg-[#123562] hover:text-gd-500 active:bg-[#001A38] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-ox-900 disabled:hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gd-500/70';
 const btnGhost =
-  'min-h-[44px] px-4 rounded-xl border border-slate-300 bg-white text-[#002147] font-bold text-sm inline-flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer transition-colors hover:border-[#002147] hover:bg-[#FFF6D8] active:bg-[#FFEFB8] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F2B705]/70';
-const card = 'rounded-2xl bg-white border border-[#002147]/10 shadow-[0_1px_2px_rgba(0,33,71,0.05),0_12px_28px_-16px_rgba(0,33,71,0.18)] p-4 sm:p-6 min-w-0';
-const warnBox = 'flex items-start gap-2 text-sm font-semibold rounded-xl px-3 py-2.5 border text-amber-900 bg-[#FFF6D8] border-[#F2B705]/60';
+  'min-h-[44px] px-4 rounded-xl border border-slate-300 bg-white text-ox-900 font-bold text-sm inline-flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer transition-colors hover:border-ox-900 hover:bg-[#FFF6D8] active:bg-[#FFEFB8] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gd-500/70';
+const card = 'rounded-2xl bg-white border border-ox-900/10 shadow-[0_1px_2px_rgba(11,45,99,0.05),0_12px_28px_-16px_rgba(11,45,99,0.18)] p-4 sm:p-6 min-w-0';
+const warnBox = 'flex items-start gap-2 text-sm font-semibold rounded-xl px-3 py-2.5 border text-amber-900 bg-[#FFF6D8] border-gd-500/60';
 
 /** Icon chip + title + one-line hint. Every section header looks the same. */
 const SectionHead: React.FC<{ icon: React.ComponentType<{ className?: string }>; id?: string; title: string; hint?: string; as?: 'h2' | 'h3'; aside?: React.ReactNode }> = ({ icon: Icon, id, title, hint, as: Tag = 'h2', aside }) => (
   <div className="flex flex-wrap items-start justify-between gap-3">
     <div className="flex items-start gap-3 min-w-0">
-      <span className="shrink-0 w-9 h-9 rounded-xl bg-[#002147] text-[#F2B705] inline-flex items-center justify-center" aria-hidden="true"><Icon className="w-[18px] h-[18px]" /></span>
+      <span className="shrink-0 w-9 h-9 rounded-xl bg-ox-900 text-gd-500 inline-flex items-center justify-center" aria-hidden="true"><Icon className="w-[18px] h-[18px]" /></span>
       <div className="min-w-0">
-        <Tag id={id} className="font-heading font-extrabold text-lg leading-tight text-[#002147]">{title}</Tag>
+        <Tag id={id} className="font-heading font-extrabold text-lg leading-tight text-ox-900">{title}</Tag>
         {hint && <p className="text-xs text-slate-600 mt-0.5">{hint}</p>}
       </div>
     </div>
@@ -135,7 +135,7 @@ const FieldMsg: React.FC<{ ctx: FieldCtx; k: string }> = ({ ctx, k }) => {
             <span className="min-w-0 break-words">{issue.message}</span>
           </span>
           {issue.fix && (
-            <button type="button" onClick={() => ctx.fix(k)} className="inline-flex items-center gap-1 rounded-lg bg-[#002147] text-white px-2 py-1 text-xs font-bold cursor-pointer transition-colors hover:bg-[#123562] hover:text-[#F2B705] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F2B705]/70">
+            <button type="button" onClick={() => ctx.fix(k)} className="inline-flex items-center gap-1 rounded-lg bg-ox-900 text-white px-2 py-1 text-xs font-bold cursor-pointer transition-colors hover:bg-[#123562] hover:text-gd-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gd-500/70">
               <Wrench className="w-3 h-3" aria-hidden="true" /> {issue.fix.label}
             </button>
           )}
@@ -153,7 +153,7 @@ const Count: React.FC<{ n: number; label: string }> = ({ n, label }) => (
     animate={{ scale: 1 }}
     transition={{ type: 'spring', stiffness: 500, damping: 18 }}
     aria-label={`${n} ${label}`}
-    className={`inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full text-xs font-bold ${n ? 'bg-[#002147] text-[#F2B705]' : 'bg-slate-100 text-slate-600'}`}
+    className={`inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full text-xs font-bold ${n ? 'bg-ox-900 text-gd-500' : 'bg-slate-100 text-slate-600'}`}
   >
     {n}
   </motion.span>
@@ -254,14 +254,14 @@ const ItemRow: React.FC<{
   cols: string;
   children: React.ReactNode;
 }> = ({ emoji, title, detail, what, editing, onEdit, onDone, onRemove, cols, children }) => {
-  const iconBtn = 'min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F2B705]/70';
+  const iconBtn = 'min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gd-500/70';
   return (
     <motion.li layout="position" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: 12 }} transition={{ duration: 0.18 }} className="py-2 border-b border-slate-100 last:border-b-0">
       {editing ? (
         <div className={`grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_92px] ${cols} gap-2 items-center rounded-xl bg-[#FFF6D8]/60 p-2`}>
           {children}
           <div className="col-start-3 row-start-1 sm:col-start-auto sm:row-start-auto flex gap-1 justify-end">
-            <button type="button" onClick={onDone} aria-label={`Done editing ${what}`} title="Done" className={`${iconBtn} bg-[#002147] text-[#F2B705] hover:bg-[#123562]`}><Check className="w-4 h-4" aria-hidden="true" /></button>
+            <button type="button" onClick={onDone} aria-label={`Done editing ${what}`} title="Done" className={`${iconBtn} bg-ox-900 text-gd-500 hover:bg-[#123562]`}><Check className="w-4 h-4" aria-hidden="true" /></button>
             <button type="button" onClick={onRemove} aria-label={`Remove ${what}`} title="Remove" className={`${iconBtn} text-red-700 hover:bg-red-50`}><Trash2 className="w-4 h-4" aria-hidden="true" /></button>
           </div>
         </div>
@@ -272,7 +272,7 @@ const ItemRow: React.FC<{
             <p className="text-sm font-bold text-slate-900 truncate">{title}</p>
             <p className="text-xs text-slate-600 truncate">{detail}</p>
           </div>
-          <button type="button" onClick={onEdit} aria-label={`Edit ${what}`} title="Edit" className={`${iconBtn} text-[#002147] hover:bg-[#FFF6D8]`}><Pencil className="w-4 h-4" aria-hidden="true" /></button>
+          <button type="button" onClick={onEdit} aria-label={`Edit ${what}`} title="Edit" className={`${iconBtn} text-ox-900 hover:bg-[#FFF6D8]`}><Pencil className="w-4 h-4" aria-hidden="true" /></button>
           <button type="button" onClick={onRemove} aria-label={`Remove ${what}`} title="Remove" className={`${iconBtn} text-red-700 hover:bg-red-50`}><Trash2 className="w-4 h-4" aria-hidden="true" /></button>
         </div>
       )}
@@ -293,12 +293,12 @@ const MeatConfirm: React.FC<{ country: string; name: string; kg: number; qty: nu
   const s = steps[step - 1];
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#00152D]/60 p-4" role="dialog" aria-modal="true" aria-labelledby="meat-t" onKeyDown={(e) => e.key === 'Escape' && onCancel()}>
-      <motion.div key={step} initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.18 }} className="w-full max-w-md bg-white rounded-2xl p-6 space-y-4 shadow-xl border-t-4 border-[#F2B705]">
+      <motion.div key={step} initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.18 }} className="w-full max-w-md bg-white rounded-2xl p-6 space-y-4 shadow-xl border-t-4 border-gd-500">
         <p className="text-xs font-bold text-slate-600">Step {step} of 3</p>
         <div className="flex items-start gap-3">
           <span className="text-3xl leading-none" aria-hidden="true">{s.emoji}</span>
           <div>
-            <h2 id="meat-t" className="font-heading font-extrabold text-xl text-[#002147]">{s.title}</h2>
+            <h2 id="meat-t" className="font-heading font-extrabold text-xl text-ox-900">{s.title}</h2>
             <p className="text-sm text-slate-700 mt-1">{s.body}</p>
           </div>
         </div>
@@ -386,11 +386,11 @@ const BoxSection: React.FC<{
     </AnimatePresence>
   );
   const sub = (emoji: string, label: string, n: number) => (
-    <h4 className="text-sm font-extrabold text-[#002147] flex items-center gap-2"><span aria-hidden="true">{emoji}</span> {label} <Count n={n} label={`${label.toLowerCase()} added`} /></h4>
+    <h4 className="text-sm font-extrabold text-ox-900 flex items-center gap-2"><span aria-hidden="true">{emoji}</span> {label} <Count n={n} label={`${label.toLowerCase()} added`} /></h4>
   );
   const issueKey = `box-${index}`;
   return (
-    <section aria-labelledby={`${key}-t`} className={`${card} space-y-5 border-l-4 border-l-[#F2B705]`}>
+    <section aria-labelledby={`${key}-t`} className={`${card} space-y-5 border-l-4 border-l-gd-500`}>
       <SectionHead
         icon={Package}
         as="h3"
@@ -545,6 +545,9 @@ export const ShipmentEditorPage: React.FC = () => {
     return d;
   });
   const [status, setStatus] = useState('pending');
+  // Who referred this order: '' = independent. Only written to the database when a reseller is chosen or was already set.
+  const [resellerId, setResellerId] = useState('');
+  const [resellers, setResellers] = useState<{ id: string; label: string }[]>([]);
   const [savedId, setSavedId] = useState<string | null>(isNew ? null : id!);
   const savedIdRef = React.useRef<string | null>(isNew ? null : id!);
   const [savedJson, setSavedJson] = useState<string | null>(null);
@@ -575,8 +578,9 @@ export const ShipmentEditorPage: React.FC = () => {
           const { draft: d } = fromShipmentRow(row);
           setDraft(d);
           setStatus(row.status || 'pending');
+          setResellerId(row.reseller_id ?? '');
           setSavedId(row.id);
-          setSavedJson(stable(d) + '|' + (row.status || 'pending'));
+          setSavedJson(stable(d) + '|' + (row.status || 'pending') + '|' + (row.reseller_id ?? ''));
           if (search.get('print') === '1') setPrintOpen(true);
         }
       })
@@ -600,7 +604,18 @@ export const ShipmentEditorPage: React.FC = () => {
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch { /* storage full or blocked */ }
   }, [draft, isNew, savedId]);
 
-  const currentJson = stable(draft) + '|' + status;
+  useEffect(() => {
+    let live = true;
+    adminDataService
+      .fetchResellers()
+      .then((rows) => live && setResellers(rows.map((r) => ({ id: r.id, label: r.full_name || r.email || 'Reseller' }))))
+      .catch(() => undefined); // the picker simply stays on "Independent" if resellers cannot be loaded
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const currentJson = stable(draft) + '|' + status + '|' + resellerId;
   const dirty = savedJson === null ? true : savedJson !== currentJson;
   const hasTyped = !!(draft.receiver.name || draft.sender.name || draft.totalWeightKg || draft.boxes.some((b) => b.goods.length || b.liquids.length || b.meats.length));
 
@@ -660,6 +675,8 @@ export const ShipmentEditorPage: React.FC = () => {
     setSaving(true);
     try {
       const row = toShipmentRow(draft, result, status);
+      // Skipped for a new independent order so saving keeps working before the reseller migration is applied.
+      if (resellerId || (savedId && savedJson !== null && !savedJson.endsWith('|'))) row.reseller_id = resellerId || null;
       const saved = savedId ? await adminDataService.updateShipment(savedId, row) : await adminDataService.createShipment(row);
       // Read it back so we know it really is in the database before saying so.
       const check = await adminDataService.fetchShipment(saved.id);
@@ -699,7 +716,7 @@ export const ShipmentEditorPage: React.FC = () => {
     return (
       <div className={`${card} max-w-xl mx-auto text-center space-y-3`}>
         <span className="mx-auto w-12 h-12 rounded-2xl bg-[#FFF6D8] text-[#8C6400] inline-flex items-center justify-center" aria-hidden="true"><Lock className="w-6 h-6" /></span>
-        <h1 className="font-heading font-extrabold text-xl text-[#002147]">You can view shipments, not edit them</h1>
+        <h1 className="font-heading font-extrabold text-xl text-ox-900">You can view shipments, not edit them</h1>
         <p className="text-sm text-slate-700">Your role is <strong>{role || 'Staff'}</strong>. Creating and editing shipments needs the Admin or Manager role. Ask an admin to change your role in Users &amp; Roles.</p>
         <button type="button" onClick={() => navigate('/admin/shipments')} className={btnPrimary}><ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to shipments</button>
       </div>
@@ -732,18 +749,18 @@ export const ShipmentEditorPage: React.FC = () => {
         <div className="flex items-center gap-3 min-w-0">
           <button type="button" onClick={leave} className={btnGhost} aria-label="Back to shipments"><ArrowLeft className="w-4 h-4" aria-hidden="true" /> <span className="hidden sm:inline">Shipments</span></button>
           <div className="min-w-0">
-            <h1 className="font-heading font-extrabold text-2xl sm:text-3xl leading-tight text-[#002147] break-words">{isNew && !savedId ? 'New shipment' : `Shipment ${draft.billNo}`}</h1>
+            <h1 className="font-heading font-extrabold text-2xl sm:text-3xl leading-tight text-ox-900 break-words">{isNew && !savedId ? 'New shipment' : `Shipment ${draft.billNo}`}</h1>
             <p className="text-xs text-slate-600 mt-0.5">International shipment from Nepal. Fields marked <span className="text-red-700">*</span> are required.</p>
           </div>
         </div>
-        <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border whitespace-nowrap ${!savedId ? 'bg-slate-100 text-slate-700 border-slate-300' : dirty ? 'bg-[#FFF6D8] text-amber-900 border-[#F2B705]' : 'bg-emerald-50 text-emerald-800 border-emerald-300'}`} role="status">
+        <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border whitespace-nowrap ${!savedId ? 'bg-slate-100 text-slate-700 border-slate-300' : dirty ? 'bg-[#FFF6D8] text-amber-900 border-gd-500' : 'bg-emerald-50 text-emerald-800 border-emerald-300'}`} role="status">
           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" /> : !savedId ? <CircleDot className="w-3.5 h-3.5" aria-hidden="true" /> : dirty ? <AlertTriangle className="w-3.5 h-3.5" aria-hidden="true" /> : <Check className="w-3.5 h-3.5" aria-hidden="true" />}
           {saving ? 'Saving…' : savedId ? (dirty ? 'Unsaved changes' : 'Saved to database') : 'Not saved yet'}
         </span>
       </header>
 
-      <details className="group rounded-2xl border border-[#002147]/10 bg-white shadow-sm">
-        <summary className="flex items-center gap-2.5 px-4 py-3 cursor-pointer list-none text-sm font-bold text-[#002147] rounded-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F2B705]/70">
+      <details className="group rounded-2xl border border-ox-900/10 bg-white shadow-sm">
+        <summary className="flex items-center gap-2.5 px-4 py-3 cursor-pointer list-none text-sm font-bold text-ox-900 rounded-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gd-500/70">
           <Lightbulb className="w-4 h-4 text-[#8C6400]" aria-hidden="true" /> How to fill this form
           <span className="ml-auto text-xs font-semibold text-slate-600 group-open:hidden">Show</span>
           <span className="ml-auto text-xs font-semibold text-slate-600 hidden group-open:inline">Hide</span>
@@ -758,16 +775,16 @@ export const ShipmentEditorPage: React.FC = () => {
             <li><span aria-hidden="true">💾 </span>Save, then print the bill and box sheets.</li>
           </ol>
           <ul className="list-none p-0 m-0 space-y-1.5">
-            <li className="flex gap-2"><Pencil className="w-4 h-4 mt-0.5 shrink-0 text-[#002147]" aria-hidden="true" /> The pencil on any added item lets you change it later.</li>
-            <li className="flex gap-2"><Wrench className="w-4 h-4 mt-0.5 shrink-0 text-[#002147]" aria-hidden="true" /> A navy fix button under an error repairs it in one tap.</li>
-            <li className="flex gap-2"><ShieldCheck className="w-4 h-4 mt-0.5 shrink-0 text-[#002147]" aria-hidden="true" /> You are signed in as <strong>{role || 'Staff'}</strong> and can create and edit shipments.</li>
+            <li className="flex gap-2"><Pencil className="w-4 h-4 mt-0.5 shrink-0 text-ox-900" aria-hidden="true" /> The pencil on any added item lets you change it later.</li>
+            <li className="flex gap-2"><Wrench className="w-4 h-4 mt-0.5 shrink-0 text-ox-900" aria-hidden="true" /> A navy fix button under an error repairs it in one tap.</li>
+            <li className="flex gap-2"><ShieldCheck className="w-4 h-4 mt-0.5 shrink-0 text-ox-900" aria-hidden="true" /> You are signed in as <strong>{role || 'Staff'}</strong> and can create and edit shipments.</li>
             <li className="flex gap-2"><span aria-hidden="true">🥩</span> Meat to a country that does not allow it asks for three confirmations.</li>
           </ul>
         </div>
       </details>
 
       {restored && (
-        <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#002147]/20 bg-[#EEF3F9] px-4 py-3 text-sm text-[#002147]">
+        <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-ox-900/20 bg-[#EEF3F9] px-4 py-3 text-sm text-ox-900">
           <span>We restored the form you were filling in earlier.</span>
           <button
             type="button"
@@ -796,7 +813,7 @@ export const ShipmentEditorPage: React.FC = () => {
         </div>
       )}
 
-      <section className={`${card} grid grid-cols-1 sm:grid-cols-3 gap-4`} aria-label="Bill details">
+      <section className={`${card} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4`} aria-label="Bill details">
         <div>
           <label htmlFor="bill-no" className={lbl}>Bill number<Req /></label>
           <input id="bill-no" value={draft.billNo} onChange={(e) => update((d) => { d.billNo = e.target.value.toUpperCase().replace(/\s/g, ''); })} className={`${inp} font-mono font-bold ${bad(ctx, 'bill-no')}`} placeholder="BC1810AB" {...aria(ctx, 'bill-no')} />
@@ -810,6 +827,13 @@ export const ShipmentEditorPage: React.FC = () => {
           <label htmlFor="bill-status" className={lbl}>Status</label>
           <select id="bill-status" value={status} onChange={(e) => setStatus(e.target.value)} className={inp}>
             {STATUSES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="bill-reseller" className={lbl}>Referred by</label>
+          <select id="bill-reseller" value={resellerId} onChange={(e) => setResellerId(e.target.value)} className={inp}>
+            <option value="">Independent (no reseller)</option>
+            {resellers.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
           </select>
         </div>
       </section>
@@ -916,7 +940,7 @@ export const ShipmentEditorPage: React.FC = () => {
         )}
 
         <div className="pt-4 border-t border-slate-200 space-y-2">
-          <h3 className="text-sm font-extrabold text-[#002147] flex items-center gap-2"><span aria-hidden="true">💰</span> Additional charges <Count n={draft.extras.length} label="additional charges" /></h3>
+          <h3 className="text-sm font-extrabold text-ox-900 flex items-center gap-2"><span aria-hidden="true">💰</span> Additional charges <Count n={draft.extras.length} label="additional charges" /></h3>
           <div className="grid grid-cols-2 sm:grid-cols-[minmax(0,1fr)_130px_auto] gap-2 items-end">
             <div className="col-span-2 sm:col-span-1">
               <label className={lbl} htmlFor="extra-name">Charge name</label>
@@ -973,7 +997,7 @@ export const ShipmentEditorPage: React.FC = () => {
 
       {/* CALCULATION */}
       <Spotlight intensity="subtle" className="rounded-2xl">
-      <section className={`${card} space-y-4 border-2 border-[#002147]`} aria-labelledby="calc-t">
+      <section className={`${card} space-y-4 border-2 border-ox-900`} aria-labelledby="calc-t">
         <SectionHead icon={Calculator} id="calc-t" title="Calculation" hint="What the customer is billed. Amounts follow the charges above." />
         <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-sm">
@@ -1003,9 +1027,9 @@ export const ShipmentEditorPage: React.FC = () => {
             </li>
           ))}
         </ul>
-        <div className="flex items-center justify-between gap-3 rounded-xl bg-[#002147] text-white px-4 py-3">
+        <div className="flex items-center justify-between gap-3 rounded-xl bg-ox-900 text-white px-4 py-3">
           <span className="font-extrabold">Grand total</span>
-          <span className="font-mono font-extrabold text-xl text-[#F2B705]">Rs {fmtMoney(result.total)}</span>
+          <span className="font-mono font-extrabold text-xl text-gd-500">Rs {fmtMoney(result.total)}</span>
         </div>
         <p className="text-sm text-slate-700"><strong>In words:</strong> {amountInWords(result.total)}</p>
         {result.warnings.map((w) => (
@@ -1015,8 +1039,8 @@ export const ShipmentEditorPage: React.FC = () => {
       </Spotlight>
 
       {/* ACTION BAR */}
-      <div className="sticky bottom-[calc(3.5rem+env(safe-area-inset-bottom))] md:bottom-0 z-30 -mx-4 sm:mx-0 px-4 py-3 bg-white/95 backdrop-blur-sm border-t border-slate-200 sm:rounded-2xl sm:border flex flex-wrap items-center justify-between gap-3 shadow-[0_-6px_16px_-8px_rgba(0,33,71,0.18)]">
-        <p className="text-sm font-mono font-extrabold text-[#002147]"><span className="font-body font-semibold text-slate-600 mr-2">Total</span>Rs {fmtMoney(result.total)}</p>
+      <div className="sticky bottom-[calc(3.5rem+env(safe-area-inset-bottom))] md:bottom-0 z-30 -mx-4 sm:mx-0 px-4 py-3 bg-white/95 backdrop-blur-sm border-t border-slate-200 sm:rounded-2xl sm:border flex flex-wrap items-center justify-between gap-3 shadow-[0_-6px_16px_-8px_rgba(11,45,99,0.18)]">
+        <p className="text-sm font-mono font-extrabold text-ox-900"><span className="font-body font-semibold text-slate-600 mr-2">Total</span>Rs {fmtMoney(result.total)}</p>
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full sm:w-auto">
           <button type="button" onClick={leave} className={btnGhost}><X className="w-4 h-4" aria-hidden="true" /> Close</button>
           <button type="button" disabled={saving} onClick={() => void save(false)} className={btnGhost}>{saving ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Save className="w-4 h-4" aria-hidden="true" />} {saving ? 'Saving…' : 'Save only'}</button>
@@ -1028,9 +1052,9 @@ export const ShipmentEditorPage: React.FC = () => {
       {/* PRINT CHOOSER */}
       {printOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4" role="dialog" aria-modal="true" aria-labelledby="print-t" onKeyDown={(e) => e.key === 'Escape' && setPrintOpen(false)}>
-          <div className="w-full max-w-md bg-white rounded-2xl p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-md bg-white rounded-2xl p-6 space-y-4 shadow-xl max-h-[90dvh] overflow-y-auto">
             <div className="flex items-center justify-between">
-              <h2 id="print-t" className="font-heading font-extrabold text-xl text-[#002147]">Print {draft.billNo}</h2>
+              <h2 id="print-t" className="font-heading font-extrabold text-xl text-ox-900">Print {draft.billNo}</h2>
               <button type="button" onClick={() => setPrintOpen(false)} aria-label="Close print options" className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl hover:bg-slate-100 cursor-pointer"><X className="w-5 h-5" aria-hidden="true" /></button>
             </div>
             {!canPrint && <p role="alert" className="text-sm text-amber-900 bg-amber-50 border border-amber-300 rounded-xl px-3 py-2">There are unsaved changes. Save first so the printed bill matches the database.</p>}

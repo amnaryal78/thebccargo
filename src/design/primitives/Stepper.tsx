@@ -29,9 +29,9 @@ export const Stepper: React.FC<StepperProps> = ({
           const isUpcoming = idx > currentStepIndex;
 
           const circleStyles = isCompleted
-            ? 'bg-[#002147] text-[#F2B705] border-white/20 shadow-hard-xs'
+            ? 'bg-ox-900 text-gd-500 border-white/20 shadow-hard-xs'
             : isCurrent
-            ? 'bg-[#F2B705] text-[#002147] border-white/60 shadow-hard-sm'
+            ? 'bg-gd-500 text-ox-900 border-white/60 shadow-hard-sm'
             : 'bg-[var(--surface-2)] text-[var(--text-muted)] border-[var(--line)] shadow-hard-xs';
 
           return (
@@ -45,7 +45,7 @@ export const Stepper: React.FC<StepperProps> = ({
               {idx !== steps.length - 1 && (
                 <div
                   className={`absolute top-4 left-1/2 w-full h-0.5 -z-10 ${
-                    idx < currentStepIndex ? 'bg-[#002147]' : 'bg-[var(--line)]'
+                    idx < currentStepIndex ? 'bg-ox-900' : 'bg-[var(--line)]'
                   }`}
                   aria-hidden="true"
                 />
@@ -71,9 +71,9 @@ export const Stepper: React.FC<StepperProps> = ({
 
                 {/* Step Label (Responsive & Natural Word Break) */}
                 <span
-                  className={`mt-2 font-heading text-[10px] sm:text-xs uppercase tracking-wider text-center leading-tight max-w-[85px] sm:max-w-none ${
+                  className={`mt-2 font-heading text-xs sm:text-[13px] text-center leading-tight max-w-[85px] sm:max-w-none ${
                     isCurrent
-                      ? 'font-bold text-[#002147]'
+                      ? 'font-bold text-ox-900'
                       : isCompleted
                       ? 'font-semibold text-[var(--text)]'
                       : 'text-[var(--text-muted)]'

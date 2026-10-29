@@ -1,7 +1,7 @@
 import React, { useId } from 'react';
 import { X, Printer, Download, ShieldCheck } from 'lucide-react';
 import { downloadBill } from './billPdf';
-import { SheetQuoteResult } from './engine';
+import { BOX_CHARGE_NPR, LIQUID_FEE_PER_BOTTLE_NPR, SheetQuoteResult } from './engine';
 import { numberToWords } from '../../utils/numberToWords';
 
 interface EstimateBillModalProps {
@@ -201,7 +201,7 @@ export const EstimateBillModal: React.FC<EstimateBillModalProps> = ({ quote, onC
                     {quote.boxCount} {quote.boxCount === 1 ? 'box' : 'boxes'}
                   </td>
                   <td className="border border-[#cbd5e1] p-1 text-right font-mono">0.00</td>
-                  <td className="border border-[#cbd5e1] p-1 text-right font-mono">1,000.00</td>
+                  <td className="border border-[#cbd5e1] p-1 text-right font-mono">{fmt(BOX_CHARGE_NPR)}</td>
                   <td className="border border-[#cbd5e1] p-1 text-right font-mono font-semibold">
                     {fmt(quote.boxCharge)}
                   </td>
@@ -229,10 +229,10 @@ export const EstimateBillModal: React.FC<EstimateBillModalProps> = ({ quote, onC
                       Liquid Handling Surcharge
                     </td>
                     <td className="border border-[#cbd5e1] p-1 text-center">
-                      {quote.boxCount} {quote.boxCount === 1 ? 'box' : 'boxes'}
+                      {quote.liquidBottles ?? 1} btl
                     </td>
                     <td className="border border-[#cbd5e1] p-1 text-right font-mono">0.00</td>
-                    <td className="border border-[#cbd5e1] p-1 text-right font-mono">600.00</td>
+                    <td className="border border-[#cbd5e1] p-1 text-right font-mono">{fmt(LIQUID_FEE_PER_BOTTLE_NPR)}</td>
                     <td className="border border-[#cbd5e1] p-1 text-right font-mono font-semibold">
                       {fmt(quote.liquidCharge)}
                     </td>
@@ -255,21 +255,17 @@ export const EstimateBillModal: React.FC<EstimateBillModalProps> = ({ quote, onC
                   </tr>
                 )}
 
-                {/* 5. Medicine Row (ONLY when medicine chosen) */}
-                {quote.medicineCharge > 0 && (
+                {/* 5. Medicine Row: no fixed price, our team quotes it */}
+                {quote.medicineOnRequest && (
                   <tr>
                     <td className="border border-[#cbd5e1] p-1 text-center">5</td>
                     <td className="border border-[#cbd5e1] p-1 text-left">
-                      Medicine Special Protocol
+                      Medicine (price on request, contact us)
                     </td>
-                    <td className="border border-[#cbd5e1] p-1 text-center">
-                      {quote.boxCount} {quote.boxCount === 1 ? 'box' : 'boxes'}
-                    </td>
-                    <td className="border border-[#cbd5e1] p-1 text-right font-mono">0.00</td>
-                    <td className="border border-[#cbd5e1] p-1 text-right font-mono">600.00</td>
-                    <td className="border border-[#cbd5e1] p-1 text-right font-mono font-semibold">
-                      {fmt(quote.medicineCharge)}
-                    </td>
+                    <td className="border border-[#cbd5e1] p-1 text-center">-</td>
+                    <td className="border border-[#cbd5e1] p-1 text-right font-mono">-</td>
+                    <td className="border border-[#cbd5e1] p-1 text-right font-mono">-</td>
+                    <td className="border border-[#cbd5e1] p-1 text-right font-mono font-semibold">-</td>
                   </tr>
                 )}
 

@@ -34,30 +34,30 @@ const HowItMoves: React.FC = () => {
 
   return (
     <section aria-labelledby="how-title" className="space-y-6">
-      <h2 id="how-title" className="font-heading font-extrabold text-2xl sm:text-3xl tracking-tight text-[#002147]">
+      <h2 id="how-title" className="font-heading font-extrabold text-2xl sm:text-3xl tracking-tight text-ox-900">
         How it works
       </h2>
       <div ref={ref} className="relative">
         {/* route line that fills as you scroll (left on phones, across on wide screens) */}
-        <div aria-hidden="true" className="absolute left-5 top-0 bottom-0 w-[3px] md:left-0 md:right-0 md:top-5 md:bottom-auto md:h-[3px] md:w-auto rounded-full bg-[#002147]/10" />
+        <div aria-hidden="true" className="absolute left-5 top-0 bottom-0 w-[3px] md:left-0 md:right-0 md:top-5 md:bottom-auto md:h-[3px] md:w-auto rounded-full bg-ox-900/10" />
         <motion.div
           aria-hidden="true"
           style={reduce ? undefined : { scaleY: grow }}
-          className="absolute left-5 top-0 bottom-0 w-[3px] origin-top rounded-full bg-[#F2B705] md:hidden"
+          className="absolute left-5 top-0 bottom-0 w-[3px] origin-top rounded-full bg-gd-500 md:hidden"
         />
         <motion.div
           aria-hidden="true"
           style={reduce ? undefined : { scaleX: grow }}
-          className="hidden md:block absolute left-0 right-0 top-5 h-[3px] origin-left rounded-full bg-[#F2B705]"
+          className="hidden md:block absolute left-0 right-0 top-5 h-[3px] origin-left rounded-full bg-gd-500"
         />
         <ol className="relative grid grid-cols-1 md:grid-cols-3 gap-6 list-none p-0 m-0">
           {STEPS.map(({ Icon, title, text }, i) => (
             <li key={title} className="relative pl-14 md:pl-0 md:pt-14">
-              <span className="absolute left-0 top-0 md:left-0 w-10 h-10 rounded-full bg-[#002147] text-[#F2B705] flex items-center justify-center ring-4 ring-[var(--bg,#F6F6F4)]">
+              <span className="absolute left-0 top-0 md:left-0 w-10 h-10 rounded-full bg-ox-900 text-gd-500 flex items-center justify-center ring-4 ring-[var(--bg,#F6F6F4)]">
                 <Icon className="w-5 h-5" aria-hidden="true" />
               </span>
               <p className="text-sm font-semibold text-[#8C6400]">Step {i + 1}</p>
-              <h3 className="font-heading font-bold text-lg text-[#002147]">{title}</h3>
+              <h3 className="font-heading font-bold text-lg text-ox-900">{title}</h3>
               <p className="text-[15px] text-[var(--text-secondary)] leading-relaxed mt-1 max-w-sm">{text}</p>
             </li>
           ))}
@@ -84,7 +84,7 @@ export const ServicesSuite: React.FC = () => {
         {/* Services */}
         <section aria-labelledby="all-services" className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <h2 id="all-services" className="font-heading font-extrabold text-2xl sm:text-3xl tracking-tight text-[#002147]">
+            <h2 id="all-services" className="font-heading font-extrabold text-2xl sm:text-3xl tracking-tight text-ox-900">
               Our services
             </h2>
             <div role="group" aria-label="Filter services" className="flex flex-wrap gap-2">
@@ -96,10 +96,10 @@ export const ServicesSuite: React.FC = () => {
                     type="button"
                     aria-pressed={on}
                     onClick={() => setFilter(f.id)}
-                    className={`min-h-[44px] px-4 rounded-full border text-sm font-semibold leading-none cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705] focus-visible:ring-offset-2 ${
+                    className={`min-h-[44px] px-4 rounded-full border text-sm font-semibold leading-none cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500 focus-visible:ring-offset-2 ${
                       on
-                        ? 'bg-[#002147] text-white border-[#002147]'
-                        : 'bg-white text-[#002147] border-[#B9C6D8] hover:border-[#002147]'
+                        ? 'bg-ox-900 text-white border-ox-900'
+                        : 'bg-white text-ox-900 border-[#B9C6D8] hover:border-ox-900'
                     }`}
                   >
                     {f.label}
@@ -123,7 +123,7 @@ export const ServicesSuite: React.FC = () => {
         {/* Closing actions */}
         <section
           aria-labelledby="services-cta"
-          className="rounded-[var(--r-lg)] bg-[#002147] text-white px-6 sm:px-10 py-10 sm:py-12 flex flex-col md:flex-row md:items-center justify-between gap-6"
+          className="rounded-[var(--r-lg)] bg-ox-900 text-white px-6 sm:px-10 py-10 sm:py-12 flex flex-col md:flex-row md:items-center justify-between gap-6"
         >
           <div className="space-y-2 max-w-xl">
             <h2 id="services-cta" className="font-heading font-extrabold text-2xl sm:text-3xl tracking-tight">

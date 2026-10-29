@@ -1,0 +1,53 @@
+/* Call-to-action button. Flat, to match the soft-flat design system (tokens in src/design/tokens.css).
+   Class names kept from the earlier 3D key so every caller still works; the edge, tilt and shine are retired. */
+.cta3d {
+  position: relative;
+  display: inline-grid;
+  min-height: 48px;
+  text-decoration: none;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.cta3d:focus-visible { outline: none; }
+.cta3d:focus-visible .cta3d-face { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--focus-ring); }
+
+.cta3d-edge,
+.cta3d-shine { display: none; }
+
+.cta3d-face {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: var(--r-sm);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  white-space: nowrap;
+  transition: background-color var(--t-fast) var(--ease-out), transform var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out);
+}
+.cta3d-icon { display: inline-flex; transition: transform var(--t-fast) var(--ease-out); }
+.cta3d-icon svg { width: 18px; height: 18px; }
+
+/* gold: the primary action */
+.cta3d-gold .cta3d-face { color: var(--on-accent); background: var(--accent); box-shadow: var(--clay-outer-xs); }
+/* light: the secondary action */
+.cta3d-light .cta3d-face { color: var(--brand); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); }
+
+@media (hover: hover) {
+  .cta3d:hover .cta3d-face { transform: translateY(-1px); }
+  .cta3d-gold:hover .cta3d-face { background: var(--gd-400); }
+  .cta3d-light:hover .cta3d-face { background: var(--surface-2); }
+  .cta3d:hover .cta3d-icon { transform: translateX(2px); }
+}
+.cta3d:active .cta3d-face { transform: translateY(0) scale(0.99); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cta3d-face,
+  .cta3d-icon { transition: none; transform: none !important; }
+}

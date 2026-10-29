@@ -116,7 +116,7 @@ export const HandlingRulesTab: React.FC = () => {
         {permissions.canManageHandlingRules && (
           <button
             onClick={handleOpenCreate}
-            className="px-4 py-2 rounded-xl bg-[#002147] text-white font-heading font-bold text-xs uppercase tracking-wider hover:opacity-95 shadow-hard-xs flex items-center gap-2 transition-all cursor-pointer self-start sm:self-auto"
+            className="px-4 py-2 rounded-xl bg-ox-900 text-white font-heading font-bold text-xs uppercase tracking-wider hover:opacity-95 shadow-hard-xs flex items-center gap-2 transition-all cursor-pointer self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
             <span>Add Rule</span>
@@ -148,7 +148,7 @@ export const HandlingRulesTab: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#002147] text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
+              <tr className="bg-ox-900 text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
                 <th className="py-2.5 px-4">Cargo Flag</th>
                 <th className="py-2.5 px-4">Corridor / Mode</th>
                 <th className="py-2.5 px-4">Permitted</th>
@@ -330,7 +330,7 @@ export const HandlingRulesTab: React.FC = () => {
                     type="checkbox"
                     checked={ruleDraft.is_placeholder}
                     onChange={(e) => setRuleDraft({ ...ruleDraft, is_placeholder: e.target.checked })}
-                    className="rounded text-[#002147] focus:ring-0"
+                    className="rounded text-ox-900 focus:ring-0"
                   />
                   <span className="text-[11px] font-bold text-amber-600">Mark as [PLACEHOLDER] Notice</span>
                 </label>
@@ -340,7 +340,7 @@ export const HandlingRulesTab: React.FC = () => {
                     type="checkbox"
                     checked={ruleDraft.active}
                     onChange={(e) => setRuleDraft({ ...ruleDraft, active: e.target.checked })}
-                    className="rounded text-[#002147] focus:ring-0"
+                    className="rounded text-ox-900 focus:ring-0"
                   />
                   <span className="text-[11px] font-bold text-slate-700">Active in Estimator</span>
                 </label>
@@ -356,7 +356,7 @@ export const HandlingRulesTab: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#002147] text-white font-heading font-bold uppercase tracking-wider text-xs shadow-hard-xs cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-ox-900 text-white font-heading font-bold uppercase tracking-wider text-xs shadow-hard-xs cursor-pointer"
                 >
                   Save Handling Rule
                 </button>

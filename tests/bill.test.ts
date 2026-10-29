@@ -38,7 +38,7 @@ describe('Phase 3 — Bill Parity & Mathematical Strictness', () => {
       quote.medicineCharge;
 
     expect(quote.totalNpr).toBe(calculatedSum);
-    expect(quote.totalNpr).toBe(29700); // 23,500 + 2,000 + 1,200 + 1,800 + 1,200 = 29,700
+    expect(quote.totalNpr).toBe(28800); // 23,500 + 2,200 + 700 (1 btl) + 2,400 (3 kg meat) + 0 (medicine is quoted by us)
   });
 
   it('renders bill with all required Phase 3 fields and Hetauda office address', () => {
@@ -99,7 +99,7 @@ describe('Phase 3 — Bill Parity & Mathematical Strictness', () => {
     );
 
     expect(quoteWithoutMed.medicineCharge).toBe(0);
-    expect(htmlWithoutMed).not.toContain('Medicine Special Protocol');
+    expect(htmlWithoutMed).not.toContain('Medicine (price on request');
 
     // 2. With medicine
     const quoteWithMed = calculateSheetShipmentQuote(
@@ -118,9 +118,10 @@ describe('Phase 3 — Bill Parity & Mathematical Strictness', () => {
       })
     );
 
-    expect(quoteWithMed.medicineCharge).toBe(600); // 1 box * 600
-    expect(htmlWithMed).toContain('Medicine Special Protocol');
-    expect(htmlWithMed).toContain('600.00');
+    expect(quoteWithMed.medicineCharge).toBe(0); // no fixed price: contact us
+    expect(quoteWithMed.medicineOnRequest).toBe(true);
+    expect(quoteWithMed.totalNpr).toBe(quoteWithoutMed.totalNpr);
+    expect(htmlWithMed).toContain('Medicine (price on request, contact us)');
   });
 
   it('renders Under-10 kg shipments with 0.5kg flat tier pricing method and single box', () => {
@@ -142,12 +143,12 @@ describe('Phase 3 — Bill Parity & Mathematical Strictness', () => {
     expect(quoteSmall.boxCount).toBe(1);
     expect(quoteSmall.totalWeightKg).toBe(3);
     expect(quoteSmall.baseShippingCharge).toBe(3550);
-    expect(quoteSmall.boxCharge).toBe(1000);
-    expect(quoteSmall.totalNpr).toBe(4550);
+    expect(quoteSmall.boxCharge).toBe(1100);
+    expect(quoteSmall.totalNpr).toBe(4650);
 
     expect(htmlSmall).toContain('0.5kg Flat Tier');
     expect(htmlSmall).toContain('South Korea');
-    expect(htmlSmall).toContain('4,550.00');
-    expect(htmlSmall).toContain('Four Thousand Five Hundred Fifty Rupees Only');
+    expect(htmlSmall).toContain('4,650.00');
+    expect(htmlSmall).toContain('Four Thousand Six Hundred Fifty Rupees Only');
   });
 });

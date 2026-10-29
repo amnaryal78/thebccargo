@@ -64,7 +64,7 @@ export const AdminOverviewTab: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
-        <div className="w-8 h-8 border-3 border-[#002147] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-3 border-ox-900 border-t-transparent rounded-full animate-spin" />
         <span className="text-xs font-mono text-slate-500 uppercase tracking-wider">Loading...</span>
       </div>
     );
@@ -92,13 +92,13 @@ export const AdminOverviewTab: React.FC = () => {
             disabled={refreshing}
             className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-heading font-bold uppercase tracking-wider text-slate-700 hover:bg-slate-50 shadow-hard-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-[#002147]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-ox-900' : ''}`} />
             <span>Refresh</span>
           </button>
           
           <Link
             to="/admin/shipments"
-            className="px-4 py-2 rounded-xl bg-[#002147] text-white font-heading font-bold text-xs uppercase tracking-wider hover:opacity-95 shadow-hard-xs flex items-center gap-2 transition-all cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-ox-900 text-white font-heading font-bold text-xs uppercase tracking-wider hover:opacity-95 shadow-hard-xs flex items-center gap-2 transition-all cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>New Shipment</span>
@@ -123,7 +123,7 @@ export const AdminOverviewTab: React.FC = () => {
         >
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-[11px] font-heading font-bold uppercase tracking-wider">Active Cargo</span>
-            <div className="p-2 rounded-xl bg-[#002147]/5 text-[#002147]">
+            <div className="p-2 rounded-xl bg-ox-900/5 text-ox-900">
               <Package className="w-4 h-4" />
             </div>
           </div>
@@ -212,14 +212,14 @@ export const AdminOverviewTab: React.FC = () => {
         <div className="rounded-2xl bg-white border border-slate-200 shadow-hard-sm overflow-hidden flex flex-col">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Package className="w-4 h-4 text-[#002147]" />
+              <Package className="w-4 h-4 text-ox-900" />
               <h2 className="font-heading font-bold text-sm text-slate-900 uppercase tracking-wider">
                 Recent Consignments
               </h2>
             </div>
             <Link
               to="/admin/shipments"
-              className="text-xs font-bold text-[#002147] hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-ox-900 hover:underline flex items-center gap-1"
             >
               <span>View All</span>
               <ArrowUpRight className="w-3.5 h-3.5" />

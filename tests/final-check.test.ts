@@ -62,10 +62,10 @@ describe('Phase 9 — Final Check & Quality Assurance', () => {
       expect(isMeatAllowedForCountry('IN')).toBe(false); // India
     });
 
-    it('returns official meat tariff rates: Rs 600 for EU/UK, Rs 1,100 for Hong Kong, 0/locked for others', () => {
-      expect(getMeatRatePerKg('GB')).toBe(600);
-      expect(getMeatRatePerKg('UK')).toBe(600);
-      expect(getMeatRatePerKg('DE')).toBe(600);
+    it('returns official meat tariff rates: Rs 800 for EU/UK, Rs 1,100 for Hong Kong, 0/locked for others', () => {
+      expect(getMeatRatePerKg('GB')).toBe(800);
+      expect(getMeatRatePerKg('UK')).toBe(800);
+      expect(getMeatRatePerKg('DE')).toBe(800);
       expect(getMeatRatePerKg('HK')).toBe(1100);
       expect(getMeatRatePerKg('Hong Kong')).toBe(1100);
       expect(getMeatRatePerKg('KR')).toBe(0);
@@ -103,6 +103,7 @@ describe('Phase 9 — Final Check & Quality Assurance', () => {
           destination: 'United Kingdom',
           actualWeightKg: 30,
           hasLiquid: true,
+          liquidBottleCount: 3,
           hasMeat: true,
           meatKg: 5,
           hasMedicine: true,
@@ -112,10 +113,11 @@ describe('Phase 9 — Final Check & Quality Assurance', () => {
 
       expect(quote30.allowed).toBe(true);
       expect(quote30.boxCount).toBe(2);
-      expect(quote30.boxCharge).toBe(2000); // 2 boxes * 1000
-      expect(quote30.liquidCharge).toBe(1200); // 2 boxes * 600
-      expect(quote30.medicineCharge).toBe(1200); // 2 boxes * 600
-      expect(quote30.meatCharge).toBe(3000); // 5 kg * 600
+      expect(quote30.boxCharge).toBe(2200); // 2 boxes * 1100
+      expect(quote30.liquidCharge).toBe(2100); // 3 bottles * 700
+      expect(quote30.medicineCharge).toBe(0); // medicine: contact us
+      expect(quote30.medicineOnRequest).toBe(true);
+      expect(quote30.meatCharge).toBe(4000); // 5 kg * 800
       const expectedTotal30 =
         quote30.baseShippingCharge +
         quote30.boxCharge +

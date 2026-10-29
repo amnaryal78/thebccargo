@@ -20,10 +20,10 @@ export const Chip: React.FC<ChipProps> = ({
       type="button"
       disabled={disabled}
       aria-pressed={active}
-      className={`inline-flex items-center gap-1.5 min-h-[34px] h-8 px-3.5 rounded-[var(--r-pill)] text-xs font-heading font-semibold uppercase tracking-wider transition-all select-none cursor-pointer border whitespace-nowrap shrink-0 ${
+      className={`inline-flex items-center gap-1.5 min-h-[34px] h-8 px-3.5 rounded-[var(--r-pill)] text-[13px] font-heading font-semibold transition-all select-none cursor-pointer border whitespace-nowrap shrink-0 ${
         active
-          ? 'bg-[#F2B705] text-[#002147] border-white/60 shadow-hard-sm font-bold hover:bg-[#FAC623] hover:border-[#002147]'
-          : 'bg-[var(--surface-2)] text-[var(--text)] border-[var(--line)] shadow-hard-xs hover:border-[#F2B705] hover:text-[#002147] hover:bg-[var(--surface)] hover:-translate-y-0.5 active:translate-y-0.5'
+          ? 'bg-gd-500 text-ox-900 border-white/60 shadow-hard-sm font-bold hover:bg-gd-400 hover:border-ox-900'
+          : 'bg-[var(--surface-2)] text-[var(--text)] border-[var(--line)] shadow-hard-xs hover:border-gd-500 hover:text-ox-900 hover:bg-[var(--surface)] hover:-translate-y-0.5 active:translate-y-0.5'
       } disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none ${className}`}
       {...props}
     >
@@ -32,7 +32,7 @@ export const Chip: React.FC<ChipProps> = ({
       {count !== undefined && (
         <span
           className={`px-1.5 py-0.2 text-[10px] font-mono rounded-[var(--r-pill)] shrink-0 ${
-            active ? 'bg-[#002147] text-white font-bold' : 'bg-[var(--line)] text-[var(--text-muted)]'
+            active ? 'bg-ox-900 text-white font-bold' : 'bg-[var(--line)] text-[var(--text-muted)]'
           }`}
         >
           {count}

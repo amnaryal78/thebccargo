@@ -1,18 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Phone, 
-  Mail, 
-  Search, 
-  ChevronDown, 
-  PackageCheck,
-  User as UserIcon,
-  LogOut,
-  LayoutDashboard,
-  LogIn
-} from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Phone, Mail, MapPin, ChevronDown, Menu, X, User as UserIcon, LogOut, LayoutDashboard, LogIn, Calculator } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { BcLogo } from './BcLogo';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../design/primitives/Button';
+import { BUSINESS } from '../data/business';
 
 interface HeaderProps {
   onNavigate: (sectionId: string) => void;
@@ -21,259 +13,286 @@ interface HeaderProps {
   onOpenBooking: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({
-  onNavigate,
-  activeSection,
-  onQuickTrack,
-  onOpenBooking,
-}) => {
-  const [headerQuery, setHeaderQuery] = useState('');
-  const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+// Destinations = the country-guide hub at the top of /blogs.
+const MAIN_NAV = [
+  { id: 'home', label: 'Home' },
+  { id: 'rates', label: 'Rates' },
+  { id: 'services', label: 'Services' },
+  { id: 'track', label: 'Track' },
+  { id: 'blogs', label: 'Destinations' },
+  { id: 'how-to-ship', label: 'How to ship' },
+  { id: 'about', label: 'About' },
+];
 
+const MORE_NAV = [
+  { id: 'book', label: 'Book a shipment' },
+  { id: 'contact', label: 'Contact' },
+  { id: 'faq', label: 'FAQ' },
+  { id: 'careers', label: 'Careers' },
+  { id: 'policies', label: 'Policies' },
+];
+
+// Menus stay mounted and transition both ways, so a second tap mid-animation reverses from where it is.
+// Dropdowns grow from their trigger (top-right); the mobile menu drops from the header and leaves the same way.
+const popover = (open: boolean, origin = 'top right') => ({
+  inert: !open,
+  'aria-hidden': !open,
+  style: {
+    transformOrigin: origin,
+    opacity: open ? 1 : 0,
+    transform: open ? 'none' : 'translateY(-6px) scale(0.97)',
+    visibility: open ? ('visible' as const) : ('hidden' as const),
+    transition: `opacity 160ms ease, transform 240ms cubic-bezier(0.2, 0.9, 0.25, 1), visibility 0s linear ${open ? 0 : 240}ms`,
+  },
+});
+
+const navItemClass = (active: boolean) =>
+  `relative min-h-[44px] px-3 rounded-[var(--r-sm)] text-[14px] font-heading font-semibold transition-[color,transform] active:scale-[0.97] whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+    active ? 'text-[var(--brand)]' : 'text-[var(--text-muted)] hover:text-[var(--brand)]'
+  }`;
+
+export const Header: React.FC<HeaderProps> = ({ onNavigate, activeSection }) => {
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
   const { user, isAuthorizedAdmin, logout } = useAuth();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 28);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setIsScrolled(window.scrollY > 28);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const handleHeaderTrackSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (headerQuery.trim()) {
-      onQuickTrack(headerQuery.trim());
-      setHeaderQuery('');
-    }
+  // Close every menu on route change, Escape, or a click outside.
+  useEffect(() => {
+    setMobileOpen(false);
+    setMoreOpen(false);
+    setUserMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMobileOpen(false);
+        setMoreOpen(false);
+        setUserMenuOpen(false);
+      }
+    };
+    const onClick = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
+      if (userRef.current && !userRef.current.contains(e.target as Node)) setUserMenuOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onClick);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onClick);
+    };
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileOpen]);
+
+  const go = (id: string) => {
+    setMobileOpen(false);
+    setMoreOpen(false);
+    onNavigate(id);
   };
 
-  const mainNavItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'rates', label: 'Rates' },
-    { id: 'track', label: 'Track' },
-    { id: 'services', label: 'Services' },
-    { id: 'blogs', label: 'Blog' },
-    { id: 'about', label: 'About' },
-  ];
-
-  const moreSubItems = [
-    { id: 'how-to-ship', label: 'How to Ship' },
-    { id: 'contact', label: 'Contact' },
-    { id: 'careers', label: 'Careers' },
-    { id: 'faq', label: 'FAQ' },
-    { id: 'policies', label: 'Policies' },
-  ];
-
-  const isMoreActive = ['how-to-ship', 'contact', 'careers', 'faq', 'policies'].includes(activeSection);
+  const isMoreActive = MORE_NAV.some((i) => i.id === activeSection);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-[var(--line)] transition-all duration-300">
-      {/* 1. Top Industrial Dispatch Bar (Desktop only, collapses on scroll) */}
+    <header className="fixed top-0 left-0 right-0 z-50 pt-[env(safe-area-inset-top,0px)] bg-[var(--surface)]">
+      {/* Contact strip: desktop only, collapses on scroll */}
       <div
-        className={`hidden lg:flex bg-[#002147] text-[#F6F6F4] px-6 lg:px-12 items-center justify-between text-xs font-mono tracking-wider border-b border-[#123562] transition-all duration-200 overflow-hidden ${
-          isScrolled ? 'h-0 py-0 opacity-0' : 'h-8 py-1 opacity-100'
+        className={`hidden lg:block bg-[var(--brand)] text-white/85 text-[12px] overflow-hidden transition-[height,opacity] duration-200 ${
+          isScrolled ? 'h-0 opacity-0' : 'h-9 opacity-100'
         }`}
       >
-        <div className="flex items-center gap-3">
-          <span className="w-2 h-2 rounded-xs bg-[#F2B705]" aria-hidden="true" />
-          <span className="font-bold text-[11px] uppercase tracking-widest text-[#F6F6F4]">
-            The BC Cargo &amp; Courier Pvt. Ltd. • Nepal Multimodal Linehaul
-          </span>
-        </div>
-
-        <div className="flex items-center gap-6 text-[11px]">
-          <a
-            href="https://maps.app.goo.gl/pYyv4DPf69xwDV9J7"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[#FAC623] hover:underline whitespace-nowrap"
-          >
-            Hetauda Central Terminal Map
+        <div className="max-w-7xl mx-auto h-9 px-8 flex items-center justify-between gap-6">
+          <a href={BUSINESS.mapUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white">
+            <MapPin className="w-3.5 h-3.5 text-[var(--gd-500)]" aria-hidden="true" />
+            {BUSINESS.street}, {BUSINESS.city}, Nepal
           </a>
-          <a
-            href="tel:+977057591816"
-            className="flex items-center gap-1.5 hover:text-[#FAC623] transition-colors whitespace-nowrap"
-          >
-            <Phone className="w-3.5 h-3.5 text-[#F2B705] shrink-0" />
-            <span className="whitespace-nowrap font-mono">057-591816 / 9855019485</span>
-          </a>
-          <a
-            href="mailto:thebccargo@gmail.com"
-            className="flex items-center gap-1.5 hover:text-[#FAC623] transition-colors whitespace-nowrap"
-          >
-            <Mail className="w-3.5 h-3.5 text-[#F2B705] shrink-0" />
-            <span className="whitespace-nowrap">thebccargo@gmail.com</span>
-          </a>
+          <div className="flex items-center gap-6">
+            <a href={`tel:${BUSINESS.phone}`} className="inline-flex items-center gap-1.5 hover:text-white">
+              <Phone className="w-3.5 h-3.5 text-[var(--gd-500)]" aria-hidden="true" />
+              <span className="font-mono">{BUSINESS.phoneDisplay} / {BUSINESS.mobileDisplay}</span>
+            </a>
+            <a href={`mailto:${BUSINESS.email}`} className="inline-flex items-center gap-1.5 hover:text-white">
+              <Mail className="w-3.5 h-3.5 text-[var(--gd-500)]" aria-hidden="true" />
+              {BUSINESS.email}
+            </a>
+          </div>
         </div>
       </div>
 
-      {/* 2. Main Navigation Bar */}
-      <div
-        className={`px-3 min-[400px]:px-4 sm:px-6 lg:px-12 gap-2 flex items-center justify-between transition-all duration-200 bg-[var(--surface)] border-b border-[var(--line)] shadow-hard-xs ${
-          isScrolled ? 'h-16' : 'h-18'
-        }`}
-      >
-        {/* Brand Logo */}
-        <button
-          type="button"
-          onClick={() => onNavigate('home')}
-          className="cursor-pointer transition-transform hover:scale-[1.01] flex items-center gap-2 shrink-0 border-none bg-transparent p-0 text-left"
-          title="The BC Cargo & Courier Home"
-        >
-          <BcLogo size={isScrolled ? 'sm' : 'md'} showSubtitle={!isScrolled} compactOnMobile />
-        </button>
+      {/* Main bar */}
+      <div className={`bg-[var(--surface)]/95 backdrop-blur-md border-b border-[var(--line)] transition-shadow ${isScrolled ? 'shadow-hard-sm' : ''}`}>
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 transition-[height] duration-200 ${isScrolled ? 'h-16' : 'h-[72px]'}`}>
+          <Link to="/" className="flex items-center shrink-0 rounded-[var(--r-sm)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]" aria-label="The BC Cargo & Courier home">
+            <BcLogo size={isScrolled ? 'sm' : 'md'} showSubtitle={!isScrolled} compactOnMobile />
+          </Link>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-1">
-          {mainNavItems.map((item) => {
-            const isActive = activeSection === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => onNavigate(item.id)}
-                className={`min-h-[44px] px-3.5 py-2 rounded-[var(--r-sm)] text-xs font-heading font-bold uppercase tracking-wider transition-colors cursor-pointer relative whitespace-nowrap shrink-0 ${
-                  isActive
-                    ? 'text-[#002147] bg-[var(--surface-2)]'
-                    : 'text-[var(--text-muted)] hover:text-[#002147] hover:bg-[var(--surface-2)]'
-                }`}
-              >
-                <span>{item.label}</span>
-                {isActive && (
-                  <span
-                    className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#F2B705]"
-                    aria-hidden="true"
-                  />
-                )}
-              </button>
-            );
-          })}
-
-          {/* More Menu Dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => setAboutDropdownOpen(true)}
-            onMouseLeave={() => setAboutDropdownOpen(false)}
-          >
-            <button
-              type="button"
-              onClick={() => setAboutDropdownOpen(!aboutDropdownOpen)}
-              aria-expanded={aboutDropdownOpen}
-              className={`min-h-[44px] px-3.5 py-2 rounded-[var(--r-sm)] text-xs font-heading font-bold uppercase tracking-wider transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap ${
-                isMoreActive
-                  ? 'text-[#002147] bg-[var(--surface-2)]'
-                  : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]'
-              }`}
-            >
-              <span>More</span>
-              <ChevronDown className="w-3.5 h-3.5 opacity-70" />
-            </button>
-
-            {aboutDropdownOpen && (
-              <div className="absolute top-full left-0 mt-1 w-44 bg-[var(--surface)] border border-white/60 rounded-[var(--r-md)] shadow-hard-lg p-1.5 z-50 animate-fadeIn">
-                {moreSubItems.map((sub) => (
-                  <button
-                    key={sub.id}
-                    type="button"
-                    onClick={() => {
-                      setAboutDropdownOpen(false);
-                      onNavigate(sub.id);
-                    }}
-                    className={`w-full text-left px-3.5 py-2 rounded-[var(--r-sm)] text-xs font-heading font-bold uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap ${
-                      activeSection === sub.id
-                        ? 'bg-[#002147] text-white shadow-hard-xs'
-                        : 'text-[var(--text)] hover:bg-[var(--surface-2)]'
-                    }`}
-                  >
-                    {sub.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </nav>
-
-        {/* Right Actions: Header Track Form, Booking CTA, Theme Switch */}
-        <div className="flex items-center gap-1 min-[400px]:gap-2.5 sm:gap-3 shrink-0">
-          {/* Quick Track Input in Header (Desktop Only) */}
-          <form onSubmit={handleHeaderTrackSubmit} className="hidden xl:flex items-center relative">
-            <input
-              type="text"
-              value={headerQuery}
-              onChange={(e) => setHeaderQuery(e.target.value)}
-              placeholder="Track AWB (e.g. BC-90214)"
-              aria-label="Track Waybill Number"
-              className="w-48 h-10 pl-8 pr-3 bg-[var(--surface-2)] border border-[var(--line)] rounded-[var(--r-sm)] clay-inset text-xs font-mono text-[var(--text)] placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#002147] focus:border-transparent transition-all"
-            />
-            <Search className="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-2.5 pointer-events-none" />
-          </form>
-
-          {/* Staff Login / Profile Status */}
-          {user ? (
-            <div className="relative">
+          <nav aria-label="Main" className="hidden xl:flex items-center gap-0.5">
+            {MAIN_NAV.map((item) => {
+              const active = activeSection === item.id;
+              return (
+                <button key={item.id} type="button" onClick={() => go(item.id)} aria-current={active ? 'page' : undefined} className={navItemClass(active)}>
+                  {item.label}
+                  {active && <span className="absolute left-3 right-3 bottom-1.5 h-[2px] rounded-full bg-[var(--accent)]" aria-hidden="true" />}
+                </button>
+              );
+            })}
+            <div ref={moreRef} className="relative">
               <button
                 type="button"
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="h-9 px-2.5 rounded-[var(--r-sm)] border border-[var(--line)] bg-[var(--surface-2)] shadow-hard-xs text-xs font-mono flex items-center gap-1.5 cursor-pointer text-[var(--text)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-press transition-all duration-[var(--t-fast)]"
+                onClick={() => setMoreOpen((v) => !v)}
+                aria-expanded={moreOpen}
+                aria-haspopup="true"
+                className={`${navItemClass(isMoreActive)} inline-flex items-center gap-1`}
               >
-                <UserIcon className="w-3.5 h-3.5 text-[#002147]" />
-                <span className="hidden md:inline font-bold">Account</span>
+                More
+                <ChevronDown className={`w-4 h-4 transition-transform ${moreOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
               </button>
+              {(
+                <div {...popover(moreOpen)} className="absolute right-0 top-full mt-2 w-52 bg-[var(--surface)] rounded-[var(--r-md)] shadow-hard-lg p-1.5">
+                  {MORE_NAV.map((sub) => (
+                    <button
+                      key={sub.id}
+                      type="button"
+                      onClick={() => go(sub.id)}
+                      aria-current={activeSection === sub.id ? 'page' : undefined}
+                      className={`w-full text-left min-h-[40px] px-3 rounded-[var(--r-sm)] text-[14px] font-medium transition-[background-color,transform] active:scale-[0.98] ${
+                        activeSection === sub.id ? 'bg-[var(--gd-50)] text-[var(--brand)]' : 'text-[var(--text)] hover:bg-[var(--surface-2)]'
+                      }`}
+                    >
+                      {sub.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </nav>
 
-              {userMenuOpen && (
-                <div className="absolute right-0 top-full mt-1 w-52 bg-[var(--surface)] border border-white/60 rounded-[var(--r-md)] shadow-hard-lg p-1.5 z-50">
-                  <div className="px-3 py-2 border-b border-[var(--line)] text-xs">
-                    <p className="font-bold truncate text-[var(--text)]">{user.email}</p>
-                    <p className="text-[10px] text-[var(--text-muted)] uppercase font-mono mt-0.5">
-                      {isAuthorizedAdmin ? 'Staff Operator' : 'Authenticated'}
-                    </p>
-                  </div>
-                  {isAuthorizedAdmin && (
+          <div className="flex items-center gap-2 shrink-0">
+            {user ? (
+              <div ref={userRef} className="relative">
+                <button
+                  type="button"
+                  aria-label="Account menu"
+                  aria-expanded={userMenuOpen}
+                  onClick={() => setUserMenuOpen((v) => !v)}
+                  className="h-11 min-w-[44px] px-3 inline-flex items-center justify-center gap-1.5 rounded-[var(--r-sm)] text-[14px] font-semibold text-[var(--brand)] hover:bg-[var(--surface-2)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
+                >
+                  <UserIcon className="w-4 h-4" aria-hidden="true" />
+                  <span className="hidden md:inline">Account</span>
+                </button>
+                {(
+                  <div {...popover(userMenuOpen)} className="absolute right-0 top-full mt-2 w-[min(14rem,calc(100vw-2rem))] bg-[var(--surface)] rounded-[var(--r-md)] shadow-hard-lg p-1.5">
+                    <div className="px-3 py-2 border-b border-[var(--line)] text-xs">
+                      <p className="font-semibold truncate text-[var(--text)]">{user.email}</p>
+                      <p className="text-[var(--text-muted)] mt-0.5">{isAuthorizedAdmin ? 'Staff' : 'Customer'}</p>
+                    </div>
+                    {isAuthorizedAdmin && (
+                      <button type="button" onClick={() => go('admin')} className="w-full text-left min-h-[40px] px-3 rounded-[var(--r-sm)] text-[14px] flex items-center gap-2 hover:bg-[var(--surface-2)] text-[var(--text)]">
+                        <LayoutDashboard className="w-4 h-4 text-[var(--accent-text)]" aria-hidden="true" />
+                        Admin console
+                      </button>
+                    )}
+                    <Link to="/profile" className="w-full min-h-[40px] px-3 rounded-[var(--r-sm)] text-[14px] flex items-center gap-2 hover:bg-[var(--surface-2)] text-[var(--text)]">
+                      <UserIcon className="w-4 h-4 text-[var(--accent-text)]" aria-hidden="true" />
+                      Profile
+                    </Link>
                     <button
                       type="button"
                       onClick={() => {
                         setUserMenuOpen(false);
-                        onNavigate('admin');
+                        logout();
                       }}
-                      className="w-full text-left px-3 py-2 rounded-[var(--r-sm)] text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-2 hover:bg-[var(--surface-2)] text-[var(--text)]"
+                      className="w-full text-left min-h-[40px] px-3 rounded-[var(--r-sm)] text-[14px] flex items-center gap-2 text-[var(--danger)] hover:bg-[var(--surface-2)]"
                     >
-                      <LayoutDashboard className="w-3.5 h-3.5 text-[#F2B705]" />
-                      <span>Admin Console</span>
+                      <LogOut className="w-4 h-4" aria-hidden="true" />
+                      Sign out
                     </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                      logout();
-                    }}
-                    className="w-full text-left px-3 py-2 rounded-[var(--r-sm)] text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-2 text-[var(--danger)] hover:bg-[var(--surface-2)]"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>Sign Out</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : null}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="h-11 min-w-[44px] px-3 inline-flex items-center justify-center gap-1.5 rounded-[var(--r-sm)] text-[14px] font-semibold text-[var(--brand)] hover:bg-[var(--surface-2)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
+              >
+                <LogIn className="w-4 h-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Sign in</span>
+                <span className="sr-only sm:hidden">Sign in</span>
+              </Link>
+            )}
 
-          {/* Primary Action Button: Book */}
-          <Button
-            variant="primary"
-            size="sm"
-            magnetic
-            onClick={onOpenBooking}
-            leftIcon={<PackageCheck className="w-4 h-4 shrink-0" />}
-            className="inline-flex shrink-0 whitespace-nowrap"
-          >
-            <span className="hidden min-[360px]:inline">Book</span>
-            <span className="sr-only min-[360px]:hidden">Book a shipment</span>
-          </Button>
+            <span className="hidden sm:inline-flex">
+              <Button variant="primary" size="sm" onClick={() => go('rates')} leftIcon={<Calculator className="w-4 h-4 shrink-0" />}>
+                Get a quote
+              </Button>
+            </span>
+
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-menu"
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              className="xl:hidden h-11 w-11 inline-flex items-center justify-center rounded-[var(--r-sm)] text-[var(--brand)] hover:bg-[var(--surface-2)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
+            >
+              {mobileOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Mobile / tablet menu */}
+      {(
+        <div id="mobile-menu" {...popover(mobileOpen, 'top center')} className={`xl:hidden fixed inset-x-0 bottom-0 ${isScrolled ? 'top-[calc(4rem+env(safe-area-inset-top,0px))]' : 'top-[calc(72px+env(safe-area-inset-top,0px))] lg:top-[calc(108px+env(safe-area-inset-top,0px))]'} bg-[var(--bg)] overflow-y-auto`}>
+          <nav aria-label="Mobile" className="max-w-xl mx-auto px-4 py-6 flex flex-col gap-1">
+            {[...MAIN_NAV, ...MORE_NAV].map((item) => {
+              const active = activeSection === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => go(item.id)}
+                  aria-current={active ? 'page' : undefined}
+                  className={`text-left min-h-[52px] px-4 rounded-[var(--r-sm)] font-heading text-[18px] font-semibold transition-[background-color,transform] active:scale-[0.98] ${
+                    active ? 'bg-[var(--surface)] text-[var(--brand)] shadow-hard-xs' : 'text-[var(--text)] hover:bg-[var(--surface)]'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+            <Button variant="primary" size="lg" onClick={() => go('rates')} leftIcon={<Calculator className="w-5 h-5" />} className="mt-4 w-full justify-center">
+              Get a quote
+            </Button>
+            <div className="mt-6 pt-6 border-t border-[var(--line)] space-y-3 text-[15px] text-[var(--text-muted)]">
+              <a href={`tel:${BUSINESS.phone}`} className="flex items-center gap-3 min-h-[44px]">
+                <Phone className="w-4 h-4 text-[var(--accent-text)]" aria-hidden="true" />
+                <span className="font-mono">{BUSINESS.phoneDisplay} / {BUSINESS.mobileDisplay}</span>
+              </a>
+              <a href={`mailto:${BUSINESS.email}`} className="flex items-center gap-3 min-h-[44px]">
+                <Mail className="w-4 h-4 text-[var(--accent-text)]" aria-hidden="true" />
+                {BUSINESS.email}
+              </a>
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };

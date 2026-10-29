@@ -16,7 +16,7 @@ describe('Phase 5 — PWA & Offline Asset Verification', () => {
     expect(manifest.short_name).toBe('BC Cargo');
     expect(manifest.start_url).toBe('/');
     expect(manifest.display).toBe('standalone');
-    expect(manifest.theme_color).toBe('#002147');
+    expect(manifest.theme_color).toBe('#0B2D63');
     expect(manifest.background_color).toBe('#F6F6F4');
     expect(Array.isArray(manifest.icons)).toBe(true);
     expect(manifest.icons.length).toBeGreaterThanOrEqual(3);

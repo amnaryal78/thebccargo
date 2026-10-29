@@ -26,7 +26,7 @@ const CATEGORIZED_FAQS: FaqItem[] = [
     id: 'FAQ-7',
     category: 'Customs & Air Freight',
     question: 'How does customs clearance work for export from Nepal?',
-    answer: 'Every commercial shipment leaving Nepal passes through the Department of Customs. Our in-house customs team submits the required electronic declarations (Pragyapan Patra) directly through the ASYCUDA World system, ensuring rapid export approval at TIA Kathmandu or Birgunj Dry Port without procedural hold-ups.'
+    answer: 'Every commercial shipment leaving Nepal passes through the Department of Customs. We check your documents and prepare the export declaration (Pragyapan Patra) for you, so your shipment can clear Nepal customs without delays. Tell us what you are sending and we will tell you which papers you need.'
   },
   {
     id: 'FAQ-8',
@@ -38,13 +38,13 @@ const CATEGORIZED_FAQS: FaqItem[] = [
     id: 'FAQ-9',
     category: 'General Logistics',
     question: 'What packaging standards are mandatory for international air freight?',
-    answer: 'Consignments must be packaged in multi-ply corrugated export cartons or wooden crates suitable for heavy stack loads and turbulent aerial handling. Fragile goods require cushioning with high-density foam or bubble wrap. Our packaging stations at Hetauda HQ and Kathmandu TIA provide standard strapping, banding, and e-seal application.'
+    answer: 'Consignments must be packaged in multi-ply corrugated export cartons or wooden crates suitable for heavy stack loads and turbulent aerial handling. Fragile goods require cushioning with high-density foam or bubble wrap. If you are not sure, bring it unpacked to our Hetauda office and we will pack it for you.'
   },
   {
     id: 'FAQ-10',
     category: 'Cross-Border Overland',
     question: 'What is the transit timeframe and process for cross-border road freight to India?',
-    answer: 'Cross-border road linehaul connecting Hetauda and Kathmandu to India (via Birgunj ICD / Raxaul) typically completes within 2 to 4 business days, including bilateral customs clearance and Electronic Cargo Tracking System (ECTS) seal verification.'
+    answer: 'Road cargo from Nepal to India usually takes 2 to 4 days, depending on the city and the border crossing. We prepare the border papers. Ask us for a quote for your load.'
   }
 ];
 
@@ -123,15 +123,15 @@ export const FaqPage: React.FC = () => {
 
       {/* Header */}
       <div className="flex flex-col items-center text-center gap-3 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-2)] border border-[var(--line-strong)] text-[var(--oxford-deep)] text-xs font-mono font-bold uppercase tracking-wider">
+        <div className="inline-flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-text)]">
           <HelpCircle className="w-3.5 h-3.5" />
-          <span>Knowledge &amp; Support</span>
+          <span>Help</span>
         </div>
-        <h1 className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[var(--text)] tracking-tight">
+        <h1 className="font-heading font-bold text-[length:var(--fs-h2)] leading-[1.1] tracking-[-0.02em] text-[var(--brand)] text-balance">
           Frequently Asked Questions
         </h1>
-        <p className="text-sm sm:text-base text-[var(--text-secondary)]">
-          Everything you need to know about air waybills, customs documents, dimensional weight, freight billing, and tracking your package.
+        <p className="text-[17px] leading-relaxed text-[var(--text-muted)] max-w-xl">
+          Answers about prices, packing, customs papers, pickup and tracking.
         </p>
       </div>
 
@@ -167,11 +167,13 @@ export const FaqPage: React.FC = () => {
             return (
               <button
                 key={cat}
+                type="button"
+                aria-pressed={isSelected}
                 onClick={() => {
                   setSelectedCategory(cat);
                   setOpenIndex(0);
                 }}
-                className={`px-4 py-2 rounded-[var(--r-xs)] text-xs font-heading font-bold uppercase tracking-wider transition-all duration-[var(--t-fast)] whitespace-nowrap cursor-pointer border shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 ${
+                className={`px-4 py-2 pointer-coarse:min-h-11 rounded-[var(--r-xs)] text-xs font-heading font-bold uppercase tracking-wider transition-all duration-[var(--t-fast)] whitespace-nowrap cursor-pointer border shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 ${
                   isSelected
                     ? 'bg-[var(--oxford-deep)] text-white border-white/20 shadow-hard-sm'
                     : 'bg-[var(--surface)] text-[var(--text-muted)] border-[var(--line)] hover:border-[var(--line-strong)] hover:text-[var(--text)]'
@@ -213,7 +215,7 @@ export const FaqPage: React.FC = () => {
                 >
                   <div className="flex items-center gap-3">
                     {faq.category && (
-                      <span className="hidden sm:inline-block px-2 py-0.5 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-[var(--text-muted)] font-mono text-[10px] font-bold uppercase border border-[var(--line)] shadow-hard-xs">
+                      <span className="hidden sm:inline-block px-2 py-0.5 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-[var(--text-muted)] text-[10px] font-bold uppercase border border-[var(--line)] shadow-hard-xs">
                         {faq.category}
                       </span>
                     )}

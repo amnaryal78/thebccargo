@@ -22,14 +22,14 @@ export const PrintableAwbModal: React.FC<PrintableAwbModalProps> = ({
         <div className="bg-[#0E1638] text-white px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="font-heading font-bold text-sm uppercase">Package Waybill &amp; Receipt</span>
-            <span className="bg-[#002147] text-[#F2B705] text-[10px] font-mono font-bold px-2 py-0.5 rounded-[var(--r-xs)]">
+            <span className="bg-ox-900 text-gd-500 text-[10px] font-mono font-bold px-2 py-0.5 rounded-[var(--r-xs)]">
               Official Courier Document
             </span>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => window.print()}
-              className="min-h-[44px] px-4 py-2 rounded-[var(--r-sm)] bg-[#002147] hover:bg-[#123562] text-white font-heading font-bold text-xs uppercase tracking-wider inline-flex items-center gap-1.5 shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
+              className="min-h-[44px] px-4 py-2 rounded-[var(--r-sm)] bg-ox-900 hover:bg-[#123562] text-white font-heading font-bold text-xs uppercase tracking-wider inline-flex items-center gap-1.5 shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500"
             >
               <Printer className="w-4 h-4" />
               <span>Print Receipt</span>
@@ -37,7 +37,7 @@ export const PrintableAwbModal: React.FC<PrintableAwbModalProps> = ({
             <button
               onClick={onClose}
               aria-label="Close document modal"
-              className="min-h-[44px] min-w-[44px] p-2 rounded-[var(--r-sm)] hover:bg-white/10 text-white transition-colors cursor-pointer inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
+              className="min-h-[44px] min-w-[44px] p-2 rounded-[var(--r-sm)] hover:bg-white/10 text-white transition-colors cursor-pointer inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500"
             >
               <X className="w-5 h-5" />
             </button>
@@ -62,7 +62,7 @@ export const PrintableAwbModal: React.FC<PrintableAwbModalProps> = ({
 
             <div className="text-right">
               <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Tracking Number</span>
-              <span className="font-heading font-extrabold text-xl text-[#002147] tracking-wider block">
+              <span className="font-heading font-extrabold text-xl text-ox-900 tracking-wider block">
                 {shipment.trackingNumber}
               </span>
               <span className="text-[10px] text-slate-600 block">Booking Number: {shipment.bookingRef}</span>
@@ -126,7 +126,7 @@ export const PrintableAwbModal: React.FC<PrintableAwbModalProps> = ({
             <div className="p-2.5 grid grid-cols-5 text-xs text-slate-800">
               <span className="font-bold">{shipment.pieces} Pkgs</span>
               <span>{shipment.grossWeightKg.toLocaleString()} KG</span>
-              <span className="font-bold text-[#002147]">{shipment.chargeableWeightKg.toLocaleString()} KG</span>
+              <span className="font-bold text-ox-900">{shipment.chargeableWeightKg.toLocaleString()} KG</span>
               <span>{shipment.commodity}</span>
               <span className="text-right font-bold">{shipment.volumeCbm.toFixed(2)} CBM</span>
             </div>

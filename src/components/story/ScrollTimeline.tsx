@@ -27,12 +27,12 @@ export const ScrollTimeline: React.FC<ScrollTimelineProps> = ({ children, altern
     <div className={`relative ${className}`}>
       <div
         aria-hidden="true"
-        className={`absolute top-0 bottom-0 ${linePos} w-[3px] -translate-x-1/2 rounded-full bg-[#002147]/10`}
+        className={`absolute top-0 bottom-0 ${linePos} w-[3px] -translate-x-1/2 rounded-full bg-ox-900/10`}
       />
       <motion.div
         aria-hidden="true"
         style={{ scaleY: reduce ? 1 : grow }}
-        className={`absolute top-0 bottom-0 ${linePos} w-[3px] -translate-x-1/2 rounded-full origin-top bg-gradient-to-b from-[#F2B705] to-[#FAC623]`}
+        className={`absolute top-0 bottom-0 ${linePos} w-[3px] -translate-x-1/2 rounded-full origin-top bg-gradient-to-b from-gd-500 to-[#FAC623]`}
       />
       <ol ref={listRef} className="relative flex flex-col gap-8 sm:gap-10 list-none m-0 p-0">
         {React.Children.map(children, (child, i) =>
@@ -58,7 +58,7 @@ interface TimelineItemProps {
 }
 
 const TONE_BORDER: Record<Tone, { lit: string; idle: string }> = {
-  default: { lit: 'border-[#F2B705]', idle: 'border-[#D5DEEA]' },
+  default: { lit: 'border-gd-500', idle: 'border-[#D5DEEA]' },
   danger: { lit: 'border-red-500', idle: 'border-red-200' },
   warn: { lit: 'border-amber-500', idle: 'border-amber-200' },
 };
@@ -83,15 +83,15 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
   const side = alternate ? (onLeft ? 'md:w-1/2 md:pr-12 md:pl-0' : 'md:w-1/2 md:pl-12 md:ml-auto') : '';
   const dotSide = alternate ? (onLeft ? 'md:left-auto md:right-0 md:translate-x-1/2' : 'md:left-0') : '';
   const dotColor =
-    tone === 'danger' ? 'bg-red-500 border-red-500' : tone === 'warn' ? 'bg-amber-500 border-amber-500' : 'bg-[#F2B705] border-[#F2B705]';
+    tone === 'danger' ? 'bg-red-500 border-red-500' : tone === 'warn' ? 'bg-amber-500 border-amber-500' : 'bg-gd-500 border-gd-500';
 
   return (
     <li ref={ref} className={`relative pl-12 ${side}`}>
       <span
         aria-hidden="true"
         className={`absolute top-7 left-4 -translate-x-1/2 w-4 h-4 rounded-full border-2 transition-all duration-300 ${dotSide} ${
-          reached ? dotColor : 'bg-[#EEF3FA] border-[#002147]/25'
-        } ${lit ? 'scale-150 shadow-[0_0_0_6px_rgba(242,183,5,0.22)]' : ''}`}
+          reached ? dotColor : 'bg-[#EEF3FA] border-ox-900/25'
+        } ${lit ? 'scale-150 shadow-[0_0_0_6px_rgba(242,182,50,0.22)]' : ''}`}
       />
       <motion.div
         initial={reduce ? false : { opacity: 0, y: 28 }}
@@ -106,7 +106,7 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
           onPointerEnter={() => setHover(true)}
           onPointerLeave={() => setHover(false)}
           onClick={tapToHighlight ? () => setTouched((t) => !t) : undefined}
-          className={`overflow-hidden rounded-[var(--r-md)] border bg-white shadow-sm text-[#002147] transition-colors duration-300 ${
+          className={`overflow-hidden rounded-[var(--r-md)] border bg-white shadow-sm text-ox-900 transition-colors duration-300 ${
             lit ? TONE_BORDER[tone].lit : TONE_BORDER[tone].idle
           }`}
         >

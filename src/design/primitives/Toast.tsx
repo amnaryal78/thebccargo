@@ -19,16 +19,16 @@ export const Toast: React.FC<ToastProps> = ({
   className = '',
 }) => {
   const styles = {
-    success: 'bg-[var(--surface)] text-[var(--text)] border border-[#123562]/30',
-    error: 'bg-[var(--surface)] text-[var(--text)] border border-[#C02E24]/40',
-    warning: 'bg-[var(--surface)] text-[var(--text)] border border-[#F2B705]/50',
+    success: 'bg-[var(--surface)] text-[var(--text)] border border-[var(--success)]/30',
+    error: 'bg-[var(--surface)] text-[var(--text)] border border-[var(--danger)]/40',
+    warning: 'bg-[var(--surface)] text-[var(--text)] border border-gd-500/50',
     info: 'bg-[var(--surface)] text-[var(--text)] border border-[var(--line-strong)]',
   };
 
   const icons = {
-    success: <CheckCircle2 className="w-5 h-5 text-[#8C6400] shrink-0" />,
-    error: <AlertCircle className="w-5 h-5 text-[#C02E24] shrink-0" />,
-    warning: <AlertTriangle className="w-5 h-5 text-[#8C6400] shrink-0" />,
+    success: <CheckCircle2 className="w-5 h-5 text-[var(--success)] shrink-0" />,
+    error: <AlertCircle className="w-5 h-5 text-[var(--danger)] shrink-0" />,
+    warning: <AlertTriangle className="w-5 h-5 text-[var(--warning)] shrink-0" />,
     info: <Info className="w-5 h-5 text-[var(--brand)] shrink-0" />,
   };
 
@@ -39,7 +39,7 @@ export const Toast: React.FC<ToastProps> = ({
     >
       {icons[type]}
       <div className="flex-1 min-w-0">
-        <h4 className="font-heading font-bold text-xs sm:text-sm uppercase tracking-wider leading-tight">
+        <h4 className="font-heading font-semibold text-sm leading-tight">
           {title}
         </h4>
         {message && (

@@ -31,13 +31,13 @@ export const NotFoundPage: React.FC = () => {
       <div className="flex flex-col items-center gap-6">
         
         {/* Visual Badge */}
-        <div className="w-20 h-20 rounded-3xl bg-[var(--surface-2,#ECEBE7)] border border-[var(--line-strong,#002147)] text-[#002147] flex items-center justify-center shadow-lg">
+        <div className="w-20 h-20 rounded-3xl bg-[var(--surface-2,#ECEBE7)] border border-[var(--line-strong,#0B2D63)] text-ox-900 flex items-center justify-center shadow-lg">
           <Compass className="w-10 h-10 animate-spin" style={{ animationDuration: '15s' }} />
         </div>
 
         {/* Text Header */}
         <div className="flex flex-col gap-2">
-          <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#002147]">
+          <span className="text-xs font-mono font-bold uppercase tracking-widest text-ox-900">
             Error 404
           </span>
           <h1 className="font-heading font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">

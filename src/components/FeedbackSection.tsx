@@ -68,7 +68,7 @@ export const FeedbackSection: React.FC = () => {
     if (!newName.trim() || !newComment.trim()) return;
 
     const colors = [
-      'bg-[#002147] text-[#F2B705]',
+      'bg-ox-900 text-gd-500',
       'bg-[#071A33] text-white',
       'bg-emerald-700 text-white',
       'bg-slate-700 text-white'
@@ -106,7 +106,7 @@ export const FeedbackSection: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div className="flex flex-col gap-2 max-w-2xl text-left">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#002147] font-mono">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ox-900 font-mono">
             <ThumbsUp className="w-4 h-4 text-[#10B981]" />
             <span>Customer Reviews</span>
           </div>
@@ -120,7 +120,7 @@ export const FeedbackSection: React.FC = () => {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="self-start md:self-auto px-4 py-2.5 rounded-[var(--r-sm)] bg-[#002147] hover:bg-[#123562] text-white text-xs font-semibold uppercase tracking-wider transition-all shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 flex items-center gap-2 shrink-0 cursor-pointer"
+          className="self-start md:self-auto px-4 py-2.5 rounded-[var(--r-sm)] bg-ox-900 hover:bg-[#123562] text-white text-xs font-semibold uppercase tracking-wider transition-all shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 flex items-center gap-2 shrink-0 cursor-pointer"
         >
           <MessageSquarePlus className="w-4 h-4 text-[#F5C84C]" />
           <span>Review</span>
@@ -138,7 +138,7 @@ export const FeedbackSection: React.FC = () => {
             <X className="w-5 h-5" />
           </button>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-[#002147] uppercase font-bold mb-1">
+          <div className="flex items-center gap-2 text-xs font-mono text-ox-900 uppercase font-bold mb-1">
             <MessageSquarePlus className="w-4 h-4 text-[#10B981]" />
             <span>Share Your Feedback</span>
           </div>
@@ -165,7 +165,7 @@ export const FeedbackSection: React.FC = () => {
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     placeholder="e.g. Sujan Shrestha"
-                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 clay-inset text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#002147] focus:border-transparent transition-all"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 clay-inset text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-ox-900 focus:border-transparent transition-all"
                   />
                 </div>
 
@@ -176,7 +176,7 @@ export const FeedbackSection: React.FC = () => {
                     value={newCompany}
                     onChange={(e) => setNewCompany(e.target.value)}
                     placeholder="e.g. Everest Exporters"
-                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 clay-inset text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#002147] focus:border-transparent transition-all"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 clay-inset text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-ox-900 focus:border-transparent transition-all"
                   />
                 </div>
 
@@ -187,7 +187,7 @@ export const FeedbackSection: React.FC = () => {
                     value={newRole}
                     onChange={(e) => setNewRole(e.target.value)}
                     placeholder="e.g. Freight Manager"
-                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 clay-inset text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#002147] focus:border-transparent transition-all"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 clay-inset text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-ox-900 focus:border-transparent transition-all"
                   />
                 </div>
               </div>
@@ -198,7 +198,7 @@ export const FeedbackSection: React.FC = () => {
                   <select
                     value={newMode}
                     onChange={(e) => setNewMode(e.target.value)}
-                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 clay-inset text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#002147] focus:border-transparent transition-all"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 clay-inset text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-ox-900 focus:border-transparent transition-all"
                   >
                     <option value="Air Delivery">Air Delivery</option>
                     <option value="Sea Delivery">Sea Delivery</option>
@@ -212,7 +212,7 @@ export const FeedbackSection: React.FC = () => {
                   <select
                     value={newRating}
                     onChange={(e) => setNewRating(Number(e.target.value))}
-                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 clay-inset text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#002147] focus:border-transparent transition-all"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 clay-inset text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-ox-900 focus:border-transparent transition-all"
                   >
                     <option value={5}>5 Stars - Excellent Service</option>
                     <option value={4}>4 Stars - Great Service</option>
@@ -229,7 +229,7 @@ export const FeedbackSection: React.FC = () => {
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Tell us how your package delivery went and your experience with our team..."
-                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 clay-inset text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#002147] focus:border-transparent transition-all"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 clay-inset text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-ox-900 focus:border-transparent transition-all"
                 />
               </div>
 
@@ -237,7 +237,7 @@ export const FeedbackSection: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="min-h-[44px] px-4 py-2 inline-flex items-center justify-center gap-1.5 rounded-[var(--r-sm)] border border-slate-300 text-slate-700 text-xs font-semibold uppercase hover:bg-slate-100 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
+                  className="min-h-[44px] px-4 py-2 inline-flex items-center justify-center gap-1.5 rounded-[var(--r-sm)] border border-slate-300 text-slate-700 text-xs font-semibold uppercase hover:bg-slate-100 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500"
                 >
                   <X className="w-3.5 h-3.5" />
                   <span>Close</span>
@@ -245,7 +245,7 @@ export const FeedbackSection: React.FC = () => {
                 <button
                   type="submit"
                   disabled={!newName.trim() || !newComment.trim()}
-                  className="min-h-[44px] px-6 py-2.5 inline-flex items-center justify-center rounded-[var(--r-sm)] bg-[#002147] hover:bg-[#123562] text-white text-xs font-semibold uppercase tracking-wider gap-2 shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="min-h-[44px] px-6 py-2.5 inline-flex items-center justify-center rounded-[var(--r-sm)] bg-ox-900 hover:bg-[#123562] text-white text-xs font-semibold uppercase tracking-wider gap-2 shadow-hard-xs hover:-translate-y-0.5 active:translate-y-0.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-3.5 h-3.5 text-[#F5C84C]" />
                   <span>Send</span>

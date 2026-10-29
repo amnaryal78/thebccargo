@@ -32,22 +32,28 @@ const mapStatus = (rawStatus: string): ShipmentStatus => {
   return 'Order Placed';
 };
 
-export const fetchPublicTracking = async (trackingNumber: string): Promise<{ data: Shipment | null; error: string | null }> => {
+export type TrackingFailure = 'invalid' | 'not_found' | 'unavailable';
+
+export const fetchPublicTracking = async (
+  trackingNumber: string
+): Promise<{ data: Shipment | null; error: string | null; reason?: TrackingFailure }> => {
   const cleanCode = trackingNumber.trim().toUpperCase();
   if (!cleanCode) {
-    return { data: null, error: 'Please enter a valid tracking number (e.g. BC-90214-HKG).' };
+    return { data: null, error: 'Please enter a valid tracking number (e.g. BC-90214-HKG).', reason: 'invalid' };
   }
 
   if (cleanCode.length < 4) {
-    return { data: null, error: 'Tracking number must be at least 4 characters.' };
+    return { data: null, error: 'Tracking number must be at least 4 characters.', reason: 'invalid' };
   }
 
+  let reason: TrackingFailure = 'not_found';
   try {
     // Attempt Supabase RPC query (safe projection protecting PII)
     const { data, error } = await supabase.rpc('get_public_shipment', {
       tracking_num: cleanCode
-    });
+    }).abortSignal(AbortSignal.timeout(15000)); // a hung request shows "not reachable" instead of loading forever
 
+    if (error) reason = 'unavailable';
     if (!error && data && (data as any).tracking_number) {
       const publicData = data as PublicTrackingResponse;
       const formattedShipment: Shipment = {
@@ -85,7 +91,8 @@ export const fetchPublicTracking = async (trackingNumber: string): Promise<{ dat
         estimatedDelivery: publicData.estimated_delivery || 'In Scheduled Transit',
         bookingDate: new Date().toISOString(),
         telemetry: {
-          lastUpdated: publicData.last_updated || new Date().toISOString(),
+          // empty when unknown: the page hides it rather than showing "now"
+          lastUpdated: publicData.last_updated || '',
           batteryLevel: '100%',
           eSealStatus: 'Active & Secured'
         },
@@ -102,7 +109,8 @@ export const fetchPublicTracking = async (trackingNumber: string): Promise<{ dat
     }
   } catch (err) {
     console.warn('Tracking lookup failed:', err);
+    reason = 'unavailable';
   }
 
-  return { data: null, error: `No active shipment found with tracking code "${cleanCode}". Please verify your AWB or contact BC Cargo operations.` };
+  return { data: null, error: `No active shipment found with tracking code "${cleanCode}". Please verify your AWB or contact BC Cargo operations.`, reason };
 };

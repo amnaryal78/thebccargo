@@ -1,3 +1,4 @@
+import { PICKUP_POLICY_EN, PICKUP_AREAS, FREE_PICKUP_AREAS } from '../features/estimator/pickup';
 import React, { useState } from 'react';
 import { 
   HelpCircle, 
@@ -30,7 +31,7 @@ export const DEFAULT_FAQS: FaqItem[] = [
   },
   {
     question: 'Can you pick up my package from my home or office in Nepal?',
-    answer: 'Yes! We offer convenient doorstep collection across Hetauda, Makwanpur, and Kathmandu Valley as an add-on for international shipments. You can also drop off consignments directly at our Hetauda Central Office (School Road -4, Hetauda) or regional logistics counters.'
+    answer: `Yes. ${PICKUP_POLICY_EN} We also collect from ${PICKUP_AREAS.slice(FREE_PICKUP_AREAS.length).join(', ')}. Or drop your parcel at our office on School Road -4, Hetauda.`
   },
   {
     question: 'How long does delivery take to other countries?',
@@ -61,7 +62,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({
         
         {/* Header */}
         <div className="text-center flex flex-col items-center gap-3">
-          <div className="flex items-center gap-2 text-[#002147] text-xs font-bold uppercase tracking-wider font-mono">
+          <div className="flex items-center gap-2 text-ox-900 text-xs font-bold uppercase tracking-wider font-mono">
             <HelpCircle className="w-4 h-4" />
             <span>Support &amp; FAQ</span>
           </div>
@@ -86,13 +87,13 @@ export const FaqSection: React.FC<FaqSectionProps> = ({
                 <button
                   type="button"
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
-                  className="w-full min-h-[48px] py-3.5 px-4 sm:px-5 text-left flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
+                  className="w-full min-h-[48px] py-3.5 px-4 sm:px-5 text-left flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500"
                   aria-expanded={isOpen}
                 >
-                  <span className="font-heading font-semibold text-sm sm:text-base text-slate-900 group-hover:text-[#002147] transition-colors">
+                  <span className="font-heading font-semibold text-sm sm:text-base text-slate-900 group-hover:text-ox-900 transition-colors">
                     {faq.question}
                   </span>
-                  <div className={`p-1.5 rounded-lg bg-slate-100 text-slate-500 shrink-0 transition-all duration-300 ease-out ${isOpen ? 'rotate-180 bg-[#002147] text-white' : 'group-hover:bg-slate-200'}`}>
+                  <div className={`p-1.5 rounded-lg bg-slate-100 text-slate-500 shrink-0 transition-all duration-300 ease-out ${isOpen ? 'rotate-180 bg-ox-900 text-white' : 'group-hover:bg-slate-200'}`}>
                     <ChevronDown className="w-4 h-4" />
                   </div>
                 </button>
@@ -113,7 +114,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({
           className="p-6 rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--line)] flex flex-col sm:flex-row items-center justify-between gap-6 shadow-hard-sm"
         >
           <div className="flex items-center gap-4 text-center sm:text-left">
-            <div className="w-11 h-11 rounded-[var(--r-sm)] bg-[#002147]/10 text-[#002147] flex items-center justify-center shrink-0">
+            <div className="w-11 h-11 rounded-[var(--r-sm)] bg-ox-900/10 text-ox-900 flex items-center justify-center shrink-0">
               <PhoneCall className="w-5 h-5" />
             </div>
             <div>

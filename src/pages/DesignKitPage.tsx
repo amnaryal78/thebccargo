@@ -16,7 +16,14 @@ import {
   Counter, 
   Timeline, 
   Stepper,
-  Spotlight 
+  Spotlight,
+  Badge,
+  StatusBadge,
+  Textarea,
+  ErrorState,
+  LoadingState,
+  Spinner,
+  PageHeader
 } from '../design/primitives';
 import { 
   AirFreightIcon, 
@@ -55,7 +62,7 @@ export const DesignKitPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <BcLogo size="sm" showSubtitle={false} />
-            <span className="font-mono text-xs px-2 py-0.5 bg-[#F2B705] text-[#002147] font-bold rounded-[var(--r-sm)] uppercase tracking-wider">
+            <span className="font-mono text-xs px-2 py-0.5 bg-gd-500 text-ox-900 font-bold rounded-[var(--r-sm)] uppercase tracking-wider">
               Internal Kit (/_kit)
             </span>
           </div>
@@ -63,13 +70,45 @@ export const DesignKitPage: React.FC = () => {
             Design Tokens &amp; Primitives
           </h1>
           <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1 font-body">
-            Strict industrial palette: Oxford Blue (#002147), Golden Yellow (#F2B705), Ink scale, flat shading only.
+            Strict industrial palette: Oxford Blue (#0B2D63), Golden Yellow (#F2B632), Ink scale, flat shading only.
           </p>
         </div>
 
       </div>
 
       <div className="flex flex-col gap-14">
+        {/* FOUNDATION 2026-10: status, feedback and form states */}
+        <section className="flex flex-col gap-6" aria-labelledby="kit-foundation">
+          <h2 id="kit-foundation" className="font-heading font-bold text-2xl text-[var(--brand)]">Status, feedback and forms</h2>
+          <div className="flex flex-wrap gap-2">
+            <StatusBadge status="Booked" />
+            <StatusBadge status="In Transit" />
+            <StatusBadge status="Held at destination customs awaiting importer documents" />
+            <StatusBadge status="Delivered" />
+            <StatusBadge status="Returned to sender" />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Badge>Air</Badge><Badge tone="brand">Oxford</Badge><Badge tone="accent">New route</Badge>
+            <Badge tone="success">Paid</Badge><Badge tone="warning">Needs documents</Badge><Badge tone="danger">Restricted</Badge><Badge tone="info">Info</Badge>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button>Get a quote</Button><Button variant="secondary">Track shipment</Button><Button variant="outline">See rates</Button>
+            <Button variant="ghost">Cancel</Button><Button variant="danger">Delete</Button><Button isLoading>Saving</Button><Button disabled>Disabled</Button>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Input label="Receiver name" required placeholder="Full name as on passport" />
+            <Input label="Email" error="Enter a valid email, like name@gmail.com." defaultValue="ram@" />
+            <Select label="Service" options={[{ value: 'air', label: 'Air courier' }, { value: 'sea', label: 'Sea cargo' }]} />
+            <Textarea label="What are you sending?" helperText="Contents and rough quantity." />
+          </div>
+          <ErrorState title="Tracking is not reachable right now" description="We could not connect to our tracking system. Try again in a moment, or ask our team on WhatsApp." actionLabel="Try again" onAction={() => {}} />
+          <LoadingState label="Loading rates" />
+          <span className="text-[var(--brand)]"><Spinner /></span>
+          <div className="rounded-[var(--r-md)] border border-[var(--line)] bg-[var(--surface)]">
+            <PageHeader kicker="Shipping to Japan" title="Send parcels from Nepal to Japan" lead="Door-to-door courier from Hetauda and Kathmandu. Prices include boxes; we confirm the final rate by phone." />
+          </div>
+        </section>
+
         {/* SECTION 1: COLOUR SCALES */}
         <section className="flex flex-col gap-4">
           <div className="flex items-center gap-2 border-b border-[var(--line)] pb-2">
@@ -82,13 +121,13 @@ export const DesignKitPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Oxford Blue */}
             <div className="flex flex-col gap-1.5 p-4 rounded-[var(--r-sm)] border border-[var(--line)] bg-[var(--surface)]">
-              <span className="text-xs font-heading font-bold uppercase text-[#002147]">Oxford Blue Scale</span>
+              <span className="text-xs font-heading font-bold uppercase text-ox-900">Oxford Blue Scale</span>
               <div className="grid grid-cols-5 gap-1 text-[10px] font-mono text-center">
                 <div className="h-8 bg-[#EEF3F9] text-black flex items-center justify-center">50</div>
                 <div className="h-8 bg-[#D6E1EF] text-black flex items-center justify-center">100</div>
                 <div className="h-8 bg-[#AEC3DE] text-black flex items-center justify-center">200</div>
                 <div className="h-8 bg-[#4F76A8] text-white flex items-center justify-center">400</div>
-                <div className="h-8 bg-[#002147] text-white flex items-center justify-center font-bold">900</div>
+                <div className="h-8 bg-ox-900 text-white flex items-center justify-center font-bold">900</div>
               </div>
             </div>
 
@@ -99,7 +138,7 @@ export const DesignKitPage: React.FC = () => {
                 <div className="h-8 bg-[#FFF9E0] text-black flex items-center justify-center">50</div>
                 <div className="h-8 bg-[#FFE380] text-black flex items-center justify-center">200</div>
                 <div className="h-8 bg-[#FAC623] text-black flex items-center justify-center">400</div>
-                <div className="h-8 bg-[#F2B705] text-[#002147] flex items-center justify-center font-bold">500</div>
+                <div className="h-8 bg-gd-500 text-ox-900 flex items-center justify-center font-bold">500</div>
                 <div className="h-8 bg-[#8C6400] text-white flex items-center justify-center">700</div>
               </div>
             </div>
@@ -109,7 +148,7 @@ export const DesignKitPage: React.FC = () => {
               <span className="text-xs font-heading font-bold uppercase">Ink (Neutral Warm)</span>
               <div className="grid grid-cols-5 gap-1 text-[10px] font-mono text-center">
                 <div className="h-8 bg-[#FFFFFF] border text-black flex items-center justify-center">0</div>
-                <div className="h-8 bg-[#F6F6F4] text-black flex items-center justify-center">50</div>
+                <div className="h-8 bg-[var(--bg)] text-black flex items-center justify-center">50</div>
                 <div className="h-8 bg-[#D9D8D2] text-black flex items-center justify-center">200</div>
                 <div className="h-8 bg-[#474642] text-white flex items-center justify-center">600</div>
                 <div className="h-8 bg-[#121211] text-white flex items-center justify-center font-bold">900</div>
@@ -236,7 +275,7 @@ export const DesignKitPage: React.FC = () => {
                 <span className="font-mono text-xs font-bold uppercase text-[var(--text-muted)]">Consignment Note</span>
                 <StampMark label="AIR CARGO" sublabel="VERIFIED" variant="gold" />
               </div>
-              <h3 className="font-data font-bold text-lg text-[#002147]">BC-90214-HKG</h3>
+              <h3 className="font-data font-bold text-lg text-ox-900">BC-90214-HKG</h3>
               <TearLine />
               <BarcodeStrip code="BC-90214-HKG" height={32} />
             </Card>
@@ -312,7 +351,7 @@ export const DesignKitPage: React.FC = () => {
               elevateOnHover
               className="p-5 rounded-[var(--r-md)] bg-[#071A33] text-white border border-slate-700/80 shadow-hard-md space-y-2"
             >
-              <span className="font-mono text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#F2B705] text-[#002147]">
+              <span className="font-mono text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-gd-500 text-ox-900">
                 Intensity: Prominent
               </span>
               <h4 className="font-heading font-bold text-sm text-white">Hero Deep Surface</h4>
@@ -377,19 +416,19 @@ export const DesignKitPage: React.FC = () => {
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6 bg-[var(--surface)] border-2 border-[var(--line)] rounded-[var(--r-sm)]">
             <div className="flex flex-col items-center gap-2 p-4 border border-[var(--line)] rounded-[var(--r-sm)] bg-[var(--surface-2)]">
-              <AirFreightIcon size={32} className="text-[#002147]" />
+              <AirFreightIcon size={32} className="text-ox-900" />
               <span className="font-heading font-bold text-xs uppercase tracking-wider">Air Freight</span>
             </div>
             <div className="flex flex-col items-center gap-2 p-4 border border-[var(--line)] rounded-[var(--r-sm)] bg-[var(--surface-2)]">
-              <RoadFreightIcon size={32} className="text-[#002147]" />
+              <RoadFreightIcon size={32} className="text-ox-900" />
               <span className="font-heading font-bold text-xs uppercase tracking-wider">Road Linehaul</span>
             </div>
             <div className="flex flex-col items-center gap-2 p-4 border border-[var(--line)] rounded-[var(--r-sm)] bg-[var(--surface-2)]">
-              <SeaFreightIcon size={32} className="text-[#002147]" />
+              <SeaFreightIcon size={32} className="text-ox-900" />
               <span className="font-heading font-bold text-xs uppercase tracking-wider">Ocean Lines</span>
             </div>
             <div className="flex flex-col items-center gap-2 p-4 border border-[var(--line)] rounded-[var(--r-sm)] bg-[var(--surface-2)]">
-              <CustomsIcon size={32} className="text-[#002147]" />
+              <CustomsIcon size={32} className="text-ox-900" />
               <span className="font-heading font-bold text-xs uppercase tracking-wider">Customs Seal</span>
             </div>
           </div>
@@ -430,7 +469,7 @@ export const DesignKitPage: React.FC = () => {
                 
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div className="p-4 bg-[var(--surface-2)] border border-[var(--line)] rounded-[var(--r-sm)]">
-                    <Counter to={50} suffix="+" className="text-3xl text-[#002147]" />
+                    <Counter to={50} suffix="+" className="text-3xl text-ox-900" />
                     <p className="text-[11px] font-heading uppercase text-[var(--text-muted)] mt-1">Global Gateways</p>
                   </div>
                   <div className="p-4 bg-[var(--surface-2)] border border-[var(--line)] rounded-[var(--r-sm)]">

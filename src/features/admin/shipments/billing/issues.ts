@@ -4,7 +4,7 @@
  * Pure functions only, so the same rules are unit-tested and drive the UI.
  */
 import { COUNTRIES } from '../../../../data/countries';
-import { BOX_LIMIT_KG, autoBoxCount, effectiveBoxCount, generateBillNo, money, type BillDraft, type Party } from './model';
+import { BOX_LIMIT_KG, DEFAULT_LIQUID_RATE_NPR, autoBoxCount, effectiveBoxCount, generateBillNo, money, type BillDraft, type Party } from './model';
 
 export interface IssueFix {
   label: string;
@@ -172,7 +172,7 @@ export function collectIssues(d: BillDraft): Issues {
   neg('r-liquid', 'Liquid charge', d.liquidChargeOverride, (x) => { x.liquidChargeOverride = null; });
   neg('r-meat', 'Meat charge', d.meatChargeOverride, (x) => { x.meatChargeOverride = null; });
   neg('r-box', 'Box charge', d.boxChargeOverride, (x) => { x.boxChargeOverride = null; });
-  if (num(d.liquidRate) < 0) out['rate-liquid'] = { level: 'error', message: 'The liquid rate cannot be negative.', fix: { label: 'Reset to 600', apply: (x) => { x.liquidRate = 600; } } };
+  if (num(d.liquidRate) < 0) out['rate-liquid'] = { level: 'error', message: 'The liquid rate cannot be negative.', fix: { label: 'Reset to 700', apply: (x) => { x.liquidRate = DEFAULT_LIQUID_RATE_NPR; } } };
   if (num(d.boxRate) < 0) out['rate-box'] = { level: 'error', message: 'The box rate cannot be negative.', fix: { label: 'Reset to 1,100', apply: (x) => { x.boxRate = 1100; } } };
   if (d.meatRateOverride !== null && num(d.meatRateOverride) < 0) out['rate-meat'] = { level: 'error', message: 'The meat rate cannot be negative.', fix: { label: 'Use automatic', apply: (x) => { x.meatRateOverride = null; } } };
 

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { NAV_COPY, PLAIN_TERMS, HERO_METRICS } from '../src/content/copy';
+import { NAV_COPY, PLAIN_TERMS } from '../src/content/copy';
+import { SERVICES_CATALOG } from '../src/services/servicesData';
 
 describe('Phase 10 — Plain English & Copy Limits Enforcer', () => {
   it('enforces that all navigation labels are at most 10 characters', () => {
@@ -20,11 +21,9 @@ describe('Phase 10 — Plain English & Copy Limits Enforcer', () => {
     }
   });
 
-  it('enforces that hero metrics have short, factual labels and details', () => {
-    for (const metric of HERO_METRICS) {
-      expect(metric.label.length).toBeLessThanOrEqual(15);
-      expect(metric.detail.length).toBeLessThanOrEqual(40);
-    }
+  it('keeps unverified licence and certification claims out of service copy', () => {
+    const text = JSON.stringify(SERVICES_CATALOG);
+    expect(text).not.toMatch(/B-409|IATA Cargo Agent|CAAN Cargo Escort|TEPC Export Certification|Authorized Carrier/);
   });
 
   it('verifies common jargon replacements in plain language guidelines', () => {

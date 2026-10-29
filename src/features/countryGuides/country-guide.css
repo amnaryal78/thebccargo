@@ -1,0 +1,161 @@
+/* Country guides. Depth comes from the shared clay tokens; nothing here adds new colours. */
+
+.cg-root[lang='ne'] {
+  /* Devanagari needs a little more line height to keep matras clear */
+  line-height: 1.75;
+}
+
+.cg-card {
+  box-shadow: var(--clay-outer-xs), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.cg-lift {
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease;
+}
+@media (hover: hover) {
+  .cg-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--clay-outer-sm), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Hero: the destination card floats a little above a soft, two-tone page */
+.cg-hero {
+  background:
+    radial-gradient(1200px 420px at 85% -10%, rgba(242,182,50, 0.10), transparent 60%),
+    linear-gradient(180deg, var(--surface-subtle), var(--bg));
+}
+.cg-hero-card {
+  box-shadow: var(--clay-outer-md), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.cg-map text {
+  font-family: var(--font-body);
+}
+.cg-route-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: cg-draw 1.4s 0.2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+@keyframes cg-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.cg-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cg-pulse 2.4s ease-out infinite;
+}
+@keyframes cg-pulse {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* Journey: a rail the numbered steps sit on */
+.cg-journey::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 19px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: linear-gradient(var(--gold), var(--ox-200));
+  border-radius: 2px;
+}
+.cg-journey-dot {
+  background: var(--surface);
+  color: var(--oxford-deep);
+  border: 2px solid var(--gold);
+  box-shadow: var(--clay-outer-xs);
+  z-index: 1;
+}
+
+/* Do-not-send panel: clearly different from the rest of the page */
+.cg-avoid {
+  background: linear-gradient(180deg, rgba(192, 46, 36, 0.05), rgba(192, 46, 36, 0.02));
+  border-color: var(--rd-100);
+}
+.cg-strike {
+  position: absolute;
+  width: 26px;
+  height: 2px;
+  background: var(--danger);
+  transform: rotate(-45deg);
+  border-radius: 2px;
+}
+
+/* Example address looks like a shipping label, tilted a hair */
+.cg-label {
+  box-shadow: var(--clay-outer-sm);
+  transform: rotate(-0.6deg);
+}
+
+/* Tracking stages */
+.cg-stages li::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  inset-inline-start: -50%;
+  width: 100%;
+  height: 2px;
+  background: var(--ox-200);
+}
+.cg-stages li:first-child::before {
+  display: none;
+}
+@media (max-width: 639px) {
+  .cg-stages li:nth-child(4)::before {
+    display: none;
+  }
+}
+.cg-stage-dot {
+  background: var(--gold);
+  box-shadow: 0 0 0 4px var(--gd-50);
+}
+
+.cg-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.cg-ready {
+  background:
+    radial-gradient(600px 240px at 100% 0%, rgba(242,182,50, 0.16), transparent 70%),
+    var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--clay-outer-md), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Globe stage: a soft studio light behind the 3D scene */
+.cg-stage {
+  background:
+    radial-gradient(70% 60% at 50% 45%, rgba(174, 195, 222, 0.38), transparent 70%),
+    linear-gradient(180deg, var(--surface-subtle), var(--surface-muted));
+  box-shadow: var(--clay-inset);
+}
+.cg-globe canvas {
+  outline: none;
+}
+.cg-globe-skeleton {
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%) 0 0 / 200% 100%;
+  animation: cg-shimmer 1.4s linear infinite;
+}
+@keyframes cg-shimmer {
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cg-globe-skeleton {
+    animation: none;
+  }
+  .cg-route-draw,
+  .cg-pulse {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .cg-lift,
+  .cg-lift:hover {
+    transition: none;
+    transform: none;
+  }
+}

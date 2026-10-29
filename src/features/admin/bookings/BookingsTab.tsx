@@ -88,7 +88,7 @@ export const BookingsTab: React.FC = () => {
           <li
             key={b.id}
             className={`rounded-xl border p-4 flex flex-col gap-2 ${
-              unreadRefs.has(b.id) ? 'border-[#F2B705] bg-[#F2B705]/10' : 'border-[#E2E2DE]'
+              unreadRefs.has(b.id) ? 'border-gd-500 bg-gd-500/10' : 'border-[#E2E2DE]'
             }`}
           >
             <div className="flex flex-wrap items-center justify-between gap-2">

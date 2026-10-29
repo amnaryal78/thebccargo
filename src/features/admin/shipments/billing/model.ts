@@ -7,7 +7,7 @@ import { getMeatRatePerKg, isMeatAllowedForCountry } from '../../../estimator/en
 
 export const BOX_LIMIT_KG = 20;
 export const DEFAULT_BOX_RATE_NPR = 1100;
-export const DEFAULT_LIQUID_RATE_NPR = 600;
+export const DEFAULT_LIQUID_RATE_NPR = 700;
 export const HONG_KONG_MEAT_RATE_NPR = 1050;
 export const DEFAULT_VALUE_UP_TO_NPR = 10000;
 

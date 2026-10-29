@@ -12,7 +12,8 @@ describe('Phase 8 — Pinned Buttons & Cursor Rotation', () => {
   it('ensures StickyContactButtons is visible on PC (lg:hidden removed)', () => {
     expect(stickyContent.includes('lg:hidden')).toBe(false);
     expect(stickyContent.includes('fixed')).toBe(true);
-    expect(stickyContent.includes('bottom-20')).toBe(true);
+    // sits above the bottom nav and clears the home indicator
+    expect(stickyContent.includes('bottom-[calc(5rem+env(safe-area-inset-bottom))]')).toBe(true);
     expect(stickyContent.includes('lg:bottom-10')).toBe(true);
   });
 

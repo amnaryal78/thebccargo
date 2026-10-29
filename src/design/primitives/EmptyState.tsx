@@ -27,7 +27,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         {icon || <PackageX className="w-7 h-7" />}
       </div>
 
-      <h3 className="font-heading font-extrabold text-base sm:text-lg text-[var(--text)] uppercase tracking-tight">
+      <h3 className="font-heading font-extrabold text-base sm:text-lg text-[var(--text)] tracking-[-0.01em]">
         {title}
       </h3>
 

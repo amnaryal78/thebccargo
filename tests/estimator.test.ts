@@ -96,12 +96,13 @@ describe('Phase 1 — Google Sheet Live Rate Engine Suite', () => {
   });
 
   describe('Pure Function Tests (Phase 1 Acceptance Criteria)', () => {
-    test('UK 30 kg, liquid + meat 1 kg -> base 23,500, box 2,000, liquid 1,200, meat 600', () => {
+    test('UK 30 kg, liquid 2 btl + meat 1 kg -> base 23,500, box 2,200, liquid 1,400, meat 800', () => {
       const quote = calculateSheetShipmentQuote(
         {
           destination: 'United Kingdom',
           actualWeightKg: 30,
           hasLiquid: true,
+          liquidBottleCount: 2,
           hasMeat: true,
           meatKg: 1,
         },
@@ -115,13 +116,13 @@ describe('Phase 1 — Google Sheet Live Rate Engine Suite', () => {
       expect(quote.boxCount).toBe(2);
       expect(quote.boxWeights).toEqual([20, 10]);
       expect(quote.baseShippingCharge).toBe(23500);
-      expect(quote.boxCharge).toBe(2000); // 2 boxes * 1,000
-      expect(quote.liquidCharge).toBe(1200); // 2 boxes * 600
-      expect(quote.meatCharge).toBe(600); // 1 kg * 600
-      expect(quote.totalNpr).toBe(23500 + 2000 + 1200 + 600); // 27,300
+      expect(quote.boxCharge).toBe(2200); // 2 boxes * 1,100
+      expect(quote.liquidCharge).toBe(1400); // 2 bottles * 700
+      expect(quote.meatCharge).toBe(800); // 1 kg * 800
+      expect(quote.totalNpr).toBe(23500 + 2200 + 1400 + 800); // 27,900
     });
 
-    test('Korea 3 kg -> 3,550 base + 1,000 box', () => {
+    test('Korea 3 kg -> 3,550 base + 1,100 box', () => {
       const quote = calculateSheetShipmentQuote(
         {
           destination: 'South Korea',
@@ -135,8 +136,8 @@ describe('Phase 1 — Google Sheet Live Rate Engine Suite', () => {
       expect(quote.boxCount).toBe(1);
       expect(quote.boxWeights).toEqual([3]);
       expect(quote.baseShippingCharge).toBe(3550);
-      expect(quote.boxCharge).toBe(1000);
-      expect(quote.totalNpr).toBe(3550 + 1000);
+      expect(quote.boxCharge).toBe(1100);
+      expect(quote.totalNpr).toBe(3550 + 1100);
     });
 
     test('Meat on Korea -> blocked with clear message', () => {
@@ -193,8 +194,8 @@ describe('Phase 1 — Google Sheet Live Rate Engine Suite', () => {
 
       expect(result.allowed).toBe(true);
       expect(result.breakdown.baseFreightNpr).toBe(23500);
-      expect(result.breakdown.boxChargeNpr).toBe(2000);
-      expect(result.breakdown.totalNpr).toBe(27300);
+      expect(result.breakdown.boxChargeNpr).toBe(2200);
+      expect(result.breakdown.totalNpr).toBe(27200); // 23,500 + 2,200 + 700 (1 btl) + 800 (1 kg meat)
     });
 
     test('blocks meat shipment to Korea through calculateEstimate', () => {

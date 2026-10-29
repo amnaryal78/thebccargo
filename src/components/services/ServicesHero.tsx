@@ -24,7 +24,7 @@ export const ServicesHero: React.FC<{ services: ServiceDetail[] }> = ({ services
             initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
-            className="font-heading font-extrabold text-4xl sm:text-5xl tracking-tight leading-[1.1] text-[#002147]"
+            className="font-heading font-extrabold text-4xl sm:text-5xl tracking-tight leading-[1.1] text-ox-900"
           >
             Services and freight solutions
           </motion.h1>
@@ -55,7 +55,7 @@ export const ServicesHero: React.FC<{ services: ServiceDetail[] }> = ({ services
             {services.map((s) => (
               <li
                 key={s.id}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#EEF3F9] border border-[#D5DEEA] text-xs font-semibold text-[#002147] leading-none"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#EEF3F9] border border-[#D5DEEA] text-xs font-semibold text-ox-900 leading-none"
               >
                 <Clock className="w-3.5 h-3.5 shrink-0 text-[#8C6400]" aria-hidden="true" />
                 <span>

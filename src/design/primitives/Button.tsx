@@ -90,25 +90,24 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const sizeClasses = {
-      sm: 'min-h-[44px] sm:min-h-[38px] h-10 sm:h-9 px-3.5 text-xs tracking-wider gap-1.5',
-      md: 'min-h-[44px] h-11 px-5 text-sm font-semibold tracking-wider gap-2',
-      lg: 'min-h-[48px] h-12 sm:h-13 px-6 sm:px-7 text-sm sm:text-base font-bold tracking-wide gap-2.5',
+      sm: 'min-h-[44px] sm:pointer-fine:min-h-[38px] h-10 sm:pointer-fine:h-9 px-3.5 text-sm gap-1.5',
+      md: 'min-h-[44px] h-11 px-5 text-[15px] gap-2',
+      lg: 'min-h-[48px] h-12 sm:h-13 px-6 sm:px-7 text-base gap-2.5',
     };
 
-    // Sophisticated Two-Way Brand Hover Physics:
-    // Gold primary -> Oxford blue fill with gold text & gold-accented shadow on hover
-    // Oxford secondary -> Gold fill with Oxford blue text & oxford shadow on hover
+    // Sentence-case labels; hover deepens the same colour instead of swapping brand colours,
+    // so a button never changes identity under the pointer. Gold is the one action per view.
     const variantClasses = {
       primary:
-        'bg-[var(--gd-500)] text-[var(--ox-900)] border border-white/60 shadow-hard font-heading font-bold uppercase hover:-translate-y-0.5 hover:bg-[var(--ox-800)] hover:text-[var(--gd-300)] hover:border-[var(--ox-700)] hover:shadow-[0_6px_22px_-2px_rgba(0,33,71,0.35)] active:translate-y-0.5 active:bg-[var(--ox-900)] active:shadow-press',
+        'bg-[var(--gd-500)] text-[var(--on-accent)] font-semibold shadow-hard-xs hover:bg-[var(--gd-400)] hover:shadow-hard-sm active:bg-[var(--gd-600)] active:shadow-press',
       secondary:
-        'bg-[var(--ox-900)] text-white border border-white/20 shadow-hard-sm font-heading font-semibold uppercase hover:-translate-y-0.5 hover:bg-[var(--gd-500)] hover:text-[var(--ox-900)] hover:border-[var(--gd-400)] hover:shadow-[0_6px_22px_-2px_rgba(242,183,5,0.35)] active:translate-y-0.5 active:bg-[var(--gd-600)] active:shadow-press',
+        'bg-[var(--ox-900)] text-white font-semibold shadow-hard-xs hover:bg-[var(--ox-800)] hover:shadow-hard-sm active:bg-[var(--ox-950)] active:shadow-press',
       outline:
-        'bg-transparent text-[var(--text)] border border-[var(--line-strong)] shadow-hard-xs font-heading font-semibold uppercase hover:-translate-y-0.5 hover:bg-[var(--surface-2)] hover:border-[var(--ox-700)] hover:shadow-hard-sm active:translate-y-0.5 active:shadow-press',
+        'bg-[var(--surface)] text-[var(--brand)] font-semibold border border-[var(--line-strong)] hover:border-[var(--ox-400)] hover:bg-[var(--ox-50)] active:bg-[var(--ox-100)]',
       ghost:
-        'bg-transparent text-[var(--text)] font-heading font-semibold uppercase hover:bg-[var(--surface-2)] hover:text-[var(--ox-900)] hover:shadow-hard-xs active:translate-y-0.5 active:bg-[var(--surface-2)]',
+        'bg-transparent text-[var(--brand)] font-semibold hover:bg-[var(--surface-2)] active:bg-[var(--ink-200)]',
       danger:
-        'bg-[var(--rd-500)] text-white border border-white/20 shadow-hard-sm font-heading font-semibold uppercase hover:-translate-y-0.5 hover:bg-[var(--rd-600)] active:translate-y-0.5 active:shadow-press',
+        'bg-[var(--rd-500)] text-white font-semibold shadow-hard-xs hover:bg-[var(--rd-600)] active:shadow-press',
     };
 
     // Apply magnetic pull to inner wrapper so layout flow remains completely undisturbed
@@ -127,7 +126,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         onMouseLeave={handleMouseLeave}
         onBlur={handleBlur}
         style={style}
-        className={`inline-flex items-center justify-center select-none cursor-pointer rounded-[var(--r-sm)] whitespace-nowrap shrink-0 transition-[transform,box-shadow,background-color,color,border-color] duration-[var(--t-fast)] ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,#F2B705)] focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
+        className={`inline-flex items-center justify-center select-none cursor-pointer rounded-[var(--r-sm)] font-heading tracking-[-0.005em] whitespace-nowrap shrink-0 transition-[transform,box-shadow,background-color,color,border-color] duration-[var(--t-fast)] ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
         {...props}
       >
         <span

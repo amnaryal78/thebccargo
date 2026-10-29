@@ -231,7 +231,7 @@ export const CustomCursor: React.FC = () => {
             : hoverType === 'card'
             ? 'bg-white/95 border-[var(--gold)]/50 text-slate-900'
             : currentMessage.category === 'ad'
-            ? 'bg-amber-50/95 border-amber-400 text-[#002147]'
+            ? 'bg-amber-50/95 border-amber-400 text-ox-900'
             : 'bg-white/90 border-slate-200/80 text-slate-800'
         }`}
       >

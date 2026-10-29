@@ -46,6 +46,14 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
   const [submissionSuccess, setSubmissionSuccess] = useState<string | null>(null);
   const [submittedAwb, setSubmittedAwb] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Moving to another step unmounts the button that had focus; put keyboard and screen-reader users on the new step.
+  const shownStep = React.useRef(currentStep);
+  useEffect(() => {
+    if (shownStep.current === currentStep) return;
+    shownStep.current = currentStep;
+    document.querySelector<HTMLElement>('[data-step-heading]')?.focus();
+  }, [currentStep]);
   const [turnstileToken, setTurnstileToken] = useState<string>('');
 
   // Prefill parameters from Rate Estimator query string:
@@ -223,21 +231,21 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-[var(--oxford-deep)] text-xs font-bold uppercase tracking-wider font-mono mb-1">
-              <PackagePlus className="w-4 h-4 text-[var(--gold-dark)]" />
-              <span>Commercial &amp; Parcel Dispatch</span>
+            <div className="flex items-center gap-2 text-[var(--gold-dark)] text-sm font-semibold mb-1">
+              <PackagePlus className="w-4 h-4" />
+              <span>Parcels and cargo</span>
             </div>
             <h1 className="font-heading font-extrabold text-2xl sm:text-4xl text-[var(--text)] tracking-tight">
-              Book Cargo Consignment
+              Book a shipment
             </h1>
-            <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1">
-              Direct booking into central dispatch. Secure waybill generation and collection coordination across Nepal.
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
+              Tell us what you are sending and where. We confirm by phone and arrange pickup or drop-off.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-[var(--text-muted)] bg-[var(--surface)] px-3 py-1.5 rounded-[var(--r-xs)] border border-[var(--line)] self-start md:self-auto">
+          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] self-start md:self-auto">
             <Clock className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Central Booking Desk Active</span>
+            <span>Bookings answered during office hours</span>
           </div>
         </div>
 
@@ -276,14 +284,14 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
             </div>
 
             <div className="flex flex-col gap-2 max-w-lg">
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--gold-dark)]">
+              <span className="text-xs font-bold uppercase tracking-widest text-[var(--gold-dark)]">
                 Booking Registered Successfully
               </span>
               <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-[var(--text)]">
                 Reference: {submissionSuccess}
               </h2>
               {submittedAwb && (
-                <div className="inline-flex items-center justify-center gap-2 p-2.5 rounded-[var(--r-xs)] bg-[var(--surface-2)] border border-[var(--line)] text-xs font-mono font-bold text-[var(--text)] mt-2 shadow-hard-xs">
+                <div className="inline-flex items-center justify-center gap-2 p-2.5 rounded-[var(--r-xs)] bg-[var(--surface-2)] border border-[var(--line)] text-xs font-bold text-[var(--text)] mt-2 shadow-hard-xs">
                   <FileText className="w-4 h-4 text-[var(--gold-dark)]" />
                   <span>Generated Air Waybill: #{submittedAwb}</span>
                 </div>
@@ -324,12 +332,12 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
           <div className="bg-[var(--surface)] rounded-[var(--r-md)] p-6 sm:p-8 border border-[var(--line)] shadow-hard flex flex-col gap-6 animate-fadeIn">
             <div className="flex items-center justify-between border-b border-[var(--line)] pb-3">
               <div>
-                <span className="text-[10px] font-mono uppercase text-[var(--text-muted)] font-bold">Step 1 of 4</span>
-                <h2 className="font-heading font-bold text-base sm:text-lg text-[var(--text)]">
+                <span className="text-[10px] uppercase text-[var(--text-muted)] font-bold">Step 1 of 4</span>
+                <h2 tabIndex={-1} data-step-heading className="font-heading font-bold text-base sm:text-lg text-[var(--text)] outline-none">
                   Route Selection &amp; Service Mode
                 </h2>
               </div>
-              <span className="px-2.5 py-1 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-xs font-mono font-bold text-[var(--text)] shadow-hard-xs">
+              <span className="px-2.5 py-1 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-xs font-bold text-[var(--text)] shadow-hard-xs">
                 Stage 1 / 4
               </span>
             </div>
@@ -337,26 +345,28 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
             {/* Pickup & Destination Details */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                <label htmlFor="bk-origin-city" className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
                   Pickup City (Nepal) *
                 </label>
-                <input
+                <input id="bk-origin-city" autoComplete="address-level2"
                   type="text"
                   value={originCity}
                   onChange={(e) => setOriginCity(e.target.value)}
                   className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                   placeholder="e.g. Hetauda, Kathmandu, Pokhara, Birgunj"
+                  maxLength={120}
                   required
                 />
               </div>
 
               <div>
-                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                <label htmlFor="bk-pickup-address" className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
                   Pickup Street Address *
                 </label>
-                <input
+                <input id="bk-pickup-address" autoComplete="street-address"
                   type="text"
                   value={pickupAddress}
+                  maxLength={300}
                   onChange={(e) => setPickupAddress(e.target.value)}
                   className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                   placeholder="e.g. School Road -4 / Factory Gate"
@@ -382,12 +392,13 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
               </div>
 
               <div>
-                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                <label htmlFor="bk-dest-city" className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
                   Destination City *
                 </label>
-                <input
+                <input id="bk-dest-city" autoComplete="off"
                   type="text"
                   value={destinationCity}
+                  maxLength={120}
                   onChange={(e) => setDestinationCity(e.target.value)}
                   className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                   placeholder="e.g. Frankfurt, New York, Delhi, Dubai"
@@ -396,10 +407,10 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
               </div>
 
               <div>
-                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                <label htmlFor="bk-pickup-date" className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
                   Target Pickup Date
                 </label>
-                <input
+                <input id="bk-pickup-date"
                   type="date"
                   value={pickupDate}
                   min={new Date().toISOString().split('T')[0]}
@@ -427,23 +438,24 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
           <div className="bg-[var(--surface)] rounded-[var(--r-md)] p-6 sm:p-8 border border-[var(--line)] shadow-hard flex flex-col gap-6 animate-fadeIn">
             <div className="flex items-center justify-between border-b border-[var(--line)] pb-3">
               <div>
-                <span className="text-[10px] font-mono uppercase text-[var(--text-muted)] font-bold">Step 2 of 4</span>
-                <h2 className="font-heading font-bold text-base sm:text-lg text-[var(--text)]">
+                <span className="text-[10px] uppercase text-[var(--text-muted)] font-bold">Step 2 of 4</span>
+                <h2 tabIndex={-1} data-step-heading className="font-heading font-bold text-base sm:text-lg text-[var(--text)] outline-none">
                   Cargo Dimensions &amp; Commodity Specifications
                 </h2>
               </div>
-              <span className="px-2.5 py-1 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-xs font-mono font-bold text-[var(--text)]">
+              <span className="px-2.5 py-1 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-xs font-bold text-[var(--text)]">
                 Stage 2 / 4
               </span>
             </div>
 
             <div>
-              <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+              <label htmlFor="bk-commodity" className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
                 Commodity / Item Description *
               </label>
-              <input
+              <input id="bk-commodity"
                 type="text"
                 value={commodity}
+                  maxLength={200}
                 onChange={(e) => setCommodity(e.target.value)}
                 placeholder="e.g. Handwoven Himalayan Pashmina Shawls & Wool Garments"
                 className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
@@ -453,44 +465,44 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div>
-                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                <label htmlFor="bk-weight" className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
                   Gross Weight (kg) *
                 </label>
-                <input
+                <input id="bk-weight" inputMode="decimal"
                   type="number"
                   min="0.5"
                   step="0.5"
                   value={weightKg}
                   onChange={(e) => setWeightKg(parseFloat(e.target.value) || 0)}
-                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm font-mono text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                <label htmlFor="bk-boxes" className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
                   Box / Pieces Count *
                 </label>
-                <input
+                <input id="bk-boxes" inputMode="numeric"
                   type="number"
                   min="1"
                   value={pieces}
                   onChange={(e) => setPieces(parseInt(e.target.value, 10) || 1)}
-                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm font-mono text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
+                <label htmlFor="bk-value" className="text-xs font-heading font-bold text-[var(--text)] block mb-1">
                   Declared Value (NPR)
                 </label>
-                <input
+                <input id="bk-value" inputMode="decimal"
                   type="number"
                   min="0"
                   value={declaredValue}
                   onChange={(e) => setDeclaredValue(parseInt(e.target.value, 10) || 0)}
-                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm font-mono text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  className="w-full min-h-[48px] px-4 py-3 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                   placeholder="Optional for insurance"
                 />
               </div>
@@ -532,7 +544,7 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
                   placeholder="Length (cm)"
                   value={lengthCm}
                   onChange={(e) => setLengthCm(parseInt(e.target.value, 10) || 1)}
-                  className="min-h-[48px] px-3.5 py-2.5 rounded-md bg-slate-50 border border-slate-300 text-sm font-mono text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  className="min-h-[48px] px-3.5 py-2.5 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                 />
                 <input
                   type="number"
@@ -540,7 +552,7 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
                   placeholder="Width (cm)"
                   value={widthCm}
                   onChange={(e) => setWidthCm(parseInt(e.target.value, 10) || 1)}
-                  className="min-h-[48px] px-3.5 py-2.5 rounded-md bg-slate-50 border border-slate-300 text-sm font-mono text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  className="min-h-[48px] px-3.5 py-2.5 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                 />
                 <input
                   type="number"
@@ -548,13 +560,13 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
                   placeholder="Height (cm)"
                   value={heightCm}
                   onChange={(e) => setHeightCm(parseInt(e.target.value, 10) || 1)}
-                  className="min-h-[48px] px-3.5 py-2.5 rounded-md bg-slate-50 border border-slate-300 text-sm font-mono text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  className="min-h-[48px] px-3.5 py-2.5 rounded-md bg-slate-50 border border-slate-300 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                 />
               </div>
             </div>
 
             {/* Calculated Weight Summary Box */}
-            <div className="p-4 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)] flex flex-wrap items-center justify-between gap-4 text-xs font-mono">
+            <div className="p-4 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)] flex flex-wrap items-center justify-between gap-4 text-xs">
               <div>
                 <span className="text-[var(--text-muted)] block uppercase text-[10px]">Total Volume</span>
                 <span className="font-bold text-[var(--text)]">{volumeCbm} CBM</span>
@@ -597,12 +609,12 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
           <div className="bg-[var(--surface)] rounded-[var(--r-md)] p-6 sm:p-8 border border-[var(--line)] shadow-hard flex flex-col gap-6 animate-fadeIn">
             <div className="flex items-center justify-between border-b border-[var(--line)] pb-3">
               <div>
-                <span className="text-[10px] font-mono uppercase text-[var(--text-muted)] font-bold">Step 3 of 4</span>
-                <h2 className="font-heading font-bold text-base sm:text-lg text-[var(--text)]">
+                <span className="text-[10px] uppercase text-[var(--text-muted)] font-bold">Step 3 of 4</span>
+                <h2 tabIndex={-1} data-step-heading className="font-heading font-bold text-base sm:text-lg text-[var(--text)] outline-none">
                   Shipper &amp; Consignee Information
                 </h2>
               </div>
-              <span className="px-2.5 py-1 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-xs font-mono font-bold text-[var(--text)]">
+              <span className="px-2.5 py-1 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-xs font-bold text-[var(--text)]">
                 Stage 3 / 4
               </span>
             </div>
@@ -610,16 +622,17 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Shipper Section */}
               <div className="p-5 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)] flex flex-col gap-3.5">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--gold-dark)]">
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold-dark)]">
                   Shipper Details (Sender in Nepal)
                 </span>
                 <div>
-                  <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                  <label htmlFor="bk-sender-name" className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
                     Contact Person Name *
                   </label>
-                  <input
+                  <input id="bk-sender-name" autoComplete="name"
                     type="text"
                     value={shipperName}
+                  maxLength={120}
                     onChange={(e) => setShipperName(e.target.value)}
                     placeholder="e.g. Prakash Adhikari"
                     className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
@@ -627,12 +640,13 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                  <label htmlFor="bk-sender-company" className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
                     Company / Organization Name
                   </label>
-                  <input
+                  <input id="bk-sender-company" autoComplete="organization"
                     type="text"
                     value={shipperCompany}
+                  maxLength={160}
                     onChange={(e) => setShipperCompany(e.target.value)}
                     placeholder="e.g. Himalayan Crafts Exports Pvt. Ltd."
                     className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
@@ -640,12 +654,13 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                    <label htmlFor="bk-sender-phone" className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
                       Phone Number *
                     </label>
-                    <input
+                    <input id="bk-sender-phone" autoComplete="tel"
                       type="tel"
                       value={shipperPhone}
+                  maxLength={30}
                       onChange={(e) => setShipperPhone(e.target.value)}
                       placeholder="+977-98..."
                       className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
@@ -653,12 +668,13 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                    <label htmlFor="bk-sender-email" className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
                       Email Address *
                     </label>
-                    <input
+                    <input id="bk-sender-email" autoComplete="email"
                       type="email"
                       value={shipperEmail}
+                  maxLength={254}
                       onChange={(e) => setShipperEmail(e.target.value)}
                       placeholder="shipper@example.com"
                       className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
@@ -670,16 +686,17 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
 
               {/* Consignee Section */}
               <div className="p-5 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)] flex flex-col gap-3.5">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--gold-dark)]">
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold-dark)]">
                   Consignee Details (Recipient)
                 </span>
                 <div>
-                  <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                  <label htmlFor="bk-receiver-name" className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
                     Recipient Full Name *
                   </label>
-                  <input
+                  <input id="bk-receiver-name" autoComplete="off"
                     type="text"
                     value={consigneeName}
+                  maxLength={120}
                     onChange={(e) => setConsigneeName(e.target.value)}
                     placeholder="e.g. Helmut Schneider / Destination Contact"
                     className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
@@ -687,12 +704,13 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                  <label htmlFor="bk-receiver-company" className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
                     Recipient Company (optional)
                   </label>
-                  <input
+                  <input id="bk-receiver-company" autoComplete="off"
                     type="text"
                     value={consigneeCompany}
+                  maxLength={160}
                     onChange={(e) => setConsigneeCompany(e.target.value)}
                     placeholder="e.g. Schneider Logistics GmbH"
                     className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
@@ -700,12 +718,13 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                    <label htmlFor="bk-receiver-phone" className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
                       Phone Number *
                     </label>
-                    <input
+                    <input id="bk-receiver-phone" autoComplete="off"
                       type="tel"
                       value={consigneePhone}
+                  maxLength={30}
                       onChange={(e) => setConsigneePhone(e.target.value)}
                       placeholder="Receiver contact with country code"
                       className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
@@ -713,12 +732,13 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                    <label htmlFor="bk-receiver-email" className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
                       Email Address (optional)
                     </label>
-                    <input
+                    <input id="bk-receiver-email" autoComplete="off"
                       type="email"
                       value={consigneeEmail}
+                  maxLength={254}
                       onChange={(e) => setConsigneeEmail(e.target.value)}
                       placeholder="receiver@domain.com"
                       className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
@@ -726,12 +746,13 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
                   </div>
                 </div>
                 <div>
-                  <label className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
+                  <label htmlFor="bk-receiver-address" className="text-[11px] font-heading font-bold text-[var(--text)] block mb-1">
                     Delivery Street / Warehouse Address
                   </label>
-                  <input
+                  <input id="bk-receiver-address" autoComplete="off"
                     type="text"
                     value={deliveryAddress}
+                  maxLength={300}
                     onChange={(e) => setDeliveryAddress(e.target.value)}
                     placeholder="Street, Building, Door / Warehouse code"
                     className="w-full min-h-[44px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
@@ -766,18 +787,18 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
           <form onSubmit={handleSubmitBooking} className="bg-[var(--surface)] rounded-[var(--r-md)] p-6 sm:p-8 border border-[var(--line)] shadow-hard flex flex-col gap-6 animate-fadeIn">
             <div className="flex items-center justify-between border-b border-[var(--line)] pb-3">
               <div>
-                <span className="text-[10px] font-mono uppercase text-[var(--text-muted)] font-bold">Step 4 of 4</span>
-                <h2 className="font-heading font-bold text-base sm:text-lg text-[var(--text)]">
+                <span className="text-[10px] uppercase text-[var(--text-muted)] font-bold">Step 4 of 4</span>
+                <h2 tabIndex={-1} data-step-heading className="font-heading font-bold text-base sm:text-lg text-[var(--text)] outline-none">
                   Final Manifest Review &amp; Dispatch Confirmation
                 </h2>
               </div>
-              <span className="px-2.5 py-1 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-xs font-mono font-bold text-[var(--text)]">
+              <span className="px-2.5 py-1 rounded-[var(--r-xs)] bg-[var(--surface-2)] text-xs font-bold text-[var(--text)]">
                 Stage 4 / 4
               </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              <div className="p-4 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)] space-y-2">
+              <div className="min-w-0 p-4 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)] space-y-2 [overflow-wrap:anywhere]">
                 <span className="font-mono uppercase font-bold text-[var(--gold-dark)] block">
                   Route &amp; Mode
                 </span>
@@ -787,7 +808,7 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({ onBookingSuccess }
                 <p><strong>Pickup Date:</strong> {pickupDate}</p>
               </div>
 
-              <div className="p-4 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)] space-y-2">
+              <div className="min-w-0 p-4 rounded-[var(--r-sm)] bg-[var(--surface-2)] border border-[var(--line)] space-y-2 [overflow-wrap:anywhere]">
                 <span className="font-mono uppercase font-bold text-[var(--gold-dark)] block">
                   Cargo Specification
                 </span>

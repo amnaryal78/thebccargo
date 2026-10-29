@@ -41,7 +41,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
       <div className={`flex flex-col gap-1.5 w-full ${containerClassName}`}>
         <label
           htmlFor={selectId}
-          className={`text-xs font-heading font-bold uppercase tracking-wider text-[var(--text)] ${
+          className={`text-sm font-heading font-semibold text-[var(--text)] ${
             hideLabelVisually ? 'sr-only' : ''
           }`}
         >
@@ -56,10 +56,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             disabled={disabled}
             aria-invalid={error ? 'true' : 'false'}
             aria-describedby={error ? errorId : helperText ? helperId : undefined}
-            className={`w-full min-h-[44px] px-3.5 py-2.5 pr-10 bg-[var(--surface)] text-[var(--text)] border rounded-[var(--r-sm)] clay-inset font-body text-sm appearance-none transition-all cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`w-full min-h-[48px] px-4 py-3 pr-10 bg-[var(--surface)] text-[var(--text)] border rounded-[var(--r-sm)] clay-inset font-body text-[15px] appearance-none transition-all cursor-pointer hover:border-[var(--ox-400)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed ${
               error
                 ? 'border-[var(--danger)] focus:border-[var(--danger)]'
-                : 'border-[var(--line)] focus:border-[var(--brand)]'
+                : 'border-[var(--line-strong)]'
             } ${className}`}
             {...props}
           >

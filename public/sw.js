@@ -8,7 +8,7 @@
  * - ZERO caching for API calls (/api/*) or write mutations (POST, PUT, DELETE)
  */
 
-const CACHE_NAME = 'bc-cargo-cache-v2';
+const CACHE_NAME = 'bc-cargo-cache-v4';
 
 const SHELL_ASSETS = [
   '/',
@@ -17,8 +17,8 @@ const SHELL_ASSETS = [
   '/contact',
   '/manifest.json',
   '/favicon.png',
-  '/brand/bc-logo.webp',
-  '/og-banner.png'
+  '/brand/bc-logo-96.webp',
+  '/brand/bc-logo-192.webp'
 ];
 
 // Install: pre-cache shell

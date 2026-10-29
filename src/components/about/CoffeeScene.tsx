@@ -25,8 +25,8 @@ export const CoffeeScene: React.FC<{ className?: string }> = ({ className = '' }
               <stop offset="1" stopColor="#0d0605" />
             </radialGradient>
             <radialGradient id="cs-glow" cx="0.5" cy="0.5" r="0.5">
-              <stop offset="0" stopColor="#F2B705" stopOpacity="0.35" />
-              <stop offset="1" stopColor="#F2B705" stopOpacity="0" />
+              <stop offset="0" stopColor="#F2B632" stopOpacity="0.35" />
+              <stop offset="1" stopColor="#F2B632" stopOpacity="0" />
             </radialGradient>
           </defs>
 
@@ -35,16 +35,16 @@ export const CoffeeScene: React.FC<{ className?: string }> = ({ className = '' }
 
           {/* saucer */}
           <ellipse cx="120" cy="182" rx="88" ry="14" fill="#06162c" />
-          <ellipse cx="120" cy="177" rx="84" ry="12" fill="url(#cs-cup)" stroke="#F2B705" strokeOpacity="0.5" />
+          <ellipse cx="120" cy="177" rx="84" ry="12" fill="url(#cs-cup)" stroke="#F2B632" strokeOpacity="0.5" />
           <ellipse cx="120" cy="175" rx="52" ry="7" fill="#aebccd" opacity="0.55" />
 
           {/* handle */}
           <path d="M184 108c26-2 30 30 4 38-8 3-18 3-26 1" fill="none" stroke="url(#cs-cup)" strokeWidth="9" strokeLinecap="round" />
 
           {/* cup body */}
-          <path d="M52 92h136v38c0 30-26 50-68 50s-68-20-68-50z" fill="url(#cs-cup)" stroke="#002147" strokeOpacity="0.25" strokeWidth="1.5" />
+          <path d="M52 92h136v38c0 30-26 50-68 50s-68-20-68-50z" fill="url(#cs-cup)" stroke="#0B2D63" strokeOpacity="0.25" strokeWidth="1.5" />
           {/* gold rim */}
-          <ellipse cx="120" cy="92" rx="68" ry="14" fill="#F2B705" />
+          <ellipse cx="120" cy="92" rx="68" ry="14" fill="#F2B632" />
           {/* coffee surface */}
           <ellipse cx="120" cy="92" rx="62" ry="10.5" fill="url(#cs-coffee)" />
           <ellipse cx="102" cy="89" rx="22" ry="3" fill="#fff" opacity="0.14" />
@@ -56,7 +56,7 @@ export const CoffeeScene: React.FC<{ className?: string }> = ({ className = '' }
             textAnchor="middle"
             fontSize="38"
             fontWeight="800"
-            fill="#002147"
+            fill="#0B2D63"
             style={{ fontFamily: 'var(--font-heading, inherit)' }}
           >
             BC
@@ -70,7 +70,7 @@ export const CoffeeScene: React.FC<{ className?: string }> = ({ className = '' }
           </g>
 
           {/* a few gold sparks */}
-          <g fill="#F2B705">
+          <g fill="#F2B632">
             <circle className="cs-spark cs-spark-1" cx="84" cy="60" r="2.2" />
             <circle className="cs-spark cs-spark-2" cx="156" cy="56" r="1.8" />
             <circle className="cs-spark cs-spark-3" cx="124" cy="44" r="1.6" />

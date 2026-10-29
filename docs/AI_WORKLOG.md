@@ -2,7 +2,105 @@
 
 Purpose: durable, low-token project memory for coding-agent sessions. Keep entries concise and factual. Newest entry goes first. Never store secrets, personal data, or raw environment files.
 
+
+## 2026-10-30 Design foundation (brand #0B2D63 / #F2B632)
+- tokens.css rebuilt: new ox/gd scales, navy-tinted text, status + shipment-stage tokens, type/layout/radius/z tokens, .container-page/.section-y/.code-text. All #002147/#F2B705 hex in src, index.html, manifest, scripts replaced (bracket classes -> bg-ox-900 etc.). contrast-check synced, 32/32 pass.
+- Primitives: Button sentence case + same-colour hover; Input/Select/Textarea unified; all-caps removed from primitive labels; new Badge, StatusBadge(stageOf), Container/Section/PageHeader, Spinner/LoadingState/ErrorState. Deleted unused components/ui Button/Card/Input/Textarea/Dialog.
+- Fixed: .clay-inset border-color and an unlayered input bg rule were overriding component classes (error borders never showed, field fills ignored).
+- Brand images: og-banner re-shot from the current homepage on #0B2D63, icon-maskable = logo on #0B2D63 (rendered with Playwright; generate-brand-images.mjs NOT used, it draws placeholder shapes over the real logo). SW cache bumped to v4.
+- Not done: page-level all-caps labels remain until each page is redesigned.
+
+## 2026-10-30 QA gap pass (browser-verified)
+- Booking: full 4-step flow with worst-case data to review at 360px + desktop, no overflow; not submitted (would write live). Pickup City got maxLength 120. Step change now moves focus to the new step heading (was dropped to body).
+- Contact + Partner: maxLength on all free-text fields (name 120, company 160, email 254, phone 30, url 300, message 2000); long-input visuals OK at 360 + desktop.
+- Network: tracking RPC 15s timeout -> "not reachable" state (was infinite loading); rates edge fn + cache query 10s timeouts -> hero shows "rates not available" (was infinite placeholder). Verified via Playwright context.route (page.route misses SW-proxied requests).
+- Prod build served by server.js: /track?fixture=* shows normal empty state, no fixture data in loaded JS.
+## 2026-10-30 Break-UI pass
+- Dev-only worst-case fixtures: src/dev/trackingFixtures.ts, /track?fixture=demo|worst|empty (import.meta.env.DEV; not in dist). Regression test in tests/tracking-ui.test.ts.
+- Fixed: tracking route row overflow (stacked From/mode/To on phones), unbreakable tracking number, status pill blob + empty pill, date-only checkpoint shown with invented 05:45, raw invalid lastUpdated, empty ETA/meta lines, error echo of long input (+ maxLength 64); hero weight field clamped per keystroke (clear+type 3 gave 0.53) -> clamp on blur; booking review long values + maxLength on free-text fields; Nepali headings line-height 1.3; skip-to-content link.
+- Checks: tsc, vitest 282/282, build+prerender 65, seo-check, css-vars.
+
+## 2026-10-30 Mobile UX audit (mobile-native)
+- Swept 18 public routes at 360/768 (overflow, touch targets, input sizes) and 15 at 430 (overflow). No horizontal overflow at any width.
+- Fixed: touch inputs < 16px at >=640px (iOS zoom) via pointer-coarse rule; Button sm drops to 38px only with a fine pointer; 44px touch targets for guide lang/breadcrumb, LimitedText toggle, chatbot chips, policies email, tracking Book link; overlays vh->dvh (BottomSheet, Dialog, shipment editor modal); safe-area top on fixed header + main + mobile menu, bottom on sheet content; floating bars hide while a field is focused on touch; hero route line wraps long names (UAE was truncated); tracking inputs enterKeyHint=search, autocapitalize characters; policies email info@thebccargo.com -> BUSINESS.email.
+- Flagged, not changed: billing/print.ts company email info@thebccargo.com; FAQ category "Delivery across Nepal" (DB content).
+- tests/sticky-buttons.test.ts fails on bottom-20: StickyContactButtons changed to a safe-area calc before this session (see backup 2026-10-30_00-06-44), not by this pass.
+
+## 2026-10-29 Motion/interaction pass (apple-design)
+- BottomSheet: drag-to-dismiss on handle/title (1:1 pointer tracking from live position, momentum projection, rubber-band upward, settle/exit same path, backdrop follows); imperative positioning so renders never fight gestures; exit animation; no rAF dependency.
+- Header: More/account dropdowns + mobile menu stay mounted with reversible CSS transitions (origin at trigger, inert when closed); press feedback on nav items/rows.
+- Global touch-action: manipulation; tracking checkpoints/rail reveal in order; design/useTweenedNumber for hero + estimator totals (interruptible, skips first value, sr-only final). Reduced motion: global rule + explicit fallbacks.
+- Checks: tsc, vitest 281/281, build+prerender 65, seo-check; browser drag test 390px.
+
+## 2026-10-29 Redesign phase 6: admin/account pass
+- index.css @theme: Tailwind slate-50..950 -> ink scale (warm greys; contrast up, e.g. 500 on white 4.76 -> 5.51), radius lg/xl/2xl/3xl -> 12/16/20/28 token scale. Affects admin (523 slate uses) and booking. No admin component code changed.
+- Admin not visually checked: needs Google sign-in. Verified /admin, /admin/login, /profile still redirect to /login when signed out.
+- Checks: tsc, vitest 281/281, build+prerender 65, seo-check, check-css-vars.
+
+## 2026-10-29 Redesign phase 5: content pages
+- Cta3D flattened site-wide (cta3d.css; dead tilt/edge/shine code removed). Blog list, FAQ, Careers, Policies headers moved to SectionHeading classes.
+- Claims removed: FAQ in-house ASYCUDA team, TIA packaging stations/e-seal, ECTS seals, regional logistics counters (pickup answer now from estimator/pickup.ts); country landing "certified on electronic scales / IATA", UK "certified compliance", USA "FDA prior notice". About page kept (real team + story).
+- Checks: tsc, vitest 281/281, build+prerender 65, seo-check, check-css-vars; one h1 and no overflow on 6 content routes.
+
+## 2026-10-29 Redesign phase 4: core journeys
+- Tracking: new UI (empty/loading/invalid/not-found/unavailable/result), timeline from real milestones only; trackingService adds `reason` and stops faking lastUpdated; public page no longer shows the service placeholders (15 kg, "Logistics Hub") or prints a waybill from them. New tests/tracking-ui.test.ts (SSR render).
+- Services catalog rewritten to plain checkable copy (removed GPS, E-seal, tonnage, pallets, Birgunj team, bonded storage, direct links, ASYCUDA, legal tenders); CargoJourney steps and Hong Kong "direct flights" softened; homepage service cards drop "every country"/"licensed agents".
+- Rates + Contact use SectionHeading; Contact gets Call/WhatsApp primary actions. How to ship left as is.
+- Owner to confirm: How-to-ship says meat Europe-only but engine also allows UK/Hong Kong.
+- Checks: tsc, vitest 281/281, build+prerender 65, seo-check; browser 390/1440.
+
+## 2026-10-29 Redesign phase 3: homepage
+- New HomeHero (replaces RouteTableHero/RouteJourney/DestinationPanel, deleted): headline, track field, live quote card (country guide list + useGuideRates + calculateSheetShipmentQuote; same total as /rates). Benefits strip (claims backed elsewhere only), order hero > benefits > destinations > how it works > services > assistant > blog > FAQ > reviews > light final CTA.
+- Added primitives/SectionHeading. Fixed: App.handleQuickTrack now navigates /track?awb=<code> so quick-track runs the lookup (was dropping the code).
+- Checks: tsc, vitest 279/279, build+prerender 65, seo-check, bundle budget; browser 390/1440, quote = /rates total (Rs 6,400 Korea 5 kg), track not-found state.
+
+## 2026-10-29 Redesign phase 2: shell
+- Header: nav Home/Rates/Services/Track/Destinations(/blogs)/How to ship/About + More; "Get a quote" CTA (/rates); new mobile/tablet menu (<xl) with Escape/outside-click/route close. Footer: navy, crawlable <Link>s, contacts from business.ts. Bottom nav: About->Track, tokens.
+- Removed unverified licence claims everywhere (B-409, IATA/CAAN/TEPC, "Authorized Carrier", footer "Government Authorized"); ServiceCompare "Licences" row and HERO_METRICS dropped; copy-limits test now guards against their return.
+- Checks: tsc, vitest 279/279, build+prerender 65, seo-check pass; browser 360/390/1440 no overflow.
+
+## 2026-10-29 Redesign phase 0-1
+- Removed PartnerSlider (unproven carrier logos), dead initialData.ts (fake hubs/SLAs), placeholder job postings, and careers fake-success fallback; tests updated to assert honest behaviour.
+- tokens.css: warm ivory canvas, soft flat cards (clay insets removed), radius md 20 / lg 28, spacing scale tokens. Checks: tsc, vitest 279/279, build+prerender 65 pages.
+
 ## Latest Entry
+
+### 2026-10-29 - apple-design page pass: plain copy, fewer mono labels, touch targets (local, not pushed)
+- Mono font removed from UI labels/buttons (kept for data: tracking numbers, addresses, weights) on Header, home, blogs, booking, tracking, FAQ, country pages, careers detail, policies, login.
+- Plain-language copy: /track hero, /book hero, policies §3 (no internal RPC name), login footer (no vendor/RBAC text), access-check loader.
+- Touch targets via `pointer-coarse:` on footer links, CargoJourney segments, FAQ pills, blog "Read Guide".
+- Live Supabase how-to-ship content has a corrupted Korean word (고यु부호); repo default is correct; not changed.
+- Checks: typecheck clean, 279 tests pass. Admin pages not restyled.
+
+### 2026-10-29 - apple-design pass, global CSS only (local, not pushed)
+- `src/index.css`: instant `:active` press feedback on touch (`hover: none`) for interactive cards/buttons; `prefers-reduced-transparency` drops all `backdrop-blur*`; h4-h6 tracking -0.01em (h1-h3 stay -0.02em).
+- Audit found reduced-motion already handled globally (tokens.css) and per component; no root `MotionConfig` added to keep framer-motion out of the entry chunk.
+- Checks: vite build OK, dev on :3000 serves the new CSS. Not run: typecheck, vitest, prerender, visual light/dark and mobile review of each page. No git/Supabase changes.
+
+### 2026-10-29 - Rate page: liquid per bottle, meat 800, medicine on request, share link (pushed to origin main, 74e6d98)
+- Engine: `LIQUID_FEE_PER_BOTTLE_NPR = 700` (input `liquidBottleCount`, default 1, max 999; result `liquidBottles`). Medicine has no fee: `medicineCharge` 0, `medicineOnRequest` flag, shown as "Contact us". `MEAT_FEE_EUROPE_UK_PER_KG = 800` (Hong Kong stays 1,100). Admin bill default liquid rate 700.
+- RateEstimator: bottle stepper, medicine note, Share button. `src/features/estimator/share.ts` builds `/rates?dest&weight&liq&meat&med&pickup`, reads it back (clamped, pickup must be a known area), shares bill PDF + text + link via Web Share, falls back to copying to the clipboard.
+- About: Ayush's duties rewritten as real IT-head work. Country landing copy updated to the new prices.
+- Tests updated to the new prices; new `tests/share-quote.test.ts`. 279 pass, typecheck, build OK.
+- Pushed 10 src files incl. `pickup.ts` (2026-10-23 free-area rule, user approved). Tests not pushed (origin test files are older). Exact tree verified in a temp worktree: vite build + prerender OK; tsc shows the same 40 pre-existing errors as origin (old AdminChatbotControl / chatbot.test on origin), none new.
+
+### 2026-10-29 - Homepage section reorder (pushed to amnaryal78/thebccargo main, 2e10146)
+- Order: hero, where can we ship, assistant, shipping guide (HowItWorksTimeline), blog, services, carriers, FAQ, reviews, CTA.
+- `HomeCountryGuides` split out of `BlogSection.tsx`; blog heading now "Latest from our blog". Steps are separated cards. `divide-y` lines between home sections. Assistant wrapper reserves height (IdleMount, mid-page).
+- Checks: typecheck, build+prerender, 275 tests pass. Pushed 4 files via plumbing on origin/main (no force).
+
+### 2026-10-28 - Assistant rebuilt: server gate + real services (local only, not pushed)
+- New `server/ai/` (config, domainGuard, intentRouter, openrouterClient, responseGenerator, chatHandler, rateLimit); `server.js` /api/chat is now a thin wrapper with its own 20/min/IP limit. Dockerfile copies `server/`.
+- Flow: server gates scope + extracts intent -> browser runs real services (`chatbotTools.ts`: rates + estimator engine, tracking RPC, how-to-ship, services catalog, BUSINESS) -> server words the facts with OpenRouter free models and validates numbers/emails against the facts.
+- Models via `OPENROUTER_PRIMARY_MODEL` / `OPENROUTER_FALLBACK_MODELS` (free only). Local .env `DEFAULT_AI_MODEL` still overrides the primary. OpenRouter key is on the free tier (no credits): daily free-model cap applies.
+- Removed `chatbotData.ts`, admin-less localStorage rules/knowledge/tools, hardcoded prompt facts. Exported `COUNTRY_NAME_ALIASES` from engine.ts (additive). Engine substring quirk ("ukraine" matches UK) is guarded in `resolveDestination`, engine unchanged.
+- Tests: `tests/ai-server.test.ts`, rewritten `tests/chatbot.test.ts`, updated `tests/server-hardening.test.ts`.
+
+### 2026-10-28 - Chatbot made real AI (pushed to origin/main 8825866)
+- Removed keyword-canned answers (meat/pickup/booking/rates/contact) from `chatbotService.ts` and `server.js`; facts live in the system prompt. Scope check is now a blocklist only.
+- Price questions: model replies with a `get_quote` JSON request, `server.js` returns `toolCall`, browser runs `runQuoteTool` (live rates + `calculateSheetShipmentQuote`), calls `/api/chat` again with `toolResult`.
+- AI down / no key -> honest "not available" reply. Client no longer calls the undeployed `chat` edge function (its file is unchanged and still has old shortcuts).
+- Needs `OPENROUTER_API_KEY` set on the Render service behind `/api/*`.
 
 ### 2026-10-28 - Ponytail audit items 5-6 (Claude Code, local only)
 - **Deps:** removed unused `prettier`; moved `@types/three` to devDependencies; lockfile synced with `npm install --package-lock-only` (npm also added optional wasm32 entries). `.prettierrc` kept.

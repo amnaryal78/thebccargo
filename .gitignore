@@ -30,3 +30,7 @@ Thumbs.db
 
 # Test Coverage
 coverage/
+
+# Installed agent skills (local, not project source)
+.agents/
+.claude/skills/

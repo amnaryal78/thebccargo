@@ -5,7 +5,7 @@
  * - Zero external dependencies (runs directly with standard Node.js 18+)
  * - High-performance static file serving from ./dist with proper MIME types
  * - Client-side SPA routing fallback (serves index.html for React Router paths)
- * - Server-side /api/chat AI endpoint with OpenRouter proxy & strict BC Cargo guardrails
+ * - Server-side /api/chat AI endpoint (server/ai/): domain gate, intent routing, OpenRouter with model fallback
  * - Server-side /api/fix-blog endpoint for editorial assistant (keeps API keys off client)
  * - Security headers & optimized caching headers (immutable for hashed assets)
  * - Health check endpoint (/api/health)
@@ -16,6 +16,9 @@ import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
 import { fileURLToPath } from 'url';
+import { getAiConfig } from './server/ai/config.js';
+import { handleChat } from './server/ai/chatHandler.js';
+import { createRateLimiter } from './server/ai/rateLimit.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -83,166 +86,110 @@ const MIME_TYPES = {
 };
 
 // ============================================================================
-// 3. AI Assistant Backend Proxy (/api/chat)
+// 3a. Shared request guards for the AI endpoints
 // ============================================================================
-async function handleChatApi(req, res) {
+// Only free models: the client cannot pick a paid model and spend the OpenRouter balance.
+const ALLOWED_AI_MODELS = new Set([
+  'google/gemma-4-26b-a4b-it:free',
+  'poolside/laguna-s-2.1:free',
+  'openrouter/free',
+  'meta-llama/llama-3-8b-instruct:free',
+  ...(process.env.DEFAULT_AI_MODEL ? [process.env.DEFAULT_AI_MODEL] : []),
+]);
+const FALLBACK_AI_MODEL = process.env.DEFAULT_AI_MODEL || 'google/gemma-4-26b-a4b-it:free';
+
+function pickModel(requested) {
+  return typeof requested === 'string' && ALLOWED_AI_MODELS.has(requested) ? requested : FALLBACK_AI_MODEL;
+}
+
+const clampText = (value, max) => (typeof value === 'string' ? value.slice(0, max) : '');
+
+function sendJson(res, status, obj) {
+  res.writeHead(status, { 'Content-Type': 'application/json', ...BASE_SECURITY_HEADERS });
+  res.end(JSON.stringify(obj));
+}
+
+/** Reads a JSON body up to maxBytes. Resolves null (after answering 400/413) when it is unusable. */
+function readJsonBody(req, res, maxBytes) {
+  return new Promise((resolve) => {
+    let size = 0;
+    const chunks = [];
+    let done = false;
+    const fail = (status, error) => {
+      if (done) return;
+      done = true;
+      sendJson(res, status, { error });
+      req.resume();
+      resolve(null);
+    };
+    req.on('data', (chunk) => {
+      if (done) return;
+      size += chunk.length;
+      if (size > maxBytes) return fail(413, 'Request is too large.');
+      chunks.push(chunk);
+    });
+    req.on('end', () => {
+      if (done) return;
+      try {
+        const parsed = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return fail(400, 'Invalid request.');
+        done = true;
+        resolve(parsed);
+      } catch {
+        fail(400, 'Invalid request.');
+      }
+    });
+    req.on('error', () => fail(400, 'Invalid request.'));
+  });
+}
+
+/**
+ * True when the request carries a Supabase session for active staff. Asks Supabase itself
+ * (`is_active_staff()` with the caller's JWT), so the server never has to trust the client.
+ */
+async function isStaffRequest(req) {
+  const match = /^Bearer\s+([A-Za-z0-9._-]+)$/.exec(req.headers.authorization || '');
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const anonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  if (!match || !url || !anonKey) return false;
+  try {
+    const r = await fetch(`${url}/rest/v1/rpc/is_active_staff`, {
+      method: 'POST',
+      headers: { apikey: anonKey, Authorization: `Bearer ${match[1]}`, 'Content-Type': 'application/json' },
+      body: '{}',
+      signal: AbortSignal.timeout(5000),
+    });
+    return r.ok && (await r.json()) === true;
+  } catch {
+    return false;
+  }
+}
+
+// ============================================================================
+// 3. AI Assistant (/api/chat): pipeline lives in server/ai/
+// ============================================================================
+const aiConfig = getAiConfig();
+const chatAllowed = createRateLimiter(20, 60 * 1000); // chat is the expensive endpoint: 20 messages/min per IP
+
+async function handleChatApi(req, res, clientIp) {
   if (req.method !== 'POST') {
     res.writeHead(405, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({ error: 'Method Not Allowed' }));
   }
-
-  let body = '';
-  req.on('data', chunk => { body += chunk; });
-  req.on('end', async () => {
-    try {
-      const payload = JSON.parse(body || '{}');
-      const userMessage = (payload.message || '').trim();
-      const settings = payload.settings || {};
-      const history = payload.history || [];
-
-      const WHATSAPP_ACTION = { label: 'WhatsApp', type: 'whatsapp', payload: '9779855019485' };
-      const CALL_ACTION = { label: 'Call', type: 'call', payload: '+9779855019485' };
-      const PRICE_ACTION = { label: 'Price', type: 'navigate', payload: 'rates' };
-
-      const lowerMsg = userMessage.toLowerCase();
-      const forbidden = [
-        'prime minister', 'president', 'write python', 'write code', 'medical advice',
-        'tell me a joke', 'recipe', 'movie', 'actor', 'system prompt', 'api key', 'secret key',
-        'crypto', 'bitcoin', 'stock market'
-      ];
-
-      if (forbidden.some(f => lowerMsg.includes(f))) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({
-          reply: settings.fallbackMessage || 'I only help with cargo, shipping, and BC Cargo services. For other inquiries, please message our team on WhatsApp at +977 9855019485 or call 057-591816.',
-          isFallback: true,
-          actions: [WHATSAPP_ACTION, CALL_ACTION]
-        }));
-      }
-
-      // Meat rule check
-      if (lowerMsg.includes('meat') || lowerMsg.includes('sukuti') || lowerMsg.includes('buff') || lowerMsg.includes('मासु')) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        if (lowerMsg.includes('uk') || lowerMsg.includes('united kingdom') || lowerMsg.includes('europe') || lowerMsg.includes('hong kong') || lowerMsg.includes('hkg')) {
-          return res.end(JSON.stringify({
-            reply: 'Meat items (including dried/sukuti) are allowed for Europe, UK, and Hong Kong under special export packaging. Prohibited for other destinations.',
-            actions: [WHATSAPP_ACTION, PRICE_ACTION]
-          }));
-        }
-        return res.end(JSON.stringify({
-          reply: 'Meat is accepted ONLY for Europe, UK, and Hong Kong. Meat shipments to USA, Australia, Gulf countries, Japan, Canada, and other destinations are strictly prohibited by customs.',
-          actions: [WHATSAPP_ACTION, PRICE_ACTION]
-        }));
-      }
-
-      // Pickup rule check
-      if (lowerMsg.includes('pickup') || lowerMsg.includes('pick up') || lowerMsg.includes('collect') || lowerMsg.includes('उठाउने')) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        if (lowerMsg.includes('london') || lowerMsg.includes('usa') || lowerMsg.includes('korea') || lowerMsg.includes('uk') || lowerMsg.includes('dubai') || lowerMsg.includes('australia') || lowerMsg.includes('outside nepal')) {
-          return res.end(JSON.stringify({
-            reply: 'We only pick up shipments within Nepal. We deliver worldwide. We do not pick up from outside Nepal.',
-            actions: [WHATSAPP_ACTION, PRICE_ACTION]
-          }));
-        }
-        return res.end(JSON.stringify({
-          reply: 'Yes! We provide doorstep pickup anywhere in Nepal (Hetauda, Kathmandu, Pokhara, Chitwan, Birgunj, and all districts). Consignments are dispatched internationally from Nepal.',
-          actions: [WHATSAPP_ACTION, PRICE_ACTION]
-        }));
-      }
-
-      // Booking inquiry
-      if (lowerMsg.includes('book') || lowerMsg.includes('booking') || lowerMsg.includes('बुकिङ')) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({
-          reply: 'Booking a shipment needs human staff to confirm customs paperwork and dispatch. Please message our team on WhatsApp or call our Hetauda office.',
-          actions: [WHATSAPP_ACTION, CALL_ACTION]
-        }));
-      }
-
-      // Tracking inquiry
-      if (lowerMsg.includes('track') || lowerMsg.includes('tracking')) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({
-          reply: 'Live tracking updates need human staff assistance. Please message our WhatsApp with your tracking code, or call us.',
-          actions: [WHATSAPP_ACTION, CALL_ACTION]
-        }));
-      }
-
-      // Rates inquiry
-      if (lowerMsg.includes('rate') || lowerMsg.includes('price') || lowerMsg.includes('cost') || lowerMsg.includes('how much') || lowerMsg.includes('भाडा')) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({
-          reply: 'Prices come strictly from our live rates tariff engine. Please click Price below to view exact live rates, or message our team on WhatsApp for a custom quotation.',
-          actions: [PRICE_ACTION, WHATSAPP_ACTION]
-        }));
-      }
-
-      const systemPrompt = `You are "BC Cargo AI", the official customer service assistant for The BC Cargo & Courier (Govt License #B-409, School Road -4, Hetauda, Nepal, Phone: +977 9855019485 / 057-591816, WhatsApp: +977 9855019485).
-Strict Rules:
-1. Talk ONLY about cargo, shipping, and BC Cargo. Reject non-cargo questions politely.
-2. Use short, easy words. Be concise.
-3. Pickup is ONLY within Nepal (doorstep pickup anywhere in Nepal). Delivery is worldwide.
-4. Meat is ONLY accepted for Europe, UK, and Hong Kong. Prohibited everywhere else.
-5. Prices come ONLY from the live rates function. NEVER guess or invent a price.
-6. Booking and tracking need a human: tell the user to contact WhatsApp (+977 9855019485).
-7. If you do not know the answer, tell the user to message on WhatsApp (+977 9855019485).
-8. Answer in the same language the user asks (Nepali, English, etc.).`;
-
-      const openRouterKey = process.env.OPENROUTER_API_KEY;
-      const reqModel = settings.model || process.env.DEFAULT_AI_MODEL || 'google/gemma-4-26b-a4b-it:free';
-      const candidateModels = [reqModel, 'openrouter/auto', 'meta-llama/llama-3-8b-instruct:free'];
-
-      if (openRouterKey) {
-        for (const modelName of candidateModels) {
-          try {
-            const openRouterRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${openRouterKey}`,
-                'HTTP-Referer': 'https://thebccargo.com',
-                'X-Title': 'BC Cargo AI Assistant'
-              },
-              body: JSON.stringify({
-                model: modelName,
-                messages: [
-                  { role: 'system', content: systemPrompt },
-                  ...history.map(h => ({ role: h.sender === 'user' ? 'user' : 'assistant', content: h.text })),
-                  { role: 'user', content: userMessage }
-                ],
-                temperature: 0.1,
-                max_tokens: settings.maxTokens || 300
-              })
-            });
-
-            if (openRouterRes.ok) {
-              const data = await openRouterRes.json();
-              const aiText = data.choices?.[0]?.message?.content;
-              if (aiText) {
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                return res.end(JSON.stringify({
-                  reply: aiText.trim(),
-                  actions: [WHATSAPP_ACTION, PRICE_ACTION]
-                }));
-              }
-            }
-          } catch (e) {
-            // Try next fallback model
-          }
-        }
-      }
-
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({
-        reply: `The BC Cargo Central HQ is at School Road -4, Hetauda, Nepal. We provide doorstep pickup across Nepal and worldwide express cargo delivery. How can we help you?`,
-        actions: [WHATSAPP_ACTION, PRICE_ACTION]
-      }));
-
-    } catch (e) {
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ error: e.message }));
-    }
-  });
+  if (!chatAllowed(clientIp)) {
+    req.resume();
+    res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60', ...BASE_SECURITY_HEADERS });
+    return res.end(JSON.stringify({ type: 'error', retryable: true, reply: 'You are sending messages very quickly. Please wait a moment and try again.' }));
+  }
+  const payload = await readJsonBody(req, res, 32 * 1024);
+  if (!payload) return;
+  try {
+    const { status, body } = await handleChat(payload, { config: aiConfig });
+    return sendJson(res, status, body);
+  } catch (e) {
+    console.error('[SERVER] /api/chat failed:', e.message);
+    return sendJson(res, 500, { type: 'error', retryable: true, reply: "I'm having trouble responding right now. Please try again in a moment, or contact BC Cargo directly." });
+  }
 }
 
 // ============================================================================
@@ -254,11 +201,24 @@ async function handleFixBlogApi(req, res) {
     return res.end(JSON.stringify({ error: 'Method Not Allowed' }));
   }
 
-  let body = '';
-  req.on('data', chunk => { body += chunk; });
-  req.on('end', async () => {
+  // Staff only: without this anyone could use the OpenRouter key as a free AI proxy.
+  if (!(await isStaffRequest(req))) {
+    req.resume();
+    return sendJson(res, 401, { error: 'Sign in as staff to use the AI fixer.' });
+  }
+
+  const raw = await readJsonBody(req, res, 200 * 1024);
+  if (!raw) return;
+  {
     try {
-      const payload = JSON.parse(body || '{}');
+      const payload = {
+        title: clampText(raw.title, 300),
+        excerpt: clampText(raw.excerpt, 1000),
+        content: clampText(raw.content, 60000),
+        mode: ['grammar', 'formatting', 'full'].includes(raw.mode) ? raw.mode : 'full',
+        customRules: clampText(raw.customRules, 1000),
+        model: raw.model,
+      };
       const openRouterKey = process.env.OPENROUTER_API_KEY;
 
       if (!openRouterKey) {
@@ -273,7 +233,7 @@ async function handleFixBlogApi(req, res) {
         }));
       }
 
-      const modelToUse = payload.model || process.env.DEFAULT_AI_MODEL || 'google/gemma-4-26b-a4b-it:free';
+      const modelToUse = pickModel(payload.model);
       const systemPrompt = `You are an expert editorial assistant for The BC Cargo & Courier Service.
 Your task is to fix grammar, spelling, punctuation, and markdown formatting (H2/H3 headings, bold, italics, bullet lists) for the article.
 
@@ -319,13 +279,13 @@ Return ONLY the raw JSON object conforming to the schema.`;
             { role: 'user', content: userPrompt }
           ],
           temperature: 0.1
-        })
+        }),
+        signal: AbortSignal.timeout(60000)
       });
 
       if (!response.ok) {
-        const errText = await response.text();
-        res.writeHead(response.status, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ error: `AI provider error (${response.status}): ${errText}` }));
+        console.error('[SERVER] /api/fix-blog provider error:', response.status);
+        return sendJson(res, 502, { error: `AI provider error (${response.status}). Try again later.` });
       }
 
       const data = await response.json();
@@ -367,10 +327,10 @@ Return ONLY the raw JSON object conforming to the schema.`;
       }));
 
     } catch (err) {
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ error: err.message || 'AI Blog Fixer processing failed.' }));
+      console.error('[SERVER] /api/fix-blog failed:', err.message);
+      return sendJson(res, 500, { error: 'AI Blog Fixer processing failed.' });
     }
-  });
+  }
 }
 
 // ============================================================================
@@ -409,7 +369,7 @@ setInterval(() => {
 // 6. Security Headers Specification
 // ============================================================================
 const BASE_SECURITY_HEADERS = {
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://flagcdn.com https://*.supabase.co https://images.unsplash.com https://*.gstatic.com https://thebccargo.com; connect-src 'self' https://cdn.jsdelivr.net https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self';",
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://flagcdn.com https://*.supabase.co https://images.unsplash.com https://*.gstatic.com https://thebccargo.com; connect-src 'self' https://cdn.jsdelivr.net https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self';",
   'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
   'X-Content-Type-Options': 'nosniff',
@@ -456,11 +416,18 @@ function streamWithCompression(req, res, targetFile, headers, statusCode = 200) 
 // ============================================================================
 function serveStaticFile(req, res) {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-  let pathname = decodeURIComponent(parsedUrl.pathname);
+  let pathname;
+  try {
+    pathname = decodeURIComponent(parsedUrl.pathname);
+  } catch {
+    // A malformed escape such as /%E0%A4%A used to throw here and crash the process.
+    res.writeHead(400, { 'Content-Type': 'text/plain', ...BASE_SECURITY_HEADERS });
+    return res.end('Bad Request');
+  }
 
-  // Security check: prevent directory traversal
+  // Security check: prevent directory traversal (the separator stops "../dist-old" passing)
   const safePath = path.normalize(path.join(DIST_DIR, pathname));
-  if (!safePath.startsWith(DIST_DIR)) {
+  if (safePath !== DIST_DIR && !safePath.startsWith(DIST_DIR + path.sep)) {
     res.writeHead(403, { 'Content-Type': 'text/plain' });
     return res.end('Forbidden');
   }
@@ -546,7 +513,9 @@ const PERMANENT_REDIRECTS = {
 const server = http.createServer((req, res) => {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = parsedUrl.pathname;
-  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+  // First hop only: the raw header ("client, proxy, ...") made a new bucket per proxy chain.
+  // Direct calls to the Render origin can still spoof it; fronting proxies should overwrite it.
+  const clientIp = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '127.0.0.1';
 
   // 301 Permanent Redirects for legacy routes
   if (PERMANENT_REDIRECTS[pathname]) {
@@ -584,7 +553,7 @@ const server = http.createServer((req, res) => {
 
   // AI Chat Assistant endpoint
   if (pathname === '/api/chat') {
-    return handleChatApi(req, res);
+    return handleChatApi(req, res, clientIp);
   }
 
   // AI Blog Fixer endpoint

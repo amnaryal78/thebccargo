@@ -3,7 +3,7 @@ import { calculateEstimate, DEFAULT_RATE_SETTINGS, HandlingRule } from '../src/f
 import { INITIAL_NATIONAL_RATES, INITIAL_INTERNATIONAL_RATES } from '../src/services/ratesService';
 import { submitBooking, BookingPayload } from '../src/services/bookingService';
 import { submitInquiry, getInitialInquiries } from '../src/services/inquiryService';
-import { getJobs, submitApplication } from '../src/services/careersService';
+import { fetchJobs, submitApplication } from '../src/services/careersService';
 import { fetchPublicTracking } from '../src/services/trackingService';
 import { getRolePermissions } from '../src/features/admin/types';
 
@@ -174,36 +174,22 @@ describe('Phase 7 — End-to-End Core Workflows Acceptance Suite', () => {
   });
 
   describe('4. Careers & Job Application Workflow', () => {
-    it('retrieves published job posting with requirements', () => {
-      const jobs = getJobs();
-      expect(jobs.length).toBeGreaterThan(0);
-      const airSpecialist = jobs.find(j => j.slug === 'air-freight-operations-specialist');
-      expect(airSpecialist).toBeDefined();
-      if (airSpecialist) {
-        expect(airSpecialist.title).toBe('Air Freight Operations Specialist');
-        expect(airSpecialist.published).toBe(true);
-        expect(airSpecialist.requirements.length).toBeGreaterThan(0);
-      }
+    it('returns no placeholder postings when the database has none', async () => {
+      const jobs = await fetchJobs();
+      expect(jobs.find(j => j.slug === 'air-freight-operations-specialist')).toBeUndefined();
     });
 
-    it('submits a candidate job application', async () => {
-      const appPayload = {
+    it('never reports a job application as sent when it was not saved', async () => {
+      const result = await submitApplication({
         jobId: 'JOB-01',
-        jobTitle: 'Air Freight Operations Specialist',
-        applicantName: 'Ramesh Adhikari',
-        email: 'ramesh.cargo@example.com',
-        phone: '+977-9841234567',
-        experienceYears: 4,
-        coverLetter: 'Experienced air cargo documentation handler with 4 years at TIA cargo terminal.'
-      };
-
-      const result = await submitApplication(appPayload, 'dev_test_token');
-      expect(result.error).toBeNull();
-      expect(result.record).not.toBeNull();
-      if (result.record) {
-        expect(result.record.applicantName).toBe(appPayload.applicantName);
-        expect(result.record.status).toBe('new');
-      }
+        jobTitle: 'Test role',
+        applicantName: 'Test Applicant',
+        email: 'applicant@example.com',
+        phone: '+977-9800000000',
+        experienceYears: 1,
+      }, 'dev_test_token');
+      if (result.error === null) expect(result.record).not.toBeNull();
+      else expect(result.record).toBeNull();
     });
   });
 

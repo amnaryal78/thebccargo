@@ -28,51 +28,6 @@ export interface JobApplication {
   createdAt: string;
 }
 
-const INITIAL_JOBS: JobPosting[] = [
-  {
-    id: 'JOB-01',
-    title: 'Air Freight Operations Specialist',
-    slug: 'air-freight-operations-specialist',
-    department: 'Aviation & Airport Logistics',
-    location: 'Kathmandu (TIA Hub)',
-    type: 'Full-time',
-    description: 'Lead air cargo charter space bookings, airline airway bill (AWB) documentation, and tarmac bonded warehouse transfers.',
-    requirements: [
-      'Minimum 3 years experience in international air freight cargo',
-      'Familiarity with IATA Dangerous Goods regulations and CAAN guidelines',
-      'Strong command of English and Nepali trade correspondence'
-    ],
-    responsibilities: [
-      'Coordinate daily flight cargo manifests with international airlines',
-      'Inspect physical cargo packaging and weight declarations',
-      'Issue master and house air waybills (MAWB/HAWB)'
-    ],
-    published: true,
-    createdAt: '2026-09-01T08:00:00Z'
-  },
-  {
-    id: 'JOB-02',
-    title: 'Customs Clearance Officer',
-    slug: 'customs-clearance-officer-birgunj',
-    department: 'Customs & Compliance',
-    location: 'Birgunj ICD / Border Hub',
-    type: 'Full-time',
-    description: 'Manage customs valuation, Pragyapan Patra declarations, and ASYCUDA World submissions at Birgunj Inland Container Depot.',
-    requirements: [
-      'Licensed Customs Agent or 4+ years dry port customs experience',
-      'Expertise in Harmonized System (HS) code classification',
-      'Proven experience working with Nepal Department of Customs'
-    ],
-    responsibilities: [
-      'Prepare customs entry documentation for ocean and overland freight',
-      'Represent clients during physical cargo examination',
-      'Ensure zero-hold customs releases for express imports'
-    ],
-    published: true,
-    createdAt: '2026-09-05T09:00:00Z'
-  }
-];
-
 export const fetchJobs = async (): Promise<JobPosting[]> => {
   if (isSupabaseConfigured) {
     try {
@@ -100,11 +55,8 @@ export const fetchJobs = async (): Promise<JobPosting[]> => {
       console.warn('Failed to fetch jobs from Supabase:', err);
     }
   }
-  return INITIAL_JOBS;
-};
-
-export const getJobs = (): JobPosting[] => {
-  return INITIAL_JOBS;
+  // No placeholder postings: an empty list shows the "No open jobs" state.
+  return [];
 };
 
 export const getJobBySlug = async (slug: string): Promise<JobPosting | undefined> => {
@@ -167,15 +119,8 @@ export const submitApplication = async (
     return { record: { ...app, id, status: 'new', createdAt: new Date().toISOString() }, error: null };
   }
 
-  // Graceful offline local fallback
-  const fallbackRecord: JobApplication = {
-    ...app,
-    id: `APP-${Math.floor(1000 + Math.random() * 9000)}`,
-    status: 'new',
-    createdAt: new Date().toISOString()
-  };
-
-  return { record: fallbackRecord, error: null };
+  // Never report success when nothing was saved.
+  return { record: null, error: "Applications are unavailable right now. Please email us instead." };
 };
 
 export const saveJob = async (job: Partial<JobPosting> & { title: string; slug: string; department: string; location: string; type: string; description: string }): Promise<JobPosting | null> => {

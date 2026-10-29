@@ -50,18 +50,18 @@ export const ShipRouteHero: React.FC<{ className?: string }> = ({ className = ''
           <defs>
             <linearGradient id="hs-top" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0" stopColor="#FAC623" />
-              <stop offset="1" stopColor="#F2B705" />
+              <stop offset="1" stopColor="#F2B632" />
             </linearGradient>
             <radialGradient id="hs-glow" cx="0.2" cy="0.7" r="0.7">
-              <stop offset="0" stopColor="#F2B705" stopOpacity="0.28" />
-              <stop offset="1" stopColor="#F2B705" stopOpacity="0" />
+              <stop offset="0" stopColor="#F2B632" stopOpacity="0.28" />
+              <stop offset="1" stopColor="#F2B632" stopOpacity="0" />
             </radialGradient>
           </defs>
 
           <ellipse cx="170" cy="190" rx="250" ry="150" fill="url(#hs-glow)" />
 
           {/* faint globe lines for orientation */}
-          <g fill="none" stroke="#002147" strokeOpacity="0.09" strokeWidth="1.2">
+          <g fill="none" stroke="#0B2D63" strokeOpacity="0.09" strokeWidth="1.2">
             <ellipse cx="270" cy="150" rx="236" ry="120" />
             <ellipse cx="270" cy="150" rx="150" ry="120" />
             <ellipse cx="270" cy="150" rx="60" ry="120" />
@@ -69,7 +69,7 @@ export const ShipRouteHero: React.FC<{ className?: string }> = ({ className = ''
           </g>
 
           {/* secondary routes */}
-          <g fill="none" stroke="#002147" strokeOpacity="0.35" strokeWidth="2" strokeLinecap="round" strokeDasharray="2 8">
+          <g fill="none" stroke="#0B2D63" strokeOpacity="0.35" strokeWidth="2" strokeLinecap="round" strokeDasharray="2 8">
             <path d={ROUTE_B} />
             <path d={ROUTE_C} />
           </g>
@@ -78,7 +78,7 @@ export const ShipRouteHero: React.FC<{ className?: string }> = ({ className = ''
           <motion.path
             d={MAIN_ROUTE}
             fill="none"
-            stroke="#002147"
+            stroke="#0B2D63"
             strokeWidth="3"
             strokeLinecap="round"
             strokeDasharray="1 9"
@@ -94,8 +94,8 @@ export const ShipRouteHero: React.FC<{ className?: string }> = ({ className = ''
             [292, 64],
           ].map(([x, y], i) => (
             <g key={i}>
-              <circle cx={x} cy={y} r="13" fill="#F2B705" fillOpacity="0.25" />
-              <circle cx={x} cy={y} r="6" fill="#F2B705" stroke="#002147" strokeWidth="2" />
+              <circle cx={x} cy={y} r="13" fill="#F2B632" fillOpacity="0.25" />
+              <circle cx={x} cy={y} r="6" fill="#F2B632" stroke="#0B2D63" strokeWidth="2" />
             </g>
           ))}
 
@@ -104,8 +104,8 @@ export const ShipRouteHero: React.FC<{ className?: string }> = ({ className = ''
             <g>
               <path
                 d="M-12 0 L2 -4 L12 0 L2 4 Z M-2 0 L-8 -9 L-4 -9 L4 -2 M-2 0 L-8 9 L-4 9 L4 2"
-                fill="#002147"
-                stroke="#002147"
+                fill="#0B2D63"
+                stroke="#0B2D63"
                 strokeLinejoin="round"
                 strokeWidth="1"
               />
@@ -115,23 +115,23 @@ export const ShipRouteHero: React.FC<{ className?: string }> = ({ className = ''
 
           {/* the parcel in Hetauda */}
           <g transform="translate(44 168)">
-            <ellipse cx="48" cy="84" rx="52" ry="10" fill="#002147" opacity="0.18" />
+            <ellipse cx="48" cy="84" rx="52" ry="10" fill="#0B2D63" opacity="0.18" />
             {/* left face */}
             <polygon points="0,26 48,46 48,92 0,72" fill="#123562" />
             {/* right face */}
-            <polygon points="48,46 96,26 96,72 48,92" fill="#002147" />
+            <polygon points="48,46 96,26 96,72 48,92" fill="#0B2D63" />
             {/* top face */}
             <polygon points="0,26 48,6 96,26 48,46" fill="url(#hs-top)" />
             {/* tape */}
             <polygon points="40,9 56,9 72,17 56,25" fill="#fff" fillOpacity="0.55" />
-            <polygon points="52,46 62,42 62,88 52,92" fill="#F2B705" />
+            <polygon points="52,46 62,42 62,88 52,92" fill="#F2B632" />
             {/* BC mark */}
             <text x="14" y="62" fontSize="17" fontWeight="800" fill="#F6F6F4" transform="rotate(22 14 62)" style={{ fontFamily: 'var(--font-heading, inherit)' }}>
               BC
             </text>
           </g>
 
-          <g style={{ fontFamily: 'var(--font-heading, inherit)' }} fontWeight="700" fontSize="13" fill="#002147">
+          <g style={{ fontFamily: 'var(--font-heading, inherit)' }} fontWeight="700" fontSize="13" fill="#0B2D63">
             <text x="46" y="274">Hetauda, Nepal</text>
           </g>
         </svg>

@@ -55,10 +55,10 @@ export const Tabs: React.FC<TabsProps> = ({
               tabIndex={isActive ? 0 : -1}
               onClick={() => onChange(tab.id)}
               onKeyDown={(e) => handleKeyDown(e, idx)}
-              className={`min-h-[38px] px-4 py-1.5 rounded-[var(--r-sm)] text-xs font-heading font-bold uppercase tracking-wider transition-all flex items-center gap-2 shrink-0 cursor-pointer whitespace-nowrap ${
+              className={`min-h-[38px] px-4 py-1.5 rounded-[var(--r-sm)] text-[13px] font-heading font-semibold transition-all flex items-center gap-2 shrink-0 cursor-pointer whitespace-nowrap ${
                 isActive
-                  ? 'bg-[#002147] text-white border border-white/20 shadow-hard-sm'
-                  : 'text-[var(--text-muted)] hover:text-[#002147] hover:bg-[var(--surface)]'
+                  ? 'bg-ox-900 text-white border border-white/20 shadow-hard-sm'
+                  : 'text-[var(--text-muted)] hover:text-ox-900 hover:bg-[var(--surface)]'
               }`}
             >
               {tab.icon && <span className="shrink-0 inline-flex items-center">{tab.icon}</span>}
@@ -94,10 +94,10 @@ export const Tabs: React.FC<TabsProps> = ({
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(tab.id)}
             onKeyDown={(e) => handleKeyDown(e, idx)}
-            className={`min-h-[44px] px-4 py-2.5 font-heading text-xs sm:text-sm font-bold uppercase tracking-wider relative transition-colors flex items-center gap-2 shrink-0 cursor-pointer whitespace-nowrap ${
+            className={`min-h-[44px] px-4 py-2.5 font-heading text-sm font-semibold relative transition-colors flex items-center gap-2 shrink-0 cursor-pointer whitespace-nowrap ${
               isActive
-                ? 'text-[#002147]'
-                : 'text-[var(--text-muted)] hover:text-[#002147]'
+                ? 'text-ox-900'
+                : 'text-[var(--text-muted)] hover:text-ox-900'
             }`}
           >
             {tab.icon && <span className="shrink-0 inline-flex items-center">{tab.icon}</span>}
@@ -109,7 +109,7 @@ export const Tabs: React.FC<TabsProps> = ({
             )}
             {isActive && (
               <span
-                className="absolute bottom-[-2px] left-0 right-0 h-1 bg-[#F2B705]"
+                className="absolute bottom-[-2px] left-0 right-0 h-1 bg-gd-500"
                 aria-hidden="true"
               />
             )}

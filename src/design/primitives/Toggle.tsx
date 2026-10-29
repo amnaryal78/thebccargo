@@ -49,7 +49,7 @@ export const Toggle: React.FC<ToggleProps> = ({
         onClick={() => !disabled && onChange(!checked)}
         className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border clay-inset transition-colors duration-[var(--t-fast)] ease-[var(--ease-out)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] disabled:opacity-50 disabled:cursor-not-allowed ${
           checked
-            ? 'bg-[#F2B705] border-white/40'
+            ? 'bg-gd-500 border-white/40'
             : 'bg-[var(--surface-2)] border-[var(--line-strong)]'
         }`}
       >
@@ -57,7 +57,7 @@ export const Toggle: React.FC<ToggleProps> = ({
           aria-hidden="true"
           className={`pointer-events-none inline-block h-4 w-4 rounded-full border border-black/10 shadow-hard-xs transition-transform duration-[var(--t-fast)] ease-[var(--ease-out)] transform ${
             checked
-              ? 'translate-x-5 bg-[#002147]'
+              ? 'translate-x-5 bg-ox-900'
               : 'translate-x-0.5 bg-[var(--surface)]'
           }`}
         />

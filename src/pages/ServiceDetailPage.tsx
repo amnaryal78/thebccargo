@@ -88,9 +88,9 @@ export const ServiceDetailPage: React.FC = () => {
         
         {/* BREADCRUMB */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-mono text-[var(--text-muted)]">
-          <Link to="/" className="hover:text-[var(--text)]">Home</Link>
+          <Link to="/" className="inline-flex items-center min-h-[44px] hover:text-[var(--text)]">Home</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link to="/services" className="hover:text-[var(--text)]">Services</Link>
+          <Link to="/services" className="inline-flex items-center min-h-[44px] hover:text-[var(--text)]">Services</Link>
           <ChevronRight className="w-3.5 h-3.5" />
           <span className="font-bold text-[var(--text)] truncate">{service.title}</span>
         </nav>
@@ -125,7 +125,7 @@ export const ServiceDetailPage: React.FC = () => {
             </div>
 
             {/* Quick Spec Metrics Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-4 border-t border-[var(--line)] text-xs font-mono">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-4 border-t border-[var(--line)] text-xs font-mono">
               <div className="p-3 bg-[var(--surface-muted)] rounded-[var(--r-xs)] border border-[var(--line)]">
                 <span className="text-[10px] text-[var(--text-muted)] block uppercase">Transit Speed</span>
                 <span className="font-bold text-[var(--text)] text-xs sm:text-sm mt-0.5 block">{service.sla}</span>
@@ -139,13 +139,8 @@ export const ServiceDetailPage: React.FC = () => {
               </div>
 
               <div className="p-3 bg-[var(--surface-muted)] rounded-[var(--r-xs)] border border-[var(--line)]">
-                <span className="text-[10px] text-[var(--text-muted)] block uppercase">Regulatory Escort</span>
-                <span className="font-bold text-[var(--green-mid,#16A34A)] text-xs sm:text-sm mt-0.5 block">License #B-409</span>
-              </div>
-
-              <div className="p-3 bg-[var(--surface-muted)] rounded-[var(--r-xs)] border border-[var(--line)]">
-                <span className="text-[10px] text-[var(--text-muted)] block uppercase">Origin Gateways</span>
-                <span className="font-bold text-[var(--text)] text-xs sm:text-sm mt-0.5 block">KTM &amp; HDA Yards</span>
+                <span className="text-[10px] text-[var(--text-muted)] block uppercase">Ships from</span>
+                <span className="font-bold text-[var(--text)] text-xs sm:text-sm mt-0.5 block">Hetauda, Nepal</span>
               </div>
             </div>
 

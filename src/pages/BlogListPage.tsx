@@ -73,10 +73,10 @@ export const BlogListPage: React.FC = () => {
         {/* HEADER SECTION */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-[var(--line)] pb-8">
           <div className="space-y-3 max-w-2xl">
-            <h1 className="font-heading font-extrabold text-3xl sm:text-5xl text-[var(--text)] tracking-tight leading-tight">
-              Blog &amp; Cargo Guides
+            <h1 className="font-heading font-bold text-[length:var(--fs-h2)] leading-[1.1] tracking-[-0.02em] text-[var(--brand)] text-balance">
+              Shipping guides &amp; blog
             </h1>
-            <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
+            <p className="text-[17px] leading-relaxed text-[var(--text-muted)] max-w-xl">
               Plain guides from our Hetauda office on packing, weight, customs and tracking, so your parcel leaves Nepal without surprises.
             </p>
           </div>
@@ -109,7 +109,7 @@ export const BlogListPage: React.FC = () => {
                   key={cat}
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
-                  className={`min-h-[40px] py-2 px-3.5 inline-flex items-center rounded-lg font-mono text-xs font-bold uppercase tracking-wider transition-all duration-[var(--t-fast)] border shadow-sm hover:-translate-y-0.5 active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] ${
+                  className={`min-h-[40px] py-2 px-3.5 inline-flex items-center rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-[var(--t-fast)] border shadow-sm hover:-translate-y-0.5 active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] ${
                     selectedCategory === cat
                       ? 'bg-[var(--oxford-deep)] text-white border-white/20'
                       : 'bg-white text-slate-700 border-slate-300 hover:border-slate-400'
@@ -128,7 +128,7 @@ export const BlogListPage: React.FC = () => {
 
         {/* ARTICLES GRID */}
         {loading ? (
-          <div className="p-16 text-center font-mono text-xs text-[var(--text-muted)]">
+          <div className="p-16 text-center text-xs text-[var(--text-muted)]">
             Loading verified dispatches...
           </div>
         ) : filteredBlogs.length === 0 ? (
@@ -157,7 +157,7 @@ export const BlogListPage: React.FC = () => {
                   className="w-full h-44 object-cover"
                 />
                 <div className="p-6 space-y-3 flex-1">
-                  <div className="flex items-center justify-between text-[11px] font-mono text-[var(--text-muted)]">
+                  <div className="flex items-center justify-between text-[11px] text-[var(--text-muted)]">
                     <span className="px-2 py-0.5 rounded bg-[var(--surface-muted)] border border-[var(--line)] font-bold uppercase text-[var(--gold-dark)]">
                       {blog.category}
                     </span>
@@ -178,13 +178,13 @@ export const BlogListPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="mx-6 mb-6 pt-4 border-t border-[var(--line)] flex items-center justify-between text-xs font-mono">
+                <div className="mx-6 mb-6 pt-4 border-t border-[var(--line)] flex items-center justify-between text-xs">
                   <span className="text-[var(--text-muted)]">
                     By {blog.authorName}
                   </span>
                   <Link
                     to={`/blogs/${blog.slug}`}
-                    className="inline-flex items-center gap-1 font-bold uppercase text-[var(--gold-dark)] hover:underline"
+                    className="inline-flex items-center gap-1 pointer-coarse:min-h-11 font-bold uppercase text-[var(--gold-dark)] hover:underline"
                   >
                     <span>Read Guide</span>
                     <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />

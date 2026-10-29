@@ -9,7 +9,6 @@ export default tseslint.config(
       'node_modules/**',
       'supabase/**',
       'coverage/**',
-      'bc-cargo-docs/**',
       '*.config.js',
       '*.config.ts',
       'server.js',

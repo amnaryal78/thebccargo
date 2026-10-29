@@ -1,6 +1,7 @@
 import React from 'react';
 import { Plane, Truck, PackageCheck, ShieldCheck, ArrowRight, ArrowUpRight } from 'lucide-react';
 import { Card3D } from '../../design/primitives/Card3D';
+import { FREE_PICKUP_AREAS, FREE_PICKUP_AREAS_TEXT, FREE_PICKUP_OVER_KG, HOME_PICKUP_FEE_NPR, PICKUP_AREAS } from '../../features/estimator/pickup';
 
 interface HomeServicePickerProps {
   onNavigate: (page: string) => void;
@@ -23,23 +24,26 @@ const SERVICES: ServiceItem[] = [
     id: 'svc-air',
     slug: 'international-air-freight',
     code: '',
-    name: 'Air cargo',
+    name: 'International courier',
     scope: 'International',
     leadTime: '2–4 days',
-    description: 'Our fastest option. Flights leave Kathmandu airport for cities all over the world.',
-    highlight: 'Best for urgent parcels and documents.',
-    specs: ['Daily departures', 'Safe handling for fragile items'],
+    description: 'Parcels, documents and gifts sent by air to destinations abroad, with a tracking number on every box.',
+    highlight: 'Packed by our team and tracked all the way.',
+    specs: ['Careful packing in strong boxes', 'Tracking number for every parcel'],
   },
   {
-    id: 'svc-surface',
-    slug: 'cross-border-overland',
+    id: 'svc-pickup',
+    slug: 'free-pickup',
     code: '',
-    name: 'Road cargo',
+    name: 'Free pickup',
     scope: 'International',
-    leadTime: '2–4 days',
-    description: 'Trucks carry your goods from Hetauda and Kathmandu to India and onward.',
-    highlight: 'Best for large and heavy loads.',
-    specs: ['Full or shared trucks', 'Vehicles tracked by GPS'],
+    leadTime: `Over ${FREE_PICKUP_OVER_KG} kg`,
+    description: `We collect your parcel from your home for free in ${FREE_PICKUP_AREAS_TEXT}.`,
+    highlight: `Free only in ${FREE_PICKUP_AREAS_TEXT}, for parcels over ${FREE_PICKUP_OVER_KG} kg.`,
+    specs: [
+      `Smaller parcels or other areas: Rs ${HOME_PICKUP_FEE_NPR}`,
+      `Paid pickup also in ${PICKUP_AREAS.filter((a) => !(FREE_PICKUP_AREAS as readonly string[]).includes(a)).join(', ')}`,
+    ],
   },
   {
     id: 'svc-ocean',
@@ -59,9 +63,9 @@ const SERVICES: ServiceItem[] = [
     name: 'Customs help',
     scope: 'Regulatory',
     leadTime: '1–2 days',
-    description: 'Our licensed agents prepare the papers and clear your goods through Nepal customs.',
+    description: 'We prepare the papers and take your goods through Nepal customs.',
     highlight: 'No paperwork stress. We do it for you.',
-    specs: ['Invoice and document check', 'Licensed customs agents'],
+    specs: ['Invoice and document check', 'Export papers prepared'],
   },
 ];
 
@@ -80,13 +84,13 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({ onNavigate
             Choose how you want to ship
           </h2>
           <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
-            Air, road, sea, or customs help. Pick what fits your parcel.
+            Courier, free pickup, sea or customs help. Pick what fits your parcel.
           </p>
         </div>
 
         <button
           onClick={() => onNavigate('services')}
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--gold-dark)] hover:underline self-start md:self-end"
+          className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-[var(--gold-dark)] hover:underline self-start md:self-end"
         >
           <span>All services</span>
           <ArrowRight className="w-4 h-4" />
@@ -99,7 +103,7 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({ onNavigate
           <Card3D
             key={svc.id}
             maxTilt={2.5}
-            className="group relative p-6 sm:p-7 bg-[var(--surface)] border border-[var(--line)] hover:border-[#F2B705] rounded-[var(--r-md)] transition-all duration-[var(--t-normal)] flex flex-col justify-between shadow-hard hover:shadow-[0_8px_24px_-4px_rgba(242,183,5,0.22)]"
+            className="group relative p-6 sm:p-7 bg-[var(--surface)] border border-[var(--line)] hover:border-gd-500 rounded-[var(--r-md)] transition-all duration-[var(--t-normal)] flex flex-col justify-between shadow-hard hover:shadow-[0_8px_24px_-4px_rgba(242,182,50,0.22)]"
           >
             <div>
               {/* Service Title & Lead Time */}
@@ -138,7 +142,7 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({ onNavigate
               <button
                 type="button"
                 onClick={() => onNavigate('book')}
-                className="inline-flex items-center gap-1.5 leading-none text-sm font-bold text-[var(--oxford-deep)] hover:underline whitespace-nowrap shrink-0 cursor-pointer"
+                className="inline-flex items-center gap-1.5 min-h-[44px] -my-3 px-1 -mx-1 leading-none text-sm font-bold text-[var(--oxford-deep)] hover:underline whitespace-nowrap shrink-0 cursor-pointer"
               >
                 <span className="whitespace-nowrap">Book</span>
                 <ArrowRight className="w-3.5 h-3.5 shrink-0" />
@@ -147,7 +151,7 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({ onNavigate
               <button
                 type="button"
                 onClick={() => onNavigate(`rates?mode=${svc.slug}`)}
-                className="inline-flex items-center gap-1.5 leading-none text-sm font-semibold text-[var(--text-muted)] hover:text-[#002147] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                className="inline-flex items-center gap-1.5 min-h-[44px] -my-3 px-1 -mx-1 leading-none text-sm font-semibold text-[var(--text-muted)] hover:text-ox-900 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
               >
                 <span>Price</span>
                 <ArrowRight className="w-3.5 h-3.5 shrink-0" />

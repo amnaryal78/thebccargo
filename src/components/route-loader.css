@@ -1,0 +1,23 @@
+/* Route-change loader: transform/opacity only. */
+.bc-route-loader {
+  animation: bc-rl-in 0.3s ease 0.2s backwards;
+}
+.bc-route-loader__pkg {
+  transform: translate(10px, 25px);
+  animation: bc-rl-go 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes bc-rl-in {
+  from { opacity: 0; }
+}
+@keyframes bc-rl-go {
+  0% { transform: translate(10px, 25px); }
+  15% { transform: translate(10px, 25px); }
+  50% { transform: translate(60px, 22px); }
+  85%, 100% { transform: translate(110px, 25px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bc-route-loader__pkg {
+    animation: none;
+    transform: translate(60px, 25px);
+  }
+}

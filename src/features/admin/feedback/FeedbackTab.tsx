@@ -83,7 +83,7 @@ export const FeedbackTab: React.FC = () => {
           <li
             key={r.id}
             className={`rounded-xl border p-4 flex flex-col gap-2 ${
-              unreadRefs.has(r.id) ? 'border-[#F2B705] bg-[#F2B705]/10' : 'border-[#E2E2DE]'
+              unreadRefs.has(r.id) ? 'border-gd-500 bg-gd-500/10' : 'border-[#E2E2DE]'
             }`}
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -97,7 +97,7 @@ export const FeedbackTab: React.FC = () => {
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-                    className={`w-4 h-4 ${i < r.rating ? 'fill-[#F2B705] text-[#F2B705]' : 'opacity-30'}`}
+                    className={`w-4 h-4 ${i < r.rating ? 'fill-gd-500 text-gd-500' : 'opacity-30'}`}
                   />
                 ))}
               </span>
@@ -121,7 +121,7 @@ export const FeedbackTab: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => void setApproved(r.id, true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F2B705] text-[#002147] text-sm font-bold cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gd-500 text-ox-900 text-sm font-bold cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                     Approve

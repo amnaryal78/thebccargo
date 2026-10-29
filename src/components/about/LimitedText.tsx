@@ -58,7 +58,7 @@ export const LimitedText: React.FC<LimitedTextProps> = ({ text, lines = 3, class
           onClick={() => setExpanded((v) => !v)}
           aria-expanded={expanded}
           aria-controls={id}
-          className="min-h-[36px] text-sm font-semibold text-[var(--gold-dark)] underline underline-offset-4 decoration-dashed hover:decoration-solid cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,#F2B705)] rounded"
+          className="min-h-[36px] pointer-coarse:min-h-[44px] text-sm font-semibold text-[var(--gold-dark)] underline underline-offset-4 decoration-dashed hover:decoration-solid cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] rounded"
         >
           {expanded ? 'View less' : 'View more'}
         </button>

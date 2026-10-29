@@ -169,7 +169,7 @@ export const BlogsTab: React.FC = () => {
         {permissions.canManageBlogs && (
           <button
             onClick={handleOpenCreate}
-            className="px-4 py-2 rounded-xl bg-[#002147] text-white font-heading font-bold text-xs uppercase tracking-wider hover:opacity-95 shadow-hard-xs flex items-center gap-2 transition-all cursor-pointer self-start sm:self-auto"
+            className="px-4 py-2 rounded-xl bg-ox-900 text-white font-heading font-bold text-xs uppercase tracking-wider hover:opacity-95 shadow-hard-xs flex items-center gap-2 transition-all cursor-pointer self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
             <span>New Blog Post</span>
@@ -205,7 +205,7 @@ export const BlogsTab: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#002147] text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
+              <tr className="bg-ox-900 text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
                 <th className="py-2.5 px-4">Article Title &amp; Slug</th>
                 <th className="py-2.5 px-4">Category</th>
                 <th className="py-2.5 px-4">Status</th>

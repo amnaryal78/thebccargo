@@ -37,7 +37,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className={`text-xs font-heading font-bold uppercase tracking-wider text-[var(--text)] ${
+            className={`text-sm font-heading font-semibold text-[var(--text)] ${
               hideLabelVisually ? 'sr-only' : ''
             }`}
           >
@@ -59,12 +59,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             disabled={disabled}
             aria-invalid={error ? 'true' : 'false'}
             aria-describedby={error ? errorId : helperText ? helperId : undefined}
-            className={`w-full min-h-[48px] px-4 py-3 bg-[var(--surface)] text-[var(--text)] border rounded-[var(--r-sm)] clay-inset font-body text-sm transition-all duration-200 hover:border-[var(--ox-700)] hover:shadow-[0_0_0_3px_rgba(242,183,5,0.18)] placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring,#F2B705)] focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`w-full min-h-[48px] px-4 py-3 bg-[var(--surface)] text-[var(--text)] border rounded-[var(--r-sm)] clay-inset font-body text-[15px] transition-all duration-200 hover:border-[var(--ox-400)] placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed ${
               leftAdornment ? 'pl-10' : ''
             } ${rightAdornment ? 'pr-10' : ''} ${
               error
                 ? 'border-[var(--danger)] focus:ring-[var(--danger)]'
-                : 'border-[var(--line)]'
+                : 'border-[var(--line-strong)]'
             } ${className}`}
             {...props}
           />

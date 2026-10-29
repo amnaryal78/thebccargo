@@ -34,8 +34,8 @@ export const CareersPage: React.FC = () => {
 
       <div className="max-w-4xl mx-auto space-y-8">
         <header className="space-y-3 max-w-2xl">
-          <h1 className="font-heading font-extrabold text-3xl sm:text-5xl tracking-tight leading-tight">Careers</h1>
-          <p className="text-base text-[var(--text-secondary)]">Work with us at BC Cargo. See our open jobs below.</p>
+          <h1 className="font-heading font-bold text-[length:var(--fs-h2)] leading-[1.1] tracking-[-0.02em] text-[var(--brand)] text-balance">Careers</h1>
+          <p className="text-[17px] leading-relaxed text-[var(--text-muted)] max-w-xl">Work with us at BC Cargo. See our open jobs below.</p>
         </header>
 
         {loading && <p className="text-sm text-[var(--text-muted)]">Loading jobs…</p>}

@@ -56,19 +56,20 @@ const TEAM: Member[] = [
     role: 'IT Head & Manager',
     photo: '/team/ayush-aryal.jpg',
     duties: [
-      'Handling the website, auto billing desktop app and Android app',
-      'Handling the database',
-      'Social media control',
-      'Managing electronic data',
-      'Finance report',
+      'Builds and runs the website, the billing desktop app and the Android app',
+      'Keeps the shipment and customer database accurate, backed up and secure',
+      'Manages online tracking, rate updates and the price calculator',
+      'Looks after office computers, network, printers and staff accounts',
+      'Runs the company social media pages',
+      'Prepares monthly sales and finance reports for the owner',
     ],
-    highlights: ['Website & apps', 'Database', 'Social media', 'Finance'],
+    highlights: ['Website & apps', 'Database & security', 'IT support', 'Reports'],
     phone: { label: '9823716862', href: 'tel:+9779823716862' },
     portfolio: 'https://dumarwana.vercel.app',
     qualification: [
-      'Studying Grade 12 at NRMV Simara',
-      'Deep knowledge of computers and technology',
-      'Understands networks, devices and APIs',
+      'Grade 12 student at NRMV Simara',
+      'Builds web and mobile apps (React, TypeScript, Android)',
+      'Works with databases, networks and APIs',
     ],
   },
 ];
@@ -83,7 +84,7 @@ const Avatar: React.FC<{ member: Member; size: 'md' | 'lg' }> = ({ member, size 
     .join('');
   return failed ? (
     <span
-      className={`${box} bg-[var(--oxford-deep,#002147)] text-[var(--gold)] font-heading font-extrabold flex items-center justify-center shrink-0`}
+      className={`${box} bg-[var(--oxford-deep,#0B2D63)] text-[var(--gold)] font-heading font-extrabold flex items-center justify-center shrink-0`}
       aria-hidden="true"
     >
       {initials}
@@ -97,16 +98,16 @@ const Avatar: React.FC<{ member: Member; size: 'md' | 'lg' }> = ({ member, size 
       height={112}
       loading="lazy"
       decoding="async"
-      className={`${box} object-cover border border-[var(--line-strong)] shadow-[0_8px_20px_-12px_rgba(0,33,71,0.45)] shrink-0`}
+      className={`${box} object-cover border border-[var(--line-strong)] shadow-[0_8px_20px_-12px_rgba(11,45,99,0.45)] shrink-0`}
     />
   );
 };
 
 /** Shared CTA styles: real links styled as buttons (no button nested inside a link). */
 const CTA_PRIMARY =
-  'inline-flex items-center justify-center gap-2 min-h-[48px] px-6 rounded-[var(--r-sm)] bg-[var(--gold)] text-[#002147] font-heading font-extrabold text-sm whitespace-nowrap shadow-[0_4px_0_#002147] hover:bg-[#FAC623] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none transition-all motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#002147] focus-visible:ring-offset-2';
+  'inline-flex items-center justify-center gap-2 min-h-[48px] px-6 rounded-[var(--r-sm)] bg-[var(--gold)] text-ox-900 font-heading font-extrabold text-sm whitespace-nowrap shadow-[0_4px_0_#0B2D63] hover:bg-[#FAC623] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none transition-all motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ox-900 focus-visible:ring-offset-2';
 const CTA_OUTLINE =
-  'inline-flex items-center justify-center gap-2 min-h-[48px] px-6 rounded-[var(--r-sm)] border-2 border-[#002147]/30 bg-white/60 text-[#002147] font-heading font-extrabold text-sm whitespace-nowrap hover:border-[#002147] hover:bg-white active:scale-[0.98] transition-all motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705] focus-visible:ring-offset-2';
+  'inline-flex items-center justify-center gap-2 min-h-[48px] px-6 rounded-[var(--r-sm)] border-2 border-ox-900/30 bg-white/60 text-ox-900 font-heading font-extrabold text-sm whitespace-nowrap hover:border-ox-900 hover:bg-white active:scale-[0.98] transition-all motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500 focus-visible:ring-offset-2';
 
 export const AboutPage: React.FC = () => {
   const [open, setOpen] = useState<Member | null>(null);
@@ -164,7 +165,7 @@ export const AboutPage: React.FC = () => {
                           <span aria-hidden="true" className="absolute -bottom-1 left-3 right-3 h-1 rounded-full bg-[var(--gold)]" />
                         </div>
                         <div className="min-w-0 flex-1 pt-1">
-                          <h3 className="font-heading font-extrabold text-xl leading-tight text-[#002147]">{m.name}</h3>
+                          <h3 className="font-heading font-extrabold text-xl leading-tight text-ox-900">{m.name}</h3>
                           <p className="mt-0.5 text-sm font-semibold text-[var(--gold-dark)]">{m.role}</p>
                           <ul className="mt-3 flex flex-wrap gap-1.5" aria-label={`What ${m.name.split(' ')[0]} looks after`}>
                             {m.highlights.map((d) => (
@@ -179,7 +180,7 @@ export const AboutPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setOpen(m)}
-                          className="inline-flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-[var(--r-sm)] border border-[#002147]/25 text-[#002147] text-sm font-heading font-bold hover:border-[#002147] hover:bg-[#EEF3F9] active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
+                          className="inline-flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-[var(--r-sm)] border border-ox-900/25 text-ox-900 text-sm font-heading font-bold hover:border-ox-900 hover:bg-[#EEF3F9] active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500"
                         >
                           <UserRound className="w-4 h-4" aria-hidden="true" />
                           <span>View profile</span>
@@ -189,10 +190,10 @@ export const AboutPage: React.FC = () => {
                             href={m.portfolio}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-[var(--r-sm)] bg-[#002147] text-white text-sm font-heading font-bold hover:bg-[#123562] active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705] focus-visible:ring-offset-2"
+                            className="inline-flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-[var(--r-sm)] bg-ox-900 text-white text-sm font-heading font-bold hover:bg-[#123562] active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500 focus-visible:ring-offset-2"
                           >
                             <span>Portfolio</span>
-                            <ExternalLink className="w-3.5 h-3.5 text-[#F2B705]" aria-hidden="true" />
+                            <ExternalLink className="w-3.5 h-3.5 text-gd-500" aria-hidden="true" />
                             <span className="sr-only">(opens in a new tab)</span>
                           </a>
                         )}
@@ -200,7 +201,7 @@ export const AboutPage: React.FC = () => {
                           <a
                             href={m.phone.href}
                             aria-label={`Call ${m.name}`}
-                            className="inline-flex items-center gap-1.5 min-h-[40px] px-2.5 rounded-[var(--r-sm)] text-sm font-mono text-[#002147] hover:bg-[#EEF3F9] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
+                            className="inline-flex items-center gap-1.5 min-h-[40px] px-2.5 rounded-[var(--r-sm)] text-sm font-mono text-ox-900 hover:bg-[#EEF3F9] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500"
                           >
                             <Phone className="w-4 h-4 text-[var(--gold-dark)]" aria-hidden="true" />
                             <span>{m.phone.label}</span>
@@ -221,12 +222,12 @@ export const AboutPage: React.FC = () => {
       {/* Finale: the story ends with a way to reach us */}
       <section
         aria-labelledby="finale-title"
-        className="relative isolate overflow-hidden bg-gradient-to-b from-[#EEF3FA] to-white text-[#002147] px-4 sm:px-6 lg:px-8 py-16 sm:py-24 transition-colors"
+        className="relative isolate overflow-hidden bg-gradient-to-b from-[#EEF3FA] to-white text-ox-900 px-4 sm:px-6 lg:px-8 py-16 sm:py-24 transition-colors"
       >
         <div
           aria-hidden="true"
           className="pointer-events-none absolute bottom-[-12rem] left-1/2 -translate-x-1/2 w-[44rem] max-w-[140%] aspect-square rounded-full -z-10"
-          style={{ background: 'radial-gradient(closest-side, rgba(242,183,5,0.14), transparent)' }}
+          style={{ background: 'radial-gradient(closest-side, rgba(242,182,50,0.14), transparent)' }}
         />
         <div className="max-w-5xl mx-auto flex flex-col gap-10">
           <h2 id="finale-title" className="font-heading font-extrabold text-3xl sm:text-5xl tracking-tight leading-[1.15] max-w-3xl">
@@ -248,7 +249,7 @@ export const AboutPage: React.FC = () => {
                     rel={external ? 'noopener noreferrer' : undefined}
                     className="flex items-center gap-4 w-full min-h-[84px] p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] rounded-[var(--r-md)]"
                   >
-                    <span className="w-12 h-12 rounded-full bg-[var(--gold)] text-[#002147] flex items-center justify-center shrink-0">
+                    <span className="w-12 h-12 rounded-full bg-[var(--gold)] text-ox-900 flex items-center justify-center shrink-0">
                       <Icon className="w-5 h-5" aria-hidden="true" />
                     </span>
                     <span className="min-w-0 leading-snug">

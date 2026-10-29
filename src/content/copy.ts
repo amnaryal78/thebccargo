@@ -40,9 +40,3 @@ export const PLAIN_TERMS = {
   route: 'Route',
 } as const;
 
-export const HERO_METRICS = [
-  { label: 'Worldwide', detail: 'Air, Road & Sea Routes' },
-  { label: '2 Hubs', detail: 'Kathmandu (Air) & Hetauda (HQ)' },
-  { label: 'Daily', detail: 'Export Dispatch from Nepal' },
-  { label: '#B-409', detail: 'Customs Brokerage License' },
-] as const;

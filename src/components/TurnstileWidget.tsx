@@ -154,7 +154,8 @@ export const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({
         <button
           type="button"
           onClick={handleReset}
-          className="text-slate-400 hover:text-[#002147] transition-colors"
+          aria-label="Refresh check"
+          className="w-11 h-11 -m-3 grid place-items-center text-slate-500 hover:text-ox-900 transition-colors"
           title="Refresh Dev Token"
         >
           <RefreshCw className="w-3.5 h-3.5" />

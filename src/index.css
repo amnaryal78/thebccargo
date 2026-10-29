@@ -10,6 +10,25 @@
   --font-mono: var(--font-data);
   --font-data: var(--font-data);
 
+  /* Warm neutrals: Tailwind slate-* (used widely, esp. admin) maps onto the ink scale so greys match the ivory canvas */
+  --color-slate-50: var(--ink-50);
+  --color-slate-100: var(--ink-100);
+  --color-slate-200: var(--ink-200);
+  --color-slate-300: var(--ink-300);
+  --color-slate-400: var(--ink-400);
+  --color-slate-500: var(--ink-500);
+  --color-slate-600: var(--ink-600);
+  --color-slate-700: var(--ink-700);
+  --color-slate-800: var(--ink-800);
+  --color-slate-900: var(--ink-900);
+  --color-slate-950: var(--ink-950);
+
+  /* Radii follow the token scale */
+  --radius-lg: var(--r-sm);
+  --radius-xl: 16px;
+  --radius-2xl: var(--r-md);
+  --radius-3xl: var(--r-lg);
+
   /* Oxford Scale */
   --color-ox-50: var(--ox-50);
   --color-ox-100: var(--ox-100);
@@ -173,6 +192,11 @@
     letter-spacing: -0.02em;
   }
 
+  /* Tracking is size-specific: small headings need less tightening than display sizes. */
+  h4, h5, h6 {
+    letter-spacing: -0.01em;
+  }
+
   h1 { font-size: var(--fs-h1); }
   h2 { font-size: var(--fs-h2); }
   h3 { font-size: var(--fs-h3); }
@@ -223,8 +247,8 @@ section.space-y-6 {
 @media (prefers-contrast: more) {
   :root {
     --text-muted: var(--ink-900);
-    --line: rgba(0, 33, 71, 0.3);
-    --line-strong: rgba(0, 33, 71, 0.5);
+    --line: rgba(11,45,99, 0.3);
+    --line-strong: rgba(11,45,99, 0.5);
   }
 }
 
@@ -239,7 +263,7 @@ section.space-y-6 {
 }
 
 .barcode-strip {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='1'%3E%3Crect width='2' height='1' fill='%23002147'/%3E%3Crect x='4' width='3' height='1' fill='%23002147'/%3E%3Crect x='9' width='1' height='1' fill='%23002147'/%3E%3Crect x='12' width='2' height='1' fill='%23002147'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='1'%3E%3Crect width='2' height='1' fill='%230B2D63'/%3E%3Crect x='4' width='3' height='1' fill='%230B2D63'/%3E%3Crect x='9' width='1' height='1' fill='%230B2D63'/%3E%3Crect x='12' width='2' height='1' fill='%230B2D63'/%3E%3C/svg%3E");
   background-repeat: repeat-x;
   background-size: 16px 100%;
 }
@@ -299,6 +323,26 @@ section.space-y-6 {
               box-shadow var(--t-fast) var(--ease-out);
 }
 
+/* Touch has no hover, so the press feedback above never fires there: respond on pointer-down. */
+@media (hover: none) {
+  .interactive-card:active,
+  .interactive-btn:active,
+  .hover-oxford-accent:active,
+  .hover-gold-accent:active,
+  .hover-card-interactive:active {
+    transform: scale(0.98);
+    box-shadow: var(--shadow-press);
+  }
+}
+
+/* Frosted glass becomes plain when the user asks for less transparency (Header is bg-white/95, scrims stay dark). */
+@media (prefers-reduced-transparency: reduce) {
+  [class*='backdrop-blur'] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .interactive-btn:hover {
     transform: translateY(-1.5px);
@@ -350,8 +394,8 @@ section.space-y-6 {
 @media (hover: hover) and (pointer: fine) {
   .hover-oxford-accent:hover {
     border-color: var(--gd-400) !important;
-    box-shadow: 0 8px 24px -4px rgba(242, 183, 5, 0.22),
-                0 0 1px 1px rgba(242, 183, 5, 0.35);
+    box-shadow: 0 8px 24px -4px rgba(242,182,50, 0.22),
+                0 0 1px 1px rgba(242,182,50, 0.35);
     transform: translateY(-2px);
   }
   .hover-oxford-accent:active {
@@ -372,8 +416,8 @@ section.space-y-6 {
 @media (hover: hover) and (pointer: fine) {
   .hover-gold-accent:hover {
     border-color: var(--ox-700) !important;
-    box-shadow: 0 8px 24px -4px rgba(0, 33, 71, 0.25),
-                0 0 1px 1px rgba(0, 33, 71, 0.3);
+    box-shadow: 0 8px 24px -4px rgba(11,45,99, 0.25),
+                0 0 1px 1px rgba(11,45,99, 0.3);
     transform: translateY(-2px);
   }
   .hover-gold-accent:active {
@@ -394,7 +438,7 @@ section.space-y-6 {
   .hover-card-interactive:hover {
     transform: translateY(-3px);
     border-color: var(--ox-300);
-    box-shadow: var(--clay-outer-md), 0 0 16px -2px rgba(242, 183, 5, 0.15);
+    box-shadow: var(--clay-outer-md), 0 0 16px -2px rgba(242,182,50, 0.15);
   }
   .hover-card-interactive:active {
     transform: translateY(1px);
@@ -460,18 +504,6 @@ section.space-y-6 {
 }
 
 /* Marquee Animation for Partners */
-@keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
-}
-
-.animate-marquee {
-  animation: marquee 35s linear infinite;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
 
 /* =========================================================================== */
 /* GLOBAL SPOTLIGHT INTERACTION SYSTEM                                        */
@@ -481,8 +513,11 @@ section.space-y-6 {
   transition: transform var(--t-normal) var(--ease-out), box-shadow var(--t-normal) var(--ease-out), border-color var(--t-normal) var(--ease-out);
 }
 
-.spotlight-container.spotlight-elevate:hover {
-  transform: translateY(-2px);
+/* hover lift only where a pointer can hover; on touch it would stick after a tap */
+@media (hover: hover) and (pointer: fine) {
+  .spotlight-container.spotlight-elevate:hover {
+    transform: translateY(-2px);
+  }
 }
 
 .spotlight-glow-layer,
@@ -602,12 +637,79 @@ section.space-y-6 {
   .cj-bounce, .cj-wheel, .cj-road, .cj-scan, .cj-plane, .cj-cloud-1, .cj-cloud-2, .cj-check, .cj-arrive { animation: none; }
 }
 
-/* Text fields are outlined only: no solid fill and no inner shading. */
-input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='button']):not([type='submit']):not([type='color']),
-select,
-textarea {
-  background-color: transparent;
+/* Unstyled text fields are outlined only. In the base layer so a field's own bg-* class
+   (the primitives use a white surface on the ivory canvas) still wins. */
+@layer base {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='button']):not([type='submit']):not([type='color']),
+  select,
+  textarea {
+    background-color: transparent;
+  }
 }
 input:not([type='checkbox']):not([type='radio']):not([type='range']):-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
 }
+
+/* Route journey confetti: per-piece offsets are set inline; these are the defaults (see route-journey.css). */
+.rj-conf { --dx: 0px; --dy: 0px; --rot: 0deg; }
+
+/* Hero route line: dashed Nepal -> destination with a plane gliding along it */
+.route-line { background-image: linear-gradient(90deg, var(--ox-300) 50%, transparent 0); background-size: 8px 1px; }
+.route-plane { position: absolute; top: 50%; left: 0; transform: translate(-50%, -50%); animation: route-fly 3.2s var(--ease-io) infinite; }
+@keyframes route-fly { 0% { left: 0; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .route-plane { animation: none; left: 50%; } }
+
+/* Respond on tap immediately: no double-tap-zoom wait on controls */
+a, button, [role="button"], input, select, textarea, label, summary { touch-action: manipulation; }
+
+/* Tracking checkpoints arrive in order, oldest first, so the route reads as a sequence */
+.track-step { animation: track-step-in 360ms cubic-bezier(0.2, 0.9, 0.25, 1) both; animation-delay: calc(var(--i, 0) * 60ms); }
+.track-rail { transform-origin: top; animation: track-rail-in 420ms cubic-bezier(0.2, 0.9, 0.25, 1) both; animation-delay: calc(var(--i, 0) * 60ms + 120ms); }
+@keyframes track-step-in { from { opacity: 0; transform: translateY(6px); } }
+@keyframes track-rail-in { from { transform: scaleY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .track-step, .track-rail { animation: none; }
+}
+
+/* ---- Mobile platform layer ---- */
+html {
+  -webkit-tap-highlight-color: transparent; /* no grey flash on tap; controls have their own :active states */
+  -webkit-text-size-adjust: 100%;          /* no font inflation in landscape */
+}
+
+/* iOS zooms into any field under 16px and never zooms back out */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: max(16px, 1em);
+  }
+}
+
+/* Long-press on a control should not select its label or open the link callout; content text stays selectable */
+button,
+[role="button"],
+[role="tab"] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Touch devices: inputs at 16px or iOS zooms the page on focus (desktop keeps its smaller sm:text-sm) */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select { font-size: max(16px, 1em); }
+  [data-touch-target] { display: inline-flex; align-items: center; min-height: 44px; }
+}
+
+/* Keyboard open on a phone: floating bars would sit on top of the field being typed in, so step them aside */
+@media (pointer: coarse) {
+  body:has(:is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select, [contenteditable="true"]):focus) [data-hide-on-keyboard] {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(16px);
+    transition: opacity 120ms ease, transform 120ms ease;
+  }
+}
+
+/* Devanagari has tall marks above and below the line; tight display leading makes wrapped lines touch */
+:lang(ne) :is(h1, h2, h3) { line-height: 1.3; }

@@ -61,7 +61,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
       },
       {
         question: 'What are the charges for sending packages to South Korea?',
-        answer: 'Rates are calculated live from our official sheet. Small parcels under 10 kg use half-kilogram step pricing, while shipments of 10 kg and above receive discounted per-kilogram wholesale rates (e.g. 10+ kg and 20+ kg tier discounts). Box packaging is Rs 1,000 per box.',
+        answer: 'Rates are calculated live from our official sheet. Small parcels under 10 kg use half-kilogram step pricing, while shipments of 10 kg and above receive discounted per-kilogram wholesale rates (e.g. 10+ kg and 20+ kg tier discounts). Box packaging is Rs 1,100 per box.',
       },
     ],
     sampleWeightKg: 10,
@@ -118,7 +118,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     flag: '🇬🇧',
     rateGroup: 'UK',
     headline: 'Send Parcel & Cargo from Hetauda & Nepal to United Kingdom',
-    subheadline: 'Priority air courier from Hetauda to London, Birmingham, Manchester, Edinburgh, and across Great Britain. Certified compliance and meat packaging available.',
+    subheadline: 'Priority air courier from Hetauda to London, Birmingham, Manchester, Edinburgh, and across Great Britain. Meat shipping available at a special rate.',
     metaTitle: 'Send Parcel from Hetauda Nepal to the UK | BC Cargo',
     metaDescription: 'Send personal packages, legal documents, dry foods, and commercial goods from Hetauda Nepal to the UK. 3–5 day delivery to London and nationwide.',
     transitTime: '3–5 business days',
@@ -133,18 +133,18 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
       'Narcotics, aerosol cans, and undeclared hazardous liquids.',
     ],
     allowedSpecial: [
-      'Permitted cured meat (Sukuti) under special compliance surcharge (Rs 600/kg).',
-      'Sealed liquids and pickles under handling surcharge (Rs 600/box).',
-      'Verified medicine with prescription (Rs 600/box special protocol).',
+      'Permitted cured meat (Sukuti) under special compliance surcharge (Rs 800/kg).',
+      'Sealed liquids and pickles under handling surcharge (Rs 700 per bottle).',
+      'Verified medicine with prescription (contact us for the price).',
     ],
     faqs: [
       {
         question: 'Can I send dried meat (Sukuti) to the UK?',
-        answer: 'Yes! The United Kingdom is one of the destinations where meat shipping is permitted under strict compliance guidelines and our special meat surcharge of Rs 600 per kg.',
+        answer: 'Yes! The United Kingdom is one of the destinations where meat shipping is permitted under strict compliance guidelines and our special meat surcharge of Rs 800 per kg.',
       },
       {
         question: 'How are UK shipments weighed and billed in Hetauda?',
-        answer: 'We weigh your shipment on electronic scales at School Road -4, Hetauda. If total weight exceeds 20 kg, it is automatically divided into 20 kg boxes for safety and IATA airline handling.',
+        answer: 'We weigh your shipment on electronic scales at School Road -4, Hetauda. If total weight exceeds 20 kg, it is automatically divided into 20 kg boxes for safe handling.',
       },
     ],
     sampleWeightKg: 20,
@@ -208,7 +208,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
       'Unregulated perishable goods, ivory, counterfeit items.',
     ],
     allowedSpecial: [
-      'Permitted cured meat under European quarantine compliance (Rs 600/kg).',
+      'Permitted cured meat under European quarantine compliance (Rs 800/kg).',
       'Nepali handicrafts, carpets, singing bowls, and organic tea.',
     ],
     faqs: [
@@ -254,7 +254,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
       },
       {
         question: 'Can I send homemade pickles to Dubai?',
-        answer: 'Yes! Sealed liquids and pickles can be shipped with our specialized leak-proof packaging surcharge (Rs 600 per box).',
+        answer: 'Yes! Sealed liquids and pickles can be shipped with our specialized leak-proof packaging surcharge (Rs 700 per bottle).',
       },
     ],
     sampleWeightKg: 10,
@@ -269,7 +269,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     headline: 'Express Air Cargo from Hetauda & Nepal to Hong Kong',
     subheadline: 'Priority air freight connecting Hetauda to Hong Kong Island, Kowloon, and New Territories with meat compliance support and fast customs entry.',
     metaTitle: 'Air Cargo from Hetauda Nepal to Hong Kong | BC Cargo',
-    metaDescription: 'Send courier and air freight from Hetauda Nepal to Hong Kong. Direct flights, special meat compliance rate, fast 2–4 day delivery, and online tracking.',
+    metaDescription: 'Send courier and air freight from Hetauda Nepal to Hong Kong. Meat shipping at a special rate, fast 2–4 day delivery, and online tracking.',
     transitTime: '2–4 business days',
     departureFrequency: 'Daily flights via Hong Kong International Airport (HKG)',
     originHub: 'School Road -4, Hetauda, Nepal',
@@ -304,7 +304,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
     flag: '🇺🇸',
     rateGroup: 'USA',
     headline: 'Air Cargo & Courier from Hetauda & Nepal to USA',
-    subheadline: 'Fast, trackable air freight from Hetauda to New York, California, Texas, and all 50 US states. FDA prior notice support and certified export packaging.',
+    subheadline: 'Fast, trackable air freight from Hetauda to New York, California, Texas, and all 50 US states. Careful export packing.',
     metaTitle: 'Send Parcel from Hetauda Nepal to USA | BC Cargo',
     metaDescription: 'Send parcel and commercial air cargo from Hetauda Nepal to the United States. 4–6 day delivery nationwide with tracking, customs assistance, and live sheet rates.',
     transitTime: '4–6 business days',

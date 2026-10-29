@@ -1,149 +1,183 @@
+/* BC Cargo design tokens: the single source of truth for colour, type, space, shape and depth.
+   Brand: Oxford Blue #0B2D63 (structure, trust), Golden Yellow #F2B632 (action, one per view).
+   Light theme only; the site has no dark mode. Docs: docs/DESIGN_SYSTEM.md */
 :root {
-  /* ========================================================================= */
-  /* FLAT PALETTE SCALES (02_DESIGN.md §1)                                     */
-  /* ========================================================================= */
+  /* ---------------------------------------------------------------- palette */
 
-  /* OXFORD BLUE SCALE */
-  --ox-50:  #EEF3F9;
-  --ox-100: #D6E1EF;
-  --ox-200: #AEC3DE;
-  --ox-300: #7F9DC4;
-  --ox-400: #4F76A8;
-  --ox-500: #2F5A8F;
-  --ox-600: #1D4577;
-  --ox-700: #123562;
-  --ox-800: #082A52;
-  --ox-900: #002147;
-  --ox-950: #00152D;
+  /* Oxford Blue — 900 is the brand */
+  --ox-50:  #EEF2F8;
+  --ox-100: #D9E2EF;
+  --ox-200: #B3C4DE;
+  --ox-300: #85A0C7;
+  --ox-400: #5779AC;
+  --ox-500: #345A92;
+  --ox-600: #224A82;
+  --ox-700: #183E74;
+  --ox-800: #10346A;
+  --ox-900: #0B2D63;
+  --ox-950: #071C3F;
 
-  /* GOLDEN YELLOW SCALE */
-  --gd-50:  #FFF9E0;
-  --gd-100: #FFF0B3;
-  --gd-200: #FFE380;
-  --gd-300: #FFD54D;
-  --gd-400: #FAC623;
-  --gd-500: #F2B705;
-  --gd-600: #CC9704;
-  --gd-700: #8C6400; /* WCAG AA validated for >= 4.5:1 text on light surfaces */
-  --gd-800: #735402;
-  --gd-900: #4A3601;
+  /* Golden Yellow — 500 is the brand; 700 is the only gold allowed as text on light */
+  --gd-50:  #FEF8EA;
+  --gd-100: #FCEDC8;
+  --gd-200: #F9DD95;
+  --gd-300: #F6CC64;
+  --gd-400: #F4C04A;
+  --gd-500: #F2B632;
+  --gd-600: #D99B17;
+  --gd-700: #8A6200; /* >= 4.5:1 on every light surface */
+  --gd-800: #6E4E05;
+  --gd-900: #4A3504;
 
-  /* INK SCALE (Neutral warm paper-to-black) */
+  /* Ink — warm neutrals for the ivory canvas */
   --ink-0:   #FFFFFF;
-  --ink-50:  #F6F6F4;
-  --ink-100: #ECEBE7;
-  --ink-200: #D9D8D2;
-  --ink-300: #B9B8B0;
-  --ink-400: #8E8D86;
-  --ink-500: #6A6963;
-  --ink-600: #474642; /* WCAG AA validated for >= 4.5:1 muted text */
-  --ink-700: #33322F;
-  --ink-800: #1F1E1C;
-  --ink-900: #121211;
-  --ink-950: #0A0A09;
+  --ink-50:  #F7F5F0;
+  --ink-100: #EFEBE3;
+  --ink-200: #DEDAD1;
+  --ink-300: #C2BDB2;
+  --ink-400: #96918A;
+  --ink-500: #6C6862;
+  --ink-600: #4A4743; /* >= 4.5:1 muted text */
+  --ink-700: #34322F;
+  --ink-800: #22211F;
+  --ink-900: #141312;
+  --ink-950: #0B0A09;
 
-  /* SIGNAL RED (Sparing: errors, restricted freight) */
-  --rd-100: #F8DAD7;
-  --rd-400: #ED6B60; /* WCAG AA validated for >= 4.5:1 on dark surfaces */
-  --rd-500: #C02E24; /* WCAG AA validated for >= 4.5:1 on light surfaces */
-  --rd-600: #A82A22;
+  /* Signal colours — status only, never decoration */
+  --rd-100: #F8DEDA;
+  --rd-400: #F4857C; /* >= 4.5:1 on Oxford surfaces */
+  --rd-500: #B42A20; /* >= 4.5:1 on light */
+  --rd-600: #962219;
+  --gr-100: #E1F1E7;
+  --gr-500: #1D7A48; /* >= 4.5:1 on light */
+  --gr-600: #16613A;
 
-  /* ========================================================================= */
-  /* SEMANTIC TOKENS — LIGHT MODE (DEFAULT)                                    */
-  /* ========================================================================= */
-  --bg:           var(--ink-50);
-  --surface:      var(--ink-0);
-  --surface-2:    var(--ink-100);
-  --surface-oxford: var(--ox-900);
-  --text:         var(--ink-900);
-  --text-muted:   var(--ink-600);
-  --line:         rgba(0, 33, 71, 0.08);
-  --line-strong:  rgba(0, 33, 71, 0.14);
-  --brand:        var(--ox-900);
-  --on-brand:     var(--ink-0);
-  --accent:       var(--gd-500);
-  --on-accent:    var(--ox-900);
-  --accent-text:  var(--gd-700);
-  --danger:       var(--rd-500);
-  --danger-bg:    var(--rd-100);
-  --focus-ring:   var(--ox-500);
-  --shadow-color: rgba(0, 33, 71, 0.16);
+  /* ---------------------------------------------------------------- semantic */
+  --bg:             var(--ink-50);   /* warm ivory canvas */
+  --surface:        var(--ink-0);    /* cards, inputs, sheets */
+  --surface-2:      var(--ink-100);  /* wells, hover fills, quiet bands */
+  --surface-oxford: var(--ox-900);   /* footer, feature bands */
+  --text:           #16223A;         /* navy-tinted ink: reads black, sits with the brand */
+  --text-muted:     #4B5263;
+  --line:           rgba(11,45,99, 0.11);
+  --line-strong:    rgba(11,45,99, 0.20);
+  --brand:          var(--ox-900);
+  --on-brand:       var(--ink-0);
+  --accent:         var(--gd-500);
+  --on-accent:      var(--ox-950);
+  --accent-text:    var(--gd-700);
+  --focus-ring:     var(--ox-500);
+  --shadow-color:   rgba(11,45,99, 0.16);
 
-  /* Spotlight Interaction System Tokens — Light Mode (Oxford Blue Hue) */
-  --spotlight-color: rgba(0, 33, 71, 0.12);
-  --spotlight-edge:  rgba(0, 33, 71, 0.28);
-  --spotlight-glow:  rgba(47, 90, 143, 0.18);
+  --danger:      var(--rd-500);
+  --danger-bg:   var(--rd-100);
+  --success:     var(--gr-500);
+  --success-bg:  var(--gr-100);
+  --warning:     var(--gd-700);
+  --warning-bg:  var(--gd-100);
+  --info:        var(--ox-600);
+  --info-bg:     var(--ox-50);
+
+  /* Shipment status: one tone per stage, used by StatusBadge */
+  --status-booked:    var(--ox-500);
+  --status-transit:   var(--ox-900);
+  --status-hold:      var(--gd-700);
+  --status-delivered: var(--gr-500);
+  --status-problem:   var(--rd-500);
+
+  /* Spotlight (legacy component) */
+  --spotlight-color:  rgba(11,45,99, 0.12);
+  --spotlight-edge:   rgba(11,45,99, 0.28);
+  --spotlight-glow:   rgba(52, 90, 146, 0.18);
   --spotlight-radius: 420px;
   --spotlight-opacity: 1;
 
-  /* Foundation & Component Compatibility Tokens */
+  /* Compatibility aliases still read by older components */
   --oxford-deep:    var(--ox-900);
   --gold:           var(--gd-500);
   --gold-dark:      var(--gd-700);
   --surface-muted:  var(--ink-100);
-  --surface-subtle: var(--ink-50);
+  --surface-subtle: #FBFAF7;
   --text-secondary: var(--ink-700);
   --green-mid:      #16A34A;
-  --green-dark:     #15803D;
-  --green-subtle:   #DCFCE7;
+  --green-dark:     var(--gr-600);
+  --green-subtle:   var(--gr-100);
 
-  /* ========================================================================= */
-  /* TYPOGRAPHY (02_DESIGN.md §2)                                              */
-  /* ========================================================================= */
-  --font-display: "Archivo Variable", "Archivo", sans-serif;
-  --font-body:    "Public Sans Variable", "Public Sans", sans-serif;
-  --font-data:    "JetBrains Mono Variable", "JetBrains Mono", monospace;
+  /* ---------------------------------------------------------------- type */
+  /* Archivo (display) + Public Sans (text). Mono is for codes only: AWB, tracking numbers. */
+  --font-display: "Archivo Variable", "Archivo", system-ui, sans-serif;
+  --font-body:    "Public Sans Variable", "Public Sans", system-ui, sans-serif;
+  --font-data:    "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, monospace;
 
-  --fs-h1:    clamp(2rem, 1.2rem + 3.6vw, 4.25rem);
-  --fs-h2:    clamp(1.625rem, 1.1rem + 2vw, 2.75rem);
-  --fs-h3:    clamp(1.25rem, 1rem + 1vw, 1.75rem);
-  --fs-body:  1rem; /* Never below 16px on mobile */
-  --fs-small: 0.875rem;
-  --fs-micro: 0.75rem;
+  /* Modular scale, ratio ~1.25, fluid at the top end */
+  --fs-display: clamp(2.5rem, 1.4rem + 4.6vw, 4.75rem);
+  --fs-h1:      clamp(2rem, 1.2rem + 3.6vw, 4.25rem);
+  --fs-h2:      clamp(1.625rem, 1.1rem + 2vw, 2.75rem);
+  --fs-h3:      clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  --fs-h4:      1.125rem;
+  --fs-lead:    clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --fs-body:    1rem; /* never below 16px on mobile */
+  --fs-small:   0.875rem;
+  --fs-micro:   0.75rem;
 
-  /* ========================================================================= */
-  /* CLAYMORPHISM MOLDED RADIUS SCALE                                         */
-  /* ========================================================================= */
+  --lh-tight: 1.08;
+  --lh-snug:  1.25;
+  --lh-body:  1.6;
+  --tracking-display: -0.02em;
+  --measure: 68ch; /* body line length */
+
+  /* ---------------------------------------------------------------- space */
+  --sp-1: 8px; --sp-2: 12px; --sp-3: 16px; --sp-4: 24px; --sp-5: 32px;
+  --sp-6: 48px; --sp-7: 64px; --sp-8: 96px; --sp-9: 128px;
+  --section-y: clamp(64px, 6vw + 32px, 128px);
+  --control-h: 48px;
+
+  /* Layout. Breakpoints are Tailwind's: sm 640, md 768, lg 1024, xl 1280. */
+  --container:        1200px;
+  --container-narrow: 760px;
+  --gutter:           clamp(16px, 4vw, 32px);
+
+  /* ---------------------------------------------------------------- shape */
+  /* Radius grows with the size of the thing: controls < cards < sheets */
   --r-none: 0px;
-  --r-xs:   4px;
-  --r-sm:   12px;
-  --r-md:   18px;
-  --r-lg:   24px;
+  --r-xs:   6px;   /* badges, tags, small wells */
+  --r-sm:   10px;  /* buttons, inputs */
+  --r-md:   16px;  /* cards */
+  --r-lg:   24px;  /* sheets, modals, feature panels */
   --r-pill: 9999px;
 
-  /* ========================================================================= */
-  /* CLAYMORPHISM LIGHTING & SHADOW TOKENS — LIGHT MODE                        */
-  /* Unified Directional Light: Top-Left (-45° / ~10 o'clock)                  */
-  /* ========================================================================= */
-  --clay-highlight-sm: inset 1.5px 1.5px 2px 0 rgba(255, 255, 255, 0.75);
-  --clay-highlight-md: inset 2px 2px 3px 0 rgba(255, 255, 255, 0.85);
-  --clay-highlight-lg: inset 3px 3px 5px 0 rgba(255, 255, 255, 0.9);
+  /* ---------------------------------------------------------------- depth */
+  /* Border carries the edge; a navy-tinted shadow only says "this lifts". */
+  --clay-highlight-sm: 0 0 0 0 transparent;
+  --clay-highlight-md: 0 0 0 0 transparent;
+  --clay-highlight-lg: 0 0 0 0 transparent;
+  --clay-shade-sm: 0 0 0 0 transparent;
+  --clay-shade-md: 0 0 0 0 transparent;
+  --clay-shade-lg: 0 0 0 0 transparent;
 
-  --clay-shade-sm: inset -1.5px -1.5px 2px 0 rgba(0, 33, 71, 0.06);
-  --clay-shade-md: inset -2px -2px 3px 0 rgba(0, 33, 71, 0.08);
-  --clay-shade-lg: inset -3px -3px 5px 0 rgba(0, 33, 71, 0.1);
+  --clay-outer-xs: 0 0 0 1px var(--line), 0 1px 2px rgba(11,45,99, 0.05);
+  --clay-outer-sm: 0 0 0 1px var(--line), 0 6px 16px -8px rgba(11,45,99, 0.12);
+  --clay-outer-md: 0 0 0 1px var(--line), 0 12px 28px -14px rgba(11,45,99, 0.16);
+  --clay-outer-lg: 0 0 0 1px var(--line), 0 24px 48px -20px rgba(11,45,99, 0.22);
+  --clay-outer-press: 0 2px 5px -1px rgba(11,45,99, 0.08), 0 1px 2px -1px rgba(11,45,99, 0.04);
 
-  --clay-outer-xs: 0 2px 6px -1px rgba(0, 33, 71, 0.06), 0 1px 3px -1px rgba(0, 33, 71, 0.03);
-  --clay-outer-sm: 0 4px 12px -2px rgba(0, 33, 71, 0.08), 0 2px 5px -1px rgba(0, 33, 71, 0.04);
-  --clay-outer-md: 0 10px 24px -4px rgba(0, 33, 71, 0.1), 0 4px 8px -2px rgba(0, 33, 71, 0.05);
-  --clay-outer-lg: 0 20px 40px -6px rgba(0, 33, 71, 0.14), 0 8px 16px -3px rgba(0, 33, 71, 0.06);
-  --clay-outer-press: 0 2px 5px -1px rgba(0, 33, 71, 0.08), 0 1px 2px -1px rgba(0, 33, 71, 0.04);
+  --shadow-hard-xs: var(--clay-outer-xs);
+  --shadow-hard-sm: var(--clay-outer-sm);
+  --shadow-hard:    var(--clay-outer-md);
+  --shadow-hard-md: var(--clay-outer-md);
+  --shadow-hard-lg: var(--clay-outer-lg);
+  --shadow-press:   var(--clay-outer-press);
 
-  /* Full Clay Surface Stacks */
-  --shadow-hard-xs: var(--clay-highlight-sm), var(--clay-shade-sm), var(--clay-outer-xs);
-  --shadow-hard-sm: var(--clay-highlight-sm), var(--clay-shade-sm), var(--clay-outer-sm);
-  --shadow-hard:    var(--clay-highlight-md), var(--clay-shade-md), var(--clay-outer-md);
-  --shadow-hard-md: var(--clay-highlight-md), var(--clay-shade-md), var(--clay-outer-md);
-  --shadow-hard-lg: var(--clay-highlight-lg), var(--clay-shade-lg), var(--clay-outer-lg);
-  --shadow-press:   inset 2.5px 2.5px 5px 0 rgba(0, 33, 71, 0.14), inset -1px -1px 2px 0 rgba(255, 255, 255, 0.6), var(--clay-outer-press);
+  --clay-inset: inset 0 1px 2px rgba(11,45,99, 0.06);
+  --clay-inset-focus: 0 0 0 3px rgba(52, 90, 146, 0.22);
 
-  /* Inset Well Depth (For text inputs, selects, depressed tracks) */
-  --clay-inset: none;
-  --clay-inset-focus: 0 0 0 3px rgba(47, 90, 143, 0.2);
+  /* ---------------------------------------------------------------- layers */
+  --z-sticky:  40;
+  --z-overlay: 60;
+  --z-modal:   70;
+  --z-toast:   80;
 
-  /* ========================================================================= */
-  /* MOTION TOKENS (02_DESIGN.md §5)                                           */
-  /* ========================================================================= */
+  /* ---------------------------------------------------------------- motion */
   --t-fast:   120ms;
   --t-normal: 240ms;
   --t-med:    240ms;
@@ -153,59 +187,66 @@
 }
 
 
-/* =========================================================================== */
-/* CLAYMORPHISM ELEVATION & SURFACE CLASSES                                    */
-/* =========================================================================== */
-.shadow-hard-xs {
-  box-shadow: var(--shadow-hard-xs);
-}
-
-.shadow-hard-sm {
-  box-shadow: var(--shadow-hard-sm);
-}
-
-.shadow-hard {
-  box-shadow: var(--shadow-hard);
-}
-
-.shadow-hard-md {
-  box-shadow: var(--shadow-hard-md);
-}
-
-.shadow-hard-lg {
-  box-shadow: var(--shadow-hard-lg);
-}
+/* ---------------------------------------------------------------- elevation classes (legacy names) */
+.shadow-hard-xs { box-shadow: var(--shadow-hard-xs); }
+.shadow-hard-sm { box-shadow: var(--shadow-hard-sm); }
+.shadow-hard    { box-shadow: var(--shadow-hard); }
+.shadow-hard-md { box-shadow: var(--shadow-hard-md); }
+.shadow-hard-lg { box-shadow: var(--shadow-hard-lg); }
 
 .shadow-hard-press:active {
   transform: translateY(1px);
   box-shadow: var(--shadow-press);
 }
 
-/* Tactile Clay Button Press State */
 .btn-tactile {
   transition: transform var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out);
 }
-.btn-tactile:hover {
-  transform: translateY(-1.5px);
+@media (hover: hover) {
+  .btn-tactile:hover { transform: translateY(-1px); }
+}
+.btn-tactile:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 .btn-tactile:active {
   transform: translateY(1px);
   box-shadow: var(--shadow-press) !important;
 }
 
-/* Clay Inset Well Class */
+/* Input well */
 .clay-inset {
   box-shadow: var(--clay-inset);
-  border-color: var(--line);
 }
 .clay-inset:focus,
 .clay-inset:focus-within {
   box-shadow: var(--clay-inset-focus);
 }
 
-/* 3D Headline Depth */
-.headline-3d {
-  text-shadow: 0 1px 2px rgba(0, 33, 71, 0.12), 0 2px 4px rgba(0, 33, 71, 0.08);
+.headline-3d { text-shadow: none; }
+
+/* ---------------------------------------------------------------- layout helpers */
+.container-page {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.container-narrow {
+  width: 100%;
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.section-y { padding-block: var(--section-y); }
+.measure { max-width: var(--measure); }
+
+/* Codes people read aloud or copy: tracking numbers, AWB, phone */
+.code-text {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
 }
 
 @media (prefers-reduced-motion: reduce) {

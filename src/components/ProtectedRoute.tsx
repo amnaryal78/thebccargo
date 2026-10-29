@@ -2,14 +2,16 @@ import React, { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { ShieldAlert } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { isSupabaseConfigured } from '../lib/supabase';
+import { isSupabaseConfigured } from '../lib/supabaseConfig';
 import { AccessRestricted } from './AccessRestricted';
 
 interface ProtectedRouteProps {
   children?: ReactNode;
+  /** Admin pages need the staff allowlist. Pass false for pages any signed-in customer may open (profile, messages). */
+  adminOnly?: boolean;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly = true }) => {
   const { session, user, loading, isAuthorizedAdmin } = useAuth();
   const location = useLocation();
 
@@ -38,8 +40,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   if (loading) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3">
-        <div className="w-9 h-9 border-3 border-[#002147] border-t-transparent rounded-full animate-spin" />
-        <span className="text-xs font-mono text-slate-400 tracking-wider uppercase">Verifying Authorization...</span>
+        <div className="w-9 h-9 border-3 border-ox-900 border-t-transparent rounded-full animate-spin" />
+        <span className="text-sm text-slate-500">Checking access…</span>
       </div>
     );
   }
@@ -51,7 +53,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   // 2. Authenticated but NOT an authorized admin -> Show Access Restricted screen
-  if (!isAuthorizedAdmin) {
+  if (adminOnly && !isAuthorizedAdmin) {
     return <AccessRestricted />;
   }
 

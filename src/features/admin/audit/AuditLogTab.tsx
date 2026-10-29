@@ -98,7 +98,7 @@ export const AuditLogTab: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs font-mono">
             <thead>
-              <tr className="bg-[#002147] text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
+              <tr className="bg-ox-900 text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
                 <th className="py-2.5 px-4">Timestamp (UTC)</th>
                 <th className="py-2.5 px-4">Staff Actor</th>
                 <th className="py-2.5 px-4">Action</th>

@@ -8,16 +8,16 @@ import { useReducedMotion } from 'framer-motion';
  * With reduced motion the stages stop cycling; the progress bars still pick a stage.
  */
 
-const LOGO = '/brand/bc-logo.webp';
+const LOGO = '/brand/bc-logo-320.webp';
 const STAGE_MS = 1400;
 
 const STAGES: { title: string; note: string }[] = [
-  { title: '1. Package pickup', note: 'Loaded onto courier dispatch' },
-  { title: '2. Local transit', note: 'On the way to the sorting facility' },
-  { title: '3. Origin sorting hub', note: 'Scanned, verified and barcoded' },
-  { title: '4. Air cargo freight', note: 'Direct flight to the destination' },
+  { title: '1. Package pickup', note: 'Collected or dropped at our office' },
+  { title: '2. Local transit', note: 'On the way to be packed' },
+  { title: '3. Packing and papers', note: 'Weighed, packed and labelled' },
+  { title: '4. Air cargo freight', note: 'Flies out of Nepal' },
   { title: "5. Customs and int'l hub", note: 'Cleared customs and inspection' },
-  { title: '6. Out for final delivery', note: 'Driver nearing the address' },
+  { title: '6. Out for final delivery', note: 'On its way to the address' },
   { title: '7. Package handed over', note: 'Received by the customer' },
 ];
 
@@ -47,7 +47,7 @@ const Van: React.FC<{ className?: string; driving?: boolean; badge?: { x: number
 }) => (
   <svg className={className} viewBox="0 0 100 56" fill="none" aria-hidden="true">
     <path d="M4 12C4 8 7 6 11 6H64C66 6 68 8 68 11V38H4V12Z" fill="#123562" />
-    <path d="M68 18H82C84 18 86 19 88 22L94 30C95 32 96 34 96 36V38H68V18Z" fill="#002147" />
+    <path d="M68 18H82C84 18 86 19 88 22L94 30C95 32 96 34 96 36V38H68V18Z" fill="#0B2D63" />
     <path d="M72 21H82L88 29H72V21Z" fill="#D6E1EF" />
     {!driving && (
       <>
@@ -58,8 +58,8 @@ const Van: React.FC<{ className?: string; driving?: boolean; badge?: { x: number
       <rect width={badge.w} height={badge.h} rx="2" fill="#fff" />
       <image href={LOGO} x="1" y="1" width={badge.w - 2} height={badge.h - 2} preserveAspectRatio="xMidYMid meet" />
     </g>
-    {driving && <path d="M41 24H62" stroke="#F2B705" strokeWidth="2.5" strokeLinecap="round" />}
-    <rect x="93" y="32" width="3" height="4" rx="1" fill="#F2B705" />
+    {driving && <path d="M41 24H62" stroke="#F2B632" strokeWidth="2.5" strokeLinecap="round" />}
+    <rect x="93" y="32" width="3" height="4" rx="1" fill="#F2B632" />
     {[24, 78].map((cx) => (
       <g key={cx} className={driving ? 'cj-wheel' : ''} style={{ transformOrigin: `${cx}px 40px` }}>
         <circle cx={cx} cy="40" r={driving ? 7.5 : 7} fill="#0F172A" />
@@ -117,7 +117,7 @@ const Scene: React.FC<{ index: number }> = ({ index }) => {
           <div className="absolute left-3 bottom-2 flex flex-col items-center">
             <svg className="w-8 h-14" viewBox="0 0 32 56" fill="none" aria-hidden="true">
               <circle cx="16" cy="8" r="5" fill="#2F5A8F" />
-              <path d="M11 16C11 14 13 13 16 13C19 13 21 14 21 16V30C21 31 20 32 18 32H14C12 32 11 31 11 30V16Z" fill="#002147" />
+              <path d="M11 16C11 14 13 13 16 13C19 13 21 14 21 16V30C21 31 20 32 18 32H14C12 32 11 31 11 30V16Z" fill="#0B2D63" />
               <path d="M12 32V48H15V33M17 32V48H20V33" stroke="#1E293B" strokeLinecap="round" strokeWidth="2.5" />
               <path d="M14 20L22 25" stroke="#2F5A8F" strokeLinecap="round" strokeWidth="2.5" />
             </svg>
@@ -174,9 +174,9 @@ const Scene: React.FC<{ index: number }> = ({ index }) => {
             <svg className="w-[6.5rem] h-16" viewBox="0 0 84 50" fill="none" aria-hidden="true">
               <path d="M10 25C10 22 14 20 25 20H60C68 20 74 23 76 25C74 27 68 30 60 30H25C14 30 10 28 10 25Z" fill="#123562" />
               <path d="M68 22H71C72.5 22 74 23.5 74 25H68V22Z" fill="#AEC3DE" />
-              <path d="M38 20L26 6H36L52 20H38Z" fill="#002147" />
+              <path d="M38 20L26 6H36L52 20H38Z" fill="#0B2D63" />
               <path d="M38 30L26 44H36L52 30H38Z" fill="#082A52" />
-              <path d="M14 20L8 8H16L22 20H14Z" fill="#002147" />
+              <path d="M14 20L8 8H16L22 20H14Z" fill="#0B2D63" />
               <g transform="translate(24 21)">
                 <rect width="14" height="8" rx="1.5" fill="#fff" />
                 <image href={LOGO} x="1" y="0.5" width="12" height="7" preserveAspectRatio="xMidYMid meet" />
@@ -208,10 +208,10 @@ const Scene: React.FC<{ index: number }> = ({ index }) => {
             <svg className="w-20 h-20" viewBox="0 0 80 80" fill="none" aria-hidden="true">
               <polygon points="40,14 14,36 66,36" fill="#123562" />
               <polygon points="40,14 14,36 20,36 40,20" fill="#082A52" />
-              <rect x="50" y="18" width="5" height="10" fill="#002147" />
+              <rect x="50" y="18" width="5" height="10" fill="#0B2D63" />
               <rect x="19" y="36" width="42" height="34" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1.5" />
               <rect x="35" y="48" width="10" height="22" rx="1" fill="#334155" />
-              <circle cx="37" cy="59" r="1" fill="#F2B705" />
+              <circle cx="37" cy="59" r="1" fill="#F2B632" />
               <rect x="24" y="42" width="7" height="7" rx="1" fill="#D6E1EF" stroke="#94A3B8" />
               <rect x="49" y="42" width="7" height="7" rx="1" fill="#D6E1EF" stroke="#94A3B8" />
             </svg>
@@ -270,9 +270,9 @@ export const CargoJourney: React.FC<{ className?: string }> = ({ className = '' 
               <span className="w-6 h-5 rounded bg-white border border-slate-200/70 overflow-hidden flex items-center justify-center p-0.5 shrink-0">
                 <img src={LOGO} alt="" className="w-full h-full object-contain" />
               </span>
-              <span className="uppercase tracking-wider text-[10px] font-extrabold text-[#002147] truncate">The BC Cargo</span>
+              <span className="uppercase tracking-wider text-[10px] font-extrabold text-ox-900 truncate">The BC Cargo</span>
             </div>
-            <span className="text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200/70 px-1.5 py-0.5 rounded leading-none">
+            <span className="text-[10px] font-bold text-slate-600 bg-slate-100 border border-slate-200/70 px-1.5 py-0.5 rounded leading-none">
               {stage + 1}/{STAGES.length}
             </span>
           </div>
@@ -287,7 +287,7 @@ export const CargoJourney: React.FC<{ className?: string }> = ({ className = '' 
               >
                 {i === stage && <Scene index={i} />}
                 <span className="text-xs font-bold text-slate-800 mt-1">{s.title}</span>
-                <span className="text-[10px] text-slate-500 font-medium">{s.note}</span>
+                <span className="text-[10px] text-slate-600 font-medium">{s.note}</span>
               </div>
             ))}
           </div>
@@ -301,11 +301,11 @@ export const CargoJourney: React.FC<{ className?: string }> = ({ className = '' 
                 onClick={() => setStage(i)}
                 aria-label={`Show ${s.title.replace(/^\d+\.\s*/, '')}`}
                 aria-current={i === stage ? 'step' : undefined}
-                className="group flex-1 h-4 flex items-center cursor-pointer focus-visible:outline-none"
+                className="group flex-1 h-4 pointer-coarse:h-9 pointer-coarse:-my-2.5 flex items-center cursor-pointer focus-visible:outline-none"
               >
                 <span
-                  className={`block w-full h-1 rounded-full transition-colors duration-300 group-focus-visible:ring-2 group-focus-visible:ring-[#F2B705] ${
-                    i <= stage ? (done ? 'bg-emerald-600' : 'bg-[#002147]') : 'bg-slate-200'
+                  className={`block w-full h-1 rounded-full transition-colors duration-300 group-focus-visible:ring-2 group-focus-visible:ring-gd-500 ${
+                    i <= stage ? (done ? 'bg-emerald-600' : 'bg-ox-900') : 'bg-slate-200'
                   }`}
                 />
               </button>

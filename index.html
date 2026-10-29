@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>International Courier &amp; Cargo from Nepal | BC Cargo</title>
     <meta name="description" content="International courier and cargo from Hetauda, Nepal. Send parcels, documents and commercial cargo worldwide with live per-kg rates and online tracking." />
-    <meta name="theme-color" content="#F6F6F4" />
+    <meta name="theme-color" content="#FFFFFF" />
     <meta name="color-scheme" content="light" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
@@ -23,10 +23,10 @@
       @keyframes bc-reveal{to{visibility:visible}}
       @keyframes bc-giveup{to{visibility:hidden;pointer-events:none}}
       /* BC Cargo boot loader. Painted from the first HTML byte; src/boot/bootLoader.ts reports real progress.
-         Only transform/opacity are animated. Brand: Oxford #002147, golden yellow #F2B705, base #F6F6F4. */
+         Only transform/opacity are animated. Brand: Oxford #0B2D63, golden yellow #F2B632, base #F6F6F4. */
       #bc-boot{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;
-        background:#F6F6F4 radial-gradient(60% 46% at 50% 40%,rgba(242,183,5,.11),transparent 70%);
-        color:#002147;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+        background:#F6F6F4 radial-gradient(60% 46% at 50% 40%,rgba(242, 182, 50,.11),transparent 70%);
+        color:#0B2D63;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
         --i:0;--bc-p:0;--cx:0px;--tx:-120px;--truck:0;--bx:0px;--by:0px;--sh:.22;--sig:0;--ok:0;
         /* Painted immediately (counts as first paint). bootLoader.ts drops it before paint if the page is already ready. */
         animation:bc-giveup 0s 30s forwards;transition:opacity .36s ease,transform .36s cubic-bezier(.2,.8,.2,1)}
@@ -85,22 +85,22 @@
       .bc-boot__rail li{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;
         opacity:calc(.5 + .5 * clamp(0, 1 - (var(--i) - var(--k)) * (var(--i) - var(--k)), 1));transition:opacity .45s ease}
       .bc-boot__rail i{position:relative;width:9px;height:9px;border-radius:50%;border:2px solid #B9B8B0;box-sizing:border-box}
-      .bc-boot__rail i::after{content:"";position:absolute;inset:-2px;border-radius:50%;background:#002147;
+      .bc-boot__rail i::after{content:"";position:absolute;inset:-2px;border-radius:50%;background:#0B2D63;
         opacity:clamp(0, calc(var(--i) - var(--k) + 1), 1);transform:scale(clamp(.6, calc(1.6 - (var(--i) - var(--k)) * .4), 1.25));
         transition:opacity .45s ease,transform .5s cubic-bezier(.34,1.5,.64,1)}
       .bc-boot__rail span{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#474642;white-space:nowrap}
       .bc-boot__bar{width:100%;height:3px;border-radius:3px;background:#D9D8D2;overflow:hidden}
       .bc-boot__bar i{display:block;height:100%;transform-origin:0 50%;transform:scaleX(var(--bc-p));will-change:transform;
-        background:linear-gradient(90deg,#002147,#F2B705);transition:transform .2s linear}
+        background:linear-gradient(90deg,#0B2D63,#F2B632);transition:transform .2s linear}
       .bc-boot__slow{margin:0;min-height:62px;display:flex;flex-direction:column;align-items:center;gap:10px;font-size:14px;color:#474642;
         opacity:0;transform:translateY(4px);transition:opacity .5s ease,transform .5s ease;pointer-events:none}
       #bc-boot:is([data-slow="1"],[data-slow="2"]) .bc-boot__slow{opacity:1;transform:none}
       .bc-boot__act{display:none;gap:8px;align-items:center}
       #bc-boot[data-slow="2"] .bc-boot__act{display:flex;pointer-events:auto}
       .bc-boot__act button{font:inherit;font-weight:700;font-size:13px;min-height:40px;padding:0 18px;border-radius:999px;cursor:pointer;
-        border:2px solid #002147;background:#002147;color:#F6F6F4}
-      .bc-boot__act button+button{background:transparent;color:#002147}
-      .bc-boot__act button:focus-visible{outline:3px solid #F2B705;outline-offset:2px}
+        border:2px solid #0B2D63;background:#0B2D63;color:#F6F6F4}
+      .bc-boot__act button+button{background:transparent;color:#0B2D63}
+      .bc-boot__act button:focus-visible{outline:3px solid #F2B632;outline-offset:2px}
       .bc-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
       @media (max-width:419px){.bc-boot__rail span{display:none}.bc-boot__logo{height:32px}}
       @media (max-height:520px){.bc-boot__in{gap:8px}.bc-boot__logo{display:none}}
@@ -112,14 +112,14 @@
       }
     </style>
   </head>
-  <body class="antialiased selection:bg-[#F2B705] selection:text-[#002147]">
+  <body class="antialiased selection:bg-gd-500 selection:text-ox-900">
     <div id="root"></div>
     <div id="bc-boot" data-stage="preparing" data-slow="0">
       <div class="bc-boot__in">
         <img class="bc-boot__logo" src="/brand/bc-logo-96.webp" srcset="/brand/bc-logo-96.webp 96w, /brand/bc-logo-128.webp 128w, /brand/bc-logo-192.webp 192w" sizes="62px" width="62" height="40" alt="" decoding="async" draggable="false" />
         <svg class="bc-boot__scene" viewBox="0 0 320 140" aria-hidden="true" focusable="false">
           <defs>
-            <linearGradient id="bc-gd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD24A"/><stop offset="1" stop-color="#F2B705"/></linearGradient>
+            <linearGradient id="bc-gd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD24A"/><stop offset="1" stop-color="#F2B632"/></linearGradient>
             <g id="bc-sky"><path fill="#ECEBE7" d="M0 104V84Q30 62 70 80T140 76T210 84T280 70T320 84V104Z"/></g>
             <g id="bc-city" fill="#E2E1DC"><rect x="10" y="78" width="18" height="26"/><rect x="34" y="68" width="14" height="36"/><rect x="56" y="84" width="20" height="20"/><rect x="90" y="74" width="16" height="30"/><rect x="118" y="86" width="22" height="18"/><rect x="150" y="64" width="15" height="40"/><rect x="176" y="80" width="20" height="24"/><rect x="206" y="72" width="14" height="32"/><rect x="232" y="86" width="18" height="18"/><rect x="262" y="70" width="16" height="34"/><rect x="288" y="82" width="22" height="22"/></g>
           </defs>
@@ -129,35 +129,35 @@
           <line x1="0" y1="104" x2="320" y2="104" stroke="#D9D8D2" stroke-width="2"/>
           <g class="bc-dash" fill="#D9D8D2"><rect x="0" y="112" width="10" height="2" rx="1"/><rect x="24" y="112" width="10" height="2" rx="1"/><rect x="48" y="112" width="10" height="2" rx="1"/><rect x="72" y="112" width="10" height="2" rx="1"/><rect x="96" y="112" width="10" height="2" rx="1"/><rect x="120" y="112" width="10" height="2" rx="1"/><rect x="144" y="112" width="10" height="2" rx="1"/><rect x="168" y="112" width="10" height="2" rx="1"/><rect x="192" y="112" width="10" height="2" rx="1"/><rect x="216" y="112" width="10" height="2" rx="1"/><rect x="240" y="112" width="10" height="2" rx="1"/><rect x="264" y="112" width="10" height="2" rx="1"/><rect x="288" y="112" width="10" height="2" rx="1"/><rect x="312" y="112" width="10" height="2" rx="1"/></g>
           <line x1="40" y1="130" x2="280" y2="130" stroke="#D9D8D2" stroke-width="2" stroke-linecap="round"/>
-          <line class="bc-route-done" x1="40" y1="130" x2="280" y2="130" stroke="#002147" stroke-width="2" stroke-linecap="round"/>
+          <line class="bc-route-done" x1="40" y1="130" x2="280" y2="130" stroke="#0B2D63" stroke-width="2" stroke-linecap="round"/>
           <g>
-            <g style="--k:0"><circle cx="40" cy="130" r="5" fill="#fff" stroke="#B9B8B0" stroke-width="1.5"/><g class="bc-nd-on"><circle cx="40" cy="130" r="5" fill="#F2B705" stroke="#002147" stroke-width="1.5"/></g><g class="bc-nd-now"><circle cx="40" cy="130" r="9" fill="none" stroke="#F2B705" stroke-width="1.5"/></g></g>
-            <g style="--k:1"><circle cx="100" cy="130" r="5" fill="#fff" stroke="#B9B8B0" stroke-width="1.5"/><g class="bc-nd-on"><circle cx="100" cy="130" r="5" fill="#F2B705" stroke="#002147" stroke-width="1.5"/></g><g class="bc-nd-now"><circle cx="100" cy="130" r="9" fill="none" stroke="#F2B705" stroke-width="1.5"/></g></g>
-            <g style="--k:2"><circle cx="160" cy="130" r="5" fill="#fff" stroke="#B9B8B0" stroke-width="1.5"/><g class="bc-nd-on"><circle cx="160" cy="130" r="5" fill="#F2B705" stroke="#002147" stroke-width="1.5"/></g><g class="bc-nd-now"><circle cx="160" cy="130" r="9" fill="none" stroke="#F2B705" stroke-width="1.5"/></g></g>
-            <g style="--k:3"><circle cx="220" cy="130" r="5" fill="#fff" stroke="#B9B8B0" stroke-width="1.5"/><g class="bc-nd-on"><circle cx="220" cy="130" r="5" fill="#F2B705" stroke="#002147" stroke-width="1.5"/></g><g class="bc-nd-now"><circle cx="220" cy="130" r="9" fill="none" stroke="#F2B705" stroke-width="1.5"/></g></g>
-            <g style="--k:4"><circle cx="280" cy="130" r="5" fill="#fff" stroke="#B9B8B0" stroke-width="1.5"/><g class="bc-nd-on"><circle cx="280" cy="130" r="5" fill="#F2B705" stroke="#002147" stroke-width="1.5"/></g><g class="bc-nd-now"><circle cx="280" cy="130" r="9" fill="none" stroke="#F2B705" stroke-width="1.5"/></g></g>
+            <g style="--k:0"><circle cx="40" cy="130" r="5" fill="#fff" stroke="#B9B8B0" stroke-width="1.5"/><g class="bc-nd-on"><circle cx="40" cy="130" r="5" fill="#F2B632" stroke="#0B2D63" stroke-width="1.5"/></g><g class="bc-nd-now"><circle cx="40" cy="130" r="9" fill="none" stroke="#F2B632" stroke-width="1.5"/></g></g>
+            <g style="--k:1"><circle cx="100" cy="130" r="5" fill="#fff" stroke="#B9B8B0" stroke-width="1.5"/><g class="bc-nd-on"><circle cx="100" cy="130" r="5" fill="#F2B632" stroke="#0B2D63" stroke-width="1.5"/></g><g class="bc-nd-now"><circle cx="100" cy="130" r="9" fill="none" stroke="#F2B632" stroke-width="1.5"/></g></g>
+            <g style="--k:2"><circle cx="160" cy="130" r="5" fill="#fff" stroke="#B9B8B0" stroke-width="1.5"/><g class="bc-nd-on"><circle cx="160" cy="130" r="5" fill="#F2B632" stroke="#0B2D63" stroke-width="1.5"/></g><g class="bc-nd-now"><circle cx="160" cy="130" r="9" fill="none" stroke="#F2B632" stroke-width="1.5"/></g></g>
+            <g style="--k:3"><circle cx="220" cy="130" r="5" fill="#fff" stroke="#B9B8B0" stroke-width="1.5"/><g class="bc-nd-on"><circle cx="220" cy="130" r="5" fill="#F2B632" stroke="#0B2D63" stroke-width="1.5"/></g><g class="bc-nd-now"><circle cx="220" cy="130" r="9" fill="none" stroke="#F2B632" stroke-width="1.5"/></g></g>
+            <g style="--k:4"><circle cx="280" cy="130" r="5" fill="#fff" stroke="#B9B8B0" stroke-width="1.5"/><g class="bc-nd-on"><circle cx="280" cy="130" r="5" fill="#F2B632" stroke="#0B2D63" stroke-width="1.5"/></g><g class="bc-nd-now"><circle cx="280" cy="130" r="9" fill="none" stroke="#F2B632" stroke-width="1.5"/></g></g>
           </g>
           <g class="bc-car">
-            <ellipse class="bc-shadow" cx="0" cy="106" rx="14" ry="2.6" fill="#002147"/>
+            <ellipse class="bc-shadow" cx="0" cy="106" rx="14" ry="2.6" fill="#0B2D63"/>
             <g class="bc-truck">
-              <rect x="-30" y="-13" width="54" height="5" rx="2" fill="#002147"/>
-              <path d="M26 -9V-27a4 4 0 0 1 4-4h9a4 4 0 0 1 3.2 1.6L49 -21v12Z" fill="#002147"/>
+              <rect x="-30" y="-13" width="54" height="5" rx="2" fill="#0B2D63"/>
+              <path d="M26 -9V-27a4 4 0 0 1 4-4h9a4 4 0 0 1 3.2 1.6L49 -21v12Z" fill="#0B2D63"/>
               <path d="M32 -27h6l4.6 6H32Z" fill="#ECEBE7"/>
-              <rect x="44" y="-13" width="6" height="4" rx="1" fill="#F2B705"/>
+              <rect x="44" y="-13" width="6" height="4" rx="1" fill="#F2B632"/>
               <g fill="#121211"><circle cx="-18" cy="-6" r="6"/><circle cx="6" cy="-6" r="6"/><circle cx="38" cy="-6" r="6"/></g>
-              <g class="bc-wh" style="transform-origin:-18px -6px" fill="#F2B705"><circle cx="-18" cy="-8.6" r="1.6"/></g>
-              <g class="bc-wh" style="transform-origin:6px -6px" fill="#F2B705"><circle cx="6" cy="-8.6" r="1.6"/></g>
-              <g class="bc-wh" style="transform-origin:38px -6px" fill="#F2B705"><circle cx="38" cy="-8.6" r="1.6"/></g>
+              <g class="bc-wh" style="transform-origin:-18px -6px" fill="#F2B632"><circle cx="-18" cy="-8.6" r="1.6"/></g>
+              <g class="bc-wh" style="transform-origin:6px -6px" fill="#F2B632"><circle cx="6" cy="-8.6" r="1.6"/></g>
+              <g class="bc-wh" style="transform-origin:38px -6px" fill="#F2B632"><circle cx="38" cy="-8.6" r="1.6"/></g>
             </g>
             <g class="bc-box">
-              <g class="bc-sig" fill="none" stroke="#F2B705" stroke-width="1.5"><circle cx="0" cy="-10" r="12"/><circle cx="0" cy="-10" r="12"/><circle cx="0" cy="-10" r="12"/></g>
+              <g class="bc-sig" fill="none" stroke="#F2B632" stroke-width="1.5"><circle cx="0" cy="-10" r="12"/><circle cx="0" cy="-10" r="12"/><circle cx="0" cy="-10" r="12"/></g>
               <g class="bc-bob">
                 <rect x="-11" y="-20" width="22" height="20" rx="4" fill="url(#bc-gd)"/>
                 <path d="M-9.5 -2.2V-16a3 3 0 0 1 3-3H8" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.2" stroke-linecap="round"/>
                 <path d="M-11 -4.5H11" stroke="#B98A00" stroke-opacity=".35" stroke-width="1.2"/>
-                <path class="bc-tape" d="M0 -20V0" stroke="#002147" stroke-width="3.4"/>
+                <path class="bc-tape" d="M0 -20V0" stroke="#0B2D63" stroke-width="3.4"/>
                 <rect x="3.6" y="-9" width="5.6" height="4.4" rx="1" fill="#fff" fill-opacity=".9"/>
-                <g class="bc-ok"><circle cx="11" cy="-21" r="7" fill="#002147" stroke="#F6F6F4" stroke-width="1.5"/><path d="M7.6 -21.2l2.4 2.4 4.2-4.6" fill="none" stroke="#F2B705" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+                <g class="bc-ok"><circle cx="11" cy="-21" r="7" fill="#0B2D63" stroke="#F6F6F4" stroke-width="1.5"/><path d="M7.6 -21.2l2.4 2.4 4.2-4.6" fill="none" stroke="#F2B632" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
               </g>
             </g>
           </g>

@@ -138,7 +138,7 @@ export const HowToShipAdminTab: React.FC = () => {
   if (loading) {
     return (
       <div className="py-20 flex flex-col items-center justify-center gap-3">
-        <RefreshCw className="w-8 h-8 text-[#F2B705] animate-spin" />
+        <RefreshCw className="w-8 h-8 text-gd-500 animate-spin" />
         <span className="text-xs font-mono text-slate-500">Loading How to Ship CMS data...</span>
       </div>
     );
@@ -179,7 +179,7 @@ export const HowToShipAdminTab: React.FC = () => {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="min-h-[40px] px-5 py-2 rounded-xl bg-[#F2B705] hover:bg-[#FAC623] text-[#002147] text-xs font-heading font-extrabold uppercase tracking-wider inline-flex items-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+              className="min-h-[40px] px-5 py-2 rounded-xl bg-gd-500 hover:bg-[#FAC623] text-ox-900 text-xs font-heading font-extrabold uppercase tracking-wider inline-flex items-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
             >
               {saving ? (
                 <>
@@ -226,7 +226,7 @@ export const HowToShipAdminTab: React.FC = () => {
                   checked={data.published}
                   onChange={(e) => setData({ ...data, published: e.target.checked })}
                   disabled={!canEdit}
-                  className="rounded border-[var(--line)] text-[#002147] focus:ring-[#F2B705]"
+                  className="rounded border-[var(--line)] text-ox-900 focus:ring-gd-500"
                 />
                 <span className="font-bold">Published</span>
               </label>
@@ -243,7 +243,7 @@ export const HowToShipAdminTab: React.FC = () => {
                 value={data.title_en}
                 onChange={(e) => setData({ ...data, title_en: e.target.value })}
                 disabled={!canEdit}
-                className="w-full px-3 py-2 bg-[var(--surface-2)] border border-[var(--line)] rounded-xl text-xs font-sans text-[var(--text)] focus:ring-2 focus:ring-[#002147] outline-none"
+                className="w-full px-3 py-2 bg-[var(--surface-2)] border border-[var(--line)] rounded-xl text-xs font-sans text-[var(--text)] focus:ring-2 focus:ring-ox-900 outline-none"
               />
             </div>
 
@@ -256,7 +256,7 @@ export const HowToShipAdminTab: React.FC = () => {
                 value={data.title_np}
                 onChange={(e) => setData({ ...data, title_np: e.target.value })}
                 disabled={!canEdit}
-                className="w-full px-3 py-2 bg-[var(--surface-2)] border border-[var(--line)] rounded-xl text-xs font-sans text-[var(--text)] focus:ring-2 focus:ring-[#002147] outline-none"
+                className="w-full px-3 py-2 bg-[var(--surface-2)] border border-[var(--line)] rounded-xl text-xs font-sans text-[var(--text)] focus:ring-2 focus:ring-ox-900 outline-none"
               />
             </div>
 
@@ -269,7 +269,7 @@ export const HowToShipAdminTab: React.FC = () => {
                 value={data.intro_en}
                 onChange={(e) => setData({ ...data, intro_en: e.target.value })}
                 disabled={!canEdit}
-                className="w-full px-3 py-2 bg-[var(--surface-2)] border border-[var(--line)] rounded-xl text-xs font-sans text-[var(--text)] focus:ring-2 focus:ring-[#002147] outline-none"
+                className="w-full px-3 py-2 bg-[var(--surface-2)] border border-[var(--line)] rounded-xl text-xs font-sans text-[var(--text)] focus:ring-2 focus:ring-ox-900 outline-none"
               />
             </div>
 
@@ -282,7 +282,7 @@ export const HowToShipAdminTab: React.FC = () => {
                 value={data.intro_np || ''}
                 onChange={(e) => setData({ ...data, intro_np: e.target.value })}
                 disabled={!canEdit}
-                className="w-full px-3 py-2 bg-[var(--surface-2)] border border-[var(--line)] rounded-xl text-xs font-sans text-[var(--text)] focus:ring-2 focus:ring-[#002147] outline-none"
+                className="w-full px-3 py-2 bg-[var(--surface-2)] border border-[var(--line)] rounded-xl text-xs font-sans text-[var(--text)] focus:ring-2 focus:ring-ox-900 outline-none"
               />
             </div>
           </div>
@@ -308,7 +308,7 @@ export const HowToShipAdminTab: React.FC = () => {
                   onClick={() => toggleSection(section.section_number)}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-8 h-8 rounded-lg bg-[#002147] text-[#F2B705] font-heading font-extrabold text-xs flex items-center justify-center shrink-0">
+                    <span className="w-8 h-8 rounded-lg bg-ox-900 text-gd-500 font-heading font-extrabold text-xs flex items-center justify-center shrink-0">
                       {section.section_number}
                     </span>
                     <div>
@@ -370,7 +370,7 @@ export const HowToShipAdminTab: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleAddItem(sIdx)}
-                            className="text-xs font-mono text-[#002147] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                            className="text-xs font-mono text-ox-900 hover:underline inline-flex items-center gap-1 cursor-pointer"
                           >
                             <Plus className="w-3 h-3" />
                             <span>Add Item</span>
@@ -512,7 +512,7 @@ export const HowToShipAdminTab: React.FC = () => {
               <button
                 type="button"
                 onClick={handleAddWarning}
-                className="text-xs font-mono text-[#002147] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                className="text-xs font-mono text-ox-900 hover:underline inline-flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3 h-3" />
                 <span>Add Warning</span>
@@ -624,7 +624,7 @@ export const HowToShipAdminTab: React.FC = () => {
             <button
               type="submit"
               disabled={saving}
-              className="min-h-[44px] px-6 py-2.5 rounded-xl bg-[#F2B705] hover:bg-[#FAC623] text-[#002147] text-xs font-heading font-extrabold uppercase tracking-wider inline-flex items-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+              className="min-h-[44px] px-6 py-2.5 rounded-xl bg-gd-500 hover:bg-[#FAC623] text-ox-900 text-xs font-heading font-extrabold uppercase tracking-wider inline-flex items-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
             >
               {saving ? (
                 <>

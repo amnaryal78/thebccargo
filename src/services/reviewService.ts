@@ -32,7 +32,7 @@ export async function fetchReviewsPage(options?: {
           comment: r.comment,
           date: new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
           verified: r.verified !== false,
-          avatarBg: r.avatar_bg || 'bg-[#002147] text-[#F2B705]',
+          avatarBg: r.avatar_bg || 'bg-ox-900 text-gd-500',
           isTop: Boolean(r.is_top)
         }));
         const total = count ?? items.length;

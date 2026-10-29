@@ -96,7 +96,7 @@ export const MilestonesModal: React.FC<MilestonesModalProps> = ({
                 <button
                   onClick={onAddMilestone}
                   disabled={!newMilestoneTitle.trim()}
-                  className="px-4 py-1.5 rounded-xl bg-[#002147] text-white font-heading font-bold text-xs uppercase tracking-wider disabled:opacity-50 cursor-pointer shadow-hard-xs"
+                  className="px-4 py-1.5 rounded-xl bg-ox-900 text-white font-heading font-bold text-xs uppercase tracking-wider disabled:opacity-50 cursor-pointer shadow-hard-xs"
                 >
                   Add
                 </button>

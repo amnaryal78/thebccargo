@@ -7,6 +7,7 @@ import { Select } from '../design/primitives/Select';
 import { Spotlight } from '../components/ui/spotlight';
 import { TurnstileWidget } from '../components/TurnstileWidget';
 import { submitInquiry } from '../services/inquiryService';
+import { CountrySearchSelect } from '../components/ui/CountrySearchSelect';
 import { COUNTRIES, COUNTRY_BY_ISO2, flagUrl } from '../data/countries';
 
 type Origin = 'nepal' | 'outside';
@@ -213,9 +214,9 @@ export const BecomePartnerPage: React.FC = () => {
                   type="button"
                   aria-pressed={active}
                   onClick={() => switchOrigin(id)}
-                  className="w-full text-left flex items-center gap-3 p-4 cursor-pointer rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,#F2B705)]"
+                  className="w-full text-left flex items-center gap-3 p-4 cursor-pointer rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
-                  <span className="w-10 h-10 rounded-full bg-[var(--oxford-deep,#002147)] text-[var(--gold)] flex items-center justify-center shrink-0">
+                  <span className="w-10 h-10 rounded-full bg-[var(--oxford-deep,#0B2D63)] text-[var(--gold)] flex items-center justify-center shrink-0">
                     <Icon className="w-5 h-5" aria-hidden="true" />
                   </span>
                   <span className="flex flex-col leading-tight">
@@ -244,12 +245,13 @@ export const BecomePartnerPage: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <Select
+                <CountrySearchSelect
                   label="Country"
                   required
-                  options={countryOptions}
+                  placeholder="Choose your country"
+                  options={countryOptions.filter((o) => o.value)}
                   value={form.country}
-                  onChange={(e) => set('country', e.target.value)}
+                  onChange={(v) => set('country', v)}
                   error={errors.country}
                 />
               )}
@@ -260,6 +262,7 @@ export const BecomePartnerPage: React.FC = () => {
                 value={form.city}
                 onChange={(e) => set('city', e.target.value)}
                 autoComplete="address-level2"
+                maxLength={120}
               />
 
               <Input
@@ -270,6 +273,7 @@ export const BecomePartnerPage: React.FC = () => {
                 onChange={(e) => set('company', e.target.value)}
                 error={errors.company}
                 autoComplete="organization"
+                maxLength={160}
               />
 
               <Input
@@ -280,6 +284,7 @@ export const BecomePartnerPage: React.FC = () => {
                 onChange={(e) => set('owner', e.target.value)}
                 error={errors.owner}
                 autoComplete="name"
+                maxLength={120}
               />
 
               <Input
@@ -292,6 +297,7 @@ export const BecomePartnerPage: React.FC = () => {
                 onChange={(e) => set('email', e.target.value)}
                 error={errors.email}
                 autoComplete="email"
+                maxLength={254}
               />
 
               <Input
@@ -307,6 +313,7 @@ export const BecomePartnerPage: React.FC = () => {
                 leftAdornment={<span className="text-sm font-semibold text-[var(--text)]">{dial || '+'}</span>}
                 className={dial.length > 3 ? '!pl-[4.25rem]' : '!pl-14'}
                 autoComplete="tel-national"
+                maxLength={30}
               />
 
               <Input
@@ -318,6 +325,7 @@ export const BecomePartnerPage: React.FC = () => {
                 onChange={(e) => set('website', e.target.value)}
                 error={errors.website}
                 autoComplete="url"
+                maxLength={300}
               />
 
               <Input
@@ -351,9 +359,9 @@ export const BecomePartnerPage: React.FC = () => {
                         type="button"
                         aria-pressed={on}
                         onClick={() => toggleService(name)}
-                        className={`inline-flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-full border text-sm font-semibold leading-none cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,#F2B705)] ${
+                        className={`inline-flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-full border text-sm font-semibold leading-none cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
                           on
-                            ? 'bg-[var(--gold)] text-[var(--oxford-deep,#002147)] border-transparent'
+                            ? 'bg-[var(--gold)] text-[var(--oxford-deep,#0B2D63)] border-transparent'
                             : 'bg-[var(--surface)] text-[var(--text)] border-[var(--line)] hover:border-[var(--line-strong)]'
                         }`}
                       >
@@ -380,10 +388,11 @@ export const BecomePartnerPage: React.FC = () => {
                 <textarea
                   id="partner-message"
                   rows={4}
+                  maxLength={2000}
                   value={form.message}
                   onChange={(e) => set('message', e.target.value)}
                   placeholder="Tell us about your business and routes."
-                  className="w-full px-4 py-3 bg-[var(--surface)] text-[var(--text)] border border-[var(--line)] rounded-[var(--r-sm)] clay-inset text-sm transition-all duration-200 hover:border-[var(--ox-700)] hover:shadow-[0_0_0_3px_rgba(242,183,5,0.18)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring,#F2B705)] placeholder:text-slate-500"
+                  className="w-full px-4 py-3 bg-[var(--surface)] text-[var(--text)] border border-[var(--line)] rounded-[var(--r-sm)] clay-inset text-sm transition-all duration-200 hover:border-[var(--ox-700)] hover:shadow-[0_0_0_3px_rgba(242,182,50,0.18)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] placeholder:text-slate-500"
                 />
               </div>
             </div>

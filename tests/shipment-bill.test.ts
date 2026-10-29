@@ -56,15 +56,15 @@ describe('charges', () => {
   it('charges liquid per bottle and honours a manual override', () => {
     const d = draft();
     d.boxes[0].liquids.push({ id: 'a', kind: 'Ghee', otherName: '', unit: 'btl', qty: 3 });
-    expect(computeBill(d, 1000).liquidCharge).toBe(1800);
+    expect(computeBill(d, 1000).liquidCharge).toBe(2100); // 3 btl * 700
     d.liquidChargeOverride = 1500;
     expect(computeBill(d, 1000).liquidCharge).toBe(1500);
   });
-  it('charges meat per kg (Europe 600, Hong Kong 1050) and warns when the country does not allow it', () => {
+  it('charges meat per kg (Europe 800, Hong Kong 1050) and warns when the country does not allow it', () => {
     const d = draft();
     d.receiver.country = 'Germany';
     d.boxes[0].meats.push({ id: 'm', name: 'Goat', kgPerUnit: 2, qty: 2 });
-    expect(computeBill(d, 0).meatCharge).toBe(2400);
+    expect(computeBill(d, 0).meatCharge).toBe(3200); // 4 kg * 800
     d.receiver.country = 'Hong Kong';
     expect(computeBill(d, 0).meatCharge).toBe(4200);
     d.receiver.country = 'New Zealand';
@@ -143,6 +143,18 @@ describe('printed documents', () => {
     expect(html).toContain(amountInWords(s.result.total));
     expect(html).toContain('Liquid Charge');
     expect(html).toContain('Packing');
+  });
+  it('prints the PAN, an inline scannable QR to /track, and both addresses', () => {
+    const s = build();
+    s.draft.sender.address = 'Sender Lane 1';
+    s.draft.receiver.address = '12 Receiver Road, London';
+    const html = buildCustomerBillHtml(s);
+    expect(html).toContain('625251704');
+    expect(html).toContain('<svg');
+    expect(html).not.toContain('qrserver');
+    expect(html).toContain('https://thebccargo.com/track');
+    expect(html).toContain('Sender Lane 1');
+    expect(html).toContain('12 Receiver Road, London');
   });
   it('escapes typed text so it cannot inject markup', () => {
     const html = buildCustomerBillHtml(build()) + buildBoxSheetsHtml(build());

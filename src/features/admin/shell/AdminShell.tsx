@@ -138,21 +138,21 @@ const AdminShellInner: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-[var(--bg)] text-[#121211] font-body selection:bg-[#F2B705] selection:text-[#002147]">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[var(--bg)] text-[#121211] font-body selection:bg-gd-500 selection:text-ox-900">
       
       {/* ------------------------------------------------------------------ */}
       {/* TOP BAR ON MOBILE (< 768px) */}
       {/* ------------------------------------------------------------------ */}
-      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white/95 backdrop-blur text-[#002147] sticky top-0 z-40 border-b border-[var(--line-strong)]">
+      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white/95 backdrop-blur text-ox-900 sticky top-0 z-40 border-b border-[var(--line-strong)]">
         <div className="flex items-center gap-2">
           <BcLogo size="sm" variant="mark-only" />
-          <span className="font-heading font-extrabold text-sm text-[#002147]">Admin</span>
+          <span className="font-heading font-extrabold text-sm text-ox-900">Admin</span>
         </div>
         <div className="flex items-center gap-2">
         <NotificationBell align="right" />
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-lg bg-[#EEF3F9] text-[#002147] hover:bg-[#D6E1EF] active:scale-95 transition-all cursor-pointer"
+          className="p-2 rounded-lg bg-[#EEF3F9] text-ox-900 hover:bg-[#D6E1EF] active:scale-95 transition-all cursor-pointer"
           aria-label="Toggle navigation"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -167,7 +167,7 @@ const AdminShellInner: React.FC = () => {
         <button type="button" aria-label="Close navigation" onClick={() => setMobileMenuOpen(false)} className="md:hidden fixed inset-0 z-40 bg-[#00152D]/60 cursor-default" />
       )}
       <aside className={`
-        fixed md:sticky top-0 left-0 h-[100dvh] z-50 md:z-30 w-64 md:w-60 lg:w-64 bg-white text-[#002147] flex flex-col justify-between border-r border-[var(--line-strong)] shadow-xl md:shadow-none transition-transform duration-200 ease-in-out
+        fixed md:sticky top-0 left-0 h-[100dvh] z-50 md:z-30 w-64 md:w-60 lg:w-64 bg-white text-ox-900 flex flex-col justify-between border-r border-[var(--line-strong)] shadow-xl md:shadow-none transition-transform duration-200 ease-in-out
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         {/* Sidebar Header */}
@@ -175,14 +175,14 @@ const AdminShellInner: React.FC = () => {
           <div className="flex items-center gap-2.5">
             <BcLogo size="md" variant="mark-only" />
             <div className="flex flex-col">
-              <span className="font-heading font-extrabold text-sm text-[#002147]">Admin desk</span>
+              <span className="font-heading font-extrabold text-sm text-ox-900">Admin desk</span>
               <span className="text-[11px] text-[#8A6200]">The BC Cargo</span>
             </div>
           </div>
           <div className="hidden md:block"><NotificationBell /></div>
           <button
             onClick={() => setMobileMenuOpen(false)}
-            className="md:hidden p-1.5 rounded-lg text-slate-500 hover:text-[#002147]"
+            className="md:hidden p-1.5 rounded-lg text-slate-500 hover:text-ox-900"
           >
             <X className="w-5 h-5" />
           </button>
@@ -207,10 +207,10 @@ const AdminShellInner: React.FC = () => {
                       end={item.end}
                       onClick={() => setMobileMenuOpen(false)}
                       className={({ isActive }) => `
-                        flex items-center gap-3 min-h-[40px] px-3 rounded-xl text-[13px] font-heading font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]
+                        flex items-center gap-3 min-h-[40px] px-3 rounded-xl text-[13px] font-heading font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500
                         ${isActive
-                          ? 'bg-[#FFF9E0] text-[#002147] font-bold shadow-[inset_3px_0_0_#F2B705]'
-                          : 'text-slate-700 hover:bg-[#EEF3F9] hover:text-[#002147]'
+                          ? 'bg-[#FFF9E0] text-ox-900 font-bold shadow-[inset_3px_0_0_#F2B632]'
+                          : 'text-slate-700 hover:bg-[#EEF3F9] hover:text-ox-900'
                         }
                       `}
                     >
@@ -219,7 +219,7 @@ const AdminShellInner: React.FC = () => {
                       {unread > 0 && (
                         <span
                           className={`ml-auto min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center ${
-                            item.messages ? 'bg-[#F2B705] text-[#002147]' : 'bg-red-500 text-white'
+                            item.messages ? 'bg-gd-500 text-ox-900' : 'bg-red-500 text-white'
                           }`}
                           aria-label={item.messages ? `${unread} waiting for a reply` : `${unread} unread`}
                         >
@@ -238,7 +238,7 @@ const AdminShellInner: React.FC = () => {
         <div className="p-3 border-t border-[var(--line)] bg-[#F6F9FD] space-y-2.5">
           <div className="flex items-center justify-between gap-2">
             <div className="flex flex-col min-w-0">
-              <span className="text-xs font-semibold text-[#002147] truncate font-mono">
+              <span className="text-xs font-semibold text-ox-900 truncate font-mono">
                 {user?.email || 'Authenticated User'}
               </span>
               <div className="flex items-center gap-1.5 mt-0.5">
@@ -277,7 +277,7 @@ const AdminShellInner: React.FC = () => {
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg bg-white border border-[var(--line-strong)] hover:border-[#002147]/40 text-slate-700 hover:text-[#002147] text-xs font-semibold transition-colors"
+            className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg bg-white border border-[var(--line-strong)] hover:border-ox-900/40 text-slate-700 hover:text-ox-900 text-xs font-semibold transition-colors"
           >
             <span>Public site</span>
             <ExternalLink className="w-3 h-3" />
@@ -304,14 +304,14 @@ const AdminShellInner: React.FC = () => {
             end={end}
             className={({ isActive }) =>
               `relative min-h-[48px] flex flex-col items-center justify-center gap-0.5 rounded-lg text-[11px] font-semibold ${
-                isActive ? 'text-[#002147] font-bold' : 'text-slate-500'
+                isActive ? 'text-ox-900 font-bold' : 'text-slate-500'
               }`
             }
           >
             <Icon className="w-5 h-5" />
             <span>{label}</span>
             {!!badge && (
-              <span className="absolute top-0.5 left-1/2 ml-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#F2B705] text-[#002147] text-[10px] font-bold grid place-items-center">
+              <span className="absolute top-0.5 left-1/2 ml-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-gd-500 text-ox-900 text-[10px] font-bold grid place-items-center">
                 {badge > 99 ? '99+' : badge}
               </span>
             )}
@@ -320,7 +320,7 @@ const AdminShellInner: React.FC = () => {
         <button
           type="button"
           onClick={() => setMobileMenuOpen(true)}
-          className="min-h-[48px] flex flex-col items-center justify-center gap-0.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-[#002147] cursor-pointer"
+          className="min-h-[48px] flex flex-col items-center justify-center gap-0.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-ox-900 cursor-pointer"
         >
           <Menu className="w-5 h-5" />
           <span>All pages</span>

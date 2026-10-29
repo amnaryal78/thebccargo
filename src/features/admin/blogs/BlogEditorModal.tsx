@@ -42,7 +42,7 @@ export const BlogEditorModal: React.FC<BlogEditorModalProps> = ({
               disabled={aiFixing}
               className="px-3 py-1 rounded-xl bg-[var(--ox-900)] hover:bg-[var(--ox-700)] text-white font-heading font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5 shadow-hard-xs cursor-pointer disabled:opacity-50"
             >
-              {aiFixing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3 text-[#F2B705]" />}
+              {aiFixing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3 text-gd-500" />}
               <span>{aiFixing ? 'Polishing...' : 'AI Fix & Enhance'}</span>
             </button>
           </div>
@@ -150,7 +150,7 @@ export const BlogEditorModal: React.FC<BlogEditorModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl bg-[#002147] text-white font-heading font-bold uppercase tracking-wider text-xs shadow-hard-xs cursor-pointer"
+              className="px-5 py-2 rounded-xl bg-ox-900 text-white font-heading font-bold uppercase tracking-wider text-xs shadow-hard-xs cursor-pointer"
             >
               Save Post
             </button>

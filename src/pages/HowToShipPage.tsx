@@ -99,11 +99,11 @@ export const HowToShipPage: React.FC = () => {
       />
 
       {/* Hero: the guide's promise, with the route a parcel takes */}
-      <section className="relative isolate overflow-hidden bg-[#EEF3FA] text-[#002147] px-4 sm:px-6 lg:px-8 pt-10 pb-12 sm:pt-14 sm:pb-16">
+      <section className="relative isolate overflow-hidden bg-[#EEF3FA] text-ox-900 px-4 sm:px-6 lg:px-8 pt-10 pb-12 sm:pt-14 sm:pb-16">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -top-40 -right-24 w-[44rem] max-w-[140%] aspect-square rounded-full -z-10"
-          style={{ background: 'radial-gradient(closest-side, rgba(242,183,5,0.18), transparent)' }}
+          style={{ background: 'radial-gradient(closest-side, rgba(242,182,50,0.18), transparent)' }}
         />
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-12 items-center">
           <div className="flex flex-col gap-5 text-left min-w-0">
@@ -143,7 +143,7 @@ export const HowToShipPage: React.FC = () => {
                 href={whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="min-h-[48px] px-6 rounded-xl bg-[#F2B705] hover:bg-[#FAC623] text-[#002147] font-heading font-extrabold text-sm inline-flex items-center gap-2 leading-none shadow-[0_4px_0_#002147] active:translate-y-1 active:shadow-none transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#002147] focus-visible:ring-offset-2"
+                className="min-h-[48px] px-6 rounded-xl bg-gd-500 hover:bg-[#FAC623] text-ox-900 font-heading font-extrabold text-sm inline-flex items-center gap-2 leading-none shadow-[0_4px_0_#0B2D63] active:translate-y-1 active:shadow-none transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ox-900 focus-visible:ring-offset-2"
               >
                 <MessageSquare className="w-4 h-4 shrink-0" aria-hidden="true" />
                 <span>Ask on WhatsApp</span>
@@ -151,7 +151,7 @@ export const HowToShipPage: React.FC = () => {
               {bringStep && (
                 <a
                   href={`#step-${bringStep.section_number}`}
-                  className="min-h-[48px] px-5 rounded-xl border-2 border-[#002147]/40 hover:bg-[#002147]/5 font-heading font-extrabold text-sm inline-flex items-center gap-2 leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705] focus-visible:ring-offset-2"
+                  className="min-h-[48px] px-5 rounded-xl border-2 border-ox-900/40 hover:bg-ox-900/5 font-heading font-extrabold text-sm inline-flex items-center gap-2 leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500 focus-visible:ring-offset-2"
                 >
                   <FileCheck2 className="w-4 h-4 shrink-0" aria-hidden="true" />
                   <span>What to bring</span>
@@ -159,7 +159,7 @@ export const HowToShipPage: React.FC = () => {
               )}
               <Link
                 to="/rates"
-                className="min-h-[48px] px-2 inline-flex items-center gap-2 text-sm font-semibold leading-none underline decoration-dashed decoration-[#F2B705] underline-offset-4 hover:decoration-solid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705] rounded"
+                className="min-h-[48px] px-2 inline-flex items-center gap-2 text-sm font-semibold leading-none underline decoration-dashed decoration-gd-500 underline-offset-4 hover:decoration-solid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500 rounded"
               >
                 <span>Check price</span>
                 <ArrowRight className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -176,7 +176,7 @@ export const HowToShipPage: React.FC = () => {
         <div className="max-w-4xl mx-auto space-y-10">
           {loading && (
             <p className="flex items-center justify-center gap-2 text-sm text-slate-600 py-2" role="status">
-              <RefreshCw className="w-4 h-4 text-[#F2B705] animate-spin" aria-hidden="true" />
+              <RefreshCw className="w-4 h-4 text-gd-500 animate-spin" aria-hidden="true" />
               <span>Checking for the latest guide…</span>
             </p>
           )}
@@ -198,7 +198,7 @@ export const HowToShipPage: React.FC = () => {
                   ? 'bg-red-100 text-red-700'
                   : kind === 'rules'
                   ? 'bg-amber-100 text-amber-800'
-                  : 'bg-[#002147] text-[#F2B705]';
+                  : 'bg-ox-900 text-gd-500';
 
               return (
                 <TimelineItem key={section.section_number} tone={tone} flat tapToHighlight={false}>
@@ -241,7 +241,7 @@ export const HowToShipPage: React.FC = () => {
               <TimelineItem tone="warn" flat tapToHighlight={false}>
                 <div className="p-5 sm:p-7 space-y-3">
                   <p className="flex items-center gap-2 text-sm font-semibold text-[#8C6400]">
-                    <AlertCircle className="w-4 h-4 text-[#F2B705]" aria-hidden="true" />
+                    <AlertCircle className="w-4 h-4 text-gd-500" aria-hidden="true" />
                     <span>Important notice • महत्त्वपूर्ण सूचना</span>
                   </p>
                   <div className="space-y-2 text-sm text-slate-700 leading-relaxed">

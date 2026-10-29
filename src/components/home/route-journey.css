@@ -1,0 +1,115 @@
+/*
+ * Nepal -> destination shipment journey (home hero). One 9s loop per country, CSS only.
+ * Timeline (s): 0-0.4 scene in | 0.2-1.5 truck parks before the airport | 1.55-2.0 parcel hops into the plane |
+ *   2.0-5.4 flight: steep climb, gentle descent, nose tilt capped at 32deg (day counter runs in JS) | 5.4-5.9 landing + customs | 5.9 delivered:
+ *   tick, confetti, success banner | 6.4 price button | hold until JS swaps to the next country.
+ * The scene is NEVER faded out by CSS: it holds its last frame until JS replaces it, so it cannot go blank.
+ * Only transform / opacity / stroke-dashoffset are animated.
+ */
+.rj-scene { animation: rj-in 0.35s ease both; }
+@keyframes rj-in { from { opacity: 0; } }
+
+.rj-wrap { transition: opacity 0.45s ease; }
+.rj-wrap.rj-leaving { opacity: 0; }
+.rj-paused *, .rj-paused { animation-play-state: paused !important; }
+
+/* drifting clouds + mountains: always alive, slow */
+.rj-cloud { animation: rj-drift 30s linear infinite; }
+.rj-cloud-2 { animation-duration: 44s; animation-delay: -12s; }
+.rj-cloud-3 { animation-duration: 36s; animation-delay: -24s; }
+@keyframes rj-drift { from { transform: translateX(-80px); } to { transform: translateX(480px); } }
+
+.rj-title { animation: rj-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both; }
+@keyframes rj-rise { from { opacity: 0; transform: translateY(8px); } }
+
+/* flight path: drawn behind the plane as a contrail */
+.rj-arc-done { stroke-dasharray: 1; stroke-dashoffset: 1; animation: rj-draw 3.4s linear 2s forwards; }
+@keyframes rj-draw { to { stroke-dashoffset: 0; } }
+.rj-arc-flow { animation: rj-flow 1.2s linear infinite; }
+@keyframes rj-flow { to { stroke-dashoffset: -18; } }
+
+/* truck */
+.rj-truck { animation: rj-truck-in 1.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both, rj-truck-out 0.9s ease-in 1.8s forwards; }
+@keyframes rj-truck-in { from { transform: translateX(-130px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes rj-truck-out { to { transform: translateX(-140px); opacity: 0; } }
+.rj-wheel { animation: rj-spin 0.45s linear 0.2s 3, rj-spin 0.45s linear 1.8s 2; }
+@keyframes rj-spin { to { transform: rotate(360deg); } }
+.rj-box-truck { animation: rj-vanish 0.01s linear 1.55s forwards; }
+@keyframes rj-vanish { to { opacity: 0; } }
+/* parcel hop: truck bed (24,150, truck is scaled 0.8) -> plane sling at take-off (97,159, rotated with the plane) */
+.rj-hop { animation: rj-hop-arc 0.45s cubic-bezier(0.3, 0.7, 0.4, 1) 1.55s both, rj-vanish 0.01s linear 2s forwards; }
+@keyframes rj-hop-arc {
+  0% { opacity: 0; transform: translate(24.4px, 150.4px) scale(0.8); }
+  10% { opacity: 1; transform: translate(26px, 146px) scale(0.85); }
+  55% { opacity: 1; transform: translate(62px, 116px) rotate(-10deg) scale(1); }
+  100% { opacity: 1; transform: translate(97.2px, 159.2px) rotate(-32deg) scale(1); }
+}
+
+/* plane with the parcel underneath */
+.rj-plane-appear { animation: rj-plane-in 0.35s ease 1.6s both; }
+@keyframes rj-plane-in { from { opacity: 0; } }
+.rj-plane { animation: rj-fly 3.4s cubic-bezier(0.37, 0, 0.63, 1) 2s both; will-change: transform; }
+/* generated from the ARC cubic in RouteJourney.tsx, sampled at even distances */
+@keyframes rj-fly {
+  0% { transform: translate(84.0px, 138.0px) rotate(-32.0deg); }
+  8.33% { transform: translate(97.1px, 117.3px) rotate(-32.0deg); }
+  16.67% { transform: translate(114.2px, 100.0px) rotate(-32.0deg); }
+  25% { transform: translate(135.1px, 87.5px) rotate(-23.8deg); }
+  33.33% { transform: translate(158.5px, 80.3px) rotate(-10.7deg); }
+  41.67% { transform: translate(182.8px, 78.1px) rotate(-0.2deg); }
+  50% { transform: translate(207.1px, 79.8px) rotate(8.0deg); }
+  58.33% { transform: translate(231.1px, 84.6px) rotate(14.4deg); }
+  66.67% { transform: translate(254.4px, 91.8px) rotate(19.6deg); }
+  75% { transform: translate(277.1px, 100.9px) rotate(24.1deg); }
+  83.33% { transform: translate(299.0px, 111.7px) rotate(28.3deg); }
+  91.67% { transform: translate(320.0px, 124.0px) rotate(32.0deg); }
+  100% { transform: translate(340.0px, 138.0px) rotate(32.0deg); }
+}
+.rj-plane-exit { animation: rj-plane-out 0.5s ease-in 5.5s forwards; }
+@keyframes rj-plane-out { to { opacity: 0; transform: translateX(46px); } }
+/* the slung parcel only shows once the hop has handed it over */
+.rj-box-fly { animation: rj-show 0.01s linear 2s both, rj-vanish 0.01s linear 5.4s forwards; }
+@keyframes rj-show { from { opacity: 0; } to { opacity: 1; } }
+.rj-prop { animation: rj-pulse-soft 0.5s ease-in-out infinite; }
+@keyframes rj-pulse-soft { 50% { opacity: 0.45; } }
+
+/* destination: node pulse, parcel lands, tick, confetti */
+.rj-dest-ring { transform-box: fill-box; transform-origin: center; animation: rj-ring 1.6s ease-out 5.2s 3 both; }
+@keyframes rj-ring { from { transform: scale(0.4); opacity: 0.8; } to { transform: scale(2.6); opacity: 0; } }
+.rj-box-land { animation: rj-land 0.45s cubic-bezier(0.34, 1.6, 0.64, 1) 5.4s both; }
+@keyframes rj-land { from { opacity: 0; transform: translateY(-34px); } }
+.rj-tick { transform-box: fill-box; transform-origin: center; animation: rj-tick 0.5s cubic-bezier(0.34, 1.8, 0.64, 1) 5.9s both; }
+@keyframes rj-tick { from { transform: scale(0); } }
+.rj-conf { animation: rj-burst 1.1s cubic-bezier(0.15, 0.7, 0.3, 1) 5.9s both; }
+@keyframes rj-burst {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(0.4); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(1); }
+}
+
+/* status chip, success banner, price button */
+.rj-chip { animation: rj-pop 0.5s cubic-bezier(0.34, 1.5, 0.64, 1) 0.5s both; }
+@keyframes rj-pop { from { opacity: 0; transform: scale(0.85); } }
+.rj-banner { animation: rj-rise 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) 6s both; }
+.rj-cta { animation: rj-pop 0.5s cubic-bezier(0.34, 1.5, 0.64, 1) 6.4s both; }
+
+/* stage rail: pickup -> in flight -> customs -> delivered */
+.rj-step i { animation: rj-step-on 0.35s ease both; }
+.rj-step-1 i { animation-delay: 0.3s; }
+.rj-step-2 i { animation-delay: 2s; }
+.rj-step-3 i { animation-delay: 5.4s; }
+.rj-step-4 i { animation-delay: 5.9s; }
+@keyframes rj-step-on { from { background-color: #fff; transform: scale(0.7); } to { background-color: var(--oxford-deep, #0B2D63); transform: scale(1); } }
+.rj-step-line b { transform-origin: left center; animation: rj-line 0.6s ease both; }
+.rj-step-line-1 b { animation-delay: 1.9s; }
+.rj-step-line-2 b { animation-delay: 5.3s; }
+.rj-step-line-3 b { animation-delay: 5.8s; }
+@keyframes rj-line { from { transform: scaleX(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rj-scene, .rj-title, .rj-chip, .rj-banner, .rj-cta, .rj-arc-done, .rj-tick, .rj-box-land, .rj-conf,
+  .rj-dest-ring, .rj-step i, .rj-step-line b, .rj-cloud, .rj-arc-flow, .rj-prop { animation: none; }
+  .rj-wrap { transition: none; }
+  .rj-arc-done { stroke-dashoffset: 0; }
+  .rj-step i { background-color: var(--oxford-deep, #0B2D63); }
+  .rj-truck, .rj-plane, .rj-plane-appear, .rj-plane-exit, .rj-box-fly, .rj-box-truck, .rj-box-hop, .rj-hop, .rj-conf, .rj-dest-ring { display: none; }
+}

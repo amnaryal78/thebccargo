@@ -90,19 +90,19 @@ function encodePng(width, height, getPixel) {
 }
 
 // 1. Generate og-banner.png (1200 x 630)
-// Oxford Blue background (#002147) with Gold border (#F2B705) and center badge
+// Oxford Blue background (#0B2D63) with Gold border (#F2B632) and center badge
 console.log('[ASSETS] Generating 1200x630 og-banner.png...');
 const ogBanner = encodePng(1200, 630, (x, y) => {
   // Gold decorative border (12px inset, 8px stroke)
   const isBorder = (x >= 24 && x <= 1176 && (y === 24 || y === 606 || (y >= 24 && y <= 606 && (x === 24 || x === 1176))));
-  if (isBorder) return [242, 183, 5, 255]; // #F2B705 Gold
+  if (isBorder) return [242, 183, 5, 255]; // #F2B632 Gold
 
   // Central Gold accent strip (y between 300 and 310)
   if (y >= 308 && y <= 312 && x >= 400 && x <= 800) {
     return [242, 183, 5, 255];
   }
 
-  // Gradient Oxford Blue background: #002147 to #00152D
+  // Gradient Oxford Blue background: #0B2D63 to #00152D
   const grad = Math.min(1, Math.max(0, y / 630));
   const r = Math.round(0 * (1 - grad) + 0 * grad);
   const g = Math.round(33 * (1 - grad) + 21 * grad);

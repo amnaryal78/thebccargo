@@ -46,49 +46,55 @@ export function contrastRatio(hex1: string, hex2: string): number {
 // Token Scales
 export const PALETTE = {
   // Oxford Blue
-  ox50: '#EEF3F9',
-  ox100: '#D6E1EF',
-  ox200: '#AEC3DE',
-  ox300: '#7F9DC4',
-  ox400: '#4F76A8',
-  ox500: '#2F5A8F',
-  ox600: '#1D4577',
-  ox700: '#123562',
-  ox800: '#082A52',
-  ox900: '#002147',
-  ox950: '#00152D',
+  ox50: '#EEF2F8',
+  ox100: '#D9E2EF',
+  ox200: '#B3C4DE',
+  ox300: '#85A0C7',
+  ox400: '#5779AC',
+  ox500: '#345A92',
+  ox600: '#224A82',
+  ox700: '#183E74',
+  ox800: '#10346A',
+  ox900: '#0B2D63',
+  ox950: '#071C3F',
 
   // Golden Yellow
-  gd50: '#FFF9E0',
-  gd100: '#FFF0B3',
-  gd200: '#FFE380',
-  gd300: '#FFD54D',
-  gd400: '#FAC623',
-  gd500: '#F2B705',
-  gd600: '#CC9704',
-  gd700: '#8C6400', // Adjusted from #A07503 to ensure 4.5:1 against light surfaces
-  gd800: '#735402',
-  gd900: '#4A3601',
+  gd50: '#FEF8EA',
+  gd100: '#FCEDC8',
+  gd200: '#F9DD95',
+  gd300: '#F6CC64',
+  gd400: '#F4C04A',
+  gd500: '#F2B632',
+  gd600: '#D99B17',
+  gd700: '#8A6200', // Adjusted from #A07503 to ensure 4.5:1 against light surfaces
+  gd800: '#6E4E05',
+  gd900: '#4A3504',
 
   // Ink
   ink0: '#FFFFFF',
-  ink50: '#F6F6F4',
-  ink100: '#ECEBE7',
-  ink200: '#D9D8D2',
-  ink300: '#B9B8B0',
-  ink400: '#8E8D86',
-  ink500: '#6A6963',
-  ink600: '#474642', // Adjusted slightly from #4B4A46 to ensure robust >=4.5:1 against ink-100
-  ink700: '#33322F',
-  ink800: '#1F1E1C',
-  ink900: '#121211',
-  ink950: '#0A0A09',
+  ink50: '#F7F5F0',
+  ink100: '#EFEBE3',
+  ink200: '#DEDAD1',
+  ink300: '#C2BDB2',
+  ink400: '#96918A',
+  ink500: '#6C6862',
+  ink600: '#4A4743', // Adjusted slightly from #4B4A46 to ensure robust >=4.5:1 against ink-100
+  ink700: '#34322F',
+  ink800: '#22211F',
+  ink900: '#141312',
+  ink950: '#0B0A09',
 
   // Signal Red
-  rd100: '#F8DAD7',
-  rd400: '#ED6B60', // Light signal red for dark mode contrast (>= 4.5:1)
-  rd500: '#C02E24', // Adjusted from #C8372D to guarantee >= 4.5:1 on light surfaces
-  rd600: '#A82A22'
+  rd100: '#F8DEDA',
+  rd400: '#F4857C', // Light signal red for dark mode contrast (>= 4.5:1)
+  rd500: '#B42A20', // Adjusted from #C8372D to guarantee >= 4.5:1 on light surfaces
+  rd600: '#962219',
+
+  // Semantic text + status
+  text: '#16223A',
+  textMuted: '#4B5263',
+  gr100: '#E1F1E7',
+  gr500: '#1D7A48'
 };
 
 export interface CheckItem {
@@ -115,6 +121,15 @@ export const CHECK_PAIRS: CheckItem[] = [
   { name: 'Light Danger Text on Surface', fg: PALETTE.rd500, bg: PALETTE.ink0, minRatio: 4.5, theme: 'light', purpose: 'Error messages' },
   { name: 'Light Danger Text on Bg', fg: PALETTE.rd500, bg: PALETTE.ink50, minRatio: 4.5, theme: 'light', purpose: 'Restricted items' },
   { name: 'Light UI Line on Surface', fg: PALETTE.ink200, bg: PALETTE.ink0, minRatio: 1.2, theme: 'light', purpose: 'Dividers & borders' },
+
+  { name: 'Ink Text on Page Bg', fg: PALETTE.text, bg: PALETTE.ink50, minRatio: 4.5, theme: 'light', purpose: '--text on canvas' },
+  { name: 'Ink Text on Surface-2', fg: PALETTE.text, bg: PALETTE.ink100, minRatio: 4.5, theme: 'light', purpose: '--text on wells' },
+  { name: 'Muted Text on Page Bg', fg: PALETTE.textMuted, bg: PALETTE.ink50, minRatio: 4.5, theme: 'light', purpose: '--text-muted on canvas' },
+  { name: 'Muted Text on Surface-2', fg: PALETTE.textMuted, bg: PALETTE.ink100, minRatio: 4.5, theme: 'light', purpose: '--text-muted on wells' },
+  { name: 'Success Text on Success Bg', fg: PALETTE.gr500, bg: PALETTE.gr100, minRatio: 4.5, theme: 'light', purpose: 'Success badge' },
+  { name: 'Warning Text on Warning Bg', fg: PALETTE.gd700, bg: PALETTE.gd100, minRatio: 4.5, theme: 'light', purpose: 'Warning badge' },
+  { name: 'Danger Text on Danger Bg', fg: PALETTE.rd500, bg: PALETTE.rd100, minRatio: 4.5, theme: 'light', purpose: 'Danger badge' },
+
 
   // DARK MODE CHECKS
   { name: 'Dark Body Text on Page Bg', fg: PALETTE.ink50, bg: PALETTE.ox950, minRatio: 4.5, theme: 'dark', purpose: 'Body copy on dark page' },

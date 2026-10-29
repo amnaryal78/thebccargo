@@ -43,7 +43,7 @@ export const CsvImporterSection: React.FC<CsvImporterSectionProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-lg bg-[#002147] text-white text-xs font-mono font-bold uppercase">
+            <span className="px-2.5 py-1 rounded-lg bg-ox-900 text-white text-xs font-mono font-bold uppercase">
               International Tariffs
             </span>
           </div>
@@ -65,7 +65,7 @@ export const CsvImporterSection: React.FC<CsvImporterSectionProps> = ({
             <label className="text-xs font-heading font-bold uppercase text-slate-700">
               Paste Raw CSV or Choose File:
             </label>
-            <label className="cursor-pointer text-xs font-bold text-[#002147] hover:underline flex items-center gap-1">
+            <label className="cursor-pointer text-xs font-bold text-ox-900 hover:underline flex items-center gap-1">
               <Upload className="w-3.5 h-3.5" />
               <span>Browse .csv file</span>
               <input
@@ -126,15 +126,15 @@ export const CsvImporterSection: React.FC<CsvImporterSectionProps> = ({
                 <thead className="bg-slate-100 text-[10px] uppercase font-bold sticky top-0">
                   <tr>
                     {Object.keys(parsedPreview[0]).map((k) => (
-                      <th key={k} className="py-2 px-3">{k}</th>
+                      <th key={k} scope="col" className={`py-2 px-3 whitespace-nowrap ${typeof parsedPreview[0][k] === 'number' ? 'text-right' : ''}`}>{k}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {parsedPreview.slice(0, 15).map((row, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50">
+                    <tr key={idx} className="odd:bg-white even:bg-slate-50/60 hover:bg-amber-50/60">
                       {Object.values(row).map((val: any, vIdx) => (
-                        <td key={vIdx} className="py-1.5 px-3">{String(val)}</td>
+                        <td key={vIdx} className={`py-1.5 px-3 whitespace-nowrap ${typeof val === 'number' ? 'text-right tabular-nums' : ''}`}>{String(val)}</td>
                       ))}
                     </tr>
                   ))}

@@ -173,8 +173,8 @@ export const StampMark: React.FC<{
   className?: string;
 }> = ({ label, sublabel = 'BC CARGO INSPECTED', variant = 'gold', className = '' }) => {
   const variantStyles = {
-    gold: 'border-[#F2B705] text-[#8C6400]',
-    oxford: 'border-[#002147] text-[#002147]',
+    gold: 'border-gd-500 text-[#8C6400]',
+    oxford: 'border-ox-900 text-ox-900',
     danger: 'border-[#C02E24] text-[#C02E24]',
   };
 

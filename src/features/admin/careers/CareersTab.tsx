@@ -173,7 +173,7 @@ export const CareersTab: React.FC = () => {
             {permissions.canManageCareers && (
               <button
                 onClick={handleOpenCreate}
-                className="px-4 py-2 rounded-xl bg-[#002147] text-white font-heading font-bold text-xs uppercase tracking-wider hover:opacity-95 shadow-hard-xs flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-ox-900 text-white font-heading font-bold text-xs uppercase tracking-wider hover:opacity-95 shadow-hard-xs flex items-center gap-2 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Vacancy</span>
@@ -184,7 +184,7 @@ export const CareersTab: React.FC = () => {
           <div className="rounded-2xl bg-white border border-slate-200 shadow-hard-sm overflow-hidden">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-[#002147] text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
+                <tr className="bg-ox-900 text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
                   <th className="py-2.5 px-4">Job Title &amp; Slug</th>
                   <th className="py-2.5 px-4">Department</th>
                   <th className="py-2.5 px-4">Location</th>
@@ -240,7 +240,7 @@ export const CareersTab: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-[#002147] text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
+                <tr className="bg-ox-900 text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
                   <th className="py-2.5 px-4">Applicant Name</th>
                   <th className="py-2.5 px-4">Target Vacancy</th>
                   <th className="py-2.5 px-4">Experience</th>
@@ -378,7 +378,7 @@ export const CareersTab: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#002147] text-white font-heading font-bold uppercase tracking-wider text-xs shadow-hard-xs cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-ox-900 text-white font-heading font-bold uppercase tracking-wider text-xs shadow-hard-xs cursor-pointer"
                 >
                   Save Vacancy
                 </button>

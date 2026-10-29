@@ -20,100 +20,27 @@ function bcCargoApiPlugin(): Plugin {
         res.end(JSON.stringify({ status: 'healthy', env: 'development', timestamp: new Date().toISOString() }));
       });
 
-      // 2. Chat API dev endpoint
+      // 2. Chat API dev endpoint: the same pipeline as server.js (server/ai/)
       server.middlewares.use('/api/chat', async (req, res) => {
-        if (req.method !== 'POST') {
-          res.statusCode = 405;
-          return res.end('Method Not Allowed');
-        }
-
-        let body = '';
-        req.on('data', chunk => { body += chunk; });
+        const send = (status: number, body: unknown) => {
+          res.statusCode = status;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(body));
+        };
+        if (req.method !== 'POST') return send(405, { error: 'Method Not Allowed' });
+        let raw = '';
+        req.on('data', (chunk) => { raw += chunk; });
         req.on('end', async () => {
           try {
-            const payload = JSON.parse(body || '{}');
-            const userMessage = payload.message || '';
-            const settings = payload.settings || {};
-            const knowledge = payload.knowledge || [];
-            const history = payload.history || [];
-
-            const lowerMsg = userMessage.toLowerCase().trim();
-            const forbidden = [
-              'prime minister', 'president', 'write python', 'write code', 'medical advice',
-              'tell me a joke', 'recipe', 'movie', 'actor', 'system prompt', 'api key', 'secret key',
-              'crypto', 'bitcoin', 'stock market'
-            ];
-
-            if (forbidden.some(f => lowerMsg.includes(f))) {
-              res.setHeader('Content-Type', 'application/json');
-              return res.end(JSON.stringify({
-                reply: settings.fallbackMessage || 'I can help only with The BC Cargo services, pickup, delivery, tracking, rates, destinations, and contact information. Please ask me something about BC Cargo.',
-                isFallback: true
-              }));
-            }
-
-            const knowledgeText = knowledge.map((k: any) => `[${k.category}] ${k.title}: ${k.content}`).join('\n');
-            const fallbackMsgText = settings.fallbackMessage || 'I can help only with The BC Cargo services, pickup, delivery, tracking, rates, destinations, and contact information. Please ask me something about BC Cargo.';
-
-            const systemPrompt = `You are "BC Cargo AI", the official controlled digital customer service assistant for The BC Cargo & Courier.
-Your sole job is to answer customer questions strictly based on approved BC Cargo information below.
-Rules:
-1. Represent ONLY The BC Cargo & Courier (Government Licensed #B-409).
-2. Answer strictly using the approved knowledge below. Do NOT invent prices, delivery times, or policies.
-3. If asked anything outside BC Cargo services, reply strictly with: "${fallbackMsgText}"
-4. Keep answers concise, polite, professional, and clear.
-5. Support English and Nepali naturally.
-
-APPROVED BC CARGO KNOWLEDGE:
-${knowledgeText}`;
-
-            const openRouterKey = process.env.OPENROUTER_API_KEY;
-            const reqModel = settings.model || process.env.DEFAULT_AI_MODEL || 'google/gemma-4-26b-a4b-it:free';
-            const candidateModels = [reqModel, 'openrouter/auto', 'meta-llama/llama-3-8b-instruct:free'];
-
-            if (openRouterKey) {
-              for (const modelName of candidateModels) {
-                try {
-                  const openRouterRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${openRouterKey}`,
-                      'HTTP-Referer': 'https://thebccargo.com',
-                      'X-Title': 'BC Cargo AI Assistant'
-                    },
-                    body: JSON.stringify({
-                      model: modelName,
-                      messages: [
-                        { role: 'system', content: systemPrompt },
-                        ...history.map((h: any) => ({ role: h.sender === 'user' ? 'user' : 'assistant', content: h.text })),
-                        { role: 'user', content: userMessage }
-                      ],
-                      temperature: 0.2,
-                      max_tokens: settings.maxTokens || 400
-                    })
-                  });
-
-                  if (openRouterRes.ok) {
-                    const data = await openRouterRes.json();
-                    const aiText = data.choices?.[0]?.message?.content;
-                    if (aiText) {
-                      res.setHeader('Content-Type', 'application/json');
-                      return res.end(JSON.stringify({ reply: aiText.trim() }));
-                    }
-                  }
-                } catch (e) {}
-              }
-            }
-
-            res.setHeader('Content-Type', 'application/json');
-            return res.end(JSON.stringify({
-              reply: `I am BC Cargo AI. I can assist you with our priority air freight, domestic courier, sea cargo, doorstep pickup, or package tracking. How can I help you with your shipment today?`
-            }));
-
-          } catch (e: any) {
-            res.setHeader('Content-Type', 'application/json');
-            return res.end(JSON.stringify({ error: e.message }));
+            const [{ handleChat }, { getAiConfig }] = await Promise.all([
+              server.ssrLoadModule('/server/ai/chatHandler.js'),
+              server.ssrLoadModule('/server/ai/config.js'),
+            ]);
+            const payload = JSON.parse(raw || '{}');
+            const { status, body } = await handleChat(payload, { config: getAiConfig(process.env) });
+            send(status, body);
+          } catch {
+            send(500, { type: 'error', retryable: true, reply: "I'm having trouble responding right now. Please try again in a moment, or contact BC Cargo directly." });
           }
         });
       });
@@ -247,9 +174,66 @@ Return ONLY the raw JSON object conforming to the schema.`;
   };
 }
 
+/**
+ * Preloads the two above-the-fold font files (heading + body, latin subset) so text paints in its
+ * final font without waiting for the stylesheet to be parsed first. Hashed names are resolved at build.
+ */
+function preloadCriticalFonts(): Plugin {
+  return {
+    name: 'bc-preload-critical-fonts',
+    transformIndexHtml: {
+      order: 'post',
+      handler(_html, ctx) {
+        const files = Object.keys(ctx.bundle ?? {}).filter((f) =>
+          /(archivo|public-sans)-latin-wght-normal-[\w-]+\.woff2$/.test(f),
+        );
+        return files.map((f) => ({
+          tag: 'link',
+          attrs: { rel: 'preload', as: 'font', type: 'font/woff2', href: '/' + f, crossorigin: '' },
+          injectTo: 'head-prepend' as const,
+        }));
+      },
+    },
+  };
+}
+
+/**
+ * main.tsx loads the app with a dynamic import (so the loader paints first). Dynamic chunks are normally
+ * only fetched once the import() runs, so modulepreload the app chunk and everything it needs up front.
+ */
+function preloadAppChunks(): Plugin {
+  return {
+    name: 'bc-preload-app-chunks',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html, ctx) {
+        const bundle = ctx.bundle ?? {};
+        const entry = Object.values(bundle).find((c) => c.type === 'chunk' && c.isEntry) as
+          | { dynamicImports: string[] }
+          | undefined;
+        if (!entry) return [];
+        const seen = new Set<string>();
+        const visit = (file: string) => {
+          if (seen.has(file)) return;
+          const chunk = bundle[file];
+          if (!chunk || chunk.type !== 'chunk') return;
+          seen.add(file);
+          chunk.imports.forEach(visit);
+        };
+        entry.dynamicImports.filter((f) => /bootstrap-/.test(f)).forEach(visit);
+        return [...seen].filter((f) => !html.includes('href="/' + f + '"')).map((f) => ({
+          tag: 'link',
+          attrs: { rel: 'modulepreload', crossorigin: '', href: '/' + f },
+          injectTo: 'head' as const,
+        }));
+      },
+    },
+  };
+}
+
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss(), bcCargoApiPlugin()],
+    plugins: [react(), tailwindcss(), bcCargoApiPlugin(), preloadCriticalFonts(), preloadAppChunks()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
@@ -275,30 +259,18 @@ export default defineConfig(() => {
       cssCodeSplit: true,
       rollupOptions: {
         output: {
-          manualChunks(id) {
-            if (id.includes('node_modules')) {
-              if (id.includes('three')) {
-                return 'vendor-three';
-              }
-              if (id.includes('framer-motion')) {
-                return 'vendor-motion';
-              }
-              if (id.includes('dotted-map')) {
-                return 'vendor-map';
-              }
-              if (id.includes('@supabase')) {
-                return 'vendor-supabase';
-              }
-              if (id.includes('lucide-react')) {
-                return 'vendor-icons';
-              }
-              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
-                return 'vendor-react';
-              }
-            }
-          }
-        }
-      }
+          // React core + router (incl. the JSX runtime) stay in one chunk so the entry never has to
+          // download an unrelated vendor chunk (it used to pull all of framer-motion just for jsx-runtime).
+          codeSplitting: {
+            groups: [
+              { name: 'vendor-react', test: /[\\/]node_modules[\\/](react|react-dom|scheduler|react-router|react-router-dom|@remix-run)[\\/]/, priority: 40 },
+              { name: 'vendor-motion', test: /[\\/]node_modules[\\/](framer-motion|motion-dom|motion-utils)[\\/]/, priority: 30 },
+              { name: 'vendor-supabase', test: /[\\/]node_modules[\\/]@supabase[\\/]/, priority: 30 },
+              { name: 'vendor-icons', test: /[\\/]node_modules[\\/]lucide-react[\\/]/, priority: 30 },
+            ],
+          },
+        } as Record<string, unknown>,
+      },
     }
   };
 });

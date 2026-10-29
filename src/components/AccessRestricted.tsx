@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldAlert, ArrowLeft, LogOut, Mail } from 'lucide-react';
+import { ShieldAlert, ArrowLeft, LogOut, Mail, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { BcLogo } from './BcLogo';
 import { Card, Button } from '../design/primitives';
@@ -16,7 +16,7 @@ export const AccessRestricted: React.FC = () => {
         {/* Back link */}
         <button
           onClick={() => navigate('/')}
-          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-[#002147] transition-colors self-start cursor-pointer"
+          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-ox-900 transition-colors self-start cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Return to Public Site</span>
@@ -61,6 +61,15 @@ export const AccessRestricted: React.FC = () => {
 
             <Button
               variant="secondary"
+              onClick={() => navigate('/profile')}
+              className="w-full"
+            >
+              <UserIcon className="w-4 h-4 mr-2" />
+              <span>View My Profile</span>
+            </Button>
+
+            <Button
+              variant="secondary"
               onClick={logout}
               className="w-full"
             >
@@ -71,8 +80,8 @@ export const AccessRestricted: React.FC = () => {
 
           <div className="border-t border-slate-100 pt-4 w-full">
             <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-[#002147]" />
-              <span>Need access? Contact <a href="mailto:thebccargo@gmail.com" className="text-[#002147] hover:underline font-semibold">thebccargo@gmail.com</a></span>
+              <Mail className="w-3.5 h-3.5 text-ox-900" />
+              <span>Need access? Contact <a href="mailto:thebccargo@gmail.com" className="text-ox-900 hover:underline font-semibold">thebccargo@gmail.com</a></span>
             </p>
           </div>
 

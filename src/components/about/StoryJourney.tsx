@@ -64,13 +64,13 @@ export const StoryJourney: React.FC = () => {
   return (
     <section
       aria-labelledby="story-title"
-      className="relative isolate overflow-hidden bg-[#EEF3FA] text-[#002147] py-16 sm:py-24 px-4 sm:px-6 lg:px-8 transition-colors"
+      className="relative isolate overflow-hidden bg-[#EEF3FA] text-ox-900 py-16 sm:py-24 px-4 sm:px-6 lg:px-8 transition-colors"
     >
       {/* soft light behind the opening */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[48rem] max-w-[140%] aspect-square rounded-full -z-10"
-        style={{ background: 'radial-gradient(closest-side, rgba(242,183,5,0.2), transparent)' }}
+        style={{ background: 'radial-gradient(closest-side, rgba(242,182,50,0.2), transparent)' }}
       />
 
       <div className="max-w-5xl mx-auto">
@@ -109,7 +109,7 @@ export const StoryJourney: React.FC = () => {
                     {i + 1}. {chapter.step}
                   </p>
                   <h3 className="font-heading font-extrabold text-xl sm:text-2xl leading-tight">{chapter.title}</h3>
-                  <p className="text-base text-slate-600 leading-relaxed [&_strong]:text-[#002147]">
+                  <p className="text-base text-slate-600 leading-relaxed [&_strong]:text-ox-900">
                     {chapter.text}
                   </p>
                 </div>

@@ -174,7 +174,7 @@ export const CareerDetailPage: React.FC = () => {
   if (loadingJob) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <p className="text-xs font-mono text-[var(--text-muted)]">Loading vacancy parameters...</p>
+        <p className="text-xs text-[var(--text-muted)]">Loading vacancy parameters...</p>
       </div>
     );
   }
@@ -236,7 +236,7 @@ export const CareerDetailPage: React.FC = () => {
         {/* Back Link */}
         <Link
           to="/careers"
-          className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-[var(--text-muted)] hover:text-[var(--text)]"
+          className="inline-flex items-center gap-1.5 text-xs font-bold uppercase text-[var(--text-muted)] hover:text-[var(--text)]"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to All Openings</span>
@@ -249,14 +249,14 @@ export const CareerDetailPage: React.FC = () => {
         >
           <RegistrationCorners className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-xs font-bold uppercase px-2.5 py-0.5 rounded-[var(--r-xs)] bg-[var(--surface-muted)] border border-[var(--line)] text-[var(--oxford-deep)] shadow-hard-xs">
+              <span className="text-xs font-bold uppercase px-2.5 py-0.5 rounded-[var(--r-xs)] bg-[var(--surface-muted)] border border-[var(--line)] text-[var(--oxford-deep)] shadow-hard-xs">
                 {job.department}
               </span>
-              <span className="font-mono text-xs text-[var(--text-muted)] flex items-center gap-1">
+              <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5" />
                 {job.location}
               </span>
-              <span className="font-mono text-xs text-[var(--text-muted)] flex items-center gap-1">
+              <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" />
                 {job.type}
               </span>
@@ -271,7 +271,7 @@ export const CareerDetailPage: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[var(--line)] text-xs">
               <div className="space-y-2">
-                <span className="font-mono font-bold uppercase text-[var(--text)]">Core Requirements:</span>
+                <span className="font-bold uppercase text-[var(--text)]">Core Requirements:</span>
                 <ul className="space-y-1.5 text-[var(--text-secondary)]">
                   {job.requirements.map((r, i) => (
                     <li key={i} className="flex items-start gap-2">
@@ -283,7 +283,7 @@ export const CareerDetailPage: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <span className="font-mono font-bold uppercase text-[var(--text)]">Primary Responsibilities:</span>
+                <span className="font-bold uppercase text-[var(--text)]">Primary Responsibilities:</span>
                 <ul className="space-y-1.5 text-[var(--text-secondary)]">
                   {job.responsibilities.map((r, i) => (
                     <li key={i} className="flex items-start gap-2">
@@ -304,7 +304,7 @@ export const CareerDetailPage: React.FC = () => {
         >
           
           <div className="pb-4 border-b border-[var(--line)]">
-            <span className="font-mono text-xs font-bold uppercase tracking-wider text-[var(--gold-dark)]">
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold-dark)]">
               Formal Candidate Intake Portal
             </span>
             <h2 className="font-heading font-extrabold text-xl sm:text-2xl text-[var(--text)] mt-1">
@@ -324,13 +324,13 @@ export const CareerDetailPage: React.FC = () => {
               <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-md mx-auto leading-relaxed">
                 Thank you, {applicantName}. Your candidate dossier has been catalogued in our HR dispatch registry under tracking code:
               </p>
-              <div className="inline-block p-2 px-4 rounded-[var(--r-xs)] bg-[var(--surface)] border border-[var(--line)] shadow-hard-xs font-mono font-bold text-sm text-[var(--oxford-deep)]">
+              <div className="inline-block p-2 px-4 rounded-[var(--r-xs)] bg-[var(--surface)] border border-[var(--line)] shadow-hard-xs font-bold text-sm text-[var(--oxford-deep)]">
                 {submittedRef}
               </div>
               <div className="pt-2">
                 <BarcodeStrip code={submittedRef} height={28} />
               </div>
-              <p className="text-[11px] font-mono text-[var(--text-muted)]">
+              <p className="text-[11px] text-[var(--text-muted)]">
                 Our operations team will review your CV within 3 working days.
               </p>
               <div className="pt-3">
@@ -404,7 +404,7 @@ export const CareerDetailPage: React.FC = () => {
                     />
 
                     <div>
-                      <label className="block text-xs font-mono font-bold uppercase text-[var(--text)] mb-1.5">
+                      <label className="block text-xs font-bold uppercase text-[var(--text)] mb-1.5">
                         Logistics Experience
                       </label>
                       <select
@@ -438,7 +438,7 @@ export const CareerDetailPage: React.FC = () => {
 
                   {/* Drag and drop upload zone */}
                   <div>
-                    <label className="block text-xs font-mono font-bold uppercase text-[var(--text)] mb-1.5">
+                    <label className="block text-xs font-bold uppercase text-[var(--text)] mb-1.5">
                       Curriculum Vitae (PDF or DOCX, max 5 MB) <span className="text-[var(--danger)]">*</span>
                     </label>
                     <div className="border border-dashed border-[var(--line)] rounded-[var(--r-sm)] p-6 bg-[var(--surface-muted)] text-center relative hover:bg-[var(--surface)] clay-inset transition-colors">
@@ -452,16 +452,16 @@ export const CareerDetailPage: React.FC = () => {
                       <Upload className="w-8 h-8 text-[var(--gold-dark)] mx-auto mb-2" />
                       {resumeFileName ? (
                         <div className="space-y-1">
-                          <span className="font-mono text-xs font-bold text-[var(--oxford-deep)] block">
+                          <span className="text-xs font-bold text-[var(--oxford-deep)] block">
                             Attached: {resumeFileName}
                           </span>
-                          <span className="text-[10px] font-mono text-[var(--text-muted)] block">
+                          <span className="text-[10px] text-[var(--text-muted)] block">
                             Size: {fileSizeStr} · Click to replace file
                           </span>
                         </div>
                       ) : (
                         <div className="space-y-1">
-                          <span className="font-mono text-xs font-bold text-[var(--text)] block">
+                          <span className="text-xs font-bold text-[var(--text)] block">
                             Click or drag file here to attach CV
                           </span>
                           <span className="text-[10px] text-[var(--text-muted)] block">
@@ -473,7 +473,7 @@ export const CareerDetailPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono font-bold uppercase text-[var(--text)] mb-1.5">
+                    <label className="block text-xs font-bold uppercase text-[var(--text)] mb-1.5">
                       Candidate Statement / Logistics Background
                     </label>
                     <textarea
@@ -505,7 +505,7 @@ export const CareerDetailPage: React.FC = () => {
                   </h3>
 
                   {/* Summary Box */}
-                  <div className="p-4 bg-[var(--surface-muted)] border border-[var(--line)] rounded-[var(--r-sm)] space-y-2 text-xs font-mono">
+                  <div className="p-4 bg-[var(--surface-muted)] border border-[var(--line)] rounded-[var(--r-sm)] space-y-2 text-xs">
                     <div className="flex justify-between">
                       <span className="text-[var(--text-muted)]">Position Applied:</span>
                       <span className="font-bold text-[var(--text)]">{job.title}</span>
@@ -526,7 +526,7 @@ export const CareerDetailPage: React.FC = () => {
 
                   {/* Cloudflare Turnstile Verification */}
                   <div className="p-4 bg-[var(--surface)] border border-[var(--line)] rounded-[var(--r-sm)] space-y-2">
-                    <span className="block text-xs font-mono font-bold uppercase text-[var(--text-muted)]">
+                    <span className="block text-xs font-bold uppercase text-[var(--text-muted)]">
                       Bot &amp; Integrity Verification
                     </span>
                     <TurnstileWidget onVerify={(token) => setTurnstileToken(token)} />

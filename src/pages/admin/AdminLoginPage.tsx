@@ -10,8 +10,8 @@ export const AdminLoginPage: React.FC = () => {
 
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
-      <div className="w-8 h-8 border-3 border-[#002147] border-t-transparent rounded-full animate-spin" />
-      <span className="text-xs font-mono text-slate-400">Redirecting to Authentication...</span>
+      <div className="w-8 h-8 border-3 border-ox-900 border-t-transparent rounded-full animate-spin" />
+      <span className="text-xs font-mono text-slate-400">Redirecting to sign in...</span>
     </div>
   );
 };

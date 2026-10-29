@@ -29,11 +29,11 @@ export const NotificationBell: React.FC<{ align?: 'left' | 'right' }> = ({ align
         onClick={() => setOpen((o) => !o)}
         aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
         aria-expanded={open}
-        className="relative p-2 rounded-xl bg-[#071A33] hover:bg-[#0B2445] text-white transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2B705]"
+        className="relative p-2 rounded-xl bg-[#EEF3F9] hover:bg-[#D6E1EF] text-ox-900 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gd-500"
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#F2B705] text-[#002147] text-[10px] font-bold flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-gd-500 text-ox-900 text-[10px] font-bold flex items-center justify-center">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -79,7 +79,7 @@ export const NotificationBell: React.FC<{ align?: 'left' | 'right' }> = ({ align
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center gap-2">
                         <span className={`text-sm truncate ${n.isRead ? 'font-medium' : 'font-bold'}`}>{n.title}</span>
-                        {!n.isRead && <span className="w-2 h-2 rounded-full bg-[#F2B705] shrink-0" aria-label="Unread" />}
+                        {!n.isRead && <span className="w-2 h-2 rounded-full bg-gd-500 shrink-0" aria-label="Unread" />}
                       </span>
                       {n.body && <span className="block text-xs opacity-80 truncate">{n.body}</span>}
                       <span className="block text-[11px] opacity-60 mt-0.5">{timeAgo(n.createdAt)}</span>

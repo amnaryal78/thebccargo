@@ -35,6 +35,7 @@ const CareersPage = lazy(() => import('./pages/CareersPage').then(m => ({ defaul
 const CareerDetailPage = lazy(() => import('./pages/CareerDetailPage').then(m => ({ default: m.CareerDetailPage })));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage').then(m => ({ default: m.AdminLoginPage })));
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
+const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const DesignKitPage = lazy(() => import('./pages/DesignKitPage').then(m => ({ default: m.DesignKitPage })));
 const CountryLandingPage = lazy(() => import('./pages/country/CountryLandingPage').then(m => ({ default: m.CountryLandingPage })));
@@ -77,7 +78,8 @@ function AppContent() {
 
   const handleQuickTrack = (trackingCode: string, mode?: ServiceMode) => {
     setActiveTrackingNumber(trackingCode);
-    navigate('/track');
+    // The tracking page reads ?awb= and runs the lookup itself
+    navigate(`/track?awb=${encodeURIComponent(trackingCode)}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -91,6 +93,14 @@ function AppContent() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] transition-colors">
       <BootSignal mark="app" />
+      {!isAdminRoute && (
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-3 focus:rounded-[var(--r-sm)] focus:bg-[var(--brand)] focus:text-white focus:font-semibold"
+        >
+          Skip to content
+        </a>
+      )}
       {!isAdminRoute && <CustomCursor />}
       {!isAdminRoute && (
         <Header
@@ -101,7 +111,7 @@ function AppContent() {
         />
       )}
 
-      <main className={`flex-1 ${!isAdminRoute ? 'pt-24 pb-20 lg:pb-0' : ''}`}>
+      <main id="main" tabIndex={-1} className={`flex-1 outline-none ${!isAdminRoute ? 'pt-[calc(6rem+env(safe-area-inset-top,0px))] pb-20 lg:pb-0' : ''}`}>
         <Suspense fallback={<RouteLoader />}>
           <Routes>
             <Route
@@ -191,7 +201,9 @@ function AppContent() {
             <Route path="/careers" element={<CareersPage />} />
             <Route path="/careers/:slug" element={<CareerDetailPage />} />
 
-            <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+            <Route path="/messages" element={<ProtectedRoute adminOnly={false}><MessagesPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute adminOnly={false}><ProfilePage /></ProtectedRoute>} />
+            <Route path="/reseller" element={<Navigate to="/profile" replace />} />
 
             {/* Protected Admin Portal Routes */}
             <Route path="/admin/login" element={<AdminLoginPage />} />

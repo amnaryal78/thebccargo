@@ -31,11 +31,11 @@ export const Timeline: React.FC<TimelineProps> = ({ items, className = '' }) => 
           const isException = item.status === 'exception';
 
           const markerStyles = isCompleted
-            ? 'bg-[#002147] text-[#F2B705] border-white/20 shadow-hard-xs'
+            ? 'bg-ox-900 text-gd-500 border-white/20 shadow-hard-xs'
             : isCurrent
-            ? 'bg-[#F2B705] text-[#002147] border-white/60 shadow-hard-sm'
+            ? 'bg-gd-500 text-ox-900 border-white/60 shadow-hard-sm'
             : isException
-            ? 'bg-[#C02E24] text-white border-white/20 shadow-hard-xs'
+            ? 'bg-[var(--danger)] text-white border-white/20 shadow-hard-xs'
             : 'bg-[var(--surface-2)] text-[var(--text-muted)] border-[var(--line)] shadow-hard-xs';
 
           return (
@@ -60,9 +60,9 @@ export const Timeline: React.FC<TimelineProps> = ({ items, className = '' }) => 
               <div className="flex flex-col flex-1 min-w-0">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h4
-                    className={`font-heading font-bold text-sm uppercase tracking-wide ${
+                    className={`font-heading font-semibold text-[15px] ${
                       isCurrent
-                        ? 'text-[#002147]'
+                        ? 'text-ox-900'
                         : isCompleted
                         ? 'text-[var(--text)]'
                         : 'text-[var(--text-muted)]'

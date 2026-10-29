@@ -216,7 +216,7 @@ export async function fetchSheetRates(): Promise<SheetRatesPayload> {
   if (isSupabaseConfigured) {
     // 1. Invoke Supabase Edge Function 'rates'
     try {
-      const { data, error } = await supabase.functions.invoke('rates');
+      const { data, error } = await supabase.functions.invoke('rates', { signal: AbortSignal.timeout(10000) }); // a hung call falls through instead of loading forever
       if (!error && data && data.rates && data.rates.length > 0) {
         try {
           localStorage.setItem('bc_cargo_sheet_rates_cache', JSON.stringify(data));
@@ -235,6 +235,7 @@ export async function fetchSheetRates(): Promise<SheetRatesPayload> {
         .from('sheet_rates_cache')
         .select('*')
         .eq('id', 'latest')
+        .abortSignal(AbortSignal.timeout(10000))
         .maybeSingle();
 
       if (!dbError && dbData && dbData.rates && dbData.rates.length > 0) {

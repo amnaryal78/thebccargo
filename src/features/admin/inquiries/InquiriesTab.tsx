@@ -145,7 +145,7 @@ export const InquiriesTab: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#002147] text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
+              <tr className="bg-ox-900 text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
                 <th className="py-2.5 px-4">Contact</th>
                 <th className="py-2.5 px-4">Subject &amp; Message</th>
                 <th className="py-2.5 px-4">Service</th>
@@ -226,7 +226,7 @@ export const InquiriesTab: React.FC = () => {
                         <button
                           onClick={() => setActiveReplyInquiry(i)}
                           title="Generate Reply Template"
-                          className="px-2.5 py-1 rounded-lg bg-[#002147] text-white font-heading font-bold text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-hard-xs cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-ox-900 text-white font-heading font-bold text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-hard-xs cursor-pointer"
                         >
                           <Send className="w-3 h-3" />
                           <span>Reply</span>
@@ -282,7 +282,7 @@ export const InquiriesTab: React.FC = () => {
               )}
               <button
                 onClick={() => setActiveReplyInquiry(i)}
-                className="min-h-[44px] px-4 rounded-xl bg-[#002147] text-white text-xs font-heading font-bold uppercase flex items-center justify-center gap-1.5"
+                className="min-h-[44px] px-4 rounded-xl bg-ox-900 text-white text-xs font-heading font-bold uppercase flex items-center justify-center gap-1.5"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>Reply Template</span>
@@ -366,7 +366,7 @@ The BC Cargo & Courier Pvt. Ltd.`}
                 />
                 <button
                   onClick={() => handleSaveNotes(activeReplyInquiry.id)}
-                  className="px-4 py-1.5 rounded-xl bg-[#002147] text-white font-heading font-bold text-xs uppercase tracking-wider"
+                  className="px-4 py-1.5 rounded-xl bg-ox-900 text-white font-heading font-bold text-xs uppercase tracking-wider"
                 >
                   Save Note
                 </button>

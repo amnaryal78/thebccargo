@@ -21,7 +21,7 @@ Before finishing: targeted test, typecheck, test, build. `tests/prerender.test.t
 - Never print/read `.env` values. No service-role/OpenRouter keys in `src/`.
 - No schema/RLS/auth changes, deploys, or migrations on live Supabase without explicit approval. Repo migrations must match live (see AI_ARCHITECTURE drift list).
 - Never weaken/skip tests. Never run git reset/checkout/clean/rebase/force-push. Commit only when asked.
-- Brand: Oxford blue `#002147`, golden yellow `#F2B705`, Claymorphism. Use tokens, not new colours.
+- Brand: Oxford blue `#0B2D63`, golden yellow `#F2B632` (changed 2026-10-30), soft flat cards (border + subtle shadow, warm ivory canvas). Use tokens and primitives, not new colours or duplicate components.
 - UI changes: check light/dark, mobile/desktop, hover/focus/disabled, reduced motion.
 - Fix root cause, keep existing behavior, search all callers before changing shared code. No new dependency for what current tools do.
 - Report only what ran: list checks run, failed, and not run.

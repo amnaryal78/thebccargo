@@ -38,7 +38,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
       } else if (part.startsWith('`') && part.endsWith('`')) {
         const inner = part.slice(1, -1);
         tokens.push(
-          <code key={keyIndex++} className="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-xs text-[#002147]">
+          <code key={keyIndex++} className="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-xs text-ox-900">
             {inner}
           </code>
         );
@@ -55,7 +55,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
               href={safeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#002147] underline font-semibold hover:opacity-80"
+              className="text-ox-900 underline font-semibold hover:opacity-80"
             >
               {label}
             </a>
@@ -170,7 +170,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
       );
     } else if (trimmed.startsWith('> ')) {
       elements.push(
-        <blockquote key={`quote-${elements.length}`} className="my-4 border-l-4 border-[#002147] pl-4 py-2 italic text-slate-600 bg-slate-50 rounded-r-lg">
+        <blockquote key={`quote-${elements.length}`} className="my-4 border-l-4 border-ox-900 pl-4 py-2 italic text-slate-600 bg-slate-50 rounded-r-lg">
           {renderFormattedText(trimmed.slice(2))}
         </blockquote>
       );

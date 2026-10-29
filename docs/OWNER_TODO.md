@@ -27,3 +27,12 @@ To restore any of these claims to the live application, please provide the requi
 - **Where it was:** Rates page, Estimator, Services catalog, Booking form, Chatbot.
 - **Status:** Entire application transformed to **International-Cargo-Only** per client mandate. Domestic Nepal delivery is restricted to local Kathmandu & Hetauda export doorstep pickup (+NPR 500 origin fee) for shipments leaving Nepal.
 - **Database preservation note:** The Supabase table `national_rates` remains dormant and was NOT dropped.
+
+
+### Removed 2026-10-29 (redesign)
+- Customs Brokerage License #B-409, "Government Authorized Logistics", IATA / CAAN / TEPC registrations, "Authorized Carrier" (footer, services, service detail).
+- Partner carrier logo slider (DHL, FedEx, UPS, Aramex, TNT, SF, DPD, DTDC, Cathay, EMS).
+- Service capacities and infrastructure: 3,000 kg pallets, 35 t trailers, temperature compartments, satellite GPS, E-seal, Birgunj customs team, TIA bonded storage, direct air links, ASYCUDA direct filing.
+- Placeholder job postings.
+- Proof needed to restore: licence certificates, partner contracts, or operational records.
+- To confirm: meat rules (How to ship says Europe only; estimator also allows UK and Hong Kong).

@@ -16,3 +16,8 @@ export * from './Timeline';
 export * from './Stepper';
 export * from './Card3D';
 export { Spotlight, type SpotlightProps, type SpotlightIntensity } from '../../components/ui/spotlight';
+export * from './SectionHeading';
+export * from './Textarea';
+export * from './Badge';
+export * from './Layout';
+export * from './Feedback';

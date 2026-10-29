@@ -9,7 +9,7 @@ export interface SpotlightProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: number;
   /** Intensity preset: subtle (0.5x), normal (1x), strong (1.4x), prominent (1.8x) */
   intensity?: SpotlightIntensity;
-  /** Optional custom color override for the light circle (e.g. rgba(242, 183, 5, 0.35)) */
+  /** Optional custom color override for the light circle (e.g. rgba(242,182,50, 0.35)) */
   spotlightColor?: string;
   /** Optional custom border/edge illumination color */
   edgeColor?: string;
@@ -33,8 +33,8 @@ const INTENSITY_MULTIPLIERS: Record<SpotlightIntensity, { opacity: number; defau
  * that follows the user's cursor across meaningful card/panel surfaces.
  *
  * Automatically adapts:
- * - DARK MODE: warm golden-yellow (#FAC623 / #F2B705) glow and edge ring.
- * - LIGHT MODE: rich Oxford-blue (#002147 / #2F5A8F) glow and edge highlight.
+ * - DARK MODE: warm golden-yellow (#FAC623 / #F2B632) glow and edge ring.
+ * - LIGHT MODE: rich Oxford-blue (#0B2D63 / #2F5A8F) glow and edge highlight.
  *
  * Uses requestAnimationFrame and direct CSS custom property updates (--mouse-x, --mouse-y)
  * to avoid React re-renders during high-frequency pointer movement.
@@ -185,8 +185,8 @@ export const Spotlight = React.forwardRef<HTMLDivElement, SpotlightProps>(
             : 'opacity 250ms ease-out, --spot-k 250ms ease-out',
           background: `radial-gradient(
             calc(var(--spotlight-sz, 440px) * var(--spot-k, 1)) circle at var(--mouse-x, -999px) var(--mouse-y, -999px),
-            var(--spotlight-col-override, var(--spotlight-color, rgba(242, 183, 5, 0.22))) 0%,
-            var(--spotlight-glow, rgba(242, 183, 5, 0.08)) 40%,
+            var(--spotlight-col-override, var(--spotlight-color, rgba(242,182,50, 0.22))) 0%,
+            var(--spotlight-glow, rgba(242,182,50, 0.08)) 40%,
             transparent 75%
           )`,
         }}

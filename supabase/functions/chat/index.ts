@@ -45,9 +45,7 @@ async function verifyTurnstileToken(token?: string, remoteIp?: string): Promise<
   if (!token) {
     return false;
   }
-  if (token === 'dev_bypass_token' || token.length > 5 && !secretKey) {
-    return true;
-  }
+  // (A hard-coded 'dev_bypass_token' used to pass here even with the secret set.)
   try {
     const formData = new URLSearchParams();
     formData.append('secret', secretKey);
@@ -127,7 +125,7 @@ function getDeterministicReply(cleanQuery: string): { reply: string; actions: Ch
       };
     }
     return {
-      reply: 'Yes! We provide doorstep pickup anywhere in Nepal (Hetauda, Kathmandu, Pokhara, Chitwan, Birgunj, and all districts). Consignments are dispatched internationally from Nepal.',
+      reply: 'Home pickup is free in Hetauda, Pathlaiya, Jitpur and Simara for parcels over 20 kg (otherwise Rs 200). We also pick up in Birgunj, Chitwan and Kathmandu for Rs 200. From other places, please bring your parcel to our Hetauda office. Consignments are dispatched internationally from Nepal.',
       actions: [WHATSAPP_ACTION, PRICE_ACTION],
     };
   }
@@ -203,7 +201,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const { message, settings, history, turnstileToken } = payload;
-    const userMessage = (message || '').trim();
+    const userMessage = (typeof message === 'string' ? message : '').slice(0, 1000).trim();
 
     // Turnstile Check (if token provided or secret configured)
     if (turnstileToken) {
@@ -256,15 +254,18 @@ Company Details:
 Strict Rules:
 1. Talk ONLY about cargo, shipping, and BC Cargo. Reject non-cargo questions politely.
 2. Use short, easy words. Be concise.
-3. Pickup is ONLY within Nepal (doorstep pickup anywhere in Nepal). We do not pick up from outside Nepal. Delivery is worldwide to 190+ countries.
+3. Pickup is ONLY within Nepal. Home pickup is free in Hetauda, Pathlaiya, Jitpur and Simara for parcels over 20 kg (otherwise Rs 200). We also pick up in Birgunj, Chitwan and Kathmandu for Rs 200. From other places, please bring your parcel to our Hetauda office. We do not pick up from outside Nepal. Delivery is worldwide to 190+ countries.
 4. Meat is ONLY accepted for Europe, UK, and Hong Kong. Prohibited everywhere else.
 5. Prices come ONLY from the live rates function. NEVER guess or invent a price. If user asks for prices, refer them to the Rate Estimator or WhatsApp.
 6. Booking and tracking need a human: tell the user to contact our human staff on WhatsApp (+977 9855019485).
 7. If you do not know the answer, tell the user to message on WhatsApp (+977 9855019485).
 8. Answer in the same language the user asks (Nepali, English, etc.).`;
 
-      const reqModel = settings?.model || 'google/gemma-4-26b-a4b-it:free';
-      const candidateModels = [reqModel, 'openrouter/auto', 'meta-llama/llama-3.1-8b-instruct:free', 'google/gemma-2-9b-it:free'];
+      // Free models only: the caller cannot choose a paid model (OpenRouter auto-routing could pick one).
+      const freeModels = ['google/gemma-4-26b-a4b-it:free', 'meta-llama/llama-3.1-8b-instruct:free', 'google/gemma-2-9b-it:free', 'openrouter/free'];
+      const reqModel = freeModels.includes(settings?.model) ? settings.model : freeModels[0];
+      const candidateModels = [...new Set([reqModel, ...freeModels])];
+      const safeHistory = (Array.isArray(history) ? history : []).slice(-10);
 
       for (const model of candidateModels) {
         try {
@@ -280,9 +281,9 @@ Strict Rules:
               model,
               messages: [
                 { role: 'system', content: systemPrompt },
-                ...(history || []).map((h: any) => ({
-                  role: h.sender === 'user' ? 'user' : 'assistant',
-                  content: h.text,
+                ...safeHistory.map((h: any) => ({
+                  role: h?.sender === 'user' ? 'user' : 'assistant',
+                  content: typeof h?.text === 'string' ? h.text.slice(0, 1000) : '',
                 })),
                 { role: 'user', content: userMessage },
               ],
@@ -313,7 +314,7 @@ Strict Rules:
     // Default polite response if OpenRouter is offline or fails
     return new Response(
       JSON.stringify({
-        reply: 'I help with international cargo shipping, doorstep pickup across Nepal, and rates. For custom quotes, booking, or tracking, please message our team on WhatsApp.',
+        reply: 'I help with international cargo shipping, home pickup around Hetauda (free in Hetauda, Pathlaiya, Jitpur and Simara over 20 kg), and rates. For custom quotes, booking, or tracking, please message our team on WhatsApp.',
         actions: [WHATSAPP_ACTION, PRICE_ACTION],
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

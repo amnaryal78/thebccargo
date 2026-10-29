@@ -7,6 +7,8 @@ import { TurnstileWidget } from '../components/TurnstileWidget';
 import { submitInquiry } from '../services/inquiryService';
 import { SEOHead } from '../components/SEOHead';
 import { PAGE_META } from '../data/pageMeta';
+import { BUSINESS } from '../data/business';
+import { SectionHeading } from '../design/primitives/SectionHeading';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -71,10 +73,7 @@ export const ContactPage: React.FC = () => {
       />
 
       <div className="max-w-5xl mx-auto flex flex-col gap-10">
-        <header className="space-y-3 max-w-2xl">
-          <h1 className="font-heading font-extrabold text-3xl sm:text-5xl tracking-tight leading-tight">Contact us</h1>
-          <p className="text-base text-[var(--text-secondary)]">Call us, send a message, or visit our office in Hetauda.</p>
-        </header>
+        <SectionHeading as="h1" eyebrow="Contact" title="Talk to our Hetauda team" lead="The fastest way to reach us is a call or WhatsApp during office hours. You can also send a message below or visit the office." />
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <Spotlight
@@ -103,11 +102,19 @@ export const ContactPage: React.FC = () => {
                 </li>
               ))}
             </ul>
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <a href={`tel:${BUSINESS.phone}`} className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-[var(--r-sm)] bg-[var(--brand)] text-[var(--on-brand)] font-semibold text-[15px] hover:bg-[var(--ox-700)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]">
+                <Phone className="w-4 h-4" aria-hidden="true" /> Call {BUSINESS.phoneDisplay}
+              </a>
+              <a href={BUSINESS.whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-[var(--r-sm)] bg-[var(--accent)] text-[var(--on-accent)] font-semibold text-[15px] hover:brightness-95 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]">
+                <MessageCircle className="w-4 h-4" aria-hidden="true" /> WhatsApp
+              </a>
+            </div>
             <a
-              href="https://www.google.com/maps/search/?api=1&query=School+Road+Hetauda+Nepal"
+              href={BUSINESS.mapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[var(--oxford-deep)] hover:underline"
+              className="mt-4 inline-flex items-center gap-2 min-h-[44px] text-sm font-semibold text-[var(--oxford-deep)] hover:underline"
             >
               <Navigation className="w-4 h-4" aria-hidden="true" />
               <span>Get directions</span>
@@ -136,6 +143,7 @@ export const ContactPage: React.FC = () => {
                   onChange={(e) => set('name', e.target.value)}
                   error={errors.name}
                   autoComplete="name"
+                  maxLength={120}
                 />
                 <Input
                   label="Email"
@@ -147,6 +155,7 @@ export const ContactPage: React.FC = () => {
                   onChange={(e) => set('email', e.target.value)}
                   error={errors.email}
                   autoComplete="email"
+                  maxLength={254}
                 />
                 <Input
                   label="Phone (optional)"
@@ -155,6 +164,7 @@ export const ContactPage: React.FC = () => {
                   value={form.phone}
                   onChange={(e) => set('phone', e.target.value)}
                   autoComplete="tel"
+                  maxLength={30}
                 />
 
                 <div className="flex flex-col gap-1.5">
@@ -164,9 +174,10 @@ export const ContactPage: React.FC = () => {
                   <textarea
                     id="contact-message"
                     rows={5}
+                    maxLength={2000}
                     value={form.message}
                     onChange={(e) => set('message', e.target.value)}
-                    className="w-full px-4 py-3 bg-[var(--surface)] text-[var(--text)] border border-[var(--line)] rounded-[var(--r-sm)] clay-inset text-sm transition-all duration-200 hover:border-[var(--ox-700)] hover:shadow-[0_0_0_3px_rgba(242,183,5,0.18)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring,#F2B705)]"
+                    className="w-full px-4 py-3 bg-[var(--surface)] text-[var(--text)] border border-[var(--line)] rounded-[var(--r-sm)] clay-inset text-sm transition-all duration-200 hover:border-[var(--ox-700)] hover:shadow-[0_0_0_3px_rgba(242,182,50,0.18)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                   />
                   {errors.message && <p className="text-xs text-[var(--danger)] font-medium">{errors.message}</p>}
                 </div>

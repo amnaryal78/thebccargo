@@ -76,7 +76,7 @@ export const ItemNameInput: React.FC<Props> = ({ id, value, items, placeholder, 
         onKeyDown={onKeyDown}
       />
       {show && (
-        <ul id={listId} role="listbox" className="absolute left-0 right-0 top-full mt-1 z-40 max-h-72 overflow-auto rounded-xl border border-[#002147]/15 bg-white p-1 shadow-[0_12px_28px_-12px_rgba(0,33,71,0.35)] list-none m-0">
+        <ul id={listId} role="listbox" className="absolute left-0 right-0 top-full mt-1 z-40 max-h-72 overflow-auto rounded-xl border border-ox-900/15 bg-white p-1 shadow-[0_12px_28px_-12px_rgba(11,45,99,0.35)] list-none m-0">
           {results.map((r, i) => (
             <li
               key={r.key}

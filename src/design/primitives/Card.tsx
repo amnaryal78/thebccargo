@@ -24,8 +24,8 @@ export const Card: React.FC<CardProps> = ({
   const variantStyles = {
     flat: 'bg-[var(--surface)] border border-white/60 shadow-hard-sm',
     waybill: 'bg-[var(--surface)] border border-dashed border-[var(--line-strong)] shadow-hard-xs relative p-5 sm:p-6',
-    oxford: 'bg-[#002147] text-white border border-white/15 shadow-hard',
-    interactive: 'bg-[var(--surface)] border border-white/60 shadow-hard-sm hover:border-[#F2B705] hover:shadow-[0_8px_24px_-4px_rgba(242,183,5,0.22)] hover:-translate-y-1 active:translate-y-0.5 active:shadow-press transition-all duration-[var(--t-fast)] cursor-pointer',
+    oxford: 'bg-ox-900 text-white border border-white/15 shadow-hard',
+    interactive: 'bg-[var(--surface)] border border-white/60 shadow-hard-sm hover:border-gd-500 hover:shadow-[0_8px_24px_-4px_rgba(242,182,50,0.22)] hover:-translate-y-1 active:translate-y-0.5 active:shadow-press transition-all duration-[var(--t-fast)] cursor-pointer',
   };
 
   if (variant === 'waybill') {

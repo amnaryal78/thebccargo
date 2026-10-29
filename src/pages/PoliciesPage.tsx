@@ -1,3 +1,4 @@
+import { BUSINESS } from '../data/business';
 import React, { useState } from 'react';
 import { 
   FileText, 
@@ -84,15 +85,15 @@ const POLICIES: PolicySection[] = [
           <h3 className="font-heading font-bold text-base text-[var(--text)] mb-2">2. Information We Collect</h3>
           <ul className="list-disc pl-5 space-y-1.5">
             <li><strong>Shipper &amp; Consignee Details:</strong> Full name, verified tax identifier (PAN/EXIM), physical address, email, and contact phone numbers.</li>
-            <li><strong>Shipment Telemetry:</strong> Milestone checkpoints, e-seal verification status, transit times, and carrier routing identifiers.</li>
+            <li><strong>Tracking Records:</strong> Milestone checkpoints, e-seal verification status, transit times, and carrier routing identifiers.</li>
             <li><strong>Customs Documents:</strong> Commercial invoices, packing lists, and Pragyapan Patra declarations necessary for customs entry.</li>
           </ul>
         </section>
 
         <section>
-          <h3 className="font-heading font-bold text-base text-[var(--text)] mb-2">3. Zero PII Public Disclosure</h3>
+          <h3 className="font-heading font-bold text-base text-[var(--text)] mb-2">3. What Public Tracking Shows</h3>
           <p>
-            Public tracking searches query an isolated RPC projection (<code className="font-mono text-xs px-1 py-0.5 rounded bg-[var(--surface-2)]">get_public_shipment</code>) that completely excludes customer names, contact numbers, and monetary invoices. Live milestone data is strictly limited to transit checkpoints and operational statuses.
+            Anyone with a tracking number sees only the parcel&apos;s progress: transit checkpoints and status. Customer names, phone numbers and invoice amounts are never shown in public tracking.
           </p>
         </section>
 
@@ -227,15 +228,15 @@ export const PoliciesPage: React.FC = () => {
 
       {/* Header */}
       <div className="flex flex-col items-center text-center gap-3 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-2)] border border-[var(--line-strong)] text-[var(--oxford-deep)] text-xs font-mono font-bold uppercase tracking-wider">
+        <div className="inline-flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-text)]">
           <FileCheck2 className="w-3.5 h-3.5" />
-          <span>Statutory Terms &amp; Compliance</span>
+          <span>Policies</span>
         </div>
-        <h1 className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[var(--text)] tracking-tight">
+        <h1 className="font-heading font-bold text-[length:var(--fs-h2)] leading-[1.1] tracking-[-0.02em] text-[var(--brand)] text-balance">
           Policies &amp; Conditions of Carriage
         </h1>
-        <p className="text-sm sm:text-base text-[var(--text-secondary)]">
-          Governing agreements for cross-border freight corridor linehaul, international air waybills, customs declarations, and cargo protection.
+        <p className="text-[17px] leading-relaxed text-[var(--text-muted)] max-w-xl">
+          The terms for sending with us: carriage terms, privacy, liability and insurance, what we cannot carry, and claims.
         </p>
       </div>
 
@@ -245,7 +246,7 @@ export const PoliciesPage: React.FC = () => {
         {/* Navigation Sidebar (4 cols on lg) */}
         <div className="lg:col-span-4 flex flex-col gap-3">
           <div className="p-3 bg-[var(--surface)] rounded-[var(--r-md)] border border-[var(--line)] shadow-hard-sm flex flex-col gap-1.5">
-            <span className="text-[10px] font-mono uppercase text-[var(--text-muted)] font-bold px-3 py-1 block">
+            <span className="text-[10px] uppercase text-[var(--text-muted)] font-bold px-3 py-1 block">
               Policy Documents
             </span>
             {POLICIES.map((policy) => {
@@ -273,17 +274,18 @@ export const PoliciesPage: React.FC = () => {
 
           {/* Quick Legal Help Card */}
           <div className="p-5 rounded-[var(--r-md)] bg-[var(--surface-2)] border border-[var(--line)] shadow-hard-xs flex flex-col gap-2">
-            <span className="text-[11px] font-mono text-[var(--gold-dark)] font-bold uppercase">
+            <span className="text-[11px] text-[var(--gold-dark)] font-bold uppercase">
               Legal &amp; Claims Desk
             </span>
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
               For official notices, insurance survey reports, or customs declarations inquiries, contact our compliance desk directly.
             </p>
             <a
-              href="mailto:info@thebccargo.com"
-              className="text-xs font-mono font-bold text-[var(--oxford-deep)] hover:underline pt-1 inline-block"
+              href={`mailto:${BUSINESS.email}`}
+              data-touch-target
+              className="text-xs font-bold text-[var(--oxford-deep)] hover:underline pt-1 inline-block"
             >
-              info@thebccargo.com ➔
+              {BUSINESS.email} ➔
             </a>
           </div>
         </div>
@@ -298,7 +300,7 @@ export const PoliciesPage: React.FC = () => {
             {/* Document Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--line)] pb-6">
               <div className="flex flex-col gap-1">
-                <span className="text-[11px] font-mono text-[var(--gold-dark)] uppercase font-bold">
+                <span className="text-[11px] text-[var(--gold-dark)] uppercase font-bold">
                   Official Standard Trading Conditions • Effective {currentPolicy.lastUpdated}
                 </span>
                 <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-[var(--text)]">
@@ -326,7 +328,7 @@ export const PoliciesPage: React.FC = () => {
             </div>
 
             {/* Footer Certification Note */}
-            <div className="pt-6 border-t border-[var(--line)] flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-muted)] font-mono">
+            <div className="pt-6 border-t border-[var(--line)] flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-muted)]">
               <span>The BC Cargo &amp; Courier Legal &amp; Compliance Directorate</span>
               <span>School Road -4, Hetauda, Nepal</span>
             </div>
