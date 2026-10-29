@@ -123,6 +123,7 @@ export const adminDataService = {
     return data;
   },
 
+  // Shipment and tracking-update changes are audited by database triggers (migration 20261030000003).
   async createShipment(shipment: Partial<AdminShipment>): Promise<AdminShipment> {
     ensureConfigured();
     const { data, error } = await supabase
@@ -132,7 +133,6 @@ export const adminDataService = {
       .single();
 
     if (error) throw new AdminServiceError(error.message, error);
-    await this.logAction('create_shipment', `shipments:${data.tracking_number}`, { id: data.id });
     return data;
   },
 
@@ -146,15 +146,13 @@ export const adminDataService = {
       .single();
 
     if (error) throw new AdminServiceError(error.message, error);
-    await this.logAction('update_shipment', `shipments:${data.tracking_number}`, { id });
     return data;
   },
 
-  async deleteShipment(id: string, trackingNumber: string): Promise<void> {
+  async deleteShipment(id: string, _trackingNumber: string): Promise<void> {
     ensureConfigured();
     const { error } = await supabase.from('shipments').delete().eq('id', id);
     if (error) throw new AdminServiceError(error.message, error);
-    await this.logAction('delete_shipment', `shipments:${trackingNumber}`, { id });
   },
 
   async fetchMilestones(shipmentId: string): Promise<AdminMilestone[]> {
@@ -178,15 +176,13 @@ export const adminDataService = {
       .single();
 
     if (error) throw new AdminServiceError(error.message, error);
-    await this.logAction('add_milestone', `milestones:${data.shipment_id}`, { milestoneId: data.id, title: data.title });
     return data;
   },
 
-  async deleteMilestone(id: string, shipmentId: string): Promise<void> {
+  async deleteMilestone(id: string, _shipmentId: string): Promise<void> {
     ensureConfigured();
     const { error } = await supabase.from('shipment_milestones').delete().eq('id', id);
     if (error) throw new AdminServiceError(error.message, error);
-    await this.logAction('delete_milestone', `milestones:${shipmentId}`, { id });
   },
 
   // ---------------------------------------------------------------------------

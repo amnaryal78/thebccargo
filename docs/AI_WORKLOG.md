@@ -3,6 +3,9 @@
 Purpose: durable, low-token project memory for coding-agent sessions. Keep entries concise and factual. Newest entry goes first. Never store secrets, personal data, or raw environment files.
 
 
+## 2026-10-30 Admin phase 1 (security) on branch admin-redesign
+- 5 new migrations (user_roles super_admin-only + last-super-admin guard, server-set audit actor, shipment/tracking audit triggers, public insert defaults + per-email flood limit, notifications by role). Verified on live in rolled-back transactions; NOT applied. Client shipment audit calls removed (triggers replace them). tests/security-phase1.test.ts added.
+
 ## 2026-10-30 Design foundation (brand #0B2D63 / #F2B632)
 - tokens.css rebuilt: new ox/gd scales, navy-tinted text, status + shipment-stage tokens, type/layout/radius/z tokens, .container-page/.section-y/.code-text. All #002147/#F2B705 hex in src, index.html, manifest, scripts replaced (bracket classes -> bg-ox-900 etc.). contrast-check synced, 32/32 pass.
 - Primitives: Button sentence case + same-colour hover; Input/Select/Textarea unified; all-caps removed from primitive labels; new Badge, StatusBadge(stageOf), Container/Section/PageHeader, Spinner/LoadingState/ErrorState. Deleted unused components/ui Button/Card/Input/Textarea/Dialog.

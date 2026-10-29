@@ -316,3 +316,22 @@ All phases: `node node_modules/typescript/bin/tsc --noEmit -p .`, `vitest run`, 
 | 7 | Quotes for 10 countries × 3 weights identical before/after; if CSV import stays: parser cases (quoted commas, blanks, bad numbers, duplicates, bad dates) rejected, never defaulted. |
 | 8 | No `alert/confirm/prompt` left in `src/features/admin` (grep test); every table has a phone layout; keyboard pass. |
 | 9 | Full adversarial pass across all of the above. |
+
+---
+
+## Phase 1 log (2026-10-30)
+
+Migrations written, **not yet applied to live** (awaiting approval):
+`20261030000001_user_roles_super_admin_only`, `…02_audit_logs_server_actor`, `…03_audit_shipments_trigger`, `…04_public_insert_defaults`, `…05_notifications_visibility`.
+
+Tested on live inside a transaction that always rolls back (approved method). The script applies all five, runs 48 checks as test staff/anon, then raises to abort. A later read confirmed no test rows, policies or triggers persisted. Key results:
+- **user_roles:** before the fix an admin could promote a user (rows=1). After it, admin, operations, support and editor all get 0 rows or an RLS error; super_admin can insert and update; demoting the last super_admin raises.
+- **audit_logs:** a forged `actor_email` is stored as the real session email with `actor_id`; staff cannot UPDATE or DELETE.
+- **shipments:** the trigger logs changed column names only; a no-op save is not logged; tracking adds are logged; editors are still blocked; `get_public_shipment` still works.
+- **public forms:** anon `confirmed`/back-dated booking is stored `submitted`/now; inquiry `resolved` + notes is stored `new` with no notes; application `hired` is stored `received`; the 6th booking per email per hour is refused; staff keep full control.
+- **notifications:** operations and support see bookings/inquiries; editor sees job applications, operations does not.
+
+Decided during phase 1:
+- **F9 dropped:** revoking anon EXECUTE on `is_admin()` would break anonymous reads of `how_to_ship` (its ALL policy targets `public` and calls `is_admin()`).
+- **Bot protection** is a per-email flood limit only. Real Turnstile verification still needs the `submit-*` edge functions deployed with `TURNSTILE_SECRET_KEY` (owner action).
+- **New finding for phase 2:** the `user_role` enum has no `read_only`; the UI role cannot exist in the database. Also the shipment editor's reseller picker reads `user_roles`, which only super_admin/admin can, so it is empty for operations (pre-existing).
