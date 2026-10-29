@@ -413,3 +413,26 @@ export interface TodayDashboard {
   } | null;
   pricing: { updated_at: string; row_count: number; source: string } | null;
 }
+
+/** A row of `bookings`: a pickup request sent from the website. */
+export interface AdminBooking {
+  id: string;
+  booking_ref: string;
+  sender_name: string;
+  sender_email: string;
+  sender_phone: string | null;
+  sender_address: string | null;
+  receiver_name: string;
+  receiver_email: string | null;
+  receiver_phone: string | null;
+  receiver_address: string | null;
+  origin: string;
+  destination: string;
+  service_mode: string | null;
+  commodity: string | null;
+  weight_kg: number | null;
+  box_count: number | null;
+  notes: string | null;
+  status: string;
+  created_at: string;
+}

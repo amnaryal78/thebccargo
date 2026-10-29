@@ -563,7 +563,28 @@ export const ShipmentEditorPage: React.FC = () => {
   const [notice, setNotice] = useState<string | null>(null);
   const [printOpen, setPrintOpen] = useState(false);
   const [popupBlocked, setPopupBlocked] = useState(false);
-  const [restored, setRestored] = useState(() => isNew && !!localStorage.getItem(DRAFT_KEY));
+  const [restored, setRestored] = useState(() => isNew && !search.get('booking') && !!localStorage.getItem(DRAFT_KEY));
+  // Set when this new shipment is being made from a website booking (?booking=<id>).
+  const [booking, setBooking] = useState<{ id: string; ref: string } | null>(null);
+  useEffect(() => {
+    const bookingId = search.get('booking');
+    if (!isNew || !bookingId) return;
+    let live = true;
+    adminDataService.fetchBooking(bookingId).then((b) => {
+      if (!live) return;
+      if (!b) return setErrors(['That booking was not found, so nothing was filled in.']);
+      const d = newBillDraft(todayIso());
+      d.billNo = generateBillNo();
+      d.sender = { name: b.sender_name, country: 'Nepal', phone: b.sender_phone ?? '', address: b.sender_address ?? '', email: b.sender_email };
+      d.receiver = { name: b.receiver_name, country: b.destination, phone: b.receiver_phone ?? '', address: b.receiver_address ?? '', email: b.receiver_email ?? '' };
+      if (b.weight_kg) d.totalWeightKg = Number(b.weight_kg);
+      setDraft(d);
+      setRestored(false);
+      setBooking({ id: b.id, ref: b.booking_ref });
+      setNotice(`Filled in from booking ${b.booking_ref}. Check the details, add the boxes, then save.`);
+    }, (e: Error) => live && setErrors([e.message]));
+    return () => { live = false; };
+  }, [isNew, search]);
   const [newExtra, setNewExtra] = useState({ name: '', amount: '' });
   const [extraErr, setExtraErr] = useState<string | null>(null);
   const [editingExtra, setEditingExtra] = useState<string | null>(null);
@@ -684,6 +705,7 @@ export const ShipmentEditorPage: React.FC = () => {
       const row = toShipmentRow(draft, result, status);
       // Skipped for a new independent order so saving keeps working before the reseller migration is applied.
       if (resellerId || (savedId && savedJson !== null && !savedJson.endsWith('|'))) row.reseller_id = resellerId || null;
+      if (booking && !savedId) row.booking_ref = booking.ref;
       const saved = savedId ? await adminDataService.updateShipment(savedId, row, loadedAt.current ?? '') : await adminDataService.createShipment(row);
       // Read it back so we know it really is in the database before saying so.
       const check = await adminDataService.fetchShipment(saved.id);
@@ -705,7 +727,15 @@ export const ShipmentEditorPage: React.FC = () => {
         )
         .then(refreshLearnedItems)
         .catch(() => undefined);
-      setNotice(`Saved ${draft.billNo}. Total Rs ${fmtMoney(result.total)}.`);
+      let linked = '';
+      if (booking && isNew) {
+        // The shipment is saved and linked by booking_ref; the booking status is a separate write, so say if it failed.
+        linked = await adminDataService.setBookingStatus(booking.id, 'confirmed').then(
+          () => ` Booking ${booking.ref} is marked confirmed.`,
+          () => ` Booking ${booking.ref} could not be marked confirmed; change its status on the Bookings page.`
+        );
+      }
+      setNotice(`Saved ${draft.billNo}. Total Rs ${fmtMoney(result.total)}.${linked}`);
       if (isNew) navigate(`/admin/shipments/${saved.id}`, { replace: true });
       if (thenPrint) setPrintOpen(true);
     } catch (e) {

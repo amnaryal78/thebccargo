@@ -389,3 +389,10 @@ Decided during phase 1:
 - **Public tracking:** `cancelled` now shows "Cancelled" (was "Order placed").
 - **Decisions taken (recommended defaults):** bill editor stays one page with sections (no wizard); tracking numbers keep the current format (duplicate already gives a clear message).
 - **Skipped:** Overview/Bill/Tracking/History tabs (the editor is the detail page), editing a tracking update (delete and re-add), shipment history view, new indexes (3 rows).
+
+## Phase 6 log (2026-10-30)
+- **Decision taken (smaller option):** separate tabs plus booking conversion, not a unified inbox. Inquiries, partners and chats keep their pages; reviews stay separate.
+- **No migration.** A shipment made from a booking is linked by the existing `shipments.booking_ref`. The plan's conversion RPC was dropped: a shipment needs a bill priced by the editor (`model.ts`), which a database function cannot build.
+- **Bookings page:** rebuilt on tokens; data through `adminDataService` (it called Supabase directly before). Status filter in the URL, phone/email links, "New" marker from notifications, and either "Create shipment from this booking" or a link to the shipment already made from it.
+- **Conversion:** `/admin/shipments/new?booking=<id>` fills sender, receiver, destination and weight; the first save writes `booking_ref`, then marks the booking `confirmed` (a separate write; a failure is reported in the save message).
+- **Tested on live, rolled back:** operations can insert a shipment with `booking_ref` and confirm the booking; editor cannot change a booking (0 rows).

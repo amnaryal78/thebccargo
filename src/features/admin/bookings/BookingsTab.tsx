@@ -1,134 +1,121 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { supabase } from '../../../lib/supabase';
-import { friendlyError } from '../friendlyError';
+import { Link, useSearchParams } from 'react-router-dom';
+import { PackagePlus } from 'lucide-react';
+import { ErrorState, Select, Skeleton, StatusBadge } from '../../../design/primitives';
+import { adminDataService } from '../services/adminDataService';
 import { useAdminNotifications } from '../notifications/NotificationsContext';
 import { useMyPermissions } from '../usePermissions';
+import { useAdminDialogs } from '../AdminConfirmDialog';
+import type { AdminBooking } from '../types';
 
-interface AdminBooking {
-  id: string;
-  bookingRef: string;
-  senderName: string;
-  senderEmail: string;
-  senderPhone: string | null;
-  receiverName: string;
-  receiverAddress: string | null;
-  origin: string;
-  destination: string;
-  serviceMode: string | null;
-  commodity: string | null;
-  weightKg: number | null;
-  notes: string | null;
-  status: string;
-  createdAt: string;
-}
+type Row = AdminBooking & { shipment: { id: string; tracking_number: string } | null };
 
-const STATUSES = ['submitted', 'confirmed', 'picked_up', 'cancelled'];
+const STATUSES = [
+  { value: 'submitted', label: 'New' },
+  { value: 'confirmed', label: 'Confirmed' },
+  { value: 'picked_up', label: 'Picked up' },
+  { value: 'cancelled', label: 'Cancelled' },
+];
+const FILTERS = [{ value: 'all', label: 'All bookings' }, ...STATUSES];
+const label = (s: string) => STATUSES.find((x) => x.value === s)?.label ?? s.replace(/_/g, ' ');
+const when = (iso: string) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
 export const BookingsTab: React.FC = () => {
+  const { notify } = useAdminDialogs();
   const { items: notifications } = useAdminNotifications();
-  const canEdit = useMyPermissions().canManageInquiries;
-  const [rows, setRows] = useState<AdminBooking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const perms = useMyPermissions();
+  const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [params, setParams] = useSearchParams();
+  const filter = params.get('status') ?? 'all';
 
-  const load = useCallback(async () => {
-    const { data, error: err } = await supabase.from('bookings').select('*').order('created_at', { ascending: false });
-    if (err) {
-      setError(friendlyError(err));
-    } else {
-      setError(null);
-      setRows(
-        (data ?? []).map((b: any) => ({
-          id: b.id,
-          bookingRef: b.booking_ref,
-          senderName: b.sender_name,
-          senderEmail: b.sender_email,
-          senderPhone: b.sender_phone,
-          receiverName: b.receiver_name,
-          receiverAddress: b.receiver_address,
-          origin: b.origin,
-          destination: b.destination,
-          serviceMode: b.service_mode,
-          commodity: b.commodity,
-          weightKg: b.weight_kg === null ? null : Number(b.weight_kg),
-          notes: b.notes,
-          status: b.status,
-          createdAt: b.created_at,
-        }))
-      );
-    }
-    setLoading(false);
+  const load = useCallback(() => {
+    adminDataService.fetchBookings().then((r) => { setError(null); setRows(r); }, (e: Error) => setError(e.message));
   }, []);
+  useEffect(load, [load]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-
-  const setStatus = async (id: string, status: string) => {
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
-    const { error: err } = await supabase.from('bookings').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
-    if (err) {
-      setError(friendlyError(err));
-      void load();
+  const setStatus = async (b: Row, status: string) => {
+    setRows((prev) => prev?.map((r) => (r.id === b.id ? { ...r, status } : r)) ?? prev);
+    try {
+      await adminDataService.setBookingStatus(b.id, status);
+    } catch (e) {
+      void notify((e as Error).message, 'Status not changed');
+      load();
     }
   };
 
-  const unreadRefs = new Set(notifications.filter((n) => n.kind === 'booking' && !n.isRead).map((n) => n.refId));
+  const unread = new Set(notifications.filter((n) => n.kind === 'booking' && !n.isRead).map((n) => n.refId));
+  const shown = (rows ?? []).filter((b) => filter === 'all' || b.status === filter);
 
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="font-heading font-bold text-2xl">Bookings</h1>
-        <p className="text-sm opacity-70">Pickup requests sent from the website.</p>
+    <div className="space-y-5 max-w-5xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div>
+          <h1 className="font-heading font-extrabold text-2xl lg:text-[28px] text-[var(--text)]">Bookings</h1>
+          <p className="text-[var(--text-muted)] mt-1">Pickup requests sent from the website. Turn one into a shipment when the goods arrive.</p>
+        </div>
+        <Select label="Show" hideLabelVisually value={filter} options={FILTERS} onChange={(e) => setParams(e.target.value === 'all' ? {} : { status: e.target.value }, { replace: true })} containerClassName="sm:w-48" />
       </div>
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
-      {loading && <p className="text-sm opacity-70">Loading…</p>}
-      {!loading && rows.length === 0 && <p className="text-sm opacity-70">No bookings yet.</p>}
 
-      <ul className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-        {rows.map((b) => (
-          <li
-            key={b.id}
-            className={`rounded-xl border p-4 flex flex-col gap-2 ${
-              unreadRefs.has(b.id) ? 'border-gd-500 bg-gd-500/10' : 'border-[#E2E2DE]'
-            }`}
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-mono font-bold text-sm">{b.bookingRef}</span>
-              {canEdit ? (
-                <select
-                  value={b.status}
-                  onChange={(e) => void setStatus(b.id, e.target.value)}
-                  aria-label={`Status of ${b.bookingRef}`}
-                  className="text-sm rounded-lg border border-[#E2E2DE] bg-transparent px-2 py-1"
-                >
-                  {[...new Set([b.status, ...STATUSES])].map((s) => (
-                    <option key={s} value={s} className="text-black">
-                      {s.replace('_', ' ')}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <span className="text-sm">{b.status.replace('_', ' ')}</span>
-              )}
-            </div>
-            <p className="text-sm">
-              <strong>{b.origin}</strong> to <strong>{b.destination}</strong>
-              {b.serviceMode ? ` · ${b.serviceMode}` : ''}
-              {b.weightKg ? ` · ${b.weightKg} kg` : ''}
-            </p>
-            <p className="text-sm opacity-80">
-              From {b.senderName} ({b.senderEmail}
-              {b.senderPhone ? `, ${b.senderPhone}` : ''}) to {b.receiverName}
-              {b.receiverAddress ? `, ${b.receiverAddress}` : ''}
-            </p>
-            {b.commodity && <p className="text-sm opacity-80">Goods: {b.commodity}</p>}
-            {b.notes && <p className="text-sm opacity-80">Notes: {b.notes}</p>}
-            <p className="text-xs opacity-60">{new Date(b.createdAt).toLocaleString()}</p>
-          </li>
-        ))}
-      </ul>
+      {error ? (
+        <ErrorState title="Bookings didn't load" description={error} actionLabel="Try again" onAction={load} />
+      ) : !rows ? (
+        <div className="space-y-2" aria-busy="true">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-28 w-full" />)}</div>
+      ) : shown.length === 0 ? (
+        <div className="rounded-[var(--r-md)] border border-[var(--line)] bg-[var(--surface)] p-8 text-center">
+          <p className="font-semibold text-[var(--text)]">{filter === 'all' ? 'No bookings yet.' : `No ${label(filter).toLowerCase()} bookings.`}</p>
+          <p className="text-[var(--text-muted)] mt-1">New pickup requests from the website appear here.</p>
+        </div>
+      ) : (
+        <ul className="space-y-3">
+          {shown.map((b) => (
+            <li key={b.id} className={`rounded-[var(--r-md)] border bg-[var(--surface)] p-4 sm:p-5 space-y-3 ${unread.has(b.id) ? 'border-[var(--gd-500)] border-l-4' : 'border-[var(--line)]'}`}>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-mono font-bold text-[var(--text)]">{b.booking_ref}</p>
+                  <p className="text-sm text-[var(--text-muted)]">{when(b.created_at)}{unread.has(b.id) && <span className="ml-2 font-semibold text-[var(--accent-text)]">New</span>}</p>
+                </div>
+                {perms.canManageInquiries ? (
+                  <Select label={`Status of ${b.booking_ref}`} hideLabelVisually value={b.status} onChange={(e) => void setStatus(b, e.target.value)} options={STATUSES.some((s) => s.value === b.status) ? STATUSES : [{ value: b.status, label: label(b.status) }, ...STATUSES]} containerClassName="!w-44 shrink-0" />
+                ) : (
+                  <StatusBadge status={label(b.status)} className="whitespace-nowrap" />
+                )}
+              </div>
+
+              <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-2 text-[15px]">
+                <div className="min-w-0">
+                  <dt className="text-sm text-[var(--text-muted)]">From</dt>
+                  <dd className="[overflow-wrap:anywhere]">{b.sender_name} · {b.origin}<br /><a href={`mailto:${b.sender_email}`} className="text-[var(--brand)] underline underline-offset-4">{b.sender_email}</a>{b.sender_phone && <> · <a href={`tel:${b.sender_phone}`} className="text-[var(--brand)] underline underline-offset-4">{b.sender_phone}</a></>}</dd>
+                </div>
+                <div className="min-w-0">
+                  <dt className="text-sm text-[var(--text-muted)]">To</dt>
+                  <dd className="[overflow-wrap:anywhere]">{b.receiver_name} · {b.destination}{b.receiver_address && <><br />{b.receiver_address}</>}</dd>
+                </div>
+                {(b.weight_kg || b.commodity) && (
+                  <div className="min-w-0">
+                    <dt className="text-sm text-[var(--text-muted)]">Goods</dt>
+                    <dd className="[overflow-wrap:anywhere]">{[b.commodity, b.weight_kg ? `${Number(b.weight_kg)} kg` : null, b.box_count ? `${b.box_count} ${b.box_count === 1 ? 'box' : 'boxes'}` : null].filter(Boolean).join(' · ')}</dd>
+                  </div>
+                )}
+                {b.notes && (
+                  <div className="min-w-0 sm:col-span-2">
+                    <dt className="text-sm text-[var(--text-muted)]">Notes</dt>
+                    <dd className="whitespace-pre-line [overflow-wrap:anywhere]">{b.notes}</dd>
+                  </div>
+                )}
+              </dl>
+
+              {b.shipment ? (
+                <p className="text-[15px]">Shipment <Link to={`/admin/shipments/${b.shipment.id}`} className="font-mono font-bold text-[var(--brand)] underline underline-offset-4">{b.shipment.tracking_number}</Link> was made from this booking.</p>
+              ) : perms.canManageShipments && b.status !== 'cancelled' ? (
+                <Link to={`/admin/shipments/new?booking=${b.id}`} className="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-[var(--r-sm)] bg-[var(--brand)] text-white font-semibold hover:opacity-95">
+                  <PackagePlus className="size-4" aria-hidden="true" /> Create shipment from this booking
+                </Link>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

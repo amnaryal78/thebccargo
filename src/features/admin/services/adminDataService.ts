@@ -7,6 +7,7 @@ import {
   ProfileField,
   AdminShipment,
   AdminMilestone,
+  AdminBooking,
   AdminInquiry,
   AdminHandlingRule,
   AdminNationalRate,
@@ -115,6 +116,35 @@ export const adminDataService = {
     const { data, error, count } = await query;
     if (error) throw new AdminServiceError(error.message, error);
     return { rows: (data as unknown as AdminShipment[]) || [], total: count ?? 0 };
+  },
+
+  // ---------------------------------------------------------------------------
+  // BOOKINGS (pickup requests from the website)
+  // ---------------------------------------------------------------------------
+  /** Newest first, each with the tracking number of the shipment made from it (linked by shipments.booking_ref). */
+  async fetchBookings(): Promise<(AdminBooking & { shipment: { id: string; tracking_number: string } | null })[]> {
+    ensureConfigured();
+    const [b, s] = await Promise.all([
+      supabase.from('bookings').select('*').order('created_at', { ascending: false }).limit(500),
+      supabase.from('shipments').select('id, tracking_number, booking_ref').not('booking_ref', 'is', null),
+    ]);
+    if (b.error) throw new AdminServiceError(b.error.message, b.error);
+    if (s.error) throw new AdminServiceError(s.error.message, s.error);
+    const byRef = new Map((s.data ?? []).map((x) => [x.booking_ref as string, { id: x.id as string, tracking_number: x.tracking_number as string }]));
+    return (b.data ?? []).map((x) => ({ ...(x as AdminBooking), shipment: byRef.get(x.booking_ref) ?? null }));
+  },
+
+  async fetchBooking(id: string): Promise<AdminBooking | null> {
+    ensureConfigured();
+    const { data, error } = await supabase.from('bookings').select('*').eq('id', id).maybeSingle();
+    if (error) throw new AdminServiceError(error.message, error);
+    return data;
+  },
+
+  async setBookingStatus(id: string, status: string): Promise<void> {
+    ensureConfigured();
+    const { error } = await supabase.from('bookings').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) throw new AdminServiceError(error.message, error);
   },
 
   // ---------------------------------------------------------------------------
