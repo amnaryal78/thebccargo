@@ -117,7 +117,7 @@ export const AdminOverviewTab: React.FC = () => {
           key: 'stale',
           label: 'Shipments with no update for 3 days or more',
           count: n.shipments_stale,
-          to: '/admin/shipments',
+          to: '/admin/shipments?stale=1',
           icon: PackageSearch,
           hint: `of ${n.shipments_open} open`,
         },

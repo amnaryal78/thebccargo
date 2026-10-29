@@ -3,7 +3,8 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion, MotionConfig } from 'framer-motion';
 import { AlertTriangle, ArrowLeft, Calculator, Check, CircleAlert, CircleDot, FileText, Landmark, Lightbulb, Loader2, Lock, MapPin, Minus, Package, Pencil, Plus, Printer, Save, Scale, Send, ShieldCheck, Trash2, Wrench, X } from 'lucide-react';
 import { Spotlight } from '../../../components/ui/spotlight';
-import { adminDataService } from '../services/adminDataService';
+import { adminDataService, ShipmentConflictError } from '../services/adminDataService';
+import { TrackingUpdates } from './MilestonesModal';
 import { useMyPermissions } from '../usePermissions';
 import { roleLabel } from '../users/PersonDialog';
 import { useAuth } from '../../../context/AuthContext';
@@ -554,6 +555,8 @@ export const ShipmentEditorPage: React.FC = () => {
   const [savedId, setSavedId] = useState<string | null>(isNew ? null : id!);
   const savedIdRef = React.useRef<string | null>(isNew ? null : id!);
   const [savedJson, setSavedJson] = useState<string | null>(null);
+  // updated_at when loaded or last saved; a save only goes through if the row still has it.
+  const loadedAt = React.useRef<string | null>(null);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -583,6 +586,7 @@ export const ShipmentEditorPage: React.FC = () => {
           setStatus(row.status || 'pending');
           setResellerId(row.reseller_id ?? '');
           setSavedId(row.id);
+          loadedAt.current = row.updated_at;
           setSavedJson(stable(d) + '|' + (row.status || 'pending') + '|' + (row.reseller_id ?? ''));
           if (search.get('print') === '1') setPrintOpen(true);
         }
@@ -680,12 +684,13 @@ export const ShipmentEditorPage: React.FC = () => {
       const row = toShipmentRow(draft, result, status);
       // Skipped for a new independent order so saving keeps working before the reseller migration is applied.
       if (resellerId || (savedId && savedJson !== null && !savedJson.endsWith('|'))) row.reseller_id = resellerId || null;
-      const saved = savedId ? await adminDataService.updateShipment(savedId, row) : await adminDataService.createShipment(row);
+      const saved = savedId ? await adminDataService.updateShipment(savedId, row, loadedAt.current ?? '') : await adminDataService.createShipment(row);
       // Read it back so we know it really is in the database before saying so.
       const check = await adminDataService.fetchShipment(saved.id);
       if (!check || Number(check.total_npr) !== result.total) throw new Error('Saved, but the stored total does not match. Please reload and check.');
       setSavedId(saved.id);
       savedIdRef.current = saved.id;
+      loadedAt.current = check.updated_at;
       setSavedJson(currentJson);
       try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
       setRestored(false);
@@ -704,6 +709,11 @@ export const ShipmentEditorPage: React.FC = () => {
       if (isNew) navigate(`/admin/shipments/${saved.id}`, { replace: true });
       if (thenPrint) setPrintOpen(true);
     } catch (e) {
+      if (e instanceof ShipmentConflictError) {
+        setErrors(['Someone else saved this shipment after you opened it, so your changes were not saved.']);
+        if (await confirm({ title: 'This shipment was changed by someone else', body: 'Your changes were not saved, so nothing was overwritten. Reload to see the latest version (your changes on this screen will be lost), or keep editing and copy what you need first.', confirmLabel: 'Reload latest', cancelLabel: 'Keep editing' })) window.location.reload();
+        return;
+      }
       const msg = (e as Error).message || 'Save failed.';
       setErrors([/duplicate|unique|23505/i.test(msg) ? `Bill number ${draft.billNo} is already used. Change it and save again.` : `Not saved: ${msg}`]);
     } finally {
@@ -1040,6 +1050,21 @@ export const ShipmentEditorPage: React.FC = () => {
         ))}
       </section>
       </Spotlight>
+
+      {savedId && (
+        <section className={`${card} space-y-4`} aria-labelledby="trk-t">
+          <div>
+            <h2 id="trk-t" className="font-heading font-extrabold text-lg text-ox-900">Tracking updates</h2>
+            <p className="text-sm text-slate-600">Customers see these on the tracking page for {draft.billNo}, oldest first.</p>
+          </div>
+          <TrackingUpdates
+            shipment={{ id: savedId, origin: draft.sender.country || 'Nepal', destination: draft.receiver.country || '' }}
+            canManage={canEdit}
+            // A tracking change moves updated_at; take the new value so the next bill save is not seen as a conflict.
+            onChanged={() => void adminDataService.fetchShipment(savedId).then((r) => { if (r) loadedAt.current = r.updated_at; })}
+          />
+        </section>
+      )}
 
       {/* ACTION BAR */}
       <div className="sticky bottom-[calc(3.5rem+env(safe-area-inset-bottom))] md:bottom-0 z-30 -mx-4 sm:mx-0 px-4 py-3 bg-white/95 backdrop-blur-sm border-t border-slate-200 sm:rounded-2xl sm:border flex flex-wrap items-center justify-between gap-3 shadow-[0_-6px_16px_-8px_rgba(11,45,99,0.18)]">

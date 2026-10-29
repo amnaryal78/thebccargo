@@ -7,7 +7,8 @@ export type ShipmentStatus =
   | 'Customs Clearance'
   | 'Out for Delivery'
   | 'Delivered'
-  | 'Exception';
+  | 'Exception'
+  | 'Cancelled';
 
 export interface Milestone {
   id: string;

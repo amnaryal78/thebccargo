@@ -102,7 +102,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({ shipment, onSe
 
   const s = currentShipment;
   const isDelivered = s?.status?.toLowerCase().includes('delivered');
-  const isException = s?.status?.toLowerCase().includes('exception');
+  const isException = /exception|cancel/.test(s?.status?.toLowerCase() ?? '');
   const ModeIcon = s?.mode === 'ocean' ? Ship : s?.mode === 'overland' ? Truck : Plane;
   // Newest completed checkpoint is "where it is now"; nothing is invented for steps that have no event.
   const lastDone = s ? s.milestones.map((m) => m.status === 'completed').lastIndexOf(true) : -1;

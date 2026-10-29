@@ -1,110 +1,123 @@
-import React from 'react';
-import { X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Trash2 } from 'lucide-react';
+import { Button, ErrorState, Input, LoadingState, Modal } from '../../../design/primitives';
+import { adminDataService } from '../services/adminDataService';
 import { AdminShipment, AdminMilestone } from '../types';
+import { useAdminDialogs } from '../AdminConfirmDialog';
 
-interface MilestonesModalProps {
-  milestoneTarget: AdminShipment | null;
-  milestones: AdminMilestone[];
-  newMilestoneTitle: string;
-  setNewMilestoneTitle: (val: string) => void;
-  newMilestoneLocation: string;
-  setNewMilestoneLocation: (val: string) => void;
-  onAddMilestone: () => void;
-  onClose: () => void;
-  canManageMilestones: boolean;
+/** "2026-10-30T14:05" in this computer's time, the value a datetime-local input takes. */
+const localNow = () => {
+  const d = new Date();
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+};
+
+const when = (ts: string) => {
+  const d = new Date(ts);
+  return Number.isNaN(d.getTime()) ? ts : d.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+};
+
+interface TrackingUpdatesProps {
+  shipment: Pick<AdminShipment, 'id' | 'origin' | 'destination'>;
+  canManage: boolean;
+  /** Called after a change: tracking changes also change the shipment's updated_at. */
+  onChanged?: () => void;
 }
 
-export const MilestonesModal: React.FC<MilestonesModalProps> = ({
-  milestoneTarget,
-  milestones,
-  newMilestoneTitle,
-  setNewMilestoneTitle,
-  newMilestoneLocation,
-  setNewMilestoneLocation,
-  onAddMilestone,
-  onClose,
-  canManageMilestones
-}) => {
-  if (!milestoneTarget) return null;
+/** A shipment's tracking updates in event order, with add (can be back-dated) and delete. What customers see on the tracking page. */
+export const TrackingUpdates: React.FC<TrackingUpdatesProps> = ({ shipment, canManage, onChanged }) => {
+  const { confirm, notify } = useAdminDialogs();
+  const [list, setList] = useState<AdminMilestone[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [title, setTitle] = useState('');
+  const [location, setLocation] = useState(shipment.origin);
+  const [at, setAt] = useState(localNow);
+  const [busy, setBusy] = useState(false);
+
+  const load = React.useCallback(() => {
+    adminDataService.fetchMilestones(shipment.id).then((l) => { setLoadError(null); setList(l); }, (e: Error) => setLoadError(e.message));
+  }, [shipment.id]);
+  useEffect(load, [load]);
+
+  const add = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !list) return;
+    const time = new Date(at);
+    if (Number.isNaN(time.getTime())) return;
+    setBusy(true);
+    try {
+      setList(await adminDataService.createMilestone({
+        shipment_id: shipment.id,
+        title: title.trim(),
+        location: location.trim() || shipment.destination,
+        timestamp: time.toISOString(),
+        status: 'completed',
+        completed: true,
+        description: null,
+      }, list));
+      setTitle('');
+      setAt(localNow());
+      onChanged?.();
+    } catch (err) {
+      void notify((err as Error).message, 'Tracking update not added');
+      load();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const remove = async (m: AdminMilestone) => {
+    if (!(await confirm({ title: 'Delete this tracking update?', body: <>“{m.title}” will no longer show to the customer.</>, confirmLabel: 'Delete update', danger: true }))) return;
+    try {
+      await adminDataService.deleteMilestone(m.id, shipment.id);
+      setList((l) => l?.filter((x) => x.id !== m.id) ?? l);
+      onChanged?.();
+    } catch (err) {
+      void notify((err as Error).message, 'Tracking update not deleted');
+    }
+  };
+
+  if (loadError) return <ErrorState title="Tracking updates didn't load" description={loadError} actionLabel="Try again" onAction={load} />;
+  if (!list) return <LoadingState label="Loading tracking updates" />;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 shadow-hard-lg my-8 space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div>
-            <h2 className="font-heading font-bold text-sm text-slate-900 uppercase tracking-wider">
-              Custody Milestones: {milestoneTarget.tracking_number}
-            </h2>
-            <span className="text-[10px] font-mono text-slate-400">
-              {milestoneTarget.origin} ➔ {milestoneTarget.destination}
-            </span>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Existing Milestones List */}
-        <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
-          {milestones.length === 0 ? (
-            <div className="p-4 text-center text-xs text-slate-500 font-mono">
-              No tracking milestones logged yet.
-            </div>
-          ) : (
-            milestones.map((m) => (
-              <div key={m.id} className="p-2.5 rounded-xl bg-slate-50 text-xs flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                  <div>
-                    <span className="font-bold text-slate-900 block">{m.title}</span>
-                    <span className="text-[10px] text-slate-500">{m.location}</span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono text-slate-400">
-                  {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
+    <div className="space-y-4">
+      {list.length === 0 ? (
+        <p className="text-sm text-[var(--text-muted)]">No tracking updates yet. Customers see only “Order placed” until you add one.</p>
+      ) : (
+        <ol className="space-y-2">
+          {list.map((m) => (
+            <li key={m.id} className="flex items-start gap-3 rounded-[var(--r-sm)] border border-[var(--line)] bg-[var(--surface)] px-3 py-2.5">
+              <span className="mt-1.5 size-2 shrink-0 rounded-full bg-[var(--brand)]" aria-hidden="true" />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-[var(--text)] [overflow-wrap:anywhere]">{m.title}</p>
+                <p className="text-sm text-[var(--text-muted)] [overflow-wrap:anywhere]">{m.location} · <time dateTime={m.timestamp}>{when(m.timestamp)}</time></p>
               </div>
-            ))
-          )}
-        </div>
-
-        {/* Quick Add Form */}
-        {canManageMilestones && (
-          <div className="pt-3 border-t border-slate-100 space-y-2.5">
-            <span className="text-[11px] font-heading font-bold uppercase text-slate-700">
-              Quick-Add Checkpoint Event
-            </span>
-            <div className="space-y-2">
-              <input
-                type="text"
-                value={newMilestoneTitle}
-                onChange={(e) => setNewMilestoneTitle(e.target.value)}
-                placeholder="e.g. Customs Escort Cleared at TIA bonded zone"
-                className="w-full px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-900"
-              />
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={newMilestoneLocation}
-                  onChange={(e) => setNewMilestoneLocation(e.target.value)}
-                  placeholder="Checkpoint Location"
-                  className="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-900"
-                />
-                <button
-                  onClick={onAddMilestone}
-                  disabled={!newMilestoneTitle.trim()}
-                  className="px-4 py-1.5 rounded-xl bg-ox-900 text-white font-heading font-bold text-xs uppercase tracking-wider disabled:opacity-50 cursor-pointer shadow-hard-xs"
-                >
-                  Add
+              {canManage && (
+                <button type="button" onClick={() => void remove(m)} aria-label={`Delete tracking update “${m.title}”`} className="shrink-0 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-[var(--r-sm)] text-[var(--danger)] hover:bg-[var(--danger-bg)] cursor-pointer">
+                  <Trash2 className="size-4" aria-hidden="true" />
                 </button>
-              </div>
-            </div>
+              )}
+            </li>
+          ))}
+        </ol>
+      )}
+
+      {canManage && (
+        <form onSubmit={add} className="grid gap-3 sm:grid-cols-2 border-t border-[var(--line)] pt-4">
+          <Input label="What happened" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} placeholder="Departed Kathmandu" required containerClassName="sm:col-span-2" />
+          <Input label="Where" value={location} onChange={(e) => setLocation(e.target.value)} maxLength={120} />
+          <Input label="When" type="datetime-local" value={at} max={localNow()} onChange={(e) => setAt(e.target.value)} required helperText="Change it to record something that happened earlier." />
+          <div className="sm:col-span-2">
+            <Button type="submit" isLoading={busy} disabled={!title.trim() || busy}>Add tracking update</Button>
           </div>
-        )}
-      </div>
+        </form>
+      )}
     </div>
   );
 };
+
+export const MilestonesModal: React.FC<{ shipment: AdminShipment | null; canManage: boolean; onClose: () => void; onChanged?: () => void }> = ({ shipment, canManage, onClose, onChanged }) => (
+  <Modal isOpen={!!shipment} onClose={onClose} title={`Tracking ${shipment?.tracking_number ?? ''}`} description={shipment ? `${shipment.origin} to ${shipment.destination}` : undefined} maxWidth="lg">
+    {shipment && <TrackingUpdates shipment={shipment} canManage={canManage} onChanged={onChanged} />}
+  </Modal>
+);

@@ -380,3 +380,12 @@ Decided during phase 1:
   - **States:** loading skeleton and a plain-language error state with Try again.
 - `fetchOverviewMetrics` (six full-table downloads) is replaced by `fetchTodayDashboard` (one RPC). `friendlyError` permission wording is now "do this" (it is shown for refused reads too).
 - **Not covered:** the "no update for 3 days" row links to all shipments, because the list has no such filter yet (phase 5). There is no "problem" shipment status in the data model, so no Problems tile (statuses are pending, in transit, customs cleared, out for delivery, delivered, cancelled).
+
+## Phase 5 log (2026-10-30)
+- **No migration.** Tracking order is kept by renumbering `sort_order` by event time on add (public tracking already orders by `sort_order`), so `occurred_at`/`stage` columns were not needed. Live has 0 tracking updates, so nothing to backfill.
+- **List:** server paging (25), narrow columns (no bill JSON), search across tracking number, names, phone, companies, destination; status filter (now incl. cancelled); "No update for 3+ days" filter; all in the URL. Today's stale row links to `?stale=1`.
+- **Tracking:** one `TrackingUpdates` panel (list in event order, add with back-dating, delete) in the list dialog and on the shipment page. Every tracking change touches `shipments.updated_at`, so Today, the stale filter and public "last updated" agree.
+- **Save conflicts:** bill saves are version-checked on `updated_at`; a conflict saves nothing and offers Reload latest / Keep editing.
+- **Public tracking:** `cancelled` now shows "Cancelled" (was "Order placed").
+- **Decisions taken (recommended defaults):** bill editor stays one page with sections (no wizard); tracking numbers keep the current format (duplicate already gives a clear message).
+- **Skipped:** Overview/Bill/Tracking/History tabs (the editor is the detail page), editing a tracking update (delete and re-add), shipment history view, new indexes (3 rows).

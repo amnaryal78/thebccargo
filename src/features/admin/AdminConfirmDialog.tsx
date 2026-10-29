@@ -6,6 +6,7 @@ interface ConfirmOptions {
   /** What will happen, naming the record: "Shipment BC1203AB and its tracking updates will be deleted." */
   body: React.ReactNode;
   confirmLabel: string;
+  cancelLabel?: string;
   danger?: boolean;
 }
 
@@ -52,7 +53,7 @@ export const AdminDialogsProvider: React.FC<{ children: React.ReactNode }> = ({ 
           open?.kind === 'confirm' ? (
             <>
               {/* A destructive choice never has focus first, so Enter cannot delete by accident. */}
-              <Button variant="ghost" onClick={() => settle(false)} data-autofocus={open.danger || undefined}>Cancel</Button>
+              <Button variant="ghost" onClick={() => settle(false)} data-autofocus={open.danger || undefined}>{open.cancelLabel ?? 'Cancel'}</Button>
               <Button variant={open.danger ? 'danger' : 'secondary'} onClick={() => settle(true)} data-autofocus={!open.danger || undefined}>
                 {open.confirmLabel}
               </Button>

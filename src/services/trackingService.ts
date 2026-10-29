@@ -23,6 +23,7 @@ export interface PublicTrackingResponse {
 
 const mapStatus = (rawStatus: string): ShipmentStatus => {
   const s = rawStatus.toLowerCase();
+  if (s.includes('cancel')) return 'Cancelled';
   if (s.includes('delivered')) return 'Delivered';
   if (s.includes('transit')) return 'In Transit';
   if (s.includes('pickup') || s.includes('picked')) return 'Picked Up';

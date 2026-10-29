@@ -34,6 +34,37 @@ function ensureConfigured() {
   }
 }
 
+export const SHIPMENT_PAGE_SIZE = 25;
+const SHIPMENT_LIST_COLUMNS =
+  'id, tracking_number, mode, service_name, status, commodity, origin, destination, shipper_company, consignee_company, sender_name, receiver_name, receiver_phone, gross_weight_kg, chargeable_weight_kg, pieces, total_npr, created_at, updated_at';
+const SHIPMENT_SEARCH_COLUMNS = ['tracking_number', 'receiver_name', 'sender_name', 'receiver_phone', 'consignee_company', 'shipper_company', 'destination'];
+
+/** Search text made safe for PostgREST's or() filter, where , ( ) are separators and * % are wildcards. */
+export function shipmentSearchTerm(q: string): string {
+  return q.replace(/[,()*%\\"]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+export class ShipmentConflictError extends Error {
+  constructor() {
+    super('Someone else changed this shipment after you opened it.');
+  }
+}
+
+/** Tracking updates in event order; an unreadable time sorts last, ties keep their entry order. */
+export function orderMilestones<T extends { timestamp: string; sort_order: number }>(list: T[]): T[] {
+  const t = (m: T) => {
+    const n = Date.parse(m.timestamp);
+    return Number.isNaN(n) ? Infinity : n;
+  };
+  return [...list].sort((a, b) => t(a) - t(b) || a.sort_order - b.sort_order);
+}
+
+/** A tracking change counts as a shipment change: public "last updated", the Today page and the stale filter read updated_at. */
+async function touchShipment(id: string): Promise<void> {
+  const { error } = await supabase.from('shipments').update({ updated_at: new Date().toISOString() }).eq('id', id);
+  if (error) throw new AdminServiceError(error.message, error);
+}
+
 export const adminDataService = {
   // ---------------------------------------------------------------------------
   // AUDIT LOGGING HELPER
@@ -68,15 +99,22 @@ export const adminDataService = {
   // ---------------------------------------------------------------------------
   // SHIPMENTS & MILESTONES
   // ---------------------------------------------------------------------------
-  async fetchShipments(): Promise<AdminShipment[]> {
+  /** One page of the shipment list, filtered and searched in the database. Leaves out the bill JSON. */
+  async fetchShipmentsPage(f: { q: string; status: string; stale: boolean; page: number }): Promise<{ rows: AdminShipment[]; total: number }> {
     ensureConfigured();
-    const { data, error } = await supabase
+    let query = supabase
       .from('shipments')
-      .select('*')
-      .order('created_at', { ascending: false });
-
+      .select(SHIPMENT_LIST_COLUMNS, { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(f.page * SHIPMENT_PAGE_SIZE, f.page * SHIPMENT_PAGE_SIZE + SHIPMENT_PAGE_SIZE - 1);
+    const q = shipmentSearchTerm(f.q);
+    if (q) query = query.or(SHIPMENT_SEARCH_COLUMNS.map((c) => `${c}.ilike.*${q}*`).join(','));
+    if (f.status !== 'all') query = query.eq('status', f.status);
+    // Same rule as the Today page: open, nothing changed for 3 days (tracking updates touch updated_at).
+    if (f.stale) query = query.not('status', 'in', '(delivered,cancelled)').lt('updated_at', new Date(Date.now() - 3 * 86400000).toISOString());
+    const { data, error, count } = await query;
     if (error) throw new AdminServiceError(error.message, error);
-    return data || [];
+    return { rows: (data as unknown as AdminShipment[]) || [], total: count ?? 0 };
   },
 
   // ---------------------------------------------------------------------------
@@ -122,17 +160,22 @@ export const adminDataService = {
     return data;
   },
 
-  async updateShipment(id: string, updates: Partial<AdminShipment>): Promise<AdminShipment> {
+  /**
+   * Saves only if nobody changed the shipment since it was loaded (`loadedAt` = its updated_at then).
+   * Throws ShipmentConflictError otherwise, so one person's save never silently overwrites another's.
+   */
+  async updateShipment(id: string, updates: Partial<AdminShipment>, loadedAt: string): Promise<AdminShipment> {
     ensureConfigured();
     const { data, error } = await supabase
       .from('shipments')
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', id)
-      .select()
-      .single();
+      .eq('updated_at', loadedAt)
+      .select();
 
     if (error) throw new AdminServiceError(error.message, error);
-    return data;
+    if (!data?.length) throw new ShipmentConflictError();
+    return data[0];
   },
 
   async deleteShipment(id: string, _trackingNumber: string): Promise<void> {
@@ -147,28 +190,37 @@ export const adminDataService = {
       .from('shipment_milestones')
       .select('*')
       .eq('shipment_id', shipmentId)
-      .order('sort_order', { ascending: true });
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true });
 
     if (error) throw new AdminServiceError(error.message, error);
     return data || [];
   },
 
-  async createMilestone(milestone: Omit<AdminMilestone, 'id'>): Promise<AdminMilestone> {
+  /**
+   * Adds a tracking update, then renumbers sort_order by event time: public tracking lists updates by
+   * sort_order, so a back-dated update lands in the right place. Returns the list in that order.
+   */
+  async createMilestone(milestone: Omit<AdminMilestone, 'id' | 'sort_order'>, existing: AdminMilestone[]): Promise<AdminMilestone[]> {
     ensureConfigured();
-    const { data, error } = await supabase
-      .from('shipment_milestones')
-      .insert(milestone)
-      .select()
-      .single();
-
+    const { data, error } = await supabase.from('shipment_milestones').insert({ ...milestone, sort_order: existing.length + 1 }).select().single();
     if (error) throw new AdminServiceError(error.message, error);
-    return data;
+    const ordered = orderMilestones([...existing, data as AdminMilestone]);
+    for (const [i, m] of ordered.entries()) {
+      if (m.sort_order === i + 1) continue;
+      const { error: e } = await supabase.from('shipment_milestones').update({ sort_order: i + 1 }).eq('id', m.id);
+      if (e) throw new AdminServiceError(e.message, e);
+      m.sort_order = i + 1;
+    }
+    await touchShipment(milestone.shipment_id);
+    return ordered;
   },
 
-  async deleteMilestone(id: string, _shipmentId: string): Promise<void> {
+  async deleteMilestone(id: string, shipmentId: string): Promise<void> {
     ensureConfigured();
     const { error } = await supabase.from('shipment_milestones').delete().eq('id', id);
     if (error) throw new AdminServiceError(error.message, error);
+    await touchShipment(shipmentId);
   },
 
   // ---------------------------------------------------------------------------
