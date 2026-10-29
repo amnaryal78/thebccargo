@@ -365,3 +365,18 @@ Decided during phase 1:
 - **`friendlyError`:** `AdminServiceError` now carries a plain sentence (raw error kept in `.details`). Bookings and Feedback (direct calls) use it too. A permission failure reads "You don't have permission to change this…".
 - **Dev-only preview:** `/admin?previewRole=<role>` renders the admin as that role without signing in (`src/dev/AdminPreview.tsx`, loaded only when `import.meta.env.DEV`). Verified absent from the production build: the param is ignored there and redirects to sign-in, and no served script contains it.
 - **Deferred to the phase that first uses them** (no unused components): `AdminPage`, `AdminTable`, `AdminFilterBar`, `AdminDrawer`, `AdminFormSection`, `AdminStatCard`. Page bodies are unchanged (old headers and all-caps remain until their phase).
+
+## Phase 4 log (2026-10-30)
+
+- **Migration `20261030000007_today_dashboard`:** `get_today_dashboard()` returns every Today figure in one call (counts only, Nepal day).
+  - Chats go only to message staff, job applications to careers roles, and today's activity to audit-log readers; resellers and anonymous callers are refused.
+  - Tested on live in a rolled-back transaction with seeded data for operations, editor, support, analyst, reseller and anon. **Not applied yet.**
+  - Found: all 3 live shipments are open with no update for 3+ days.
+- **Today page** (`overview/AdminOverviewTab.tsx`) replaces the old overview (vanity totals, full-table downloads, all-caps cards).
+  - **Greeting:** a sentence in Nepal time.
+  - **Needs action:** each row links to its list and shows how long the oldest item has waited; zero items collapse into one "Clear:" line, and a fully clear day says so.
+  - **Today's activity:** created / tracking updates / delivered, plus who did what.
+  - **Website prices:** live sheet vs saved copy vs browser fallback, last sync and row count, with a warning only when the site is actually on a copy older than a day.
+  - **States:** loading skeleton and a plain-language error state with Try again.
+- `fetchOverviewMetrics` (six full-table downloads) is replaced by `fetchTodayDashboard` (one RPC). `friendlyError` permission wording is now "do this" (it is shown for refused reads too).
+- **Not covered:** the "no update for 3 days" row links to all shipments, because the list has no such filter yet (phase 5). There is no "problem" shipment status in the data model, so no Problems tile (statuses are pending, in transit, customs cleared, out for delivery, delivered, cancelled).

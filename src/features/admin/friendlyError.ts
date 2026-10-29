@@ -8,7 +8,7 @@ export function friendlyError(raw: unknown): string {
   const code = e?.code ?? '';
 
   if (code === '42501' || /row-level security|permission denied|not authorized/i.test(msg))
-    return "You don't have permission to change this. If you need to, ask a super admin.";
+    return "You don't have permission to do this. If you need to, ask a super admin.";
   if (code === '23505' || /duplicate key|unique constraint/i.test(msg))
     return 'This already exists (duplicate). Change the number or name and try again.';
   if (code === '23503' || /foreign key/i.test(msg))

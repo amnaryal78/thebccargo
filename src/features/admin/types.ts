@@ -388,3 +388,28 @@ export interface AdminAuditLog {
   metadata: Record<string, any> | null;
   created_at: string;
 }
+
+/** Shape of get_today_dashboard(). A null figure means this role may not see that data. */
+export interface TodayDashboard {
+  generated_at: string;
+  needs_action: {
+    bookings_new: number;
+    bookings_oldest: string | null;
+    chats_waiting: number | null;
+    chats_oldest: string | null;
+    inquiries_new: number;
+    partners_new: number;
+    reviews_pending: number;
+    applications_new: number | null;
+    shipments_stale: number;
+    shipments_open: number;
+  };
+  /** null for roles that cannot read the audit log */
+  today: {
+    shipments_created: number;
+    tracking_updates: number;
+    delivered: number;
+    activity: { created_at: string; actor_email: string | null; action: string; target_entity: string }[];
+  } | null;
+  pricing: { updated_at: string; row_count: number; source: string } | null;
+}

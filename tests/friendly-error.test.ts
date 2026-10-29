@@ -4,7 +4,7 @@ import { friendlyError } from '../src/features/admin/friendlyError';
 describe('friendlyError', () => {
   it('never shows staff the raw database wording', () => {
     expect(friendlyError({ message: 'new row violates row-level security policy for table "user_roles"', code: '42501' }))
-      .toBe("You don't have permission to change this. If you need to, ask a super admin.");
+      .toBe("You don't have permission to do this. If you need to, ask a super admin.");
     expect(friendlyError({ message: 'duplicate key value violates unique constraint "shipments_tracking_number_key"', code: '23505' }))
       .toMatch(/duplicate/); // the bill editor matches /duplicate/ to name the clashing bill number
     expect(friendlyError(new TypeError('Failed to fetch'))).toMatch(/Can't reach the server/);

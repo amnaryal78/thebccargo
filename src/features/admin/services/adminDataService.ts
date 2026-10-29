@@ -16,7 +16,8 @@ import {
   AdminJobApplication,
   AdminUserRole,
   AdminRateSetting,
-  AdminAuditLog
+  AdminAuditLog,
+  TodayDashboard
 } from '../types';
 
 export class AdminServiceError extends Error {
@@ -56,28 +57,12 @@ export const adminDataService = {
   // ---------------------------------------------------------------------------
   // DASHBOARD OVERVIEW METRICS
   // ---------------------------------------------------------------------------
-  async fetchOverviewMetrics() {
+  /** Everything the Today page shows, counted by the database in one call (migration 20261030000007). */
+  async fetchTodayDashboard(): Promise<TodayDashboard> {
     ensureConfigured();
-    const [shipmentsRes, inquiriesRes, appsRes, ratesRes] = await Promise.all([
-      supabase.from('shipments').select('id, status', { count: 'exact' }),
-      supabase.from('inquiries').select('id, status', { count: 'exact' }),
-      supabase.from('job_applications').select('id, status', { count: 'exact' }),
-      supabase.from('national_rates').select('id', { count: 'exact' })
-    ]);
-
-    const activeShipments = (shipmentsRes.data || []).filter(s => s.status !== 'delivered' && s.status !== 'cancelled').length;
-    const newInquiries = (inquiriesRes.data || []).filter(i => i.status === 'new').length;
-    const pendingApps = (appsRes.data || []).filter(a => a.status === 'new' || a.status === 'reviewing').length;
-
-    return {
-      totalShipments: shipmentsRes.count || 0,
-      activeShipments,
-      totalInquiries: inquiriesRes.count || 0,
-      newInquiries,
-      totalApplications: appsRes.count || 0,
-      pendingApps,
-      totalRates: ratesRes.count || 0
-    };
+    const { data, error } = await supabase.rpc('get_today_dashboard');
+    if (error) throw new AdminServiceError(error.message, error);
+    return data as TodayDashboard;
   },
 
   // ---------------------------------------------------------------------------

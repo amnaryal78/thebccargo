@@ -1,326 +1,291 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Package,
-  MessageSquare,
+  AlertTriangle,
   Briefcase,
-  Receipt,
-  ArrowUpRight,
-  RefreshCw,
-  Database,
   CheckCircle2,
-  Clock,
-  Plus
+  ChevronRight,
+  Clock3,
+  Handshake,
+  Inbox,
+  MessageSquare,
+  PackageSearch,
+  RefreshCw,
+  Star,
+  Truck,
 } from 'lucide-react';
+import { Button, ErrorState, Skeleton } from '../../../design/primitives';
+import { fetchSheetRates } from '../../../services/ratesService';
 import { adminDataService } from '../services/adminDataService';
-import { AdminShipment, AdminInquiry } from '../types';
-import { Spotlight } from '../../../components/ui/spotlight';
+import { useMyPermissions } from '../usePermissions';
+import { useAuth } from '../../../context/AuthContext';
+import type { TodayDashboard } from '../types';
+
+const NPT = 'Asia/Kathmandu';
+
+/** "12 min", "3 h", "2 days" since a time. */
+export function waitedFor(iso: string | null, now: number): string | null {
+  if (!iso) return null;
+  const min = Math.max(0, Math.round((now - new Date(iso).getTime()) / 60000));
+  if (min < 60) return `${min} min`;
+  const h = Math.round(min / 60);
+  if (h < 48) return `${h} h`;
+  return `${Math.round(h / 24)} days`;
+}
+
+const greeting = () => {
+  const h = Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hour12: false, timeZone: NPT }).format(new Date()));
+  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+};
+
+/** Audit action → what a person did, in words. */
+const ACTION_WORDS: Record<string, string> = {
+  'shipment.insert': 'created shipment',
+  'shipment.update': 'updated shipment',
+  'shipment.delete': 'deleted shipment',
+  'tracking.insert': 'added a tracking update to',
+  'tracking.update': 'changed a tracking update on',
+  'tracking.delete': 'removed a tracking update from',
+  save_user_role: 'changed staff access for',
+  save_user_profile: 'updated a staff profile',
+  approve_profile_change: 'approved a profile change',
+};
+
+interface ActionRow {
+  key: string;
+  label: string;
+  count: number | null;
+  oldest?: string | null;
+  to: string;
+  icon: React.ComponentType<{ className?: string }>;
+  hint?: string;
+}
 
 export const AdminOverviewTab: React.FC = () => {
-  const [metrics, setMetrics] = useState({
-    totalShipments: 0,
-    activeShipments: 0,
-    totalInquiries: 0,
-    newInquiries: 0,
-    totalApplications: 0,
-    pendingApps: 0,
-    totalRates: 0
-  });
-  const [recentShipments, setRecentShipments] = useState<AdminShipment[]>([]);
-  const [recentInquiries, setRecentInquiries] = useState<AdminInquiry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { user } = useAuth();
+  const permissions = useMyPermissions();
+  const [data, setData] = useState<TodayDashboard | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true); // first load
+  const [refreshing, setRefreshing] = useState(false);
+  const [rateSource, setRateSource] = useState<string | null>(null);
 
-  const loadData = async () => {
+  const load = useCallback(async () => {
     try {
+      setData(await adminDataService.fetchTodayDashboard());
       setError(null);
-      const [m, s, i] = await Promise.all([
-        adminDataService.fetchOverviewMetrics(),
-        adminDataService.fetchShipments(),
-        adminDataService.fetchInquiries()
-      ]);
-      setMetrics(m);
-      setRecentShipments(s.slice(0, 5));
-      setRecentInquiries(i.slice(0, 5));
-    } catch (err: any) {
-      console.error('Failed to load overview:', err);
-      setError(err.message || 'Could not fetch live dashboard metrics.');
+    } catch (e) {
+      setError((e as Error).message);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
+  }, []);
+  const refresh = () => {
+    setRefreshing(true);
+    void load();
   };
 
   useEffect(() => {
-    loadData();
+    let alive = true;
+    adminDataService
+      .fetchTodayDashboard()
+      .then((d) => alive && (setData(d), setError(null)))
+      .catch((e: Error) => alive && setError(e.message))
+      .finally(() => alive && setLoading(false));
+    // Which source the website is pricing from right now (live sheet, cached copy or fallback).
+    fetchSheetRates()
+      .then((p) => setRateSource(p.rates.length ? p.source : 'none'))
+      .catch(() => setRateSource('none'));
+    return () => {
+      alive = false;
+    };
   }, []);
 
-  const handleRefresh = () => {
-    setRefreshing(true);
-    loadData();
+  const name = (user?.email ?? '').split('@')[0];
+  const dateLine = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: NPT }).format(new Date());
+
+  const now = data ? Date.parse(data.generated_at) : 0;
+  const n = data?.needs_action;
+  const rows: ActionRow[] = n
+    ? [
+        { key: 'bookings', label: 'New bookings waiting for a reply', count: n.bookings_new, oldest: n.bookings_oldest, to: '/admin/bookings', icon: Truck },
+        { key: 'chats', label: 'Customer chats waiting for staff', count: n.chats_waiting, oldest: n.chats_oldest, to: '/admin/messages', icon: Inbox },
+        { key: 'inquiries', label: 'New inquiries', count: n.inquiries_new, to: '/admin/inquiries', icon: MessageSquare },
+        { key: 'partners', label: 'New partner requests', count: n.partners_new, to: '/admin/inquiries', icon: Handshake },
+        {
+          key: 'stale',
+          label: 'Shipments with no update for 3 days or more',
+          count: n.shipments_stale,
+          to: '/admin/shipments',
+          icon: PackageSearch,
+          hint: `of ${n.shipments_open} open`,
+        },
+        { key: 'reviews', label: 'Reviews to approve', count: n.reviews_pending, to: '/admin/feedback', icon: Star },
+        { key: 'applications', label: 'New job applications', count: n.applications_new, to: '/admin/careers', icon: Briefcase },
+      ].filter((r) => r.count !== null && (r.key !== 'applications' || permissions.canManageCareers))
+    : [];
+  const waiting = rows.filter((r) => (r.count ?? 0) > 0);
+  const clear = rows.filter((r) => !r.count);
+
+  const pricing = data?.pricing;
+  const syncedAgo = pricing ? waitedFor(pricing.updated_at, now) : null;
+  const stale = pricing ? now - Date.parse(pricing.updated_at) > 24 * 3600_000 : true;
+  const sourceWords: Record<string, string> = {
+    live: 'Live from the Google Sheet',
+    cache_memory: 'Live from the Google Sheet',
+    cache_database: 'Saved copy of the sheet (live sheet not reachable)',
+    local_fallback: 'Copy saved in this browser (live sheet not reachable)',
+    none: 'No prices available',
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
-        <div className="w-8 h-8 border-3 border-ox-900 border-t-transparent rounded-full animate-spin" />
-        <span className="text-xs font-mono text-slate-500 uppercase tracking-wider">Loading...</span>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="flex flex-col gap-8">
+      <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="font-heading font-black text-2xl lg:text-3xl text-slate-900 uppercase tracking-tight">
-              Operational Desk
-            </h1>
-          </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Shipments, inquiries and applications from the database. Use Refresh to reload.
-          </p>
+          <p className="text-[15px] text-slate-600">{dateLine}</p>
+          <h1 className="font-heading font-bold text-[28px] sm:text-[32px] leading-tight tracking-[-0.02em] text-[var(--brand)] text-balance">
+            {greeting()}{name ? `, ${name}` : ''}. Here’s what needs attention today.
+          </h1>
         </div>
+        <Button variant="outline" size="sm" onClick={refresh} isLoading={refreshing} leftIcon={<RefreshCw className="w-4 h-4" />}>
+          Refresh
+        </Button>
+      </header>
 
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-heading font-bold uppercase tracking-wider text-slate-700 hover:bg-slate-50 shadow-hard-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-ox-900' : ''}`} />
-            <span>Refresh</span>
-          </button>
-          
-          <Link
-            to="/admin/shipments"
-            className="px-4 py-2 rounded-xl bg-ox-900 text-white font-heading font-bold text-xs uppercase tracking-wider hover:opacity-95 shadow-hard-xs flex items-center gap-2 transition-all cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>New Shipment</span>
-          </Link>
-        </div>
-      </div>
-
-      {error && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs">
-          {error}
-        </div>
+      {error && !data && (
+        <ErrorState title="Today’s summary didn’t load" description={error} actionLabel="Try again" onAction={refresh} />
       )}
 
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
-        
-        {/* Active Shipments */}
-        <Spotlight
-          intensity="subtle"
-          elevateOnHover
-          className="p-4 rounded-2xl bg-white border border-slate-200 shadow-hard-sm flex flex-col justify-between"
-        >
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-heading font-bold uppercase tracking-wider">Active Cargo</span>
-            <div className="p-2 rounded-xl bg-ox-900/5 text-ox-900">
-              <Package className="w-4 h-4" />
+      {/* Needs action */}
+      <section aria-labelledby="needs-title" className="flex flex-col gap-3">
+        <h2 id="needs-title" className="font-heading font-semibold text-lg text-[var(--text)]">Needs action</h2>
+        <div className="rounded-[var(--r-md)] border border-[var(--line)] bg-white overflow-hidden">
+          {loading && !data ? (
+            <div className="p-4 space-y-3" aria-busy="true" aria-label="Loading">
+              {[0, 1, 2].map((i) => <Skeleton key={i} height={48} />)}
             </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-2xl font-black font-heading text-slate-900">
-              {metrics.activeShipments}
-            </div>
-            <span className="text-[10px] font-mono text-slate-500">
-              of {metrics.totalShipments} total registered consignments
-            </span>
-          </div>
-        </Spotlight>
+          ) : waiting.length === 0 && data ? (
+            <p className="flex items-center gap-3 px-5 py-6 text-[15px] text-[var(--text)]">
+              <CheckCircle2 className="w-5 h-5 text-[var(--success)] shrink-0" aria-hidden="true" />
+              Nothing is waiting. New bookings, chats and inquiries will appear here.
+            </p>
+          ) : (
+            <ul className="divide-y divide-[var(--line)]">
+              {waiting.map((r) => {
+                const Icon = r.icon;
+                const age = waitedFor(r.oldest ?? null, now);
+                return (
+                  <li key={r.key}>
+                    <Link to={r.to} className="group flex items-center gap-4 px-4 sm:px-5 py-3.5 hover:bg-[var(--ox-50)] focus-visible:outline-none focus-visible:bg-[var(--ox-50)]">
+                      <span className="grid place-items-center w-10 h-10 rounded-[var(--r-sm)] bg-[var(--gd-100)] text-[var(--gd-800)] shrink-0">
+                        <Icon className="w-5 h-5" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[15px] font-semibold text-[var(--text)]">{r.label}</span>
+                        <span className="block text-[13px] text-slate-600">
+                          {age ? `Oldest waiting ${age}` : r.hint ?? 'Open the list'}
+                        </span>
+                      </span>
+                      <span className="font-heading font-bold text-2xl tabular-nums text-[var(--brand)]">{r.count}</span>
+                      <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[var(--brand)] shrink-0" aria-hidden="true" />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {clear.length > 0 && data && waiting.length > 0 && (
+            <p className="px-5 py-3 border-t border-[var(--line)] text-[13px] text-slate-600 bg-[var(--surface-subtle)]">
+              Clear: {clear.map((r) => r.label.toLowerCase()).join(', ')}.
+            </p>
+          )}
+        </div>
+      </section>
 
-        {/* New Inquiries */}
-        <Spotlight
-          intensity="subtle"
-          elevateOnHover
-          className="p-4 rounded-2xl bg-white border border-slate-200 shadow-hard-sm flex flex-col justify-between"
-        >
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-heading font-bold uppercase tracking-wider">New Inquiries</span>
-            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600">
-              <MessageSquare className="w-4 h-4" />
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        {/* Today's activity: audit roles only */}
+        {data?.today && (
+          <section aria-labelledby="activity-title" className="flex flex-col gap-3 min-w-0">
+            <h2 id="activity-title" className="font-heading font-semibold text-lg text-[var(--text)]">Today’s activity</h2>
+            <div className="rounded-[var(--r-md)] border border-[var(--line)] bg-white">
+              <dl className="grid grid-cols-3 divide-x divide-[var(--line)] border-b border-[var(--line)]">
+                {[
+                  ['Shipments created', data.today.shipments_created],
+                  ['Tracking updates', data.today.tracking_updates],
+                  ['Delivered', data.today.delivered],
+                ].map(([label, value]) => (
+                  <div key={label as string} className="px-4 py-3">
+                    <dt className="text-[13px] text-slate-600">{label}</dt>
+                    <dd className="font-heading font-bold text-2xl tabular-nums text-[var(--brand)]">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+              {data.today.activity.length === 0 ? (
+                <p className="px-5 py-5 text-[14px] text-slate-600">No changes yet today. Shipments, tracking updates and staff changes will be listed here.</p>
+              ) : (
+                <ol className="divide-y divide-[var(--line)]">
+                  {data.today.activity.map((a, i) => {
+                    const target = a.target_entity.replace(/^shipments:/, '');
+                    const isShipment = a.target_entity.startsWith('shipments:');
+                    return (
+                      <li key={i} className="flex gap-3 px-4 sm:px-5 py-3 text-[14px]">
+                        <time dateTime={a.created_at} className="w-12 shrink-0 tabular-nums text-slate-500">
+                          {new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: NPT }).format(new Date(a.created_at))}
+                        </time>
+                        <p className="min-w-0 [overflow-wrap:anywhere] text-[var(--text)]">
+                          <span className="font-semibold">{a.actor_email ? a.actor_email.split('@')[0] : 'System'}</span>{' '}
+                          {ACTION_WORDS[a.action] ?? a.action.replace(/[._]/g, ' ')}{' '}
+                          {isShipment ? <span className="font-mono font-semibold">{target}</span> : null}
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ol>
+              )}
             </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-2xl font-black font-heading text-blue-600">
-              {metrics.newInquiries}
-            </div>
-            <span className="text-[10px] font-mono text-slate-500">
-              {metrics.totalInquiries} total customer quotes &amp; contacts
-            </span>
-          </div>
-        </Spotlight>
+          </section>
+        )}
 
-        {/* Job Applications */}
-        <Spotlight
-          intensity="subtle"
-          elevateOnHover
-          className="p-4 rounded-2xl bg-white border border-slate-200 shadow-hard-sm flex flex-col justify-between"
-        >
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-heading font-bold uppercase tracking-wider">Applications</span>
-            <div className="p-2 rounded-xl bg-[var(--gd-500)]/15 text-[var(--gd-800)]">
-              <Briefcase className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-2xl font-black font-heading text-slate-900">
-              {metrics.pendingApps}
-            </div>
-            <span className="text-[10px] font-mono text-slate-500">
-              candidates pending resume review
-            </span>
-          </div>
-        </Spotlight>
-
-        {/* Rate Corridors */}
-        <Spotlight
-          intensity="subtle"
-          elevateOnHover
-          className="p-4 rounded-2xl bg-white border border-slate-200 shadow-hard-sm flex flex-col justify-between"
-        >
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-heading font-bold uppercase tracking-wider">Tariff Corridors</span>
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600">
-              <Receipt className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-2xl font-black font-heading text-slate-900">
-              {metrics.totalRates}
-            </div>
-            <span className="text-[10px] font-mono text-slate-500">
-              national &amp; global price matrices
-            </span>
-          </div>
-        </Spotlight>
-
-      </div>
-
-      {/* Tables Grid: Recent Shipments & Inquiries */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        {/* Recent Shipments */}
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-hard-sm overflow-hidden flex flex-col">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Package className="w-4 h-4 text-ox-900" />
-              <h2 className="font-heading font-bold text-sm text-slate-900 uppercase tracking-wider">
-                Recent Consignments
-              </h2>
-            </div>
-            <Link
-              to="/admin/shipments"
-              className="text-xs font-bold text-ox-900 hover:underline flex items-center gap-1"
-            >
-              <span>View All</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="p-2 divide-y divide-slate-100 overflow-x-auto">
-            {recentShipments.length === 0 ? (
-              <div className="p-6 text-center text-xs text-slate-500 font-mono">
-                No shipments recorded yet. Create one above.
-              </div>
+        {/* Pricing health */}
+        <section aria-labelledby="pricing-title" className="flex flex-col gap-3 min-w-0">
+          <h2 id="pricing-title" className="font-heading font-semibold text-lg text-[var(--text)]">Website prices</h2>
+          <div className="rounded-[var(--r-md)] border border-[var(--line)] bg-white p-5 flex flex-col gap-3">
+            {loading && !data ? (
+              <Skeleton height={64} />
             ) : (
-              recentShipments.map((s) => (
-                <div key={s.id} className="p-3 flex items-center justify-between gap-3 hover:bg-slate-50 rounded-xl transition-colors">
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-mono font-bold text-xs text-slate-900 tracking-wider">
-                      {s.tracking_number}
-                    </span>
-                    <span className="text-[11px] text-slate-500 truncate">
-                      {s.origin} ➔ {s.destination} ({s.mode})
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-slate-100 text-slate-700">
-                      {s.status.replace(/_/g, ' ')}
-                    </span>
-                  </div>
-                </div>
-              ))
+              <>
+                <p className="flex items-start gap-2.5 text-[15px] font-semibold text-[var(--text)]">
+                  {rateSource && rateSource !== 'live' && rateSource !== 'cache_memory' ? (
+                    <AlertTriangle className="w-5 h-5 mt-0.5 shrink-0 text-[var(--warning)]" aria-hidden="true" />
+                  ) : (
+                    <CheckCircle2 className="w-5 h-5 mt-0.5 shrink-0 text-[var(--success)]" aria-hidden="true" />
+                  )}
+                  {rateSource ? sourceWords[rateSource] ?? rateSource : 'Checking the price source…'}
+                </p>
+                {pricing ? (
+                  <p className="flex items-center gap-2 text-[14px] text-slate-600">
+                    <Clock3 className="w-4 h-4 shrink-0" aria-hidden="true" />
+                    Last synced {syncedAgo} ago · {pricing.row_count} price rows
+                  </p>
+                ) : (
+                  <p className="text-[14px] text-slate-600">No saved copy of the rate sheet yet.</p>
+                )}
+                {stale && pricing && rateSource !== 'live' && rateSource !== 'cache_memory' && (
+                  <p className="rounded-[var(--r-sm)] bg-[var(--warning-bg)] px-3 py-2 text-[14px] text-[var(--warning)]">
+                    The website is using a copy saved more than a day ago. Prices changed in the sheet since then are not shown yet.
+                  </p>
+                )}
+                {permissions.canManageRates && (
+                  <Link to="/admin/rates" className="self-start text-[14px] font-semibold text-[var(--brand)] underline underline-offset-4">
+                    Open rates
+                  </Link>
+                )}
+              </>
             )}
           </div>
-        </div>
-
-        {/* Recent Inquiries */}
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-hard-sm overflow-hidden flex flex-col">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-blue-600" />
-              <h2 className="font-heading font-bold text-sm text-slate-900 uppercase tracking-wider">
-                Recent Inquiries
-              </h2>
-            </div>
-            <Link
-              to="/admin/inquiries"
-              className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
-            >
-              <span>Manage</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="p-2 divide-y divide-slate-100 overflow-x-auto">
-            {recentInquiries.length === 0 ? (
-              <div className="p-6 text-center text-xs text-slate-500 font-mono">
-                No customer inquiries received yet.
-              </div>
-            ) : (
-              recentInquiries.map((i) => (
-                <div key={i.id} className="p-3 flex items-center justify-between gap-3 hover:bg-slate-50 rounded-xl transition-colors">
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-semibold text-xs text-slate-900 truncate">
-                      {i.name}
-                    </span>
-                    <span className="text-[11px] text-slate-500 truncate">
-                      {i.subject || i.message.slice(0, 45)}
-                    </span>
-                  </div>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
-                    i.status === 'new'
-                      ? 'bg-blue-500/15 text-blue-600 font-extrabold'
-                      : 'bg-slate-100 text-slate-600'
-                  }`}>
-                    {i.status}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
+        </section>
       </div>
-
-      {/* System Health Footer */}
-      <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-hard-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <Database className="w-4 h-4 text-emerald-500" />
-          <div className="flex flex-col">
-            <span className="text-xs font-heading font-bold text-slate-900">
-              Database Connection: Supabase Active
-            </span>
-            <span className="text-[10px] font-mono text-slate-500">
-              Host: xtipmcthdyyubohspjro.supabase.co · PostgreSQL RLS Active
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-          <span>Role-Based Access Verified</span>
-        </div>
-      </div>
-
     </div>
   );
 };
