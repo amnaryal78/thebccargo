@@ -98,7 +98,7 @@ Mismatches between browser flags and the database:
 - **read_only:** the UI shows the audit log, but the database denies it.
 - **operations and support:** no notifications in the database.
 - **custom roles:** the UI grants them, but the database ignores them.
-- **support:** the UI hides bookings and feedback actions? No: those screens have no gate at all, and the database allows support to write.
+- **bookings and feedback:** these screens have no gate in the UI. The database allows support to write, so it is consistent today, but only by accident.
 - **editor on how-to-ship:** consistent (the earlier audit said it was a mismatch; this was wrong and is corrected here).
 
 ## 5. Business-critical logic (preserve)
