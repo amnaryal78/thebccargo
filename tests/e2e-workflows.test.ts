@@ -205,7 +205,7 @@ describe('Phase 7 — End-to-End Core Workflows Acceptance Suite', () => {
       expect(anonPerms.canViewDashboard).toBe(false);
       expect(anonPerms.canManageShipments).toBe(false);
 
-      const readOnlyPerms = getRolePermissions('read_only');
+      const readOnlyPerms = getRolePermissions('analyst');
       expect(readOnlyPerms.canViewDashboard).toBe(true);
       expect(readOnlyPerms.canManageShipments).toBe(false);
       expect(readOnlyPerms.canManageRates).toBe(false);

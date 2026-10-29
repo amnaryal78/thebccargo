@@ -1,34 +1,31 @@
 import React, { useRef, useState } from 'react';
 import { X, Camera, Loader2 } from 'lucide-react';
 import { adminDataService } from '../services/adminDataService';
-import { AdminCustomRole, AdminUserRole, AdminProfileFields, ROLE_SUMMARY } from '../types';
+import { AdminUserRole, AdminProfileFields, ROLE_SUMMARY } from '../types';
 import { Avatar } from './Avatar';
 
 type Role = AdminUserRole['role'];
 
-export const ASSIGNABLE_ROLES: Role[] = ['admin', 'operations', 'editor', 'support', 'read_only', 'reseller'];
-export const roleLabel = (r: Role) => r.replace('_', ' ');
+export const ASSIGNABLE_ROLES: Role[] = ['admin', 'operations', 'editor', 'support', 'analyst', 'reseller'];
+export const roleLabel = (r: Role) => (r === 'analyst' ? 'read only' : r.replace('_', ' '));
 
 interface Props {
   person: AdminUserRole | null; // null = adding someone new
-  customRoles: AdminCustomRole[];
-  assignedRoleIds: string[];
   lockRole: boolean; // super admins and your own row keep their role
   profileReady: boolean; // false until the staff-profiles migration is applied
   onClose: () => void;
-  onSaved: (saved: AdminUserRole, roleIds: string[]) => void;
+  onSaved: (saved: AdminUserRole) => void;
 }
 
 const input = 'w-full min-h-[44px] px-3 rounded-xl border border-[var(--line-strong)] bg-white text-[var(--ox-900)] placeholder:text-slate-500';
 const label = 'block text-sm font-semibold text-[var(--ox-900)]';
 
 /** One form for adding or editing a person: who they are, their base role and any custom roles. */
-export const PersonDialog: React.FC<Props> = ({ person, customRoles, assignedRoleIds, lockRole, profileReady, onClose, onSaved }) => {
+export const PersonDialog: React.FC<Props> = ({ person, lockRole, profileReady, onClose, onSaved }) => {
   const isNew = !person;
   const fileRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState(person?.email ?? '');
   const [role, setRole] = useState<Role>(person?.role ?? 'operations');
-  const [roleIds, setRoleIds] = useState<string[]>(assignedRoleIds);
   const [profile, setProfile] = useState<Partial<AdminProfileFields>>({
     full_name: person?.full_name ?? '',
     phone: person?.phone ?? '',
@@ -71,8 +68,7 @@ export const PersonDialog: React.FC<Props> = ({ person, customRoles, assignedRol
         const avatar_url = photo ? await adminDataService.uploadAvatar(photo, saved.id) : profile.avatar_url;
         saved = await adminDataService.saveUserProfile(saved.id, saved.email, { ...profile, avatar_url });
       }
-      if (customRoles.length) await adminDataService.setRoleAssignments(saved.id, saved.email, roleIds);
-      onSaved(saved, roleIds);
+      onSaved(saved);
     } catch (err: any) {
       setError(err.message || 'Could not save.');
     } finally {
@@ -151,21 +147,6 @@ export const PersonDialog: React.FC<Props> = ({ person, customRoles, assignedRol
             </>
           )}
         </div>
-
-        {customRoles.length > 0 && (
-          <fieldset className="space-y-2">
-            <legend className={label}>Extra custom roles</legend>
-            <p className="text-xs text-slate-600">Each one adds its pages on top of the base role.</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {customRoles.map((r) => (
-                <label key={r.id} className="flex items-center gap-3 min-h-[44px] px-3 rounded-xl border border-[var(--line-strong)] bg-white cursor-pointer has-[:checked]:bg-[var(--gd-50)] has-[:checked]:border-[var(--gd-500)]">
-                  <input type="checkbox" checked={roleIds.includes(r.id)} onChange={() => setRoleIds((ids) => (ids.includes(r.id) ? ids.filter((x) => x !== r.id) : [...ids, r.id]))} className="w-4 h-4 accent-[var(--ox-900)]" />
-                  <span className="text-sm text-[var(--ox-900)]">{r.name}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-        )}
 
         {profileReady && (
           <div className="space-y-2">

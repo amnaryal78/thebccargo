@@ -18,8 +18,8 @@ describe('Phase 6 — Admin RBAC Role Matrix & Access Control', () => {
     expect(permissions.isReadOnly).toBe(true);
   });
 
-  it('restricts read_only role to observation only: no mutating actions allowed', () => {
-    const permissions = getRolePermissions('read_only');
+  it('restricts the view-only (analyst) role to observation only: no mutating actions allowed', () => {
+    const permissions = getRolePermissions('analyst');
 
     expect(permissions.canViewDashboard).toBe(true);
     expect(permissions.isReadOnly).toBe(true);

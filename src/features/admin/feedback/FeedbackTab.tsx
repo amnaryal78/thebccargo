@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Check, EyeOff, Star, Trash2 } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 import { useAdminNotifications } from '../notifications/NotificationsContext';
+import { AdminPermissionGate } from '../AdminPermissionGate';
 
 interface AdminReview {
   id: string;
@@ -107,6 +108,7 @@ export const FeedbackTab: React.FC = () => {
               <span className="text-xs opacity-60">
                 {new Date(r.createdAt).toLocaleString()} · {r.approved ? 'Shown on website' : 'Hidden'}
               </span>
+              <AdminPermissionGate needs="canManageInquiries">
               <div className="flex gap-2">
                 {r.approved ? (
                   <button
@@ -136,6 +138,7 @@ export const FeedbackTab: React.FC = () => {
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
+              </AdminPermissionGate>
             </div>
           </li>
         ))}

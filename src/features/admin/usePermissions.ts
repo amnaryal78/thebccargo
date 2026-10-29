@@ -1,12 +1,9 @@
 import { useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getRolePermissions, mergePermissions, type RolePermissions } from './types';
+import { getRolePermissions, type RolePermissions } from './types';
 
-/** What the signed-in person can do: their base role plus any custom roles. */
+/** What the signed-in person can do. Mirrors the role lists in the RLS policies (see tests/permissions.test.ts). */
 export function useMyPermissions(): RolePermissions {
-  const { role, customPermissions } = useAuth();
-  return useMemo(
-    () => mergePermissions(getRolePermissions(role), customPermissions as Partial<RolePermissions>[]),
-    [role, customPermissions],
-  );
+  const { role } = useAuth();
+  return useMemo(() => getRolePermissions(role), [role]);
 }

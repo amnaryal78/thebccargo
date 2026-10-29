@@ -4,18 +4,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
  * Permission maps from the custom roles assigned to the signed-in person.
  * Returns [] when the custom-roles migration has not been applied yet, so sign-in is never affected.
  */
-export async function fetchCustomRolePermissions(): Promise<Record<string, boolean>[]> {
-  try {
-    const { data, error } = await supabase.rpc('get_my_admin_access');
-    if (error || !data) return [];
-    const roles = (data as { custom_roles?: { permissions?: Record<string, boolean> }[] }).custom_roles ?? [];
-    return roles.map((r) => r.permissions ?? {});
-  } catch {
-    return [];
-  }
-}
-
-export type UserRoleType = 'super_admin' | 'admin' | 'editor' | 'operations' | 'support' | 'read_only' | 'reseller';
+export type UserRoleType = 'super_admin' | 'admin' | 'editor' | 'operations' | 'support' | 'analyst' | 'reseller';
 
 export interface UserRoleRecord {
   id: string;

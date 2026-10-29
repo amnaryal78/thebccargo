@@ -119,7 +119,7 @@ export function getRolePermissions(role: AdminRole | null): RolePermissions {
         canViewAuditLogs: false,
         isReadOnly: false,
       };
-    case 'read_only':
+    case 'analyst': // the database role for view-only staff (there is no read_only role in user_role)
     default:
       return {
         canViewDashboard: true,
@@ -137,25 +137,6 @@ export function getRolePermissions(role: AdminRole | null): RolePermissions {
         isReadOnly: true,
       };
   }
-}
-
-/**
- * Effective access = base role plus every custom role the person holds. Any grant wins;
- * a person stays view-only only while none of their roles lets them change something.
- */
-export function mergePermissions(base: RolePermissions, extras: Partial<RolePermissions>[]): RolePermissions {
-  if (!extras.length) return base;
-  const merged = { ...base };
-  let grantsWrite = false;
-  for (const extra of extras) {
-    for (const key of Object.keys(extra) as (keyof RolePermissions)[]) {
-      if (key === 'isReadOnly' || !extra[key]) continue;
-      merged[key] = true;
-      if (key.startsWith('canManage')) grantsWrite = true;
-    }
-  }
-  merged.isReadOnly = base.isReadOnly && !grantsWrite;
-  return merged;
 }
 
 /** Plain-language names for each permission flag, used to show what a role can open. */
@@ -179,7 +160,7 @@ export const ROLE_SUMMARY: Record<AdminRole, string> = {
   operations: 'Shipments, tracking updates and inquiries',
   editor: 'Blogs, how-to-ship guides and careers',
   support: 'Customer inquiries only',
-  read_only: 'Can look but not change anything',
+  analyst: 'Can look but not change anything',
   reseller: 'Sees reseller rates. No admin access',
 };
 
@@ -387,15 +368,7 @@ export interface AdminProfileRequest {
   decided_by: string | null;
   decided_at: string | null;
   created_at: string;
-}
 
-export interface AdminCustomRole {
-  id: string;
-  name: string;
-  description: string | null;
-  permissions: Partial<Record<keyof RolePermissions, boolean>>;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface AdminRateSetting {

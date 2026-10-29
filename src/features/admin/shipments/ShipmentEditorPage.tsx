@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowLeft, Calculator, Check, CircleAlert, CircleDot, Fi
 import { Spotlight } from '../../../components/ui/spotlight';
 import { adminDataService } from '../services/adminDataService';
 import { useMyPermissions } from '../usePermissions';
+import { roleLabel } from '../users/PersonDialog';
 import { useAuth } from '../../../context/AuthContext';
 import { COUNTRIES } from '../../../data/countries';
 import { useEstimatorData } from '../../estimator/useEstimatorData';
@@ -717,7 +718,7 @@ export const ShipmentEditorPage: React.FC = () => {
       <div className={`${card} max-w-xl mx-auto text-center space-y-3`}>
         <span className="mx-auto w-12 h-12 rounded-2xl bg-[#FFF6D8] text-[#8C6400] inline-flex items-center justify-center" aria-hidden="true"><Lock className="w-6 h-6" /></span>
         <h1 className="font-heading font-extrabold text-xl text-ox-900">You can view shipments, not edit them</h1>
-        <p className="text-sm text-slate-700">Your role is <strong>{role || 'Staff'}</strong>. Creating and editing shipments needs the Admin or Manager role. Ask an admin to change your role in Users &amp; Roles.</p>
+        <p className="text-sm text-slate-700">Your role is <strong>{role ? roleLabel(role) : 'Staff'}</strong>. Creating and editing shipments needs the Admin or Manager role. Ask an admin to change your role in Users &amp; Roles.</p>
         <button type="button" onClick={() => navigate('/admin/shipments')} className={btnPrimary}><ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to shipments</button>
       </div>
     );

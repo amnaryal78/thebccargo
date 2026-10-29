@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { UserPlus, ShieldCheck, Trash2, Pencil, X, Check, Loader2, Phone } from 'lucide-react';
 import { adminDataService } from '../services/adminDataService';
-import { AdminUserRole, AdminCustomRole, ResellerStats, getRolePermissions, PERMISSION_LABELS, ROLE_SUMMARY } from '../types';
+import { AdminUserRole, ResellerStats, getRolePermissions, PERMISSION_LABELS, ROLE_SUMMARY } from '../types';
 import { useAuth } from '../../../context/AuthContext';
 import { useMyPermissions } from '../usePermissions';
 import { Avatar } from './Avatar';
-import { CustomRolesPanel } from './CustomRolesPanel';
 import { RequestsPanel } from './RequestsPanel';
 import { PersonDialog, ASSIGNABLE_ROLES, roleLabel } from './PersonDialog';
 
@@ -47,12 +46,9 @@ export const UsersTab: React.FC = () => {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const [dialog, setDialog] = useState<{ person: AdminUserRole | null } | null>(null);
-  const [tab, setTab] = useState<'people' | 'roles' | 'requests'>('people');
+  const [tab, setTab] = useState<'people' | 'requests'>('people');
   const [pendingRequests, setPendingRequests] = useState(0);
-  const [customRoles, setCustomRoles] = useState<AdminCustomRole[]>([]);
-  const [assignments, setAssignments] = useState<Record<string, string[]>>({});
   // True until the custom-roles / profiles migration has been applied to the database.
-  const [extrasUnavailable, setExtrasUnavailable] = useState(false);
 
   const [pendingDelete, setPendingDelete] = useState<AdminUserRole | null>(null);
   const [pendingPause, setPendingPause] = useState<AdminUserRole | null>(null);
@@ -70,13 +66,6 @@ export const UsersTab: React.FC = () => {
         setError(null);
         setUserRoles(await adminDataService.fetchUserRoles());
         void adminDataService.fetchResellerStats().then(setResellerStats);
-        try {
-          const [roles, map] = await Promise.all([adminDataService.fetchCustomRoles(), adminDataService.fetchRoleAssignments()]);
-          setCustomRoles(roles);
-          setAssignments(map);
-        } catch {
-          setExtrasUnavailable(true);
-        }
       } catch (err: any) {
         setError(err.message || 'Failed to fetch user roles.');
       } finally {
@@ -88,10 +77,9 @@ export const UsersTab: React.FC = () => {
   const upsertLocal = (saved: AdminUserRole) =>
     setUserRoles((prev) => (prev.some((u) => u.id === saved.id) ? prev.map((u) => (u.id === saved.id ? saved : u)) : [saved, ...prev]));
 
-  const handleSaved = (saved: AdminUserRole, roleIds: string[]) => {
+  const handleSaved = (saved: AdminUserRole) => {
     const wasNew = !userRoles.some((u) => u.id === saved.id);
     upsertLocal(saved);
-    setAssignments((a) => ({ ...a, [saved.id]: roleIds }));
     setDialog(null);
     flash(wasNew ? `${saved.email} can now sign in.` : 'Profile saved.');
   };
@@ -203,17 +191,6 @@ export const UsersTab: React.FC = () => {
     </div>
   );
 
-  const ExtraRoles = ({ u }: { u: AdminUserRole }): React.ReactElement | null => {
-    const ids = assignments[u.id] ?? [];
-    if (!ids.length) return null;
-    return (
-      <div className="flex flex-wrap gap-1.5">
-        {ids.map((id) => customRoles.find((r) => r.id === id)).filter(Boolean).map((r) => (
-          <span key={r!.id} className="px-2 py-0.5 rounded-full bg-[var(--gd-50)] border border-[var(--gd-300)] text-[11px] font-semibold text-[var(--gd-800)]">{r!.name}</span>
-        ))}
-      </div>
-    );
-  };
 
   const StatusBadge: React.FC<{ active: boolean }> = ({ active }) => (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${active ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-700'}`}>
@@ -255,7 +232,7 @@ export const UsersTab: React.FC = () => {
       )}
 
       <div role="tablist" aria-label="Users and roles" className="inline-flex p-1 rounded-2xl bg-[var(--surface-muted)] shadow-[var(--clay-inset)]">
-        {([['people', 'People'], ['roles', 'Custom roles'], ['requests', 'Requests']] as const).map(([k, l]) => (
+        {([['people', 'People'], ['requests', 'Requests']] as const).map(([k, l]) => (
           <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`min-h-[40px] px-4 rounded-xl text-sm font-bold transition cursor-pointer ${tab === k ? 'bg-white text-[var(--ox-900)] shadow-[var(--shadow-hard-xs)]' : 'text-slate-600 hover:text-[var(--ox-900)]'}`}>
             {l}
             {k === 'requests' && pendingRequests > 0 && <span className="ml-2 inline-grid place-items-center min-w-[20px] h-5 px-1.5 rounded-full bg-[var(--gd-500)] text-[var(--ox-900)] text-[11px] font-bold">{pendingRequests}</span>}
@@ -272,10 +249,6 @@ export const UsersTab: React.FC = () => {
 
       {tab === 'requests' && (
         <RequestsPanel canDecide={canEdit} decidedBy={user?.email || ''} onMessage={flash} onError={setError} onPendingCount={setPendingRequests} />
-      )}
-
-      {tab === 'roles' && (
-        <CustomRolesPanel roles={customRoles} canEdit={canEdit} unavailable={extrasUnavailable} onChange={setCustomRoles} onMessage={flash} onError={setError} />
       )}
 
       {tab === 'people' && (<>
@@ -326,7 +299,6 @@ export const UsersTab: React.FC = () => {
                     <p className="text-xs text-slate-600">Base role</p>
                     {RoleSelect({ u })}
                   </div>
-                  {ExtraRoles({ u })}
                   <p className="text-xs text-slate-600">Added {new Date(u.created_at).toLocaleDateString()}</p>
                   {RowActions({ u })}
                 </li>
@@ -354,7 +326,7 @@ export const UsersTab: React.FC = () => {
                           <div className="min-w-0">{PersonInfo({ u })}</div>
                         </div>
                       </td>
-                      <td className="py-3 px-4"><div className="space-y-1.5">{RoleSelect({ u })}{ExtraRoles({ u })}</div></td>
+                      <td className="py-3 px-4"><div className="space-y-1.5">{RoleSelect({ u })}</div></td>
                       <td className="py-3 px-4"><StatusBadge active={u.active} /></td>
                       <td className="py-3 px-4 text-slate-600">{new Date(u.created_at).toLocaleDateString()}</td>
                       <td className="py-3 px-4"><div className="flex justify-end">{RowActions({ u })}</div></td>
@@ -373,10 +345,8 @@ export const UsersTab: React.FC = () => {
       {dialog && (
         <PersonDialog
           person={dialog.person}
-          customRoles={customRoles}
-          assignedRoleIds={dialog.person ? assignments[dialog.person.id] ?? [] : []}
           lockRole={!!dialog.person && isProtected(dialog.person)}
-          profileReady={!extrasUnavailable}
+          profileReady
           onClose={() => setDialog(null)}
           onSaved={handleSaved}
         />

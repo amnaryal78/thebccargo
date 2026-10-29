@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useAdminNotifications } from '../notifications/NotificationsContext';
+import { useMyPermissions } from '../usePermissions';
 
 interface AdminBooking {
   id: string;
@@ -24,6 +25,7 @@ const STATUSES = ['submitted', 'confirmed', 'picked_up', 'cancelled'];
 
 export const BookingsTab: React.FC = () => {
   const { items: notifications } = useAdminNotifications();
+  const canEdit = useMyPermissions().canManageInquiries;
   const [rows, setRows] = useState<AdminBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,18 +95,22 @@ export const BookingsTab: React.FC = () => {
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-mono font-bold text-sm">{b.bookingRef}</span>
-              <select
-                value={b.status}
-                onChange={(e) => void setStatus(b.id, e.target.value)}
-                aria-label={`Status of ${b.bookingRef}`}
-                className="text-sm rounded-lg border border-[#E2E2DE] bg-transparent px-2 py-1"
-              >
-                {[...new Set([b.status, ...STATUSES])].map((s) => (
-                  <option key={s} value={s} className="text-black">
-                    {s.replace('_', ' ')}
-                  </option>
-                ))}
-              </select>
+              {canEdit ? (
+                <select
+                  value={b.status}
+                  onChange={(e) => void setStatus(b.id, e.target.value)}
+                  aria-label={`Status of ${b.bookingRef}`}
+                  className="text-sm rounded-lg border border-[#E2E2DE] bg-transparent px-2 py-1"
+                >
+                  {[...new Set([b.status, ...STATUSES])].map((s) => (
+                    <option key={s} value={s} className="text-black">
+                      {s.replace('_', ' ')}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span className="text-sm">{b.status.replace('_', ' ')}</span>
+              )}
             </div>
             <p className="text-sm">
               <strong>{b.origin}</strong> to <strong>{b.destination}</strong>

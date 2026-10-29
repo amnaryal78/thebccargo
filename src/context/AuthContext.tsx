@@ -16,7 +16,6 @@ export interface AuthContextType {
   active: boolean;
   authReason: 'authorized' | 'deactivated' | 'not_found' | null;
   /** Permission maps from custom roles assigned to this person (empty without the custom-roles migration). */
-  customPermissions: Record<string, boolean>[];
   loginWithGoogle: (redirectTo?: string) => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<void>;
@@ -32,7 +31,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthorizedAdmin, setIsAuthorizedAdmin] = useState(false);
   const [active, setActive] = useState(false);
   const [authReason, setAuthReason] = useState<'authorized' | 'deactivated' | 'not_found' | null>(null);
-  const [customPermissions, setCustomPermissions] = useState<Record<string, boolean>[]>([]);
 
   const evaluateAuthorization = async (currentSession: Session | null) => {
     if (!currentSession?.user) {
@@ -41,7 +39,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsAuthorizedAdmin(false);
       setActive(false);
       setAuthReason(null);
-      setCustomPermissions([]);
       return;
     }
 
@@ -49,14 +46,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(usr);
 
     try {
-      const { checkUserAdminStatus, fetchCustomRolePermissions } = await loadAuthService();
+      const { checkUserAdminStatus } = await loadAuthService();
       const authResult = await checkUserAdminStatus(usr.id, usr.email || '');
       setRole(authResult.role);
       // Resellers sign in with Google but only get the reseller price view, never the admin area.
       setIsAuthorizedAdmin(authResult.isAuthorized && authResult.role !== 'reseller');
       setActive(authResult.active);
       setAuthReason(authResult.reason);
-      setCustomPermissions(authResult.isAuthorized ? await fetchCustomRolePermissions() : []);
     } catch (err) {
       console.warn('Failed to verify user authorization status:', err);
       setRole(null);
@@ -173,7 +169,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsAuthorizedAdmin(false);
       setActive(false);
       setAuthReason(null);
-      setCustomPermissions([]);
       localStorage.removeItem('bc_cargo_admin_user');
       setLoading(false);
     }
@@ -189,7 +184,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isAuthorizedAdmin,
         active,
         authReason,
-        customPermissions,
         loginWithGoogle,
         logout,
         refreshAuth

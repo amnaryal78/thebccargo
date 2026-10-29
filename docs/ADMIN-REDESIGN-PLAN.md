@@ -337,3 +337,12 @@ Decided during phase 1:
 - **New finding for phase 2:** the `user_role` enum has no `read_only`; the UI role cannot exist in the database. Also the shipment editor's reseller picker reads `user_roles`, which only super_admin/admin can, so it is empty for operations (pre-existing).
 
 **Applied to live 2026-10-30** (owner approved). Live history versions `20261029195052`–`20261029195127` (UTC stamps; repo files are `20261030000001`–`…05`). Post-apply role checks on live, in a rolled-back transaction, 22/22 as expected; no test rows left; 2 super_admins active.
+
+## Phase 2 log (2026-10-30)
+
+- **One permission table, proven against the SQL:** `tests/permissions.test.ts` reads the role list of each table's policy from the applied lockdown migration and asserts the browser flag is true for exactly those roles (12 tables, plus how-to-ship, users, audit). All matched once `read_only` was fixed.
+- **`read_only` → `analyst`:** the database has no `read_only` role, so choosing it in Add person failed. The UI now offers the database's `analyst` role, shown as "read only"; RLS already gives it audit-log read.
+- **Custom roles removed** (0 roles, 0 assignments live): Users › Custom roles tab, the dialog checkboxes, `mergePermissions`, `fetchCustomRolePermissions`, the service CRUD and `CustomRolesPanel.tsx` are gone. Tables `admin_roles`/`user_role_assignments` are kept untouched.
+- **Route gates:** `AdminShell` wraps every page in `AdminPermissionGate` using `routeNeeds(path)`, the permission of the menu entry that owns the URL. Typed URLs now show "You don't have access to this page" instead of a broken screen. Customer chats now need `canManageInquiries` (same roles as `is_message_staff()`), in the sidebar and the mobile bar.
+- **Actions gated:** the booking status dropdown and the feedback approve/hide/delete buttons now show only for roles the database lets write (they were shown to everyone).
+- **Migration `20261030000006_permission_alignment`** (tested on live in a rolled-back transaction, 11/11): item catalogue writes limited to shipment staff (view-only was allowed); shipment staff can read reseller rows, so the "referred by" picker works for operations. **Not applied yet.**

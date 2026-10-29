@@ -4,7 +4,6 @@ import {
   AdminProfileRequest,
   ResellerStats,
   ProfileField,
-  AdminCustomRole,
   AdminShipment,
   AdminMilestone,
   AdminInquiry,
@@ -542,60 +541,7 @@ export const adminDataService = {
     return supabase.storage.from('admin-avatars').getPublicUrl(path).data.publicUrl;
   },
 
-  // Custom roles (need the staff-profiles migration)
-  async fetchCustomRoles(): Promise<AdminCustomRole[]> {
-    ensureConfigured();
-    const { data, error } = await supabase.from('admin_roles').select('*').order('name');
-    if (error) throw new AdminServiceError(error.message, error);
-    return data || [];
-  },
-
-  async saveCustomRole(role: { id?: string; name: string; description: string; permissions: AdminCustomRole['permissions'] }): Promise<AdminCustomRole> {
-    ensureConfigured();
-    const row = {
-      name: role.name.trim(),
-      description: role.description.trim() || null,
-      permissions: role.permissions,
-      updated_at: new Date().toISOString(),
-    };
-    const q = role.id
-      ? supabase.from('admin_roles').update(row).eq('id', role.id)
-      : supabase.from('admin_roles').insert(row);
-    const { data, error } = await q.select().single();
-    if (error) throw new AdminServiceError(error.message, error);
-    await this.logAction(role.id ? 'update_custom_role' : 'create_custom_role', `admin_roles:${row.name}`, { permissions: row.permissions });
-    return data;
-  },
-
-  async deleteCustomRole(id: string, name: string): Promise<void> {
-    ensureConfigured();
-    const { error } = await supabase.from('admin_roles').delete().eq('id', id);
-    if (error) throw new AdminServiceError(error.message, error);
-    await this.logAction('delete_custom_role', `admin_roles:${name}`, {});
-  },
-
-  /** Map of user_roles.id to the custom role ids that person holds. */
-  async fetchRoleAssignments(): Promise<Record<string, string[]>> {
-    ensureConfigured();
-    const { data, error } = await supabase.from('user_role_assignments').select('user_role_id, role_id');
-    if (error) throw new AdminServiceError(error.message, error);
-    const map: Record<string, string[]> = {};
-    for (const row of data || []) (map[row.user_role_id] ||= []).push(row.role_id);
-    return map;
-  },
-
-  async setRoleAssignments(userRoleId: string, email: string | null, roleIds: string[]): Promise<void> {
-    ensureConfigured();
-    const del = await supabase.from('user_role_assignments').delete().eq('user_role_id', userRoleId);
-    if (del.error) throw new AdminServiceError(del.error.message, del.error);
-    if (roleIds.length) {
-      const ins = await supabase.from('user_role_assignments').insert(roleIds.map((role_id) => ({ user_role_id: userRoleId, role_id })));
-      if (ins.error) throw new AdminServiceError(ins.error.message, ins.error);
-    }
-    await this.logAction('set_role_assignments', `user_roles:${email ?? userRoleId}`, { custom_role_count: roleIds.length });
-  },
-
-  /** Active resellers, for the "Referred by" picker. */
+  // Resellers, for the "referred by" picker on a shipment
   async fetchResellers(): Promise<AdminUserRole[]> {
     ensureConfigured();
     const { data, error } = await supabase
