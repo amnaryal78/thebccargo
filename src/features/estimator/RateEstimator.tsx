@@ -1,7 +1,7 @@
 import { useAuth } from '../../context/AuthContext';
 import React, { useState, useMemo, useEffect, useRef, useId } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { HOME_PICKUP_FEE_NPR, PICKUP_AREAS, PICKUP_POLICY_EN, OTHER_AREA, pickupFeeFor, type HandoverMethod } from './pickup';
+import { HOME_PICKUP_FEE_NPR, PICKUP_AREAS, PICKUP_POLICY_EN, OTHER_AREA, FREE_PICKUP_AREAS_TEXT, FREE_PICKUP_OVER_KG, pickupFeeFor, type HandoverMethod } from './pickup';
 import { useEstimatorData } from './useEstimatorData';
 import {
   calculateBoxCount,
@@ -11,12 +11,12 @@ import {
   SheetQuoteResult,
   EstimateResult,
   BOX_CHARGE_NPR,
-  LIQUID_FEE_PER_BOX_NPR,
-  MEDICINE_FEE_PER_BOX_NPR,
+  LIQUID_FEE_PER_BOTTLE_NPR,
   MEAT_FEE_EUROPE_UK_PER_KG,
   MEAT_FEE_HONG_KONG_PER_KG,
 } from './engine';
 import { EstimateBillModal } from './EstimateBillModal';
+import { buildShareUrl, readShareParams, shareQuote } from './share';
 import {
   Globe2,
   Plus,
@@ -38,6 +38,7 @@ import {
   ShieldCheck,
   Clock,
   Calculator,
+  Share2,
 } from 'lucide-react';
 
 export interface RateEstimatorProps {
@@ -227,18 +228,23 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
   const [weightKg, setWeightKg] = useState<number>(initialWeight);
   const [weightInputStr, setWeightInputStr] = useState<string>(String(initialWeight));
 
+  // A shared link (/rates?...&liq=2&meat=3&med=1&pickup=Hetauda) restores every choice the sender made.
+  const [shared] = useState(readShareParams);
+
   // 3. Special items
-  const [hasLiquid, setHasLiquid] = useState(false);
-  const [hasMeat, setHasMeat] = useState(false);
-  const [meatKg, setMeatKg] = useState<number>(1);
-  const [hasMedicine, setHasMedicine] = useState(false);
+  const [hasLiquid, setHasLiquid] = useState(shared.liquidBottles > 0);
+  const [liquidBottles, setLiquidBottles] = useState<number>(Math.max(1, shared.liquidBottles));
+  const [hasMeat, setHasMeat] = useState(shared.meatKg > 0);
+  const [meatKg, setMeatKg] = useState<number>(Math.max(1, shared.meatKg));
+  const [hasMedicine, setHasMedicine] = useState(shared.medicine);
   const [meatNotice, setMeatNotice] = useState<string | null>(null);
 
   const [showBillModal, setShowBillModal] = useState(false);
+  const [shareResult, setShareResult] = useState<{ status: '' | 'copied' | 'failed'; quote: SheetQuoteResult | null }>({ status: '', quote: null });
 
   // 4. Handover
-  const [handover, setHandover] = useState<HandoverMethod>('office');
-  const [pickupArea, setPickupArea] = useState<string>('');
+  const [handover, setHandover] = useState<HandoverMethod>(shared.pickupArea ? 'home' : 'office');
+  const [pickupArea, setPickupArea] = useState<string>(shared.pickupArea);
 
   useEffect(() => {
     if (initialDestination) setSelectedCountry(initialDestination);
@@ -338,6 +344,7 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
         destination: selectedCountry,
         actualWeightKg: weightKg,
         hasLiquid,
+        liquidBottleCount: liquidBottles,
         hasMedicine,
         hasMeat,
         meatKg: hasMeat ? meatKg : 0,
@@ -345,7 +352,7 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
       },
       sheetRates
     );
-  }, [sheetRates, selectedCountry, weightKg, overMax, hasLiquid, hasMedicine, hasMeat, meatKg, isReseller]);
+  }, [sheetRates, selectedCountry, weightKg, overMax, hasLiquid, liquidBottles, hasMedicine, hasMeat, meatKg, isReseller]);
 
   const homePickupOk = handover === 'home' && (PICKUP_AREAS as readonly string[]).includes(pickupArea);
   const pickupFee = homePickupOk ? pickupFeeFor(pickupArea, weightKg) : 0;
@@ -397,7 +404,7 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
       );
       return `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
     }
-    const itemsSummary = [hasLiquid ? 'Liquid' : '', hasMeat ? `Meat (${meatKg}kg)` : '', hasMedicine ? 'Medicine' : '']
+    const itemsSummary = [hasLiquid ? `Liquid (${liquidBottles} btl)` : '', hasMeat ? `Meat (${meatKg}kg)` : '', hasMedicine ? 'Medicine' : '']
       .filter(Boolean)
       .join(', ');
     const msg = [
@@ -411,6 +418,22 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
     ].join('\n');
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   };
+
+  const handleShare = async () => {
+    if (!quoteResult) return;
+    const url = buildShareUrl(window.location.origin, {
+      country: selectedCountry,
+      weightKg,
+      liquidBottles: hasLiquid ? liquidBottles : 0,
+      meatKg: hasMeat ? meatKg : 0,
+      medicine: hasMedicine,
+      pickupArea: homePickupOk ? pickupArea : '',
+    });
+    const result = await shareQuote(quoteResult, url);
+    setShareResult({ status: result === 'copied' ? 'copied' : result === 'failed' ? 'failed' : '', quote: quoteResult });
+  };
+  // "Link copied" belongs to the price it was made for; any change clears it.
+  const shareStatus = shareResult.quote === quoteResult ? shareResult.status : '';
 
   // What kind of price are we showing? Never claim "live" unless the rates really came live.
   const priceKind = (() => {
@@ -688,7 +711,7 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
                     onChange={() => setHasLiquid((p) => !p)}
                     Icon={Droplets}
                     title="Liquid"
-                    note={`Rs ${nf(LIQUID_FEE_PER_BOX_NPR)} per box`}
+                    note={`Rs ${nf(LIQUID_FEE_PER_BOTTLE_NPR)} per bottle`}
                   />
                   <ItemCard
                     checked={hasMeat}
@@ -709,9 +732,62 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
                     onChange={() => setHasMedicine((p) => !p)}
                     Icon={Pill}
                     title="Medicine"
-                    note={`Rs ${nf(MEDICINE_FEE_PER_BOX_NPR)} per box`}
+                    note="Contact us for the price"
                   />
                 </div>
+
+                <AnimatePresence initial={false}>
+                  {hasLiquid && (
+                    <motion.div key="liquid-btl" {...fade} className="p-4 border-2 border-[#002147] rounded-[var(--r-md)] space-y-2 max-w-sm">
+                      <label htmlFor="liquid-btl-input" className="block text-sm font-bold text-[#002147]">
+                        How many bottles of liquid?
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setLiquidBottles((b) => Math.max(1, b - 1))}
+                          disabled={liquidBottles <= 1}
+                          aria-label="One bottle less"
+                          className="h-12 w-12 shrink-0 rounded-[var(--r-sm)] bg-[#002147] text-white hover:bg-[#123562] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F2B705]/60"
+                        >
+                          <Minus className="w-5 h-5" aria-hidden="true" />
+                        </button>
+                        <div className="flex-1 relative min-w-0">
+                          <input
+                            id="liquid-btl-input"
+                            type="number"
+                            inputMode="numeric"
+                            min="1"
+                            max="999"
+                            value={liquidBottles}
+                            onChange={(e) => setLiquidBottles(Math.max(1, Math.min(999, parseInt(e.target.value) || 1)))}
+                            className={`${fieldBox} min-h-[48px] h-12 text-center text-xl font-bold font-mono pr-10`}
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-600 pointer-events-none">btl</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setLiquidBottles((b) => Math.min(999, b + 1))}
+                          disabled={liquidBottles >= 999}
+                          aria-label="One bottle more"
+                          className="h-12 w-12 shrink-0 rounded-[var(--r-sm)] bg-[#002147] text-white hover:bg-[#123562] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F2B705]/60"
+                        >
+                          <Plus className="w-5 h-5" aria-hidden="true" />
+                        </button>
+                      </div>
+                      <p className="text-sm text-slate-600 whitespace-nowrap">
+                        {liquidBottles} × Rs {nf(LIQUID_FEE_PER_BOTTLE_NPR)} = <strong className="text-[#002147]">Rs {nf(liquidBottles * LIQUID_FEE_PER_BOTTLE_NPR)}</strong>
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {hasMedicine && (
+                  <p role="status" className="p-3 bg-[#EEF3F9] border border-[#D5DEEA] rounded-[var(--r-sm)] flex items-center gap-2.5 text-sm font-semibold text-[#002147]">
+                    <Pill className="w-4 h-4 shrink-0 text-[#8C6400]" aria-hidden="true" />
+                    <span>Medicine price is not in the total. Chat or call us and we will tell you.</span>
+                  </p>
+                )}
 
                 {meatNotice && (
                   <p role="status" className="p-3 bg-amber-50 border border-amber-300 rounded-[var(--r-sm)] flex items-center gap-2.5 text-sm font-semibold text-amber-900">
@@ -770,7 +846,7 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
                   {(
                     [
                       { id: 'office', title: 'Bring to our office', hint: 'School Road -4, Hetauda', price: 'No extra charge', Icon: Building2 },
-                      { id: 'home', title: 'Pick up from home', hint: 'We collect it from you', price: `Free over 20 kg in Hetauda/Birgunj, else + Rs ${nf(HOME_PICKUP_FEE_NPR)}`, Icon: Home },
+                      { id: 'home', title: 'Pick up from home', hint: 'We collect it from you', price: `Free over ${FREE_PICKUP_OVER_KG} kg in ${FREE_PICKUP_AREAS_TEXT}, else + Rs ${nf(HOME_PICKUP_FEE_NPR)}`, Icon: Home },
                     ] as const
                   ).map((opt) => {
                     const active = handover === opt.id;
@@ -848,7 +924,7 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
                             ? `Pickup available in ${pickupArea}. ${pickupFee ? `Rs ${nf(pickupFee)} is added to your price.` : 'It is free for this parcel.'} ${PICKUP_POLICY_EN}`
                             : pickupArea === OTHER_AREA
                             ? 'Home pickup is not available in your area. Please bring the parcel to our office.'
-                            : 'Home pickup is only for Hetauda, Simara, Birgunj, Chitwan and Kathmandu.'}
+                            : `Home pickup is only for ${PICKUP_AREAS.slice(0, -1).join(', ')} and ${PICKUP_AREAS[PICKUP_AREAS.length - 1]}.`}
                         </span>
                       </p>
                     </motion.div>
@@ -945,9 +1021,14 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
                           {summaryRow(`Shipping (${quoteResult.totalWeightKg} kg, ${quoteResult.boxCount} ${quoteResult.boxCount === 1 ? 'box' : 'boxes'})`, quoteResult.baseShippingCharge, 'base')}
                           {summaryRow(`Box charge (${quoteResult.boxCount} × Rs ${nf(BOX_CHARGE_NPR)})`, quoteResult.boxCharge, 'box')}
                           {pickupFee > 0 && summaryRow(`Home pickup (${pickupArea})`, pickupFee, 'pickup')}
-                          {quoteResult.liquidCharge > 0 && summaryRow('Liquid fee', quoteResult.liquidCharge, 'liquid')}
-                          {quoteResult.medicineCharge > 0 && summaryRow('Medicine fee', quoteResult.medicineCharge, 'med')}
+                          {quoteResult.liquidCharge > 0 && summaryRow(`Liquid (${quoteResult.liquidBottles} × Rs ${nf(LIQUID_FEE_PER_BOTTLE_NPR)})`, quoteResult.liquidCharge, 'liquid')}
                           {quoteResult.meatCharge > 0 && summaryRow(`Meat fee (${meatKg} kg)`, quoteResult.meatCharge, 'meat')}
+                          {quoteResult.medicineOnRequest && (
+                            <div className="flex justify-between items-start gap-3 py-2 border-b border-slate-200/80 last:border-b-0 text-sm">
+                              <span className="text-slate-700 min-w-0">Medicine</span>
+                              <span className="font-bold text-[#8C6400] whitespace-nowrap shrink-0">Contact us</span>
+                            </div>
+                          )}
                         </div>
                         <div className="p-5 pt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
                           <Button variant="primary" size="lg" magnetic leftIcon={<FileText className="w-5 h-5" />} onClick={() => setShowBillModal(true)} className="w-full">
@@ -962,6 +1043,21 @@ export const RateEstimator: React.FC<RateEstimatorProps> = ({
                             <MessageSquare className="w-5 h-5" aria-hidden="true" />
                             Chat
                           </a>
+                          <button
+                            type="button"
+                            onClick={handleShare}
+                            className="sm:col-span-2 lg:col-span-1 xl:col-span-2 min-h-[48px] px-5 rounded-[var(--r-sm)] bg-[#EEF3F9] hover:bg-[#D6E1EF] text-[#002147] font-heading font-extrabold text-base inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F2B705]/60"
+                          >
+                            {shareStatus === 'copied' ? <Check className="w-5 h-5" aria-hidden="true" /> : <Share2 className="w-5 h-5" aria-hidden="true" />}
+                            {shareStatus === 'copied' ? 'Link copied' : 'Share this price'}
+                          </button>
+                          <p role="status" className="sm:col-span-2 lg:col-span-1 xl:col-span-2 text-xs text-slate-600 -mt-1">
+                            {shareStatus === 'copied'
+                              ? 'Bill and link copied. Paste it in WhatsApp, Messenger or anywhere.'
+                              : shareStatus === 'failed'
+                              ? 'Could not share. Please try again.'
+                              : 'Sends the bill and a link that opens this exact price.'}
+                          </p>
                         </div>
                       </motion.div>
                     ) : (

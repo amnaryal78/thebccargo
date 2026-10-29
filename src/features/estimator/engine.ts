@@ -56,9 +56,8 @@ export const DEFAULT_RATE_SETTINGS: RateSettings = {
 
 export const BOX_MAX_WEIGHT_KG = 20;
 export const BOX_CHARGE_NPR = 1100;
-export const LIQUID_FEE_PER_BOX_NPR = 600;
-export const MEDICINE_FEE_PER_BOX_NPR = 600;
-export const MEAT_FEE_EUROPE_UK_PER_KG = 600;
+export const LIQUID_FEE_PER_BOTTLE_NPR = 700;
+export const MEAT_FEE_EUROPE_UK_PER_KG = 800;
 export const MEAT_FEE_HONG_KONG_PER_KG = 1100;
 /** Extra shown to signed-in resellers, per kg of total weight. */
 export const RESELLER_MARKUP_PER_KG_NPR = 50;
@@ -67,9 +66,9 @@ export interface SheetShipmentInput {
   destination: string; // country name, code, or rate group (e.g. 'United Kingdom', 'Korea', 'UK')
   actualWeightKg: number;
   hasLiquid?: boolean;
-  liquidBoxCount?: number;
+  /** Bottles of liquid; defaults to 1 when hasLiquid is set. */
+  liquidBottleCount?: number;
   hasMedicine?: boolean;
-  medicineBoxCount?: number;
   hasMeat?: boolean;
   meatKg?: number;
   /** Reseller price view: adds RESELLER_MARKUP_PER_KG_NPR per kg to the shipping charge. */
@@ -95,7 +94,11 @@ export interface SheetQuoteResult {
   baseShippingCharge: number;
   boxCharge: number;
   liquidCharge: number;
+  /** Bottles charged in liquidCharge. */
+  liquidBottles?: number;
   medicineCharge: number;
+  /** Medicine was ticked: price is quoted by our team, not included in totalNpr. */
+  medicineOnRequest?: boolean;
   meatCharge: number;
   /** Already included in baseShippingCharge and totalNpr. */
   resellerMarkupNpr?: number;
@@ -223,7 +226,7 @@ export function isMeatAllowedForCountry(countryOrGroup: string): boolean {
 
 /**
  * Step 5: Get per-kg meat rate.
- * Rs 600/kg for Europe & UK; Rs 1,100/kg for Hong Kong; 0 for others.
+ * Rs 800/kg for Europe & UK; Rs 1,100/kg for Hong Kong; 0 for others.
  */
 export function getMeatRatePerKg(countryOrGroup: string): number {
   if (!countryOrGroup) return 0;
@@ -485,17 +488,13 @@ export function calculateSheetShipmentQuote(
   // Box charges: Rs 1,100 per box
   const boxCharge = boxCount * BOX_CHARGE_NPR;
 
-  // Liquid fee: Rs 600 per box that has liquid
-  const liquidBoxes = input.hasLiquid
-    ? Math.min(boxCount, input.liquidBoxCount !== undefined ? input.liquidBoxCount : boxCount)
-    : 0;
-  const liquidCharge = liquidBoxes * LIQUID_FEE_PER_BOX_NPR;
+  // Liquid fee: Rs 700 per bottle (at least 1 bottle when liquid is ticked)
+  const liquidBottles = input.hasLiquid ? Math.min(999, Math.max(1, Math.floor(input.liquidBottleCount || 1))) : 0;
+  const liquidCharge = liquidBottles * LIQUID_FEE_PER_BOTTLE_NPR;
 
-  // Medicine fee: Rs 600 per box that has medicine
-  const medicineBoxes = input.hasMedicine
-    ? Math.min(boxCount, input.medicineBoxCount !== undefined ? input.medicineBoxCount : boxCount)
-    : 0;
-  const medicineCharge = medicineBoxes * MEDICINE_FEE_PER_BOX_NPR;
+  // Medicine has no fixed fee: our team quotes it (shown as "Contact us").
+  const medicineCharge = 0;
+  const medicineOnRequest = !!input.hasMedicine;
 
   // Meat fee & compliance check
   let meatCharge = 0;
@@ -529,7 +528,9 @@ export function calculateSheetShipmentQuote(
     baseShippingCharge,
     boxCharge,
     liquidCharge,
+    liquidBottles,
     medicineCharge,
+    medicineOnRequest,
     meatCharge,
     resellerMarkupNpr: resellerMarkupNpr || undefined,
     totalNpr,
@@ -554,8 +555,8 @@ export interface EstimatorInput {
   mode?: CargoMode;
   flags?: ContentFlags;
   doorstepPickup?: boolean;
-  liquidBoxCount?: number;
-  medicineBoxCount?: number;
+  /** Bottles of liquid; defaults to 1 when hasLiquid is set. */
+  liquidBottleCount?: number;
   meatKg?: number;
 }
 
@@ -664,9 +665,8 @@ export function calculateEstimate(
         destination: input.destination,
         actualWeightKg: chargeableWeight,
         hasLiquid: input.flags?.liquid,
-        liquidBoxCount: input.liquidBoxCount,
+        liquidBottleCount: input.liquidBottleCount,
         hasMedicine: input.flags?.medicine,
-        medicineBoxCount: input.medicineBoxCount,
         hasMeat: input.flags?.meat,
         meatKg: input.meatKg,
       },
@@ -679,8 +679,8 @@ export function calculateEstimate(
         flag: 'liquid',
         allowed: true,
         title: 'Liquid / Fluid Shipment',
-        requirementsMd: 'Leak-proof sealed packaging required. Surcharge Rs 600 per box.',
-        surchargeNotice: `Rs ${sheetQuote.liquidCharge} (${sheetQuote.boxCount} boxes)`,
+        requirementsMd: 'Leak-proof sealed packaging required. Rs 700 per bottle.',
+        surchargeNotice: `Rs ${sheetQuote.liquidCharge} (${sheetQuote.liquidBottles ?? 0} bottles)`,
         isPlaceholder: false,
       });
     }
@@ -689,8 +689,8 @@ export function calculateEstimate(
         flag: 'medicine',
         allowed: true,
         title: 'Medical Protocol',
-        requirementsMd: 'Doctor prescription and invoice required. Surcharge Rs 600 per box.',
-        surchargeNotice: `Rs ${sheetQuote.medicineCharge} (${sheetQuote.boxCount} boxes)`,
+        requirementsMd: 'Doctor prescription and invoice required. Contact us for the price.',
+        surchargeNotice: 'Contact us for the price',
         isPlaceholder: false,
       });
     }

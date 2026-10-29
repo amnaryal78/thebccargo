@@ -1,4 +1,4 @@
-import { BOX_CHARGE_NPR, SheetQuoteResult } from './engine';
+import { BOX_CHARGE_NPR, LIQUID_FEE_PER_BOTTLE_NPR, SheetQuoteResult } from './engine';
 import { numberToWords } from '../../utils/numberToWords';
 
 /**
@@ -85,11 +85,11 @@ export const buildBillPdf = (quote: SheetQuoteResult, date: string): Blob => {
   if ((quote.pickupFeeNpr ?? 0) > 0)
     rows.push({ desc: `Home pickup charge${quote.pickupArea ? ` (${quote.pickupArea})` : ''}`, qty: '1', wt: '-', rate: fmt(quote.pickupFeeNpr ?? 0), amt: fmt(quote.pickupFeeNpr ?? 0) });
   if (quote.liquidCharge > 0)
-    rows.push({ desc: 'Liquid handling charge', qty: boxes, wt: '-', rate: '600.00', amt: fmt(quote.liquidCharge) });
+    rows.push({ desc: 'Liquid handling charge', qty: `${quote.liquidBottles ?? 1} btl`, wt: '-', rate: fmt(LIQUID_FEE_PER_BOTTLE_NPR), amt: fmt(quote.liquidCharge) });
   if (quote.meatCharge > 0)
     rows.push({ desc: 'Meat compliance charge', qty: '1 item', wt: '-', rate: '-', amt: fmt(quote.meatCharge) });
-  if (quote.medicineCharge > 0)
-    rows.push({ desc: 'Medicine special handling', qty: boxes, wt: '-', rate: '600.00', amt: fmt(quote.medicineCharge) });
+  if (quote.medicineOnRequest)
+    rows.push({ desc: 'Medicine (price on request, contact us)', qty: '-', wt: '-', rate: '-', amt: '-' });
 
   // Header band
   pg.rect(0, 742, 595, 100, NAVY);

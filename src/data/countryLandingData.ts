@@ -133,14 +133,14 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
       'Narcotics, aerosol cans, and undeclared hazardous liquids.',
     ],
     allowedSpecial: [
-      'Permitted cured meat (Sukuti) under special compliance surcharge (Rs 600/kg).',
-      'Sealed liquids and pickles under handling surcharge (Rs 600/box).',
-      'Verified medicine with prescription (Rs 600/box special protocol).',
+      'Permitted cured meat (Sukuti) under special compliance surcharge (Rs 800/kg).',
+      'Sealed liquids and pickles under handling surcharge (Rs 700 per bottle).',
+      'Verified medicine with prescription (contact us for the price).',
     ],
     faqs: [
       {
         question: 'Can I send dried meat (Sukuti) to the UK?',
-        answer: 'Yes! The United Kingdom is one of the destinations where meat shipping is permitted under strict compliance guidelines and our special meat surcharge of Rs 600 per kg.',
+        answer: 'Yes! The United Kingdom is one of the destinations where meat shipping is permitted under strict compliance guidelines and our special meat surcharge of Rs 800 per kg.',
       },
       {
         question: 'How are UK shipments weighed and billed in Hetauda?',
@@ -208,7 +208,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
       'Unregulated perishable goods, ivory, counterfeit items.',
     ],
     allowedSpecial: [
-      'Permitted cured meat under European quarantine compliance (Rs 600/kg).',
+      'Permitted cured meat under European quarantine compliance (Rs 800/kg).',
       'Nepali handicrafts, carpets, singing bowls, and organic tea.',
     ],
     faqs: [
@@ -254,7 +254,7 @@ export const COUNTRY_LANDING_DATA: Record<string, CountryPageConfig> = {
       },
       {
         question: 'Can I send homemade pickles to Dubai?',
-        answer: 'Yes! Sealed liquids and pickles can be shipped with our specialized leak-proof packaging surcharge (Rs 600 per box).',
+        answer: 'Yes! Sealed liquids and pickles can be shipped with our specialized leak-proof packaging surcharge (Rs 700 per bottle).',
       },
     ],
     sampleWeightKg: 10,
