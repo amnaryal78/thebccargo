@@ -137,7 +137,7 @@ export const PartnerSlider: React.FC = () => {
   const duplicatedPartners = [...partners, ...partners];
 
   return (
-    <section className="py-14 bg-slate-100/70 border-t border-b border-slate-200 relative overflow-hidden transition-colors">
+    <section className="py-14 bg-slate-100/70 relative overflow-hidden transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs font-mono text-[#002147] uppercase tracking-wider mb-1 font-semibold">

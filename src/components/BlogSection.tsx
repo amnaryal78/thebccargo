@@ -55,38 +55,20 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onNavigate }) => {
     return () => { isMounted = false; };
   }, []);
 
-  const guides = (
-    <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full border-t border-[var(--line)]">
-      <CountryGuideGrid compact />
-      <a
-        href="/blogs#country-guides"
-        onClick={(e) => {
-          e.preventDefault();
-          onNavigate('blogs');
-        }}
-        className="mt-5 inline-flex items-center gap-1.5 min-h-[44px] text-sm font-bold text-[var(--gold-dark)] hover:underline"
-      >
-        See all {COUNTRY_GUIDES.length} country guides <ArrowRight className="w-4 h-4" aria-hidden="true" />
-      </a>
-    </section>
-  );
-
-  if (!loading && blogs.length === 0) return guides;
+  if (!loading && blogs.length === 0) return null;
 
   return (
-    <>
-    {guides}
-    <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full border-t border-slate-200">
+    <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
       
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div className="flex flex-col gap-2 max-w-2xl">
           <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#002147]">
             <BookOpen className="w-4 h-4" />
-            <span>Guides</span>
+            <span>Blog</span>
           </div>
           <h2 className="font-heading font-extrabold text-2xl sm:text-4xl text-slate-900 tracking-tight">
-            Shipping guides
+            Latest from our blog
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
             Customs, packing and cargo tips from our team.
@@ -186,6 +168,22 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onNavigate }) => {
       </div>
 
     </section>
-    </>
   );
 };
+
+/** Home "Where can we ship?" block: the main country guides plus a link to all of them. */
+export const HomeCountryGuides: React.FC<BlogSectionProps> = ({ onNavigate }) => (
+  <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+    <CountryGuideGrid compact />
+    <a
+      href="/blogs#country-guides"
+      onClick={(e) => {
+        e.preventDefault();
+        onNavigate('blogs');
+      }}
+      className="mt-5 inline-flex items-center gap-1.5 min-h-[44px] text-sm font-bold text-[var(--gold-dark)] hover:underline whitespace-nowrap"
+    >
+      See all {COUNTRY_GUIDES.length} country guides <ArrowRight className="w-4 h-4" aria-hidden="true" />
+    </a>
+  </section>
+);

@@ -28,8 +28,9 @@ export const HowItWorksTimeline: React.FC = () => {
       aria-labelledby="how-it-works-heading"
       className="w-full py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto"
     >
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 sm:mb-14">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 mb-10 sm:mb-14 border-b border-[var(--line)]">
         <div className="max-w-2xl space-y-2">
+          <p className="font-mono text-xs font-bold tracking-[0.14em] text-[var(--gold-dark)]">SHIPPING GUIDE</p>
           <h2 id="how-it-works-heading" className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#002147] tracking-tight leading-tight">
             From Hetauda to your door abroad
           </h2>
@@ -64,15 +65,17 @@ export const HowItWorksTimeline: React.FC = () => {
               <span className="absolute left-0 top-0 w-10 h-10 rounded-full bg-[#002147] text-[#F2B705] flex items-center justify-center ring-4 ring-[var(--bg,#F6F6F4)]">
                 <Icon className="w-5 h-5" aria-hidden="true" />
               </span>
-              <p className="text-sm font-semibold text-[#8C6400]">Step {i + 1}</p>
-              <h3 className="font-heading font-bold text-lg text-[#002147]">{title}</h3>
-              <p className="text-[15px] text-[var(--text-secondary)] leading-relaxed mt-1 max-w-xs">{text}</p>
+              <div className="h-full rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--line)] shadow-hard-xs p-5">
+                <p className="text-sm font-semibold text-[#8C6400] pb-2 mb-2 border-b border-[var(--line)]">Step {i + 1}</p>
+                <h3 className="font-heading font-bold text-lg text-[#002147] whitespace-nowrap">{title}</h3>
+                <p className="text-[15px] text-[var(--text-secondary)] leading-relaxed mt-1">{text}</p>
+              </div>
             </li>
           ))}
         </ol>
       </div>
 
-      <p className="mt-10 inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+      <p className="mt-10 pt-6 w-full border-t border-[var(--line)] flex items-center gap-2 text-sm text-[var(--text-secondary)]">
         <Search className="w-4 h-4 text-[#8C6400]" aria-hidden="true" />
         <span>Have a tracking number? Enter it at the top of this page.</span>
       </p>
