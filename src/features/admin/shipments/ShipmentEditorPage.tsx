@@ -38,6 +38,7 @@ import { boxItemCount, collectIssues, type Issue } from './billing/issues';
 import { ItemNameInput } from './catalog/ItemNameInput';
 import { refreshLearnedItems, useItemCatalog } from './catalog/useItemCatalog';
 import { declareName, type CatalogItem } from './catalog';
+import { useAdminDialogs } from '../AdminConfirmDialog';
 
 const STATUSES = [
   ['pending', 'Pending'],
@@ -525,6 +526,7 @@ const BoxSection: React.FC<{
 };
 
 export const ShipmentEditorPage: React.FC = () => {
+  const { confirm } = useAdminDialogs();
   const { id } = useParams<{ id: string }>();
   const isNew = !id || id === 'new';
   const navigate = useNavigate();
@@ -659,8 +661,8 @@ export const ShipmentEditorPage: React.FC = () => {
   const blocking = useMemo(() => Object.entries(allIssues).filter(([, i]) => i.level === 'error'), [allIssues]);
   const itemTotal = draft.boxes.slice(0, boxCount).reduce((n, b) => n + boxItemCount(b), 0);
 
-  const leave = () => {
-    if (dirty && hasTyped && !window.confirm('You have changes that are not saved. Leave this page and lose them?')) return;
+  const leave = async () => {
+    if (dirty && hasTyped && !(await confirm({ title: 'Leave without saving?', body: 'Your changes to this bill are not saved and will be lost.', confirmLabel: 'Leave and lose changes', danger: true }))) return;
     navigate('/admin/shipments');
   };
 
@@ -790,8 +792,8 @@ export const ShipmentEditorPage: React.FC = () => {
           <button
             type="button"
             className="font-bold underline cursor-pointer"
-            onClick={() => {
-              if (!window.confirm('Clear this form and start a new one?')) return;
+            onClick={async () => {
+              if (!(await confirm({ title: 'Start a new bill?', body: 'This clears the form, including what was restored from your last visit.', confirmLabel: 'Clear the form', danger: true }))) return;
               try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
               const d = newBillDraft(todayIso());
               d.billNo = generateBillNo();

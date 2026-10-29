@@ -1,3 +1,4 @@
+import { friendlyError } from '../friendlyError';
 import { supabase, isSupabaseConfigured } from '../../../lib/supabase';
 import {
   AdminProfileFields,
@@ -19,8 +20,9 @@ import {
 } from '../types';
 
 export class AdminServiceError extends Error {
+  // Staff see a plain sentence; the raw database error stays in `details` for developers.
   constructor(message: string, public details?: any) {
-    super(message);
+    super(friendlyError(details ?? message));
     this.name = 'AdminServiceError';
   }
 }

@@ -13,18 +13,23 @@ import { adminDataService } from '../services/adminDataService';
 import { AdminShipment, AdminMilestone } from '../types';
 import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MilestonesModal } from './MilestonesModal';
 import { ShipmentMobileCard } from './ShipmentMobileCard';
+import { useAdminDialogs } from '../AdminConfirmDialog';
 
 export const ShipmentsTab: React.FC = () => {
+  const { confirm, notify } = useAdminDialogs();
   const { role } = useAuth();
   const permissions = useMyPermissions();
 
   const [shipments, setShipments] = useState<AdminShipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  // The search lives in the URL (?q=), so the shell's search box and links can fill it.
+  const [params, setParams] = useSearchParams();
+  const searchTerm = params.get('q') ?? '';
+  const setSearchTerm = (v: string) => setParams(v ? { q: v } : {}, { replace: true });
   const [statusFilter, setStatusFilter] = useState('all');
   const [modeFilter, setModeFilter] = useState('all');
 
@@ -56,12 +61,12 @@ export const ShipmentsTab: React.FC = () => {
   const handleOpenEdit = (s: AdminShipment) => navigate(`/admin/shipments/${s.id}`);
 
   const handleDelete = async (s: AdminShipment) => {
-    if (!confirm(`Are you sure you want to delete shipment ${s.tracking_number}?`)) return;
+    if (!(await confirm({ title: 'Delete this shipment?', body: <>Shipment <strong className="font-mono">{s.tracking_number}</strong> and all its tracking updates will be deleted. The customer's tracking number will stop working. This cannot be undone.</>, confirmLabel: 'Delete shipment', danger: true }))) return;
     try {
       await adminDataService.deleteShipment(s.id, s.tracking_number);
       setShipments(prev => prev.filter(x => x.id !== s.id));
     } catch (err: any) {
-      alert(`Delete failed: ${err.message}`);
+      void notify(err.message, 'Shipment not deleted');
     }
   };
 
@@ -92,7 +97,7 @@ export const ShipmentsTab: React.FC = () => {
       setMilestones(prev => [...prev, m]);
       setNewMilestoneTitle('');
     } catch (err: any) {
-      alert(`Failed to add milestone: ${err.message}`);
+      void notify(err.message, 'Tracking update not added');
     }
   };
 

@@ -21,25 +21,37 @@ export const Modal: React.FC<ModalProps> = ({
   maxWidth = 'md',
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  // Callers often pass an inline onClose; a ref keeps this effect (and the focus move) to open/close only.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    // Move focus into the dialog, and give it back to whatever opened it when the dialog closes.
+    const opener = document.activeElement as HTMLElement | null;
+    const first =
+      modalRef.current?.querySelector<HTMLElement>('[data-autofocus]') ??
+      modalRef.current?.querySelector<HTMLElement>('input, select, textarea, button:not([aria-label="Close modal"])');
+    (first ?? modalRef.current)?.focus();
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = originalOverflow;
+      opener?.focus?.();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -56,7 +68,7 @@ export const Modal: React.FC<ModalProps> = ({
       aria-modal="true"
       aria-labelledby="modal-title"
       aria-describedby={description ? 'modal-desc' : undefined}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-[var(--z-modal)] flex items-end sm:items-center justify-center sm:p-6 overflow-y-auto"
     >
       {/* Flat Dark Backdrop */}
       <div
@@ -68,7 +80,8 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Modal Dialog Card */}
       <div
         ref={modalRef}
-        className={`relative w-full ${maxWidthClasses[maxWidth]} bg-[var(--surface)] text-[var(--text)] border border-white/60 rounded-[var(--r-lg)] shadow-hard-lg z-10 overflow-hidden flex flex-col`}
+        tabIndex={-1}
+        className={`relative w-full ${maxWidthClasses[maxWidth]} bg-[var(--surface)] text-[var(--text)] border border-[var(--line)] rounded-t-[var(--r-lg)] sm:rounded-[var(--r-lg)] shadow-hard-lg z-10 overflow-hidden flex flex-col outline-none pb-[env(safe-area-inset-bottom,0px)] sm:pb-0`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--surface-2)]">

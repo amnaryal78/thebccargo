@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
+import { friendlyError } from '../friendlyError';
 import { useAdminNotifications } from '../notifications/NotificationsContext';
 import { useMyPermissions } from '../usePermissions';
 
@@ -33,7 +34,7 @@ export const BookingsTab: React.FC = () => {
   const load = useCallback(async () => {
     const { data, error: err } = await supabase.from('bookings').select('*').order('created_at', { ascending: false });
     if (err) {
-      setError(err.message);
+      setError(friendlyError(err));
     } else {
       setError(null);
       setRows(
@@ -68,7 +69,7 @@ export const BookingsTab: React.FC = () => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     const { error: err } = await supabase.from('bookings').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
     if (err) {
-      setError(err.message);
+      setError(friendlyError(err));
       void load();
     }
   };

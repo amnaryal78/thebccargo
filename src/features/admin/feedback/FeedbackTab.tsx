@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Check, EyeOff, Star, Trash2 } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
+import { friendlyError } from '../friendlyError';
 import { useAdminNotifications } from '../notifications/NotificationsContext';
 import { AdminPermissionGate } from '../AdminPermissionGate';
+import { useAdminDialogs } from '../AdminConfirmDialog';
 
 interface AdminReview {
   id: string;
@@ -16,6 +18,7 @@ interface AdminReview {
 }
 
 export const FeedbackTab: React.FC = () => {
+  const { confirm } = useAdminDialogs();
   const { items: notifications } = useAdminNotifications();
   const [rows, setRows] = useState<AdminReview[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +27,7 @@ export const FeedbackTab: React.FC = () => {
   const load = useCallback(async () => {
     const { data, error: err } = await supabase.from('reviews').select('*').order('created_at', { ascending: false });
     if (err) {
-      setError(err.message);
+      setError(friendlyError(err));
     } else {
       setError(null);
       setRows(
@@ -52,17 +55,17 @@ export const FeedbackTab: React.FC = () => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, approved } : r)));
     const { error: err } = await supabase.from('reviews').update({ approved, verified: approved }).eq('id', id);
     if (err) {
-      setError(err.message);
+      setError(friendlyError(err));
       void load();
     }
   };
 
   const remove = async (id: string) => {
-    if (!window.confirm('Delete this feedback for good?')) return;
+    if (!(await confirm({ title: 'Delete this feedback?', body: 'It will be removed for good. To take it off the website but keep it, choose Hide instead.', confirmLabel: 'Delete feedback', danger: true }))) return;
     setRows((prev) => prev.filter((r) => r.id !== id));
     const { error: err } = await supabase.from('reviews').delete().eq('id', id);
     if (err) {
-      setError(err.message);
+      setError(friendlyError(err));
       void load();
     }
   };

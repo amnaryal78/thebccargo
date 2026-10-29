@@ -346,3 +346,22 @@ Decided during phase 1:
 - **Route gates:** `AdminShell` wraps every page in `AdminPermissionGate` using `routeNeeds(path)`, the permission of the menu entry that owns the URL. Typed URLs now show "You don't have access to this page" instead of a broken screen. Customer chats now need `canManageInquiries` (same roles as `is_message_staff()`), in the sidebar and the mobile bar.
 - **Actions gated:** the booking status dropdown and the feedback approve/hide/delete buttons now show only for roles the database lets write (they were shown to everyone).
 - **Migration `20261030000006_permission_alignment`** (tested on live in a rolled-back transaction, 11/11): item catalogue writes limited to shipment staff (view-only was allowed); shipment staff can read reseller rows, so the "referred by" picker works for operations. **Applied to live 2026-10-30; post-apply checks 6/6.**
+
+## Phase 3 log (2026-10-30)
+
+- **Shell rebuilt** (`shell/AdminShell.tsx`):
+  - Dark Oxford sidebar (232px) grouped as Today / Requests / Shipments / Pricing / Website / Administration, with gold only for the active bar and counts.
+  - Top bar with breadcrumbs, shipment search, notification bell and a profile menu.
+  - Phone bottom bar Today / Requests / Shipments / Search / More; the drawer reuses the sidebar with search on top.
+  - Menus close on page change, Escape or an outside click; the drawer focuses search or the first link.
+  - Existing URLs unchanged; the new labels map to them.
+- **Search:** the shell search goes to `/admin/shipments?q=…`; the shipments page box now reads and writes `?q=`. Still client-side filtering; server search is phase 5.
+- **`AdminConfirmDialog`** (`useAdminDialogs().confirm/notify`) replaced all 21 `alert/confirm` calls in the admin. Each confirmation names the record and its consequence; destructive ones focus Cancel first.
+- **`Modal` primitive** (shared with the public site):
+  - moves focus in on open and back to the opener on close
+  - opens as a bottom sheet under 640px
+  - uses the `--z-modal` layer
+  - uses an `onClose` ref, so inline handlers no longer re-trigger the focus move
+- **`friendlyError`:** `AdminServiceError` now carries a plain sentence (raw error kept in `.details`). Bookings and Feedback (direct calls) use it too. A permission failure reads "You don't have permission to change this…".
+- **Dev-only preview:** `/admin?previewRole=<role>` renders the admin as that role without signing in (`src/dev/AdminPreview.tsx`, loaded only when `import.meta.env.DEV`). Verified absent from the production build: the param is ignored there and redirects to sign-in, and no served script contains it.
+- **Deferred to the phase that first uses them** (no unused components): `AdminPage`, `AdminTable`, `AdminFilterBar`, `AdminDrawer`, `AdminFormSection`, `AdminStatCard`. Page bodies are unchanged (old headers and all-caps remain until their phase).

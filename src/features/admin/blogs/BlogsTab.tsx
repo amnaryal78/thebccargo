@@ -13,8 +13,10 @@ import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
 import { fixBlogContentWithAI } from '../../../services/aiBlogFixerService';
 import { BlogEditorModal } from './BlogEditorModal';
+import { useAdminDialogs } from '../AdminConfirmDialog';
 
 export const BlogsTab: React.FC = () => {
+  const { confirm, notify } = useAdminDialogs();
   const { role } = useAuth();
   const permissions = useMyPermissions();
 
@@ -100,23 +102,23 @@ export const BlogsTab: React.FC = () => {
         setIsCreating(false);
       }
     } catch (err: any) {
-      alert(`Save failed: ${err.message}`);
+      void notify(err.message, 'Post not saved');
     }
   };
 
   const handleDelete = async (b: AdminBlog) => {
-    if (!confirm(`Delete blog post "${b.title}"?`)) return;
+    if (!(await confirm({ title: 'Delete this post?', body: <>“{b.title}” will be removed from the website and cannot be restored.</>, confirmLabel: 'Delete post', danger: true }))) return;
     try {
       await adminDataService.deleteBlog(b.id, b.slug);
       setBlogs(prev => prev.filter(x => x.id !== b.id));
     } catch (err: any) {
-      alert(`Delete failed: ${err.message}`);
+      void notify(err.message, 'Post not deleted');
     }
   };
 
   const handleRunAiFixer = async () => {
     if (!formData.title || !formData.content) {
-      alert('Please provide at least a title and body content before running the AI fixer.');
+      void notify('Add a title and the post text first, then run the AI fixer.', 'Nothing to fix yet');
       return;
     }
     setAiFixing(true);
@@ -136,7 +138,7 @@ export const BlogsTab: React.FC = () => {
       }));
       setAiSummary(res.changesSummary);
     } catch (err: any) {
-      alert(`AI Fixer error: ${err.message}`);
+      void notify(err.message, 'AI fixer did not finish');
     } finally {
       setAiFixing(false);
     }

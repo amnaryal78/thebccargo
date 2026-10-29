@@ -11,8 +11,10 @@ import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
 import { CsvImporterSection } from './CsvImporterSection';
 import { SheetRatesGrid } from './SheetRatesGrid';
+import { useAdminDialogs } from '../AdminConfirmDialog';
 
 export const RatesTab: React.FC = () => {
+  const { confirm, notify } = useAdminDialogs();
   const { role } = useAuth();
   const permissions = useMyPermissions();
 
@@ -47,12 +49,12 @@ export const RatesTab: React.FC = () => {
   }, []);
 
   const handleDeleteInternational = async (id: string) => {
-    if (!confirm('Are you sure you want to remove this international tariff rule?')) return;
+    if (!(await confirm({ title: 'Delete this fallback rate?', body: 'The row is removed from the fallback rate table. The live Google Sheet prices are not affected.', confirmLabel: 'Delete rate', danger: true }))) return;
     try {
       await adminDataService.deleteInternationalRate(id);
       setInternationalRates(prev => prev.filter(r => r.id !== id));
     } catch (e: any) {
-      alert(`Delete failed: ${e.message}`);
+      void notify(e.message, 'Rate not deleted');
     }
   };
 

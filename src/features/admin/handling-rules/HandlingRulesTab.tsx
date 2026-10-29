@@ -15,8 +15,10 @@ import { adminDataService } from '../services/adminDataService';
 import { AdminHandlingRule } from '../types';
 import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
+import { useAdminDialogs } from '../AdminConfirmDialog';
 
 export const HandlingRulesTab: React.FC = () => {
+  const { notify } = useAdminDialogs();
   const { role } = useAuth();
   const permissions = useMyPermissions();
 
@@ -90,7 +92,7 @@ export const HandlingRulesTab: React.FC = () => {
         setIsCreating(false);
       }
     } catch (err: any) {
-      alert(`Save failed: ${err.message}`);
+      void notify(err.message, 'Rule not saved');
     }
   };
 

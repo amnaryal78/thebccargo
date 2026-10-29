@@ -15,13 +15,13 @@ export interface AuthContextType {
   isAuthorizedAdmin: boolean;
   active: boolean;
   authReason: 'authorized' | 'deactivated' | 'not_found' | null;
-  /** Permission maps from custom roles assigned to this person (empty without the custom-roles migration). */
   loginWithGoogle: (redirectTo?: string) => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Exported only for the dev-only admin preview (src/dev/AdminPreview.tsx); app code uses useAuth().
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);

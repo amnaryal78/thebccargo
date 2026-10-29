@@ -21,8 +21,10 @@ import { DEFAULT_HOW_TO_SHIP } from '../../../data/defaultHowToShip';
 import { useAuth } from '../../../context/AuthContext';
 import { useMyPermissions } from '../usePermissions';
 import { Link } from 'react-router-dom';
+import { useAdminDialogs } from '../AdminConfirmDialog';
 
 export const HowToShipAdminTab: React.FC = () => {
+  const { notify } = useAdminDialogs();
   const { user, role } = useAuth();
   const permissions = useMyPermissions();
   const canEdit = permissions.canManageHowToShip && !permissions.isReadOnly;
@@ -70,7 +72,7 @@ export const HowToShipAdminTab: React.FC = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canEdit) {
-      alert('You do not have permission to edit content.');
+      void notify("Your role can view this guide but can't change it.", 'Not saved');
       return;
     }
 

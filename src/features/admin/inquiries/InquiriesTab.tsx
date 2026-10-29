@@ -17,8 +17,10 @@ import { adminDataService } from '../services/adminDataService';
 import { AdminInquiry } from '../types';
 import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
+import { useAdminDialogs } from '../AdminConfirmDialog';
 
 export const InquiriesTab: React.FC = () => {
+  const { notify } = useAdminDialogs();
   const { role } = useAuth();
   const permissions = useMyPermissions();
 
@@ -57,7 +59,7 @@ export const InquiriesTab: React.FC = () => {
       const updated = await adminDataService.updateInquiryStatus(inquiry.id, newStatus);
       setInquiries(prev => prev.map(i => i.id === updated.id ? updated : i));
     } catch (err: any) {
-      alert(`Status update failed: ${err.message}`);
+      void notify(err.message, 'Status not changed');
     }
   };
 
@@ -69,7 +71,7 @@ export const InquiriesTab: React.FC = () => {
       setInquiries(prev => prev.map(i => i.id === updated.id ? updated : i));
       setEditingNotesId(null);
     } catch (err: any) {
-      alert(`Failed to save notes: ${err.message}`);
+      void notify(err.message, 'Notes not saved');
     }
   };
 

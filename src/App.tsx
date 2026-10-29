@@ -14,6 +14,17 @@ import { RouteLoader } from './components/RouteLoader';
 import { BootSignal } from './boot/BootSignal';
 
 // Code-Split Lazy Loaded Page & Section Components for Core Web Vitals Optimization
+// DEV ONLY: see the admin as a role without signing in (src/dev/AdminPreview.tsx). Not in production builds.
+const AdminPreview = import.meta.env.DEV ? lazy(() => import('./dev/AdminPreview').then(m => ({ default: m.AdminPreview }))) : null;
+const devPreviewRole = (): string | null => {
+  if (!import.meta.env.DEV) return null;
+  try {
+    const q = new URLSearchParams(window.location.search).get('previewRole');
+    if (q === 'off') sessionStorage.removeItem('bc-admin-preview-role');
+    else if (q) sessionStorage.setItem('bc-admin-preview-role', q);
+    return sessionStorage.getItem('bc-admin-preview-role');
+  } catch { return null; }
+};
 const MessagesPage = lazy(() => import('./pages/MessagesPage').then(m => ({ default: m.MessagesPage })));
 const TrackingSection = lazy(() => import('./components/TrackingSection').then(m => ({ default: m.TrackingSection })));
 const BookingSystem = lazy(() => import('./components/BookingSystem').then(m => ({ default: m.BookingSystem })));
@@ -210,9 +221,13 @@ function AppContent() {
             <Route
               path="/admin/*"
               element={
-                <ProtectedRoute>
-                  <AdminDashboardPage />
-                </ProtectedRoute>
+                AdminPreview && devPreviewRole() ? (
+                  <AdminPreview role={devPreviewRole() as never}><AdminDashboardPage /></AdminPreview>
+                ) : (
+                  <ProtectedRoute>
+                    <AdminDashboardPage />
+                  </ProtectedRoute>
+                )
               }
             />
             

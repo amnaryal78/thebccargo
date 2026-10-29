@@ -17,8 +17,10 @@ import { adminDataService } from '../services/adminDataService';
 import { AdminCareer, AdminJobApplication } from '../types';
 import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
+import { useAdminDialogs } from '../AdminConfirmDialog';
 
 export const CareersTab: React.FC = () => {
+  const { confirm, notify } = useAdminDialogs();
   const { role } = useAuth();
   const permissions = useMyPermissions();
 
@@ -96,17 +98,17 @@ export const CareersTab: React.FC = () => {
         setIsCreating(false);
       }
     } catch (err: any) {
-      alert(`Save failed: ${err.message}`);
+      void notify(err.message, 'Vacancy not saved');
     }
   };
 
   const handleDeleteCareer = async (c: AdminCareer) => {
-    if (!confirm(`Delete vacancy "${c.title}"?`)) return;
+    if (!(await confirm({ title: 'Delete this vacancy?', body: <>“{c.title}” will be removed from the careers page. Applications already received are kept.</>, confirmLabel: 'Delete vacancy', danger: true }))) return;
     try {
       await adminDataService.deleteCareer(c.id, c.slug);
       setCareers(prev => prev.filter(x => x.id !== c.id));
     } catch (err: any) {
-      alert(`Delete failed: ${err.message}`);
+      void notify(err.message, 'Vacancy not deleted');
     }
   };
 
@@ -115,7 +117,7 @@ export const CareersTab: React.FC = () => {
       const updated = await adminDataService.updateApplicationStatus(appId, newStatus);
       setApplications(prev => prev.map(a => a.id === updated.id ? updated : a));
     } catch (err: any) {
-      alert(`Status update failed: ${err.message}`);
+      void notify(err.message, 'Status not changed');
     }
   };
 
