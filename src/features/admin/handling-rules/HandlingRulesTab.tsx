@@ -105,8 +105,8 @@ export const HandlingRulesTab: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-heading font-black text-2xl lg:text-3xl text-slate-900 uppercase tracking-tight">
-              Special Handling Rules
+            <h1 className="font-heading font-extrabold text-2xl lg:text-[28px] text-[var(--text)]">
+              Handling rules
             </h1>
             <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 text-[10px] font-mono font-bold">
               Rate Estimator Engine
@@ -150,7 +150,7 @@ export const HandlingRulesTab: React.FC = () => {
       {/* Rules Grid / Table */}
       <div className="rounded-2xl bg-white border border-slate-200 shadow-hard-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="stack-table w-full text-left border-collapse">
             <thead>
               <tr className="bg-ox-900 text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
                 <th className="py-2.5 px-4">Cargo Flag</th>
@@ -172,15 +172,15 @@ export const HandlingRulesTab: React.FC = () => {
               ) : (
                 rules.map((r) => (
                   <tr key={r.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-2.5 px-4 font-mono font-bold uppercase text-slate-900">
+                    <td data-label="Cargo Flag" className="py-2.5 px-4 font-mono font-bold uppercase text-slate-900">
                       <span className="px-2 py-0.5 rounded-lg bg-slate-100">
                         {r.flag}
                       </span>
                     </td>
-                    <td className="py-2.5 px-4 font-mono text-slate-600">
+                    <td data-label="Corridor / Mode" className="py-2.5 px-4 font-mono text-slate-600">
                       {r.country_code ? `Country: ${r.country_code}` : 'Global'} {r.mode ? `(${r.mode})` : ''}
                     </td>
-                    <td className="py-2.5 px-4">
+                    <td data-label="Permitted" className="py-2.5 px-4">
                       {r.allowed ? (
                         <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
                           <CheckCircle2 className="w-4 h-4" />
@@ -193,13 +193,13 @@ export const HandlingRulesTab: React.FC = () => {
                         </span>
                       )}
                     </td>
-                    <td className="py-2.5 px-4 font-mono font-semibold text-slate-900">
+                    <td data-label="Surcharge" className="py-2.5 px-4 font-mono font-semibold text-slate-900">
                       {r.surcharge_type === 'percent' && `+${r.surcharge_value}% of freight`}
                       {r.surcharge_type === 'flat_npr' && `NPR ${r.surcharge_value} flat`}
                       {r.surcharge_type === 'per_kg_npr' && `NPR ${r.surcharge_value} / kg`}
                       {!r.surcharge_type && 'None'}
                     </td>
-                    <td className="py-2.5 px-4 max-w-xs">
+                    <td data-label="Packaging & Requirements" className="py-2.5 px-4 max-w-xs">
                       <p className="text-[11px] text-slate-500 truncate" title={r.requirements_md}>
                         {r.requirements_md}
                       </p>
@@ -209,7 +209,7 @@ export const HandlingRulesTab: React.FC = () => {
                         </span>
                       )}
                     </td>
-                    <td className="py-2.5 px-4">
+                    <td data-label="Status" className="py-2.5 px-4">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
                         r.active ? 'bg-emerald-500/15 text-emerald-600' : 'bg-slate-200 text-slate-500'
                       }`}>

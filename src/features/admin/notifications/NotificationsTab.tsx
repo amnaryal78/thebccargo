@@ -14,7 +14,7 @@ export const NotificationsTab: React.FC = () => {
     <div className="max-w-3xl flex flex-col gap-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-heading font-bold text-2xl">Notifications</h1>
+          <h1 className="font-heading font-extrabold text-2xl lg:text-[28px] text-[var(--text)]">Notifications</h1>
           <p className="text-sm opacity-70">{unreadCount} unread</p>
         </div>
         <button

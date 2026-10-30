@@ -75,7 +75,7 @@ export const FeedbackTab: React.FC = () => {
   return (
     <div className="flex flex-col gap-5 max-w-3xl">
       <div>
-        <h1 className="font-heading font-bold text-2xl">Feedback</h1>
+        <h1 className="font-heading font-extrabold text-2xl lg:text-[28px] text-[var(--text)]">Feedback</h1>
         <p className="text-sm opacity-70">New feedback stays hidden until you approve it.</p>
       </div>
       {error && <p role="alert" className="text-sm text-red-600">{error}</p>}

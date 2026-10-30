@@ -49,8 +49,8 @@ export const AuditLogTab: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-heading font-black text-2xl lg:text-3xl text-slate-900 uppercase tracking-tight">
-              Security &amp; Operations Audit Trail
+            <h1 className="font-heading font-extrabold text-2xl lg:text-[28px] text-[var(--text)]">
+              Audit log
             </h1>
             <span className="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-mono font-bold">
               Append-Only
@@ -96,7 +96,7 @@ export const AuditLogTab: React.FC = () => {
       {/* Dense Table */}
       <div className="rounded-2xl bg-white border border-slate-200 shadow-hard-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs font-mono">
+          <table className="stack-table w-full text-left border-collapse text-xs font-mono">
             <thead>
               <tr className="bg-ox-900 text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
                 <th className="py-2.5 px-4">Timestamp (UTC)</th>
@@ -116,18 +116,18 @@ export const AuditLogTab: React.FC = () => {
               ) : (
                 filtered.map((l) => (
                   <tr key={l.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-2.5 px-4 text-slate-500 text-[11px]">
+                    <td data-label="Timestamp (UTC)" className="py-2.5 px-4 text-slate-500 text-[11px]">
                       {new Date(l.created_at).toLocaleString()}
                     </td>
-                    <td className="py-2.5 px-4 font-bold text-slate-900">
+                    <td data-label="Staff Actor" className="py-2.5 px-4 font-bold text-slate-900">
                       {l.actor_email || 'system'}
                     </td>
-                    <td className="py-2.5 px-4">
+                    <td data-label="Action" className="py-2.5 px-4">
                       <span className="px-2 py-0.5 rounded-md bg-slate-100 font-bold uppercase text-[10px]">
                         {l.action}
                       </span>
                     </td>
-                    <td className="py-2.5 px-4 text-slate-700">
+                    <td data-label="Target Entity" className="py-2.5 px-4 text-slate-700">
                       {l.target_entity}
                     </td>
                     <td className="py-2.5 px-4 text-right">

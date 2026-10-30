@@ -98,8 +98,8 @@ export const InquiriesTab: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-heading font-black text-2xl lg:text-3xl text-slate-900 uppercase tracking-tight">
-            Customer Inquiries &amp; Quotes
+          <h1 className="font-heading font-extrabold text-2xl lg:text-[28px] text-[var(--text)]">
+            Inquiries and partners
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Operational workflow for quote requests, counter pickups, and rate inquiries.

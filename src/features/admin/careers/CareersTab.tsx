@@ -127,8 +127,8 @@ export const CareersTab: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-heading font-black text-2xl lg:text-3xl text-slate-900 uppercase tracking-tight">
-            Careers &amp; Candidate Portal
+          <h1 className="font-heading font-extrabold text-2xl lg:text-[28px] text-[var(--text)]">
+            Careers and applicants
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Manage published job vacancies and track applicant resumes submitted through Turnstile-verified forms.
@@ -184,7 +184,7 @@ export const CareersTab: React.FC = () => {
           </div>
 
           <div className="rounded-2xl bg-white border border-slate-200 shadow-hard-sm overflow-hidden">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="stack-table w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-ox-900 text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
                   <th className="py-2.5 px-4">Job Title &amp; Slug</th>
@@ -197,13 +197,13 @@ export const CareersTab: React.FC = () => {
               <tbody className="divide-y divide-slate-100">
                 {careers.map((c) => (
                   <tr key={c.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-2.5 px-4 font-bold text-slate-900">
+                    <td data-label="Job Title & Slug" className="py-2.5 px-4 font-bold text-slate-900">
                       <span>{c.title}</span>
                       <span className="block text-[10px] font-mono text-slate-400">/careers/{c.slug}</span>
                     </td>
-                    <td className="py-2.5 px-4 font-mono">{c.department}</td>
-                    <td className="py-2.5 px-4 font-mono">{c.location}</td>
-                    <td className="py-2.5 px-4">
+                    <td data-label="Department" className="py-2.5 px-4 font-mono">{c.department}</td>
+                    <td data-label="Location" className="py-2.5 px-4 font-mono">{c.location}</td>
+                    <td data-label="Status" className="py-2.5 px-4">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
                         c.published ? 'bg-emerald-500/15 text-emerald-600' : 'bg-slate-200 text-slate-600'
                       }`}>
@@ -240,7 +240,7 @@ export const CareersTab: React.FC = () => {
       {activeSubtab === 'applications' && (
         <div className="rounded-2xl bg-white border border-slate-200 shadow-hard-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="stack-table w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-ox-900 text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
                   <th className="py-2.5 px-4">Applicant Name</th>
@@ -260,13 +260,13 @@ export const CareersTab: React.FC = () => {
                 ) : (
                   applications.map((a) => (
                     <tr key={a.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-2.5 px-4">
+                      <td data-label="Applicant Name" className="py-2.5 px-4">
                         <span className="font-bold text-slate-900 block">{a.applicant_name}</span>
                         <span className="text-[10px] font-mono text-slate-400">{a.email} · {a.phone || 'No phone'}</span>
                       </td>
-                      <td className="py-2.5 px-4 font-mono font-semibold">{a.job_title}</td>
-                      <td className="py-2.5 px-4 font-mono">{a.experience_years ? `${a.experience_years} years` : 'Entry'}</td>
-                      <td className="py-2.5 px-4">
+                      <td data-label="Target Vacancy" className="py-2.5 px-4 font-mono font-semibold">{a.job_title}</td>
+                      <td data-label="Experience" className="py-2.5 px-4 font-mono">{a.experience_years ? `${a.experience_years} years` : 'Entry'}</td>
+                      <td data-label="Resume" className="py-2.5 px-4">
                         {a.resume_url ? (
                           <a
                             href={a.resume_url}
@@ -281,7 +281,7 @@ export const CareersTab: React.FC = () => {
                           <span className="text-slate-400 font-mono">None</span>
                         )}
                       </td>
-                      <td className="py-2.5 px-4">
+                      <td data-label="Status" className="py-2.5 px-4">
                         {permissions.canManageCareers ? (
                           <select
                             value={a.status}

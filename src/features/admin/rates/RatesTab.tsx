@@ -59,8 +59,8 @@ export const RatesTab: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-heading font-black text-2xl lg:text-3xl text-slate-900 uppercase tracking-tight">
-            Tariffs &amp; Rate Matrices
+          <h1 className="font-heading font-extrabold text-2xl lg:text-[28px] text-[var(--text)]">
+            Rates
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Website prices come from the live Google Sheet. The International tab is the old fallback table.
@@ -138,7 +138,7 @@ export const RatesTab: React.FC = () => {
           {/* Table: fixed columns so every row lines up */}
           <div className="rounded-2xl bg-white border border-slate-200 shadow-hard-sm overflow-hidden">
             <div className="overflow-auto max-h-[65vh]">
-              <table className="w-full min-w-[720px] table-fixed text-left border-collapse">
+              <table className="stack-table w-full min-w-[720px] table-fixed text-left border-collapse">
                 <colgroup>
                   <col className="w-[30%]" />
                   <col className="w-[26%]" />
@@ -164,17 +164,17 @@ export const RatesTab: React.FC = () => {
                   )}
                   {filteredInternational.map((r) => (
                     <tr key={r.id} className="odd:bg-white even:bg-slate-50/60 hover:bg-amber-50/60 transition-colors">
-                      <td className="py-3 px-4 align-middle">
+                      <td data-label="Destination" className="py-3 px-4 align-middle">
                         <span className="font-heading font-bold text-slate-900 block truncate">{r.country_name}</span>
                         <span className="text-[11px] text-slate-500">{r.country_code}</span>
                       </td>
-                      <td className="py-3 px-4 align-middle text-slate-600 truncate" title={r.service_name}>
+                      <td data-label="Service" className="py-3 px-4 align-middle text-slate-600 truncate" title={r.service_name}>
                         {r.service_name}
                       </td>
-                      <td className="py-3 px-4 align-middle tabular-nums whitespace-nowrap">
+                      <td data-label="Weight band" className="py-3 px-4 align-middle tabular-nums whitespace-nowrap">
                         {r.min_weight_kg} – {r.max_weight_kg} kg
                       </td>
-                      <td className="py-3 px-4 align-middle text-right font-bold text-emerald-700 tabular-nums">
+                      <td data-label="Base rate (USD)" className="py-3 px-4 align-middle text-right font-bold text-emerald-700 tabular-nums">
                         ${r.rate_usd}
                       </td>
                       <td className="py-3 px-4 align-middle text-right">

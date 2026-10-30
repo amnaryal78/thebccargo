@@ -156,8 +156,8 @@ export const BlogsTab: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-heading font-black text-2xl lg:text-3xl text-slate-900 uppercase tracking-tight">
-              Blog CMS &amp; AI Fixer
+            <h1 className="font-heading font-extrabold text-2xl lg:text-[28px] text-[var(--text)]">
+              Blogs
             </h1>
             <span className="px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-600 text-[10px] font-mono font-bold">
               AI Editor Integrated
@@ -205,7 +205,7 @@ export const BlogsTab: React.FC = () => {
       {/* Desktop Dense Table */}
       <div className="rounded-2xl bg-white border border-slate-200 shadow-hard-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="stack-table w-full text-left border-collapse">
             <thead>
               <tr className="bg-ox-900 text-white text-[11px] font-heading font-bold uppercase tracking-wider sticky top-0">
                 <th className="py-2.5 px-4">Article Title &amp; Slug</th>
@@ -218,7 +218,7 @@ export const BlogsTab: React.FC = () => {
             <tbody className="divide-y divide-slate-100 text-xs">
               {filtered.map((b) => (
                 <tr key={b.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="py-2.5 px-4 max-w-md">
+                  <td data-label="Article Title & Slug" className="py-2.5 px-4 max-w-md">
                     <span className="font-heading font-bold text-slate-900 block">
                       {b.title}
                     </span>
@@ -226,19 +226,19 @@ export const BlogsTab: React.FC = () => {
                       /blogs/{b.slug}
                     </span>
                   </td>
-                  <td className="py-2.5 px-4">
+                  <td data-label="Category" className="py-2.5 px-4">
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-mono uppercase bg-slate-100 text-slate-700">
                       {b.category}
                     </span>
                   </td>
-                  <td className="py-2.5 px-4">
+                  <td data-label="Status" className="py-2.5 px-4">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
                       b.published ? 'bg-emerald-500/15 text-emerald-600' : 'bg-amber-500/15 text-amber-600'
                     }`}>
                       {b.published ? 'Published' : 'Draft'}
                     </span>
                   </td>
-                  <td className="py-2.5 px-4 font-mono text-slate-500 text-[11px]">
+                  <td data-label="Published Date" className="py-2.5 px-4 font-mono text-slate-500 text-[11px]">
                     {new Date(b.created_at).toLocaleDateString()}
                   </td>
                   <td className="py-2.5 px-4 text-right">

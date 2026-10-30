@@ -403,3 +403,10 @@ Decided during phase 1:
 - **Live prices panel:** source in words, last sync time, price count, and "Sync now" (asks the live sheet again). The wording is shared with the Today page.
 - **Handling rules:** changing an existing rule asks for confirmation first (it changes what customers are told straight away).
 - **Not done:** a before/after quote comparison across 10 countries (nothing in the pricing path changed); restyle of the Rates and Handling rules headers (phase 8).
+
+## Phase 8 log (2026-10-30)
+- **No migration, no data change.**
+- **Browser dialogs:** none left in `src/features/admin` or `src/pages/admin` (they were replaced in phase 3); `tests/admin-ui-rules.test.ts` now fails if one is added.
+- **Phone layouts:** audit log, blogs, careers (vacancies and applicants), handling rules and the fallback rates table now turn each row into a card below 768px (`.stack-table` in `index.css`; each cell has `data-label`). Shipments, bookings, inquiries and users already had cards. The same test fails if a new admin table has no phone layout.
+- **Headings:** the all-caps page titles on these screens are now sentence case on the foundation tokens (Audit log, Blogs, Careers and applicants, Handling rules, Inquiries and partners, Rates, Feedback, Notifications).
+- **Skipped (deliberate, to keep logic untouched):** rewriting each screen's internals (cards, filters, forms) onto the primitives; those screens still use their older slate styling inside the page. The blog editor, how-to-ship editor and careers forms are unchanged. Remaining visual cleanup is listed for phase 9.
