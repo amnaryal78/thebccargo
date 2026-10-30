@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { RefreshCw } from 'lucide-react';
 import { fetchSheetRates, SheetRateItem } from '../../../services/ratesService';
+import { Button } from '../../../design/primitives';
+import { sourceWords } from '../overview/AdminOverviewTab';
 
 const fmt = (n: number) => n.toLocaleString('en-IN');
 
@@ -9,16 +12,19 @@ export const SheetRatesGrid: React.FC = () => {
   const [meta, setMeta] = useState<{ updatedAt: string; source: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [syncs, setSyncs] = useState(0);
 
+  // Fetching the prices asks the live sheet first, so this is also "Sync now".
   useEffect(() => {
     fetchSheetRates()
       .then((p) => {
+        setError(null);
         setRates(p.rates.filter((r) => r.active));
-        setMeta({ updatedAt: p.updatedAt, source: p.source });
+        setMeta({ updatedAt: p.updatedAt, source: p.rates.length ? p.source : 'none' });
       })
       .catch((e: any) => setError(e?.message || 'Failed to load the live rate sheet.'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [syncs]);
 
   const { weights, groups } = useMemo(() => {
     const weights = [...new Set(rates.filter((r) => r.weight_tier === 'standard' && r.weight_kg != null).map((r) => r.weight_kg as number))].sort((a, b) => a - b);
@@ -34,18 +40,25 @@ export const SheetRatesGrid: React.FC = () => {
     return { weights, groups: [...byGroup.entries()].sort((a, b) => a[1].name.localeCompare(b[1].name)) };
   }, [rates]);
 
-  if (loading) return <div className="p-10 text-center text-xs text-slate-500">Loading live rates...</div>;
+  if (loading && !meta) return <div className="p-10 text-center text-xs text-slate-500">Loading live rates...</div>;
   if (error) return <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs">{error}</div>;
 
   const th = 'py-3 px-3 text-right whitespace-nowrap';
   const td = 'py-2.5 px-3 text-right tabular-nums whitespace-nowrap';
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="rounded-2xl bg-white border border-slate-200 shadow-hard-xs px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="font-semibold text-slate-900">{meta ? sourceWords[meta.source] ?? meta.source : ''}</p>
+          <p className="text-sm text-slate-600">{meta?.updatedAt ? `Last synced ${new Date(meta.updatedAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}` : 'No sync time available'} · {rates.length} prices</p>
+        </div>
+        <Button variant="outline" size="sm" isLoading={loading} onClick={() => { setLoading(true); setSyncs((n) => n + 1); }} leftIcon={<RefreshCw className="size-4" aria-hidden="true" />}>Sync now</Button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {[
           ['Destination groups', groups.length],
           ['Weight steps (kg)', weights.length],
-          ['Last synced', meta ? new Date(meta.updatedAt).toLocaleDateString() : '-'],
         ].map(([label, value]) => (
           <div key={label} className="rounded-2xl bg-white border border-slate-200 shadow-hard-xs px-4 py-3">
             <div className="text-[11px] font-heading font-bold uppercase tracking-wider text-slate-500">{label}</div>

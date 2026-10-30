@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
   Receipt,
-  Upload,
   Trash2,
   Search
 } from 'lucide-react';
 import { adminDataService } from '../services/adminDataService';
-import { AdminNationalRate, AdminInternationalRate } from '../types';
+import { AdminInternationalRate } from '../types';
 import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
-import { CsvImporterSection } from './CsvImporterSection';
 import { SheetRatesGrid } from './SheetRatesGrid';
 import { useAdminDialogs } from '../AdminConfirmDialog';
 
@@ -18,19 +16,11 @@ export const RatesTab: React.FC = () => {
   const { role } = useAuth();
   const permissions = useMyPermissions();
 
-  const [activeSubtab, setActiveSubtab] = useState<'sheet' | 'international' | 'csv'>('sheet');
+  const [activeSubtab, setActiveSubtab] = useState<'sheet' | 'international'>('sheet');
   const [internationalRates, setInternationalRates] = useState<AdminInternationalRate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-
-  // CSV Import State
-  const [csvTarget, setCsvTarget] = useState<'international'>('international');
-  const [csvRawText, setCsvRawText] = useState('');
-  const [parsedPreview, setParsedPreview] = useState<any[]>([]);
-  const [csvError, setCsvError] = useState<string | null>(null);
-  const [importing, setImporting] = useState(false);
-  const [importSuccess, setImportSuccess] = useState<string | null>(null);
 
   const loadRates = async () => {
     try {
@@ -58,73 +48,6 @@ export const RatesTab: React.FC = () => {
     }
   };
 
-  // CSV Parsing Engine (International Rates Only)
-  const handleParseCsv = (text: string) => {
-    setCsvRawText(text);
-    setCsvError(null);
-    setImportSuccess(null);
-
-    const lines = text.trim().split('\n').map(l => l.trim()).filter(Boolean);
-    if (lines.length < 2) {
-      setParsedPreview([]);
-      if (text.trim().length > 0) setCsvError('CSV must contain a header row and at least one data row.');
-      return;
-    }
-
-    const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''));
-    const rows: any[] = [];
-
-    for (let i = 1; i < lines.length; i++) {
-      const parts = lines[i].split(',').map(p => p.trim().replace(/^['"]|['"]$/g, ''));
-      if (parts.length < headers.length) continue;
-
-      const rowObj: Record<string, any> = {};
-      headers.forEach((h, idx) => {
-        rowObj[h] = parts[idx];
-      });
-      rows.push(rowObj);
-    }
-
-    const valid = rows.map(r => ({
-      country_code: (r.country_code || r.code || 'USA').toUpperCase(),
-      country_name: r.country_name || r.country || 'United States',
-      service_name: r.service_name || r.service || 'International Priority Air Express',
-      min_weight_kg: parseFloat(r.min_weight_kg || r.min_weight || '0') || 0,
-      max_weight_kg: parseFloat(r.max_weight_kg || r.max_weight || '5') || 5,
-      rate_usd: parseFloat(r.rate_usd || r.rate || '25') || 25,
-      effective_date: r.effective_date || new Date().toISOString().split('T')[0]
-    }));
-    setParsedPreview(valid);
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result as string;
-      handleParseCsv(text);
-    };
-    reader.readAsText(file);
-  };
-
-  const handleExecuteImport = async () => {
-    if (parsedPreview.length === 0) return;
-    setImporting(true);
-    setCsvError(null);
-    try {
-      const count = await adminDataService.bulkUpsertInternationalRates(parsedPreview);
-      setImportSuccess(`Successfully imported ${count} international rate corridors into database!`);
-      await loadRates();
-      setParsedPreview([]);
-      setCsvRawText('');
-    } catch (err: any) {
-      setCsvError(err.message || 'CSV Import failed on database insertion.');
-    } finally {
-      setImporting(false);
-    }
-  };
-
   const filteredInternational = internationalRates.filter(r =>
     r.country_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     r.country_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -140,7 +63,7 @@ export const RatesTab: React.FC = () => {
             Tariffs &amp; Rate Matrices
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Manage corridor pricing matrices, base tariffs, and bulk import rate tables from CSV.
+            Website prices come from the live Google Sheet. The International tab is the old fallback table.
           </p>
         </div>
 
@@ -165,17 +88,6 @@ export const RatesTab: React.FC = () => {
             }`}
           >
             International ({internationalRates.length})
-          </button>
-          <button
-            onClick={() => setActiveSubtab('csv')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-heading font-bold uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeSubtab === 'csv'
-                ? 'bg-gd-500 text-ox-900 shadow-sm font-extrabold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Upload className="w-3.5 h-3.5" />
-            <span>CSV Importer</span>
           </button>
         </div>
       </div>
@@ -285,22 +197,6 @@ export const RatesTab: React.FC = () => {
         </div>
       )}
 
-      {/* SUBTAB 3: CSV IMPORTER WITH LIVE PREVIEW */}
-      {activeSubtab === 'csv' && (
-        <CsvImporterSection
-          csvTarget={csvTarget}
-          setCsvTarget={setCsvTarget}
-          csvRawText={csvRawText}
-          onParseCsv={handleParseCsv}
-          onFileUpload={handleFileUpload}
-          parsedPreview={parsedPreview}
-          csvError={csvError}
-          importSuccess={importSuccess}
-          importing={importing}
-          onExecuteImport={handleExecuteImport}
-          canManageRates={permissions.canManageRates}
-        />
-      )}
     </div>
   );
 };

@@ -396,3 +396,10 @@ Decided during phase 1:
 - **Bookings page:** rebuilt on tokens; data through `adminDataService` (it called Supabase directly before). Status filter in the URL, phone/email links, "New" marker from notifications, and either "Create shipment from this booking" or a link to the shipment already made from it.
 - **Conversion:** `/admin/shipments/new?booking=<id>` fills sender, receiver, destination and weight; the first save writes `booking_ref`, then marks the booking `confirmed` (a separate write; a failure is reported in the save message).
 - **Tested on live, rolled back:** operations can insert a shipment with `booking_ref` and confirm the booking; editor cannot change a booking (0 rows).
+
+## Phase 7 log (2026-10-30)
+- **Decision taken (recommended):** the `international_rates` CSV importer is retired. Its parser filled missing cells with invented values (USA, $25, 0-5 kg), so a bad file could write wrong prices. Removed: `CsvImporterSection`, the parser in `RatesTab`, `bulkUpsertInternationalRates`. The fallback table stays viewable and rows can still be deleted. Fallback pricing is the live sheet, then the last-good `sheet_rates_cache`, then the browser copy.
+- **No migration.** Pricing code untouched (`engine.ts`, `ratesService.ts`, `supabase/functions/rates` have an empty diff), so quotes are identical by construction; the existing estimator tests pass.
+- **Live prices panel:** source in words, last sync time, price count, and "Sync now" (asks the live sheet again). The wording is shared with the Today page.
+- **Handling rules:** changing an existing rule asks for confirmation first (it changes what customers are told straight away).
+- **Not done:** a before/after quote comparison across 10 countries (nothing in the pricing path changed); restyle of the Rates and Handling rules headers (phase 8).

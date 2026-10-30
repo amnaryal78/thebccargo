@@ -356,18 +356,6 @@ export const adminDataService = {
     return data?.length || 0;
   },
 
-  async bulkUpsertInternationalRates(rows: Omit<AdminInternationalRate, 'id' | 'created_at'>[]): Promise<number> {
-    ensureConfigured();
-    const { data, error } = await supabase
-      .from('international_rates')
-      .insert(rows)
-      .select('id');
-
-    if (error) throw new AdminServiceError(error.message, error);
-    await this.logAction('bulk_import_international_rates', 'international_rates', { count: data?.length || 0 });
-    return data?.length || 0;
-  },
-
   async deleteNationalRate(id: string): Promise<void> {
     ensureConfigured();
     const { error } = await supabase.from('national_rates').delete().eq('id', id);

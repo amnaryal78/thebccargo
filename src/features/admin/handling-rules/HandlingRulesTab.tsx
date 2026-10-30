@@ -18,7 +18,7 @@ import { useAuth } from '../../../context/AuthContext';
 import { useAdminDialogs } from '../AdminConfirmDialog';
 
 export const HandlingRulesTab: React.FC = () => {
-  const { notify } = useAdminDialogs();
+  const { confirm, notify } = useAdminDialogs();
   const { role } = useAuth();
   const permissions = useMyPermissions();
 
@@ -79,6 +79,8 @@ export const HandlingRulesTab: React.FC = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Changing an existing rule changes what customers are told on the website straight away.
+    if (editingRule && !(await confirm({ title: 'Save this rule change?', body: 'Customers will see the new rule on the website as soon as it is saved.', confirmLabel: 'Save rule' }))) return;
     try {
       const saved = await adminDataService.saveHandlingRule({
         ...ruleDraft,

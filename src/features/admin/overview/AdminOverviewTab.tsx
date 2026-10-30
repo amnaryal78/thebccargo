@@ -21,6 +21,15 @@ import { useMyPermissions } from '../usePermissions';
 import { useAuth } from '../../../context/AuthContext';
 import type { TodayDashboard } from '../types';
 
+/** Where the website is getting its prices from, in words staff understand. */
+export const sourceWords: Record<string, string> = {
+  live: 'Live from the Google Sheet',
+  cache_memory: 'Live from the Google Sheet',
+  cache_database: 'Saved copy of the sheet (live sheet not reachable)',
+  local_fallback: 'Copy saved in this browser (live sheet not reachable)',
+  none: 'No prices available',
+};
+
 const NPT = 'Asia/Kathmandu';
 
 /** "12 min", "3 h", "2 days" since a time. */
@@ -131,13 +140,6 @@ export const AdminOverviewTab: React.FC = () => {
   const pricing = data?.pricing;
   const syncedAgo = pricing ? waitedFor(pricing.updated_at, now) : null;
   const stale = pricing ? now - Date.parse(pricing.updated_at) > 24 * 3600_000 : true;
-  const sourceWords: Record<string, string> = {
-    live: 'Live from the Google Sheet',
-    cache_memory: 'Live from the Google Sheet',
-    cache_database: 'Saved copy of the sheet (live sheet not reachable)',
-    local_fallback: 'Copy saved in this browser (live sheet not reachable)',
-    none: 'No prices available',
-  };
 
   return (
     <div className="flex flex-col gap-8">
