@@ -425,3 +425,8 @@ Decided during phase 1:
   3. Deploy `submit-*` edge functions with `TURNSTILE_SECRET_KEY` for real bot protection.
   4. Confirm email and anonymous sign-in providers are disabled.
   5. Not run: screen-reader pass, keyboard walk of every form, real-device tests, load test, and a real save/conflict test against live data.
+
+## Migration 8 applied to live (2026-10-30)
+- `20261030000008_revoke_trigger_function_execute`: `audit_milestone_change`, `audit_set_actor`, `audit_shipment_change`, `force_public_submission_defaults`, `keep_one_super_admin` can no longer be called over the API by anon or signed-in users.
+- Re-tested live, rolled back: public booking status still forced to `submitted`; audit actor still the real user; direct calls by anon and signed-in users are refused. Advisor anon warnings fell from 10 to 5, and the remaining 5 are intended (public tracking, guest chat, and `is_admin` which public policies use).
+- Possible later cleanup: `get_admin_dashboard_metrics` (replaced by `get_today_dashboard`) is probably unused now; check before dropping.
