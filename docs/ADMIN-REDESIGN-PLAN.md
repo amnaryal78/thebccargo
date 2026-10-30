@@ -410,3 +410,18 @@ Decided during phase 1:
 - **Phone layouts:** audit log, blogs, careers (vacancies and applicants), handling rules and the fallback rates table now turn each row into a card below 768px (`.stack-table` in `index.css`; each cell has `data-label`). Shipments, bookings, inquiries and users already had cards. The same test fails if a new admin table has no phone layout.
 - **Headings:** the all-caps page titles on these screens are now sentence case on the foundation tokens (Audit log, Blogs, Careers and applicants, Handling rules, Inquiries and partners, Rates, Feedback, Notifications).
 - **Skipped (deliberate, to keep logic untouched):** rewriting each screen's internals (cards, filters, forms) onto the primitives; those screens still use their older slate styling inside the page. The blog editor, how-to-ship editor and careers forms are unchanged. Remaining visual cleanup is listed for phase 9.
+
+## Phase 9 log: final QA (2026-10-30)
+- **Protected files:** empty diff since checkpoint `5e43b9a` for billing `model.ts`/`issues.ts`/`persist.ts`/`print.ts`, `engine.ts`, `ratesService.ts`, `supabase/functions/rates`, `lib/supabase.ts`, `secureStorage.ts`, `ProtectedRoute.tsx`.
+- **Live RLS, rolled back, per role (anon, reseller, editor, support, analyst, operations, admin):** only operations/admin can write shipments; no role can raise its own role; anon and reseller read 0 shipments, audit and roles; only analyst/operations/admin read the audit log; anon cannot write `sheet_rates_cache` or blogs; editor/admin can write blogs.
+- **Public tracking:** output keys unchanged (8), updates in event order, cancelled shown as cancelled, no bill, phone, email, total or party names leaked.
+- **Routes x roles (dev preview):** matches the permission matrix. Reseller shows "open" in the dev preview only; a real reseller never reaches `/admin` (ProtectedRoute, unchanged) and RLS returns 0 rows.
+- **Mobile:** 16 admin routes at 360, 390, 430 and 768: no horizontal overflow.
+- **Accessibility fixed:** unlabelled search boxes (inquiries, blogs, audit) and status filter; unnamed icon buttons (careers edit/delete, how-to-ship expand/delete); 17 unassociated how-to-ship fields; no `h1` on the access-denied page. Re-run: 0 unnamed buttons, 0 unlabelled fields.
+- **Performance:** admin chunk 336 kB (88 kB gzip), lazy; initial public bundle budget passes.
+- **Open, needs the owner:**
+  1. Supabase advisor: trigger functions `audit_*`, `audit_set_actor`, `force_public_submission_defaults`, `keep_one_super_admin` are executable over the API by anon/authenticated. They cannot do anything when called (trigger functions), but `REVOKE EXECUTE ... FROM anon, authenticated, PUBLIC` is cheap hygiene. Not applied (needs approval).
+  2. Leaked-password protection is off in Supabase Auth (dashboard setting).
+  3. Deploy `submit-*` edge functions with `TURNSTILE_SECRET_KEY` for real bot protection.
+  4. Confirm email and anonymous sign-in providers are disabled.
+  5. Not run: screen-reader pass, keyboard walk of every form, real-device tests, load test, and a real save/conflict test against live data.

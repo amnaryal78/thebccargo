@@ -85,6 +85,7 @@ export const AuditLogTab: React.FC = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search actor, action, or entity..."
+            aria-label="Search audit log"
             className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-mono text-slate-900 focus:outline-none"
           />
         </div>

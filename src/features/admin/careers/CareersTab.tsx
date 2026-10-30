@@ -215,12 +215,14 @@ export const CareersTab: React.FC = () => {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => handleOpenEdit(c)}
+                            aria-label={`Edit ${c.title}`}
                             className="p-1 rounded-lg text-blue-600 hover:bg-blue-50"
                           >
                             <Edit className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDeleteCareer(c)}
+                            aria-label={`Delete ${c.title}`}
                             className="p-1 rounded-lg text-red-600 hover:bg-red-50"
                           >
                             <Trash2 className="w-3.5 h-3.5" />

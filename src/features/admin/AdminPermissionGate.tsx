@@ -20,9 +20,12 @@ export const AdminPermissionGate: React.FC<Props> = ({ needs, page = false, chil
   if (!needs || permissions[needs]) return <>{children}</>;
   if (!page) return null;
   return (
+    <>
+    <h1 className="sr-only">Not available for your role</h1>
     <ErrorState
       title="You don't have access to this page"
       description="Your role can't open this page. If you need it for your work, ask a super admin to change your role."
     />
+    </>
   );
 };

@@ -240,7 +240,7 @@ export const HowToShipAdminTab: React.FC = () => {
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-muted)]">
                 Title (English)
               </label>
-              <input
+              <input aria-label="Title (English)"
                 type="text"
                 value={data.title_en}
                 onChange={(e) => setData({ ...data, title_en: e.target.value })}
@@ -253,7 +253,7 @@ export const HowToShipAdminTab: React.FC = () => {
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-muted)]">
                 Title (Nepali)
               </label>
-              <input
+              <input aria-label="Title (Nepali)"
                 type="text"
                 value={data.title_np}
                 onChange={(e) => setData({ ...data, title_np: e.target.value })}
@@ -266,7 +266,7 @@ export const HowToShipAdminTab: React.FC = () => {
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-muted)]">
                 Introduction Text (English)
               </label>
-              <textarea
+              <textarea aria-label="Introduction Text (English)"
                 rows={2}
                 value={data.intro_en}
                 onChange={(e) => setData({ ...data, intro_en: e.target.value })}
@@ -279,7 +279,7 @@ export const HowToShipAdminTab: React.FC = () => {
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-muted)]">
                 Introduction Text (Nepali)
               </label>
-              <textarea
+              <textarea aria-label="Introduction Text (Nepali)"
                 rows={2}
                 value={data.intro_np || ''}
                 onChange={(e) => setData({ ...data, intro_np: e.target.value })}
@@ -325,6 +325,8 @@ export const HowToShipAdminTab: React.FC = () => {
 
                   <button
                     type="button"
+                    aria-label={isExpanded ? 'Collapse section' : 'Expand section'}
+                    aria-expanded={isExpanded}
                     className="p-1.5 rounded-lg text-[var(--text-muted)] hover:bg-[var(--surface-2)]"
                   >
                     {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -340,7 +342,7 @@ export const HowToShipAdminTab: React.FC = () => {
                         <label className="block text-[11px] font-mono text-[var(--text-muted)] uppercase mb-1">
                           Section Title (EN)
                         </label>
-                        <input
+                        <input aria-label="Section Title (EN)"
                           type="text"
                           value={section.title_en}
                           onChange={(e) => handleSectionChange(sIdx, 'title_en', e.target.value)}
@@ -352,7 +354,7 @@ export const HowToShipAdminTab: React.FC = () => {
                         <label className="block text-[11px] font-mono text-[var(--text-muted)] uppercase mb-1">
                           Section Title (NP)
                         </label>
-                        <input
+                        <input aria-label="Section Title (NP)"
                           type="text"
                           value={section.title_np}
                           onChange={(e) => handleSectionChange(sIdx, 'title_np', e.target.value)}
@@ -395,7 +397,7 @@ export const HowToShipAdminTab: React.FC = () => {
                                   type="button"
                                   onClick={() => handleRemoveItem(sIdx, iIdx)}
                                   className="text-red-500 hover:text-red-700 p-1 cursor-pointer"
-                                  title="Delete Item"
+                                  title="Delete Item" aria-label="Delete item"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </button>
@@ -407,7 +409,7 @@ export const HowToShipAdminTab: React.FC = () => {
                                 <label className="text-[10px] font-mono text-[var(--text-muted)] block mb-0.5">
                                   Highlight Label (EN optional)
                                 </label>
-                                <input
+                                <input aria-label="Highlight Label (EN optional)"
                                   type="text"
                                   value={item.highlight_en || ''}
                                   placeholder="e.g. Medicine"
@@ -423,7 +425,7 @@ export const HowToShipAdminTab: React.FC = () => {
                                 <label className="text-[10px] font-mono text-[var(--text-muted)] block mb-0.5">
                                   Highlight Label (NP optional)
                                 </label>
-                                <input
+                                <input aria-label="Highlight Label (NP optional)"
                                   type="text"
                                   value={item.highlight_np || ''}
                                   placeholder="e.g. औषधि"
@@ -441,7 +443,7 @@ export const HowToShipAdminTab: React.FC = () => {
                                 <label className="text-[10px] font-mono text-[var(--text-muted)] block mb-0.5">
                                   Description (EN)
                                 </label>
-                                <textarea
+                                <textarea aria-label="Description (EN)"
                                   rows={2}
                                   value={item.en}
                                   onChange={(e) => handleItemChange(sIdx, iIdx, 'en', e.target.value)}
@@ -454,7 +456,7 @@ export const HowToShipAdminTab: React.FC = () => {
                                 <label className="text-[10px] font-mono text-[var(--text-muted)] block mb-0.5">
                                   Description (NP)
                                 </label>
-                                <textarea
+                                <textarea aria-label="Description (NP)"
                                   rows={2}
                                   value={item.np}
                                   onChange={(e) => handleItemChange(sIdx, iIdx, 'np', e.target.value)}
@@ -474,7 +476,7 @@ export const HowToShipAdminTab: React.FC = () => {
                         <label className="block text-[11px] font-mono text-[var(--text-muted)] uppercase mb-1">
                           Extra Notice (EN optional)
                         </label>
-                        <input
+                        <input aria-label="Extra Notice (EN optional)"
                           type="text"
                           value={section.extra_text_en || ''}
                           placeholder="e.g. Every country has different rules..."
@@ -487,7 +489,7 @@ export const HowToShipAdminTab: React.FC = () => {
                         <label className="block text-[11px] font-mono text-[var(--text-muted)] uppercase mb-1">
                           Extra Notice (NP optional)
                         </label>
-                        <input
+                        <input aria-label="Extra Notice (NP optional)"
                           type="text"
                           value={section.extra_text_np || ''}
                           placeholder="e.g. कुनै सामान पठाउन मिल्छ कि मिल्दैन..."
@@ -527,6 +529,7 @@ export const HowToShipAdminTab: React.FC = () => {
               <div key={wIdx} className="flex items-center gap-2">
                 <input
                   type="text"
+                  aria-label={`Warning ${wIdx + 1}`}
                   value={warning}
                   onChange={(e) => handleWarningChange(wIdx, e.target.value)}
                   disabled={!canEdit}
@@ -536,6 +539,7 @@ export const HowToShipAdminTab: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleRemoveWarning(wIdx)}
+                    aria-label={`Delete warning ${wIdx + 1}`}
                     className="p-2 text-red-500 hover:text-red-700 cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -557,7 +561,7 @@ export const HowToShipAdminTab: React.FC = () => {
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-muted)]">
                 Contact Title (English)
               </label>
-              <input
+              <input aria-label="Contact Title (English)"
                 type="text"
                 value={data.contact_title_en}
                 onChange={(e) => setData({ ...data, contact_title_en: e.target.value })}
@@ -570,7 +574,7 @@ export const HowToShipAdminTab: React.FC = () => {
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-muted)]">
                 Contact Title (Nepali)
               </label>
-              <input
+              <input aria-label="Contact Title (Nepali)"
                 type="text"
                 value={data.contact_title_np}
                 onChange={(e) => setData({ ...data, contact_title_np: e.target.value })}
@@ -583,7 +587,7 @@ export const HowToShipAdminTab: React.FC = () => {
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-muted)]">
                 Contact Text (English)
               </label>
-              <input
+              <input aria-label="Contact Text (English)"
                 type="text"
                 value={data.contact_text_en}
                 onChange={(e) => setData({ ...data, contact_text_en: e.target.value })}
@@ -596,7 +600,7 @@ export const HowToShipAdminTab: React.FC = () => {
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-muted)]">
                 Contact Text (Nepali)
               </label>
-              <input
+              <input aria-label="Contact Text (Nepali)"
                 type="text"
                 value={data.contact_text_np}
                 onChange={(e) => setData({ ...data, contact_text_np: e.target.value })}
@@ -609,7 +613,7 @@ export const HowToShipAdminTab: React.FC = () => {
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-muted)]">
                 WhatsApp Phone Number (Country code without +, e.g. 9779855019485)
               </label>
-              <input
+              <input aria-label="WhatsApp Phone Number (Country code without +, e.g. 9779855019485)"
                 type="text"
                 value={data.whatsapp_number || '9779855019485'}
                 onChange={(e) => setData({ ...data, whatsapp_number: e.target.value })}
