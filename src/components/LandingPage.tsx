@@ -94,6 +94,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <LazyMount minHeight={400}>
         <BlogSection onNavigate={onNavigate} />
       </LazyMount>
+      <HomeServicePicker onNavigate={onNavigate} />
       <LazyMount minHeight={400}>
         <FaqSection />
       </LazyMount>
