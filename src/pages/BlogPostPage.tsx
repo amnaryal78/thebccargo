@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchBlogBySlug, fetchPublishedBlogs, BlogPost } from '../services/blogService';
+import { RouteSkeleton } from '../components/RouteSkeleton';
 import { SEOHead } from '../components/SEOHead';
 import { Button } from '../design/primitives/Button';
 import { MarkdownRenderer } from '../components/MarkdownRenderer';
@@ -116,11 +117,7 @@ export const BlogPostPage: React.FC = () => {
   };
 
   if (post === undefined) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
-        <p className="font-mono text-xs text-[var(--text-muted)]">Loading logistics dispatch...</p>
-      </div>
-    );
+    return <RouteSkeleton />;
   }
 
   if (post === null) {

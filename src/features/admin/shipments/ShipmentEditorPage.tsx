@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { LoadingState } from '../../../design/primitives/Feedback';
 import { AnimatePresence, motion, MotionConfig } from 'framer-motion';
 import { AlertTriangle, ArrowLeft, Calculator, Check, CircleAlert, CircleDot, FileText, Landmark, Lightbulb, Loader2, Lock, MapPin, Minus, Package, Pencil, Plus, Printer, Save, Scale, Send, ShieldCheck, Trash2, Wrench, X } from 'lucide-react';
 import { Spotlight } from '../../../components/ui/spotlight';
@@ -765,7 +766,7 @@ export const ShipmentEditorPage: React.FC = () => {
       </div>
     );
   }
-  if (loading) return <p className="p-6 text-slate-700" role="status">Loading shipment…</p>;
+  if (loading) return <LoadingState label="Loading shipment" className="p-6" />;
 
   const rateRow = (rid: string, label: string, hint: string, auto: string, ov: number | null, setOv: (n: number | null) => void, extra?: React.ReactNode) => (
     <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto_170px] gap-x-4 gap-y-2 items-end py-3 border-b border-slate-100 last:border-b-0">

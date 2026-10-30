@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { fetchPublishedBlogs, BlogPost } from '../services/blogService';
 import { SEOHead } from '../components/SEOHead';
 import { Button } from '../design/primitives/Button';
+import { Skeleton, SkeletonGroup } from '../design/primitives/Skeleton';
 import { RegistrationCorners } from '../design/icons';
 import { Spotlight } from '../components/ui/spotlight';
 import { BlogCover } from '../components/ui/BlogCover';
@@ -82,7 +83,7 @@ export const BlogListPage: React.FC = () => {
           </div>
 
           <p className="text-sm font-semibold text-[var(--text-muted)] self-start md:self-end">
-            {blogs.length} {blogs.length === 1 ? 'guide' : 'guides'}
+            {!loading && <>{blogs.length} {blogs.length === 1 ? 'guide' : 'guides'}</>}
           </p>
         </div>
 
@@ -128,9 +129,9 @@ export const BlogListPage: React.FC = () => {
 
         {/* ARTICLES GRID */}
         {loading ? (
-          <div className="p-16 text-center text-xs text-[var(--text-muted)]">
-            Loading verified dispatches...
-          </div>
+          <SkeletonGroup label="Loading guides" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[0, 1, 2].map((i) => <Skeleton key={i} className="h-96 rounded-xl" />)}
+          </SkeletonGroup>
         ) : filteredBlogs.length === 0 ? (
           <div className="p-12 text-center bg-[var(--surface)] border border-[var(--line)] rounded-[var(--r-md)] shadow-hard-sm space-y-3">
             <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />

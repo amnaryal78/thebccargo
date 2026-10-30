@@ -1,6 +1,7 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from './Button';
+import { Skeleton, SkeletonGroup } from './Skeleton';
 
 /** Inline spinner for buttons and small areas. Prefer Skeleton when the shape of the content is known. */
 export const Spinner: React.FC<{ className?: string; label?: string }> = ({ className = 'size-5', label = 'Loading' }) => (
@@ -10,12 +11,11 @@ export const Spinner: React.FC<{ className?: string; label?: string }> = ({ clas
   </span>
 );
 
-/** Whole-area loading: spinner plus what is loading, so the wait has a name. */
+/** Whole-area loading: placeholder rows, only visible when the wait is long enough to notice. */
 export const LoadingState: React.FC<{ label: string; className?: string }> = ({ label, className = '' }) => (
-  <div className={`flex items-center justify-center gap-3 py-12 text-[var(--text-muted)] ${className}`}>
-    <Spinner label={label} />
-    <span className="text-[15px]" aria-hidden="true">{label}</span>
-  </div>
+  <SkeletonGroup label={label} className={`space-y-3 py-4 ${className}`}>
+    {[0, 1, 2].map((i) => <Skeleton key={i} className="h-12 w-full" />)}
+  </SkeletonGroup>
 );
 
 export interface ErrorStateProps {

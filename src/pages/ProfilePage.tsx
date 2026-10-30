@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { Loader2, Phone, Mail, CalendarDays, MapPin, Pencil, Check, X, Package, PackageCheck, CalendarRange } from 'lucide-react';
+import { Skeleton, SkeletonGroup } from '../design/primitives/Skeleton';
 import {
   fetchMyAccountProfile,
   fetchMyLocation,
@@ -176,7 +177,10 @@ export const ProfilePage: React.FC = () => {
       <SEOHead title="My profile | The BC Cargo" description="Your profile and order summary." noindex />
       <div className={`${isReseller ? 'max-w-4xl' : 'max-w-xl'} mx-auto space-y-5`}>
         {loading ? (
-          <div className="flex justify-center py-16" aria-busy="true"><Loader2 className="w-6 h-6 animate-spin text-[var(--ox-900)]" /></div>
+          <SkeletonGroup label="Loading your profile" className="rounded-3xl bg-white shadow-[var(--shadow-hard-sm)] p-6 space-y-4">
+            <div className="flex items-center gap-4"><Skeleton variant="circle" width={72} /><Skeleton className="h-7 flex-1" /></div>
+            {[0, 1, 2].map((i) => <Skeleton key={i} className="h-11 w-full" />)}
+          </SkeletonGroup>
         ) : (
           <section aria-labelledby="profile-h" className="rounded-3xl bg-white shadow-[var(--shadow-hard-sm)] overflow-hidden">
             <div className="px-5 sm:px-6 pt-6 pb-5 bg-[var(--ox-50)] mb-1">

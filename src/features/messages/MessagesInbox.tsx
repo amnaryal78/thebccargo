@@ -296,7 +296,7 @@ export const MessagesInbox: React.FC = () => {
                 <span className="w-16 h-16 mx-auto rounded-full bg-[#EEF3F9] grid place-items-center">
                   <MessageCircle className="w-8 h-8 text-ox-900" aria-hidden="true" />
                 </span>
-                <p className="mt-3 font-heading font-bold text-ox-900">{loading ? 'Loading chats' : threads.length ? 'Pick a chat' : 'No chats yet'}</p>
+                <p className="mt-3 font-heading font-bold text-ox-900">{loading ? 'Getting your chats' : threads.length ? 'Pick a chat' : 'No chats yet'}</p>
                 <p className="text-sm text-slate-500">
                   {threads.length ? 'Choose a conversation on the left to read and reply.' : 'When a customer messages from the website, it shows up here instantly.'}
                 </p>

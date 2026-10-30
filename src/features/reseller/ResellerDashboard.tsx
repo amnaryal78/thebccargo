@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Loader2, Package, Scale, Wallet, Hourglass, AlertCircle, RefreshCw } from 'lucide-react';
+import { Package, Scale, Wallet, Hourglass, AlertCircle, RefreshCw } from 'lucide-react';
+import { Skeleton, SkeletonGroup } from '../../design/primitives/Skeleton';
 import { fetchMyResellerOrders } from '../../services/accountService';
 import { byMonth, formatKg, formatNpr, monthKey, summarize, type ResellerOrder } from './commission';
 
@@ -64,9 +65,9 @@ export const ResellerDashboard: React.FC = () => {
 
   if (orders === null) {
     return (
-      <section aria-busy="true" aria-label="Loading your orders" className="p-5 rounded-3xl bg-white shadow-[var(--shadow-hard-sm)] flex justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-[var(--ox-900)]" />
-      </section>
+      <SkeletonGroup label="Loading your orders" className="p-5 rounded-3xl bg-white shadow-[var(--shadow-hard-sm)] space-y-3">
+        {[0, 1, 2].map((i) => <Skeleton key={i} className="h-16 w-full" />)}
+      </SkeletonGroup>
     );
   }
 

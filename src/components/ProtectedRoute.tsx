@@ -4,6 +4,7 @@ import { ShieldAlert } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { isSupabaseConfigured } from '../lib/supabaseConfig';
 import { AccessRestricted } from './AccessRestricted';
+import { RouteSkeleton } from './RouteSkeleton';
 
 interface ProtectedRouteProps {
   children?: ReactNode;
@@ -38,12 +39,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminO
   }
 
   if (loading) {
-    return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3">
-        <div className="w-9 h-9 border-3 border-ox-900 border-t-transparent rounded-full animate-spin" />
-        <span className="text-sm text-slate-500">Checking access…</span>
-      </div>
-    );
+    return <RouteSkeleton />;
   }
 
   // 1. Not Authenticated -> Redirect to /login preserving intended destination

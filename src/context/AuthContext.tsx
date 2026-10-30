@@ -107,8 +107,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (isSupabaseConfigured) {
       loadSupabase().then((supabase) => {
         if (!isMounted) return;
-        const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-          if (isMounted) {
+        const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+          // initAuth already evaluates the initial session; a second run would repeat the role lookup.
+          if (isMounted && event !== 'INITIAL_SESSION') {
             setSession(newSession);
             await evaluateAuthorization(newSession);
             setLoading(false);

@@ -105,6 +105,10 @@ export function useEstimatorData() {
 
     setLoading(true);
     try {
+      // Start the slower lookups together so they do not queue behind the sheet rates.
+      const intlPromise = fetchInternationalRates();
+      intlPromise.catch(() => {}); // still surfaces at the await below
+
       // 1. Fetch live Google Sheet rates via Supabase Edge Function
       const sheetPayload = await fetchSheetRates();
       if (sheetPayload.rates && sheetPayload.rates.length > 0) {
@@ -119,7 +123,7 @@ export function useEstimatorData() {
       }
 
       // 2. Fetch legacy international rates for components needing them
-      const intlData = await fetchInternationalRates();
+      const intlData = await intlPromise;
 
       let rulesData = DEFAULT_HANDLING_RULES;
       let settingsData = INITIAL_RATE_SETTINGS;
@@ -127,10 +131,10 @@ export function useEstimatorData() {
       // 3. Fetch handling_rules and rate_settings from Supabase if configured
       if (isSupabaseConfigured) {
         try {
-          const { data: hrRows, error: hrError } = await supabase
-            .from('handling_rules')
-            .select('*')
-            .eq('active', true);
+          const [{ data: hrRows, error: hrError }, { data: stRows, error: stError }] = await Promise.all([
+            supabase.from('handling_rules').select('*').eq('active', true),
+            supabase.from('rate_settings').select('*'),
+          ]);
 
           if (!hrError && hrRows && hrRows.length > 0) {
             rulesData = hrRows.map((r: any) => ({
@@ -146,10 +150,6 @@ export function useEstimatorData() {
               active: Boolean(r.active),
             }));
           }
-
-          const { data: stRows, error: stError } = await supabase
-            .from('rate_settings')
-            .select('*');
 
           if (!stError && stRows && stRows.length > 0) {
             const settingsMap: Record<string, any> = {};

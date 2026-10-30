@@ -1,0 +1,7 @@
+/* Stays invisible but keeps its space, so fast responses never flash a skeleton and nothing shifts on slow ones. */
+.bc-skeleton-group {
+  animation: bc-skeleton-in 0.15s ease both;
+}
+@keyframes bc-skeleton-in {
+  from { opacity: 0; }
+}

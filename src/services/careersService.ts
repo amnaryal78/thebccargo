@@ -59,8 +59,16 @@ export const fetchJobs = async (): Promise<JobPosting[]> => {
   return [];
 };
 
+let publicJobs: { at: number; list: Promise<JobPosting[]> } | null = null;
+
+/** Public careers pages share one list for a minute, so opening a job does not refetch. Admin uses fetchJobs. */
+export const fetchPublicJobs = (): Promise<JobPosting[]> => {
+  if (!publicJobs || Date.now() - publicJobs.at > 60_000) publicJobs = { at: Date.now(), list: fetchJobs() };
+  return publicJobs.list;
+};
+
 export const getJobBySlug = async (slug: string): Promise<JobPosting | undefined> => {
-  const jobs = await fetchJobs();
+  const jobs = await fetchPublicJobs();
   return jobs.find((j) => j.slug.toLowerCase() === slug.toLowerCase());
 };
 

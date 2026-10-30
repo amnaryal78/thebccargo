@@ -179,7 +179,18 @@ export function generateSlug(title: string): string {
 // ASYNC SUPABASE & LOCALSTORAGE BACKED DATA ACCESS
 // ============================================================================
 
-export async function fetchPublishedBlogs(): Promise<BlogPost[]> {
+const PUBLIC_LIST_TTL_MS = 60_000;
+let publishedBlogs: { at: number; list: Promise<BlogPost[]> } | null = null;
+
+/** Shared by the home page, blog list and article pages, so moving between them does not refetch. */
+export function fetchPublishedBlogs(): Promise<BlogPost[]> {
+  if (!publishedBlogs || Date.now() - publishedBlogs.at > PUBLIC_LIST_TTL_MS) {
+    publishedBlogs = { at: Date.now(), list: loadPublishedBlogs() };
+  }
+  return publishedBlogs.list;
+}
+
+async function loadPublishedBlogs(): Promise<BlogPost[]> {
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase

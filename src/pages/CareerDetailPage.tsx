@@ -28,6 +28,8 @@ const APPLICATION_STEPS = [
   { id: 'step-review', label: '3. Check and send' },
 ];
 
+import { RouteSkeleton } from '../components/RouteSkeleton';
+
 export const CareerDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
 
@@ -172,11 +174,7 @@ export const CareerDetailPage: React.FC = () => {
   };
 
   if (loadingJob) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <p className="text-xs text-[var(--text-muted)]">Loading vacancy parameters...</p>
-      </div>
-    );
+    return <RouteSkeleton />;
   }
 
   if (!job || !job.published) {

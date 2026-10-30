@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Check, EyeOff, Star, Trash2 } from 'lucide-react';
+import { LoadingState } from '../../../design/primitives/Feedback';
 import { supabase } from '../../../lib/supabase';
 import { friendlyError } from '../friendlyError';
 import { useAdminNotifications } from '../notifications/NotificationsContext';
@@ -79,7 +80,7 @@ export const FeedbackTab: React.FC = () => {
         <p className="text-sm opacity-70">New feedback stays hidden until you approve it.</p>
       </div>
       {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
-      {loading && <p className="text-sm opacity-70">Loading…</p>}
+      {loading && <LoadingState label="Loading feedback" />}
       {!loading && rows.length === 0 && <p className="text-sm opacity-70">No feedback yet.</p>}
 
       <ul className="flex flex-col gap-3">

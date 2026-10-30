@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
+import { LoadingState } from '../../../design/primitives/Feedback';
 import { fetchSheetRates, SheetRateItem } from '../../../services/ratesService';
 import { Button } from '../../../design/primitives';
 import { sourceWords } from '../overview/AdminOverviewTab';
@@ -40,7 +41,7 @@ export const SheetRatesGrid: React.FC = () => {
     return { weights, groups: [...byGroup.entries()].sort((a, b) => a[1].name.localeCompare(b[1].name)) };
   }, [rates]);
 
-  if (loading && !meta) return <div className="p-10 text-center text-xs text-slate-500">Loading live rates...</div>;
+  if (loading && !meta) return <LoadingState label="Loading live rates" />;
   if (error) return <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs">{error}</div>;
 
   const th = 'py-3 px-3 text-right whitespace-nowrap';

@@ -9,7 +9,6 @@ import {
   MessageSquare, 
   ExternalLink,
   ShieldCheck,
-  RefreshCw,
   Phone,
   HelpCircle,
   Clock,
@@ -42,7 +41,6 @@ const SECTION_ICONS: Record<string, React.ElementType> = {
 
 export const HowToShipPage: React.FC = () => {
   const [data, setData] = useState<HowToShipData>(DEFAULT_HOW_TO_SHIP);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -58,10 +56,6 @@ export const HowToShipPage: React.FC = () => {
       } catch (err: any) {
         if (isMounted) {
           setError(err?.message || 'Unable to sync with live database.');
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
         }
       }
     }
@@ -174,13 +168,6 @@ export const HowToShipPage: React.FC = () => {
       {/* The guide, one step at a time */}
       <div className="bg-[#EEF3FA] px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
         <div className="max-w-4xl mx-auto space-y-10">
-          {loading && (
-            <p className="flex items-center justify-center gap-2 text-sm text-slate-600 py-2" role="status">
-              <RefreshCw className="w-4 h-4 text-gd-500 animate-spin" aria-hidden="true" />
-              <span>Checking for the latest guide…</span>
-            </p>
-          )}
-
           {error && (
             <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm flex items-center gap-2" role="status">
               <Info className="w-4 h-4 text-amber-600 shrink-0" aria-hidden="true" />

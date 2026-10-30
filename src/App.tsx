@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useLayoutEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -10,8 +10,8 @@ import { Footer } from './components/Footer';
 import { CustomCursor } from './components/CustomCursor';
 import { AndroidBottomNav } from './components/AndroidBottomNav';
 import { StickyContactButtons } from './components/StickyContactButtons';
-import { RouteLoader } from './components/RouteLoader';
-import { BootSignal } from './boot/BootSignal';
+import { RouteSkeleton } from './components/RouteSkeleton';
+import { RouteErrorBoundary } from './components/RouteErrorBoundary';
 
 // Code-Split Lazy Loaded Page & Section Components for Core Web Vitals Optimization
 // DEV ONLY: see the admin as a role without signing in (src/dev/AdminPreview.tsx). Not in production builds.
@@ -101,9 +101,18 @@ function AppContent() {
 
   const isAdminRoute = location.pathname.startsWith('/admin');
 
+  // First commit: React now owns the page, so drop the static shell before the browser paints.
+  useLayoutEffect(() => {
+    document.getElementById('bc-shell')?.remove();
+    document.documentElement.classList.remove('bc-booting');
+  }, []);
+
+  // A new boundary per page shows the skeleton on a slow navigation instead of freezing the old page.
+  // Admin keeps one boundary so its shell does not remount on every tab change.
+  const boundaryKey = isAdminRoute && location.pathname !== '/admin/login' ? 'admin' : location.pathname;
+
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg,#F6F6F4)] text-[var(--text,#121211)] transition-colors">
-      <BootSignal mark="app" />
       {!isAdminRoute && (
         <a
           href="#main"
@@ -123,7 +132,8 @@ function AppContent() {
       )}
 
       <main id="main" tabIndex={-1} className={`flex-1 outline-none ${!isAdminRoute ? 'pt-[calc(6rem+env(safe-area-inset-top,0px))] pb-20 lg:pb-0' : ''}`}>
-        <Suspense fallback={<RouteLoader />}>
+        <RouteErrorBoundary key={boundaryKey}>
+        <Suspense fallback={<RouteSkeleton />}>
           <Routes>
             <Route
               path="/"
@@ -237,8 +247,8 @@ function AppContent() {
             {/* Fallback 404 Route */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
-          <BootSignal mark="route" />
         </Suspense>
+        </RouteErrorBoundary>
       </main>
 
       {!isAdminRoute && <Footer onNavigate={handleNavigate} />}

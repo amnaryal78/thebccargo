@@ -3,7 +3,11 @@
 Purpose: durable, low-token project memory for coding-agent sessions. Keep entries concise and factual. Newest entry goes first. Never store secrets, personal data, or raw environment files.
 
 
-## 2026-10-30 Admin phase 1 (security) on branch admin-redesign
+## 2026-10-30 Network-driven loading (no fixed loading screen)
+- Removed the #bc-boot overlay, src/boot/*, RouteLoader and tests/boot-progress.test.ts. index.html now has a static #bc-shell skeleton that fades in only after 500ms and is removed on React's first commit; if the entry script fails or 15s pass it shows a Reload message.
+- Route Suspense fallback is RouteSkeleton (shape chosen by routeSkeletonKind) behind a keyed RouteErrorBoundary; skeletons wait 300ms before showing (SkeletonGroup). Page spinners/"Loading..." text replaced with skeletons; LoadingState is now skeleton rows.
+- Fewer requests: blog list and public careers cached 60s and shared; estimator queries run in parallel; AuthContext skips the duplicate INITIAL_SESSION run.
+- Checked on the production build (port 3100, port 3000 held by another session): warm cache shows no skeleton on 12 routes; slow/flaky runs and a blocked entry script behave. tests/loading-shell.test.ts added.
 - 5 new migrations (user_roles super_admin-only + last-super-admin guard, server-set audit actor, shipment/tracking audit triggers, public insert defaults + per-email flood limit, notifications by role). Verified in rolled-back transactions, then APPLIED to live on owner approval (22/22 post-apply checks pass). Client shipment audit calls removed (triggers replace them). tests/security-phase1.test.ts added.
 
 ## 2026-10-30 Design foundation (brand #0B2D63 / #F2B632)

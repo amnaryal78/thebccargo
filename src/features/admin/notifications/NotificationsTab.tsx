@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCheck, Mail, MailOpen, Trash2 } from 'lucide-react';
+import { LoadingState } from '../../../design/primitives/Feedback';
 import { useAdminNotifications } from './NotificationsContext';
 import { KIND_META, timeAgo } from './notificationMeta';
 
@@ -46,7 +47,7 @@ export const NotificationsTab: React.FC = () => {
       </div>
 
       {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
-      {loading && <p className="text-sm opacity-70">Loading…</p>}
+      {loading && <LoadingState label="Loading notifications" />}
       {!loading && shown.length === 0 && <p className="text-sm opacity-70">Nothing here.</p>}
 
       <ul className="flex flex-col gap-2">

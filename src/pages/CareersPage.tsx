@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Briefcase, Clock, MapPin, ArrowRight, Mail } from 'lucide-react';
-import { fetchJobs, JobPosting } from '../services/careersService';
+import { fetchPublicJobs, JobPosting } from '../services/careersService';
+import { Skeleton, SkeletonGroup } from '../design/primitives/Skeleton';
 import { SEOHead } from '../components/SEOHead';
 import { Button } from '../design/primitives/Button';
 import { Spotlight } from '../components/ui/spotlight';
@@ -13,7 +14,7 @@ export const CareersPage: React.FC = () => {
 
   useEffect(() => {
     let alive = true;
-    fetchJobs()
+    fetchPublicJobs()
       .then((list) => {
         if (alive) setJobs(list.filter((j) => j.published));
       })
@@ -38,7 +39,11 @@ export const CareersPage: React.FC = () => {
           <p className="text-[17px] leading-relaxed text-[var(--text-muted)] max-w-xl">Work with us at BC Cargo. See our open jobs below.</p>
         </header>
 
-        {loading && <p className="text-sm text-[var(--text-muted)]">Loading jobs…</p>}
+        {loading && (
+          <SkeletonGroup label="Loading jobs" className="space-y-4">
+            {[0, 1, 2].map((i) => <Skeleton key={i} className="h-32 rounded-[var(--r-md)]" />)}
+          </SkeletonGroup>
+        )}
 
         {!loading && jobs.length === 0 && (
           <div className="p-8 bg-[var(--surface)] border border-[var(--line)] rounded-[var(--r-md)] flex flex-col items-start gap-3">

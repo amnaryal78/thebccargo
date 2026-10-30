@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { LoadingState } from '../../../design/primitives/Feedback';
 import {
   BookOpen,
   Save,
@@ -138,12 +139,7 @@ export const HowToShipAdminTab: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="py-20 flex flex-col items-center justify-center gap-3">
-        <RefreshCw className="w-8 h-8 text-gd-500 animate-spin" />
-        <span className="text-xs font-mono text-slate-500">Loading How to Ship CMS data...</span>
-      </div>
-    );
+    return <LoadingState label="Loading the shipping guide" />;
   }
 
   return (
